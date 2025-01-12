@@ -1,3 +1,4 @@
+
 # 新增一种组件的流程
 
 1. config/elements.js 中 配置组件类型
