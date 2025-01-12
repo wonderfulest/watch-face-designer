@@ -1,0 +1,93 @@
+import { defineStore } from 'pinia';
+import { useBaseStore } from '../base';
+import { useLayerStore } from '../layerStore';
+import { nanoid } from 'nanoid';
+import moment from 'moment';
+import { FabricText } from 'fabric';
+
+export const useDateStore = defineStore('dateElement', {
+    state: () => {
+        const baseStore = useBaseStore();
+        const layerStore = useLayerStore();
+        
+        return {
+            dateElements: [],
+            baseStore,
+            layerStore,
+        }
+    },
+
+    actions: {
+        formatDate(date, format) {
+            return moment(date).format(format);
+        },
+
+        async addElement(options = {}) {
+            if (!this.baseStore.canvas) {
+                throw new Error('画布未初始化，无法添加日期元素');
+            }
+
+            try {
+                const elementId = nanoid();
+                let text = this.formatDate(new Date(), options.formatter || 'ddd, MMM D');
+                const attr = {
+                    eleType: 'date',
+                    id: elementId,
+                    left: options.left,
+                    top: options.top,
+                    originX: options.originX || 'center',
+                    originY: options.originY || 'center',
+                    fontSize: options.size || 36,
+                    fill: options.color || '#FFFFFF',
+                    fontFamily: options.font || 'Arial',
+                    formatter: options.formatter || 'ddd, MMM D',
+                    selectable: true,
+                    hasControls: true,
+                    hasBorders: true,
+                }
+                // 创建文本对象
+                const element = new FabricText(text, attr);
+
+                this.baseStore.canvas.add(element);
+                
+                // 添加到图层 store
+                const layer = this.layerStore.addLayer(element);
+
+                // 设置为当前选中对象
+                this.baseStore.canvas.setActiveObject(element);
+
+                this.baseStore.canvas.renderAll();
+
+                return element;
+            } catch (error) {
+                console.error('创建日期元素失败:', error);
+                throw error;
+            }
+        },
+
+        encodeConfig(element) {
+            if (!element) {
+                throw new Error('无效的元素');
+            }
+            return {
+                type: 'date',
+                x: Math.round(element.left),
+                y: Math.round(element.top),
+                originX: element.originX,
+                originY: element.originY,
+                font: element.fontFamily || "",
+                size: element.fontSize || 36,
+                color: element.fill || "",
+                formatter: element.formatter || 0
+            };
+        },
+        decodeConfig(config) {
+            const decodedConfig = {
+                left: config.x,
+                top: config.y,
+                ...config,
+            };
+            return decodedConfig;
+        }
+    }
+});

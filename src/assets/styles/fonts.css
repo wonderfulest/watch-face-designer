@@ -1,0 +1,8 @@
+@font-face {
+    font-family: 'super-regular';
+    src: url('/src/assets/fonts/super-regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+} 
+

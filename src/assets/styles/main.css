@@ -1,0 +1,60 @@
+:root {
+
+  --font-size: 16px;
+
+  /* 主题基础色 */
+  --color-primary: #3A76FB;
+  --color-primary-light-1: #F5FAFF; /* 主色浅色版本-1 */
+  --color-primary-light-3: #639FFB;
+  --color-primary-light-5: #8CB8FF;
+  --color-primary-light-7: #B5D4FF;
+  --color-primary-light-8: #DCE8FF;
+  --color-primary-light-9: #F5FAFF;
+  --color-primary-dark-2: #2657D4; /* 主色深色版本 */
+
+  /* 功能色 */
+  --color-success: #21BD70;
+  --color-warning: #F09F00;
+  --color-danger: #FF4D4F;
+  --color-error: #FF4D4F;
+  --color-info: #909399;
+
+  /* 中性色 */
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --bg-color: #fff;
+  --bg-color-page: #fff;
+  --bg-color-overlay: #FFFFFF;
+  
+  /* 边框颜色 */
+  --border-color: #DCE8FF;
+  --border-color-light: var(--color-primary-light-8);
+  --border-color-lighter: #F5FAFF;
+  --border-color-extra-light: #F5FAFF;
+  
+  /* 填充色 */
+  --fill-color: #F5FAFF;
+  --fill-color-light: #F5FAFF;
+  --fill-color-lighter: #F5FAFF;
+  --fill-color-extra-light: #F5FAFF;
+  --fill-color-dark: #DCE8FF;
+  --fill-color-darker: #B5D4FF;
+  
+  /* 文本颜色 */
+  --text-color-primary: #222934;
+  --text-color-regular: #616E81;
+  --text-color-secondary: #909399;
+  --text-color-placeholder: #B4BCC9;
+  --text-color-disabled: #C0C4CC;
+
+
+  font-family: Arial, sans-serif;
+  font-weight: 400;
+
+  color-scheme: light dark;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
