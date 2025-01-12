@@ -4,12 +4,15 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [vue()],
+  base: '/', // Ensure base URL is set to root
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      vue: 'vue/dist/vue.esm-bundler.js', // 使用包含模板编译器的版本
+      vue: 'vue/dist/vue.esm-bundler.js',
     }
   },
-  // 添加以下配置来处理字体文件
+  server: {
+    historyApiFallback: true, // Enable history mode routing support
+  },
   assetsInclude: ['**/*.woff2']
-}) 
+})
