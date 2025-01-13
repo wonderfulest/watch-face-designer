@@ -252,10 +252,8 @@ const updatePosition = () => {
 };
 
 const updateMetricType = () => {
-
     if (!props.element || !baseStore.canvas) return;
     props.element.set('metricSymbol', metricSymbol.value);
-    console.log('updateMetricType', metricSymbol.value);
     const metric = getMetricBySymbol(metricSymbol.value);
     const textElement = getElementByType('badge-text');
     if (textElement) {

@@ -184,7 +184,6 @@ const updateElement = () => {
     fill: fill.value,
     stroke: stroke.value,
   }
-  console.log('update Circle Element', opt);
   props.element.set(opt);
   props.element.setCoords();
   baseStore.canvas.renderAll();

@@ -44,7 +44,6 @@ export const useIconStore = defineStore('iconElement', {
                     metricSymbol: metric.metricSymbol,
                 }
                
-                console.log(iconOptions, metric.icon, options.iconFontFamily, metric.icon);
                 // 创建文本对象
                 const element = new FabricText(metric.icon, iconOptions);
 

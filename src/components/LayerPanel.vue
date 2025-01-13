@@ -160,7 +160,7 @@ const sortElements = () => {
 const updateElements = () => {
   elements.value = baseStore.canvas.getObjects();
   activeElements.value = baseStore.canvas.getActiveObjects();
-  console.log('activeElements', activeElements.value);
+  
   sortElements(); // 更新元素后重新排序
 };
 

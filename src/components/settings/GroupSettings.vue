@@ -1,6 +1,7 @@
 <template>
     <div class="settings-group">
         <h3>数据组设置</h3>
+        <div>{{ props.elements[0].metricGroup }}</div>
         <div class="setting-item" v-if="mayMetricGroup">
             <label>作为数据组</label>
             <el-switch
@@ -33,7 +34,7 @@
                 </button>
             </div>
         </div>
-        <div class="setting-item">
+        <div class="setting-item" v-if="isSameTypeLayer">
             <label>字体大小</label>
             <select v-model.number="fontSize" @change="updateFontSize">
                 <option v-for="size in fontSizes" :key="size" :value="size">
@@ -41,7 +42,7 @@
                 </option>
             </select>
         </div>
-        <div class="setting-item">
+        <div class="setting-item" v-if="isSameTypeLayer">
             <label>字体颜色</label>
             <color-picker 
                 v-model="textColor"
@@ -88,10 +89,10 @@ const getElementByType = (type) => {
 
 // 设置项的响应式状态
 const groupElement = props.elements;
-const iconElement = getElementByType('icon');
-const dataElement = getElementByType('data');
-const labelElement = getElementByType('label');
-const progressRingElement = getElementByType('progressRing');
+const iconElement = computed(() => getElementByType('icon'));
+const dataElement = computed(() => getElementByType('data'));
+const labelElement = computed(() => getElementByType('label'));
+const progressRingElement = computed(() => getElementByType('progressRing'));
 
 const isMetricGroup = ref(false);
 const isGoalGroup = ref(false);
@@ -101,7 +102,7 @@ const fontFamily = ref(props.elements[0].fontFamily || 'Arial');
 const positionX = ref(Math.round(props.elements[0].left || 0));
 const positionY = ref(Math.round(props.elements[0].top || 0));
 const originX = ref(props.elements[0].originX || 'center');
-const metricSymbol = ref(dataElement.metricSymbol || ':FIELD_TYPE_HEART_RATE');
+const metricSymbol = ref(dataElement.value?.metricSymbol || ':FIELD_TYPE_HEART_RATE');
 
 onMounted(async () => {
     let firstMetricGroup;
@@ -173,17 +174,16 @@ const updateOriginX = (originX) => {
 };
 
 const updateMetricType = () => {
-    console.log('updateMetricType');
     const metric = getMetricBySymbol(metricSymbol.value)
     for (let element of props.elements) {
         element.set({
             'metricSymbol': metric.metricSymbol,
         });
     }
-    iconElement && iconElement.set('text', metric.icon);
-    dataElement && dataElement.set('text', metric.defaultValue);
-    labelElement && labelElement.set('text', metric.enLabel);
-    progressRingElement && progressRingElement.set('text', metric.defaultValue);
+    iconElement.value && iconElement.value.set('text', metric.icon);
+    dataElement.value && dataElement.value.set('text', metric.defaultValue);
+    labelElement.value && labelElement.value.set('text', metric.enLabel);
+    progressRingElement.value && progressRingElement.value.set('text', metric.defaultValue);
 
     baseStore.canvas.renderAll();
 };

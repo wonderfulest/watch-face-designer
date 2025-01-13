@@ -19,7 +19,7 @@ export const useLayerStore = defineStore('layerStore', {
   // actions
   actions: {
     addLayer(element) {
-      console.log('添加图层', element);
+      
       if (!element) {
         console.error('无效的元素');
         return;

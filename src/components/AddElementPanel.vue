@@ -67,7 +67,6 @@ const getCategoryLabel = (category) => {
 };
 
 const addElement = (category, type, config) => {
-    console.log('添加元素', category, type, config);
     try {
         switch(category) {
             case 'basic':

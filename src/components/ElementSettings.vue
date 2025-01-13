@@ -50,11 +50,12 @@ const elements = ref([]);
 const activeElements = ref([]);
 
 const updateElements = () => {
-    // console.log('更新设置区元素');
     elements.value = baseStore.canvas.getObjects();
     activeElements.value = baseStore.canvas.getActiveObjects();
+    console.log('updateElements', activeElements.value)
 };
-const debouncedUpdateElements = debounce(updateElements, 500);
+
+const debouncedUpdateElements = debounce(updateElements, 300);
 
 onMounted(() => {
     debouncedUpdateElements();
@@ -67,10 +68,10 @@ onUnmounted(() => {
    emitter.off('refresh-canvas')
 });
 
-watch(activeElements, (newValue, oldValue) => {
-  // 在这里添加你的逻辑，比如响应 `activeElements` 的变化
-  debouncedUpdateElements();
-});
+// watch(activeElements, (newValue, oldValue) => {
+//   // 在这里添加你的逻辑，比如响应 `activeElements` 的变化
+//   debouncedUpdateElements();
+// });
 
 // 获取元素图标
 const getElementIcon = (type) => {

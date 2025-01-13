@@ -4,6 +4,7 @@ import { useLayerStore } from '../layerStore'
 import { getFontSizeByStep } from '@/config/settings'
 import { ActiveSelection } from 'fabric'
 import { nanoid } from 'nanoid'
+import emitter from '@/utils/eventBus'
 
 export const useBaseElementStore = defineStore('baseElement', {
   state: () => {
@@ -91,14 +92,22 @@ export const useBaseElementStore = defineStore('baseElement', {
       // clone again, so you can do multiple copies.
       const clonedObj = await this._clipboard.clone()
       canvas.discardActiveObject()
-    
       clonedObj.set({
-        id: nanoid(),
-        eleType: clonedObj.eleType,
-        left: clonedObj.left + 10,
-        top: clonedObj.top + 10,
+        left: clonedObj.left + 20,
+        top: clonedObj.top + 20,
         evented: true,
       })
+      console.log('clonedObj', clonedObj._objects)
+      const newMetricGroup = nanoid()
+      for (const obj of clonedObj._objects) {
+        const changed = {
+          id: nanoid(),
+          eleType: obj.eleType,
+        }
+        if (obj.metricGroup) changed.metricGroup = newMetricGroup
+        if (obj.metricSymbol) changed.metricSymbol = obj.metricSymbol
+        obj.set(changed)
+      }
       if (clonedObj instanceof ActiveSelection) {
         // active selection needs a reference to the canvas.
         clonedObj.canvas = canvas;
@@ -110,10 +119,13 @@ export const useBaseElementStore = defineStore('baseElement', {
       } else {
         canvas.add(clonedObj);
       }
-      this._clipboard.top += 10;
-      this._clipboard.left += 10;
+      this._clipboard.top += 20;
+      this._clipboard.left += 20;
 
+      // 添加到图层
       this.layerStore.addLayer(clonedObj);
+      // 设置区同步
+      emitter.emit('refresh-canvas');
 
       canvas.setActiveObject(clonedObj);
       canvas.requestRenderAll();

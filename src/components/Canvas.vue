@@ -1,11 +1,4 @@
 <template>
-    <!-- <div class="canvas-wrapper">
-        <div class="zoom-controls">
-            <button @click="zoomOut">-</button>
-            <span>{{ Math.round(zoomLevel * 100) }}%</span>
-            <button @click="zoomIn">+</button>
-        </div>
-    </div> -->
     <canvas ref="canvasRef"></canvas>
 </template>
 
@@ -25,7 +18,7 @@ const layerStore = useLayerStore();
 let updateInterval;
 const WATCH_SIZE = computed(() => baseStore.WATCH_SIZE);
 
-FabricObject.customProperties = ['id', 'eleType'];
+FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup'];
 
 onMounted(() => {
 

@@ -214,7 +214,6 @@ const updateElement = () => {
     rx: borderRadius.value,
     ry: borderRadius.value
   }
-  console.log('update Rect Element', opt);
   props.element.set(opt);
   props.element.setCoords();
   baseStore.canvas.renderAll();

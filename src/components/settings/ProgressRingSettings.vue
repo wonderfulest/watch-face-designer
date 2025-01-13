@@ -159,7 +159,7 @@ watch(
     color.value = mainRing.value.stroke;
     bgColor.value = bgRing.value.stroke;
     metricSymbol.value = props.element.metricSymbol;
-    console.log('watch props.element', startAngle.value, endAngle.value);
+    
   },
   { immediate: true }
 );
@@ -198,7 +198,7 @@ const updateElement = () => {
     originY: "center",
   });
 
-  console.log('updateElement', startAngle.value, middleAngle, endAngle.value);
+  
   // 计算组的新尺寸（考虑线宽）
   const size = (radius.value + strokeWidth.value / 2) * 2;
 

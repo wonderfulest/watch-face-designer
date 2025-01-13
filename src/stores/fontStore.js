@@ -35,7 +35,6 @@ export const useFontStore = defineStore('font', {
                 this.fonts = response.data.data;
                 this.error = null;
             } catch (err) {
-                console.error('Error fetching fonts:', err);
                 this.error = err.message;
             } finally {
                 this.loading = false;
@@ -43,7 +42,6 @@ export const useFontStore = defineStore('font', {
         },
 
         async loadFont(fontName) {
-            (`Loading font: ${fontName}`);
             if (!fontName) return null;
             
             if (this.loadedFonts.has(fontName)) {
@@ -52,7 +50,6 @@ export const useFontStore = defineStore('font', {
 
             const font = this.fonts.find(f => f.attributes.name === fontName);
             if (!font || !font.attributes.woff2?.data?.attributes?.url) {
-                console.warn(`Font ${fontName} not found or missing woff2 URL`);
                 return false;
             }
 
@@ -61,7 +58,7 @@ export const useFontStore = defineStore('font', {
                     fontName,
                     `url(${font.attributes.woff2.data.attributes.url})`
                 );
-                (`Load fontFace: ${fontName}, ${font.attributes.woff2.data.attributes.url}`);
+
                 // Wait for font to load
                 await fontFace.load();
 
@@ -73,17 +70,14 @@ export const useFontStore = defineStore('font', {
 
                 // 等待字体实际可用
                 await document.fonts.ready;
-                (`Font ${fontName} 111111 loaded and available: `);
                 if (fontName.startsWith('wonder')) { // 图标字体，不需要再次确认
                     return true
                 }
                 // 再次确认字体是否可用
                 const isAvailable = document.fonts.check(`12px ${fontName}`);
-                (`Font ${fontName} loaded and available: ${isAvailable}`);
                 return isAvailable;
 
             } catch (err) {
-                console.error(`Error loading font ${fontName}:`, err);
                 return false;
             }
         },
@@ -120,14 +114,12 @@ export const useFontStore = defineStore('font', {
                 }
             });
 
-            ('Fonts to load:', Array.from(fontsToLoad));
-
             // Load all fonts in parallel
             try {
                 const results = await Promise.all(
                     Array.from(fontsToLoad).map(async fontName => {
                         const success = await this.loadFont(fontName);
-                        this.addRecentFont(fontName); // Add font to recent fonts
+                        this.addRecentFont({ label: fontName, value: fontName }); // Add font to recent fonts
                         return { fontName, success };
                     })
                 );
@@ -135,17 +127,14 @@ export const useFontStore = defineStore('font', {
                 // Check if all fonts loaded successfully
                 const failedFonts = results.filter(r => !r.success).map(r => r.fontName);
                 if (failedFonts.length > 0) {
-                    ('Failed to load fonts:', failedFonts);
                     this.error = `Failed to load fonts: ${failedFonts.join(', ')}`;
                     this.allFontsLoaded = false;
                     return false;
                 }
 
-                ('All fonts loaded successfully');
                 this.allFontsLoaded = true;
                 return true;
             } catch (err) {
-                console.error('Error loading fonts:', err);
                 this.error = err.message;
                 this.allFontsLoaded = false;
                 return false;
@@ -153,17 +142,17 @@ export const useFontStore = defineStore('font', {
         },
 
         // 添加最近使用的字体
-        addRecentFont(fontName) {
-            if (!fontName) return;
+        addRecentFont(font) {
+            if (!font || !font.value) return;
             
             // 从现有列表中移除这个字体（如果存在）
-            const index = this.recentFonts.indexOf(fontName);
+            const index = this.recentFonts.findIndex(f => f.value === font.value);
             if (index > -1) {
                 this.recentFonts.splice(index, 1);
             }
             
             // 添加到列表开头
-            this.recentFonts.unshift(fontName);
+            this.recentFonts.unshift(font);
             
             // 只保留最近的 5 个字体
             if (this.recentFonts.length > 5) {
@@ -178,7 +167,11 @@ export const useFontStore = defineStore('font', {
         loadRecentFonts() {
             const savedFonts = localStorage.getItem('recentFonts');
             if (savedFonts) {
-                this.recentFonts = JSON.parse(savedFonts);
+                try {
+                    this.recentFonts = JSON.parse(savedFonts);
+                } catch (e) {
+                    this.recentFonts = [];
+                }
             }
         },
     }

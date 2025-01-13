@@ -1,8 +1,47 @@
 @font-face {
+    font-family: 'Amiko400';
+    src: url('/src/assets/fonts/Amiko400.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Amiko600';
+    src: url('/src/assets/fonts/Amiko600.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Amiko700';
+    src: url('/src/assets/fonts/Amiko700.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
     font-family: 'super-regular';
     src: url('/src/assets/fonts/super-regular.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
-} 
+}
 
+@font-face {
+    font-family: 'bebas_neue';
+    src: url('/src/assets/fonts/bebas_neue.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto-Light';
+    src: url('/src/assets/fonts/Roboto-Light.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}

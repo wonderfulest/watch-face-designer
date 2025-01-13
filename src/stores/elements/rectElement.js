@@ -43,7 +43,7 @@ export const useRectStore = defineStore('rectElement', {
                     hasControls: true, // 启用控件
                     lockScalingFlip: true // 防止对象翻转
                 };
-                console.log('创建矩形元素', rectOptions);
+                
                 const rect = new Rect(rectOptions);
                
                 // 添加到画布
@@ -95,7 +95,7 @@ export const useRectStore = defineStore('rectElement', {
                 originX: config.originX,
                 originY: config.originY,
             };
-            console.log('rect decodeConfig', decodedConfig);
+            
             return decodedConfig;
         }
     }

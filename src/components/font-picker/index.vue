@@ -2,8 +2,8 @@
   <div class="font-picker">
     <!-- 当前选中的字体预览 -->
     <div class="font-preview" @click="togglePanel">
-      <span class="font-name">{{ modelValue }}</span>
-      <span class="preview-text" :style="{ fontFamily: modelValue }">12:23 AM 72°F & Sunny</span>
+      <span class="font-name">{{ selectedFontLabel }}</span>
+      <span class="preview-text" :style="{ fontFamily: selectedFontLabel }">12:23 AM 72°F & Sunny</span>
     </div>
 
     <!-- 字体选择面板 -->
@@ -18,13 +18,13 @@
           <div v-if="expandedSections['recent']" class="section-content">
             <div
               v-for="font in fontStore.recentFonts"
-              :key="font"
+              :key="font.value"
               class="font-item"
-              :class="{ active: modelValue === font }"
-              @click="selectFont(font)"
+              :class="{ active: modelValue === font.value }"
+              @click="selectFont(font.value)"
             >
-              <span class="font-name">{{ font }}</span>
-              <span class="preview-text" :style="{ fontFamily: font }">12:23 AM 72°F & Sunny</span>
+              <span class="font-name">{{ font.label }}</span>
+              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
             </div>
           </div>
         </div>
@@ -37,13 +37,13 @@
           <div v-if="expandedSections['sans-serif']" class="section-content">
             <div
               v-for="font in sansSerifFonts"
-              :key="font"
+              :key="font.value"
               class="font-item"
-              :class="{ active: modelValue === font }"
-              @click="selectFont(font)"
+              :class="{ active: modelValue === font.value }"
+              @click="selectFont(font.value)"
             >
-              <span class="font-name">{{ font }}</span>
-              <span class="preview-text" :style="{ fontFamily: font }">12:23 AM 72°F & Sunny</span>
+              <span class="font-name">{{ font.label }}</span>
+              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
             </div>
           </div>
         </div>
@@ -56,13 +56,13 @@
           <div v-if="expandedSections['fixed']" class="section-content">
             <div
               v-for="font in fixedWidthFonts"
-              :key="font"
+              :key="font.value"
               class="font-item"
-              :class="{ active: modelValue === font }"
-              @click="selectFont(font)"
+              :class="{ active: modelValue === font.value }"
+              @click="selectFont(font.value)"
             >
-              <span class="font-name">{{ font }}</span>
-              <span class="preview-text" :style="{ fontFamily: font }">12:23 AM 72°F & Sunny</span>
+              <span class="font-name">{{ font.label }}</span>
+              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
             </div>
           </div>
         </div>
@@ -75,13 +75,13 @@
           <div v-if="expandedSections['serif']" class="section-content">
             <div
               v-for="font in serifFonts"
-              :key="font"
+              :key="font.value"
               class="font-item"
-              :class="{ active: modelValue === font }"
-              @click="selectFont(font)"
+              :class="{ active: modelValue === font.value }"
+              @click="selectFont(font.value)"
             >
-              <span class="font-name">{{ font }}</span>
-              <span class="preview-text" :style="{ fontFamily: font }">12:23 AM 72°F & Sunny</span>
+              <span class="font-name">{{ font.label }}</span>
+              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
             </div>
           </div>
         </div>
@@ -94,13 +94,13 @@
           <div v-if="expandedSections['lcd']" class="section-content">
             <div
               v-for="font in lcdFonts"
-              :key="font"
+              :key="font.value"
               class="font-item"
-              :class="{ active: modelValue === font }"
-              @click="selectFont(font)"
+              :class="{ active: modelValue === font.value }"
+              @click="selectFont(font.value)"
             >
-              <span class="font-name">{{ font }}</span>
-              <span class="preview-text" :style="{ fontFamily: font }">12:23 AM 72°F & Sunny</span>
+              <span class="font-name">{{ font.label }}</span>
+              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
             </div>
           </div>
         </div>
@@ -113,13 +113,13 @@
           <div v-if="expandedSections['icon']" class="section-content">
             <div
               v-for="font in iconFonts"
-              :key="font"
+              :key="font.value"
               class="font-item"
-              :class="{ active: modelValue === font }"
-              @click="selectFont(font)"
+              :class="{ active: modelValue === font.value }"
+              @click="selectFont(font.value)"
             >
-              <span class="font-name">{{ font }}</span>
-              <span class="preview-text" :style="{ fontFamily: font }">0123456789</span>
+              <span class="font-name">{{ font.label }}</span>
+              <span class="preview-text" :style="{ fontFamily: font.value }">0123456789</span>
             </div>
           </div>
         </div>
@@ -136,13 +136,13 @@
             <div
               v-else
               v-for="font in customFonts"
-              :key="font"
+              :key="font.value"
               class="font-item"
-              :class="{ active: modelValue === font }"
-              @click="selectFont(font)"
+              :class="{ active: modelValue === font.value }"
+              @click="selectFont(font.value)"
             >
-              <span class="font-name">{{ font }}</span>
-              <span class="preview-text" :style="{ fontFamily: font }">12:23 AM 72°F & Sunny</span>
+              <span class="font-name">{{ font.label }}</span>
+              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
             </div>
           </div>
         </div>
@@ -182,12 +182,46 @@ const expandedSections = ref({
 });
 
 // 字体列表
-const iconFonts = ['super-regular'];
-const sansSerifFonts = ['Arial', 'Helvetica', 'Verdana'];
-const fixedWidthFonts = ['Courier New', 'Monaco', 'Consolas'];
-const serifFonts = ['Times New Roman', 'Georgia', 'Palatino'];
-const lcdFonts = ['Patopian 1986', 'Minisystem', 'Digital System'];
+const iconFonts = [
+  { label: 'super-regular', value: 'super-regular' }
+];
+
+const sansSerifFonts = [
+  { label: 'Arial', value: 'arial' },
+  { label: 'Amiko', value: 'Amiko400' },
+  { label: 'Amiko SemiBold', value: 'Amiko600' },
+  { label: 'Amiko Bold', value: 'Amiko700' },
+  // { label: 'Helvetica', value: 'helvetica' },
+  // { label: 'Verdana', value: 'verdana' },
+  { label: 'Roboto Light', value: 'Roboto-Light' }
+];
+
+const fixedWidthFonts = [
+  { label: 'Bebas Neue', value: 'bebas_neue' },
+  { label: 'Courier New', value: 'courier-new' },
+  { label: 'Monaco', value: 'monaco' },
+  { label: 'Consolas', value: 'consolas' }
+];
+
+const serifFonts = [
+  { label: 'Times New Roman', value: 'times-new-roman' },
+  { label: 'Georgia', value: 'georgia' },
+  { label: 'Palatino', value: 'palatino' }
+];
+
+const lcdFonts = [
+  { label: 'Patopian 1986', value: 'patopian-1986' },
+  { label: 'Minisystem', value: 'minisystem' },
+  { label: 'Digital System', value: 'digital-system' }
+];
+
 const customFonts = ref([]);
+
+const selectedFontLabel = computed(() => {
+  const allFonts = [...iconFonts, ...sansSerifFonts, ...fixedWidthFonts, ...serifFonts, ...lcdFonts, ...customFonts.value];
+  const found = allFonts.find(font => font.value === props.modelValue);
+  return found ? found.label : props.modelValue;
+});
 
 // 切换面板显示
 const togglePanel = () => {

@@ -87,7 +87,7 @@ export const useTimeStore = defineStore('timeStore', {
                 originX: config.originX,
                 originY: config.originY
             };
-            console.log('time decodeConfig', decodedConfig);
+            
             return decodedConfig;
         },
         updateTimeDisplay() {
