@@ -188,12 +188,14 @@ watch(
 const updateFontSize = () => {
   if (!props.element || !baseStore.canvas) return;
   props.element.set("fontSize", fontSize.value);
+  props.element.setCoords();
   baseStore.canvas.renderAll();
 };
 
 const updateTextColor = () => {
   if (!props.element || !baseStore.canvas) return;
   props.element.set("fill", textColor.value);
+  props.element.setCoords();
   baseStore.canvas.renderAll();
 };
 
@@ -206,6 +208,7 @@ const updateFontFamily = async () => {
     // 确保字体已加载
     document.fonts.ready.then(() => {
         props.element.set('fontFamily', fontFamily.value);
+        props.element.setCoords();
         baseStore.canvas.renderAll();
     });
 };
@@ -216,6 +219,7 @@ const updatePosition = () => {
     left: positionX.value,
     top: positionY.value,
   });
+  props.element.setCoords();
   baseStore.canvas.renderAll();
 };
 
@@ -234,6 +238,7 @@ const updateDateFormat = () => {
   if (!props.element || !baseStore.canvas) return;
   props.element.set("formatter", formatter.value);
   props.element.set("text", moment(new Date()).format(formatter.value));
+  props.element.setCoords();
   baseStore.canvas.renderAll();
 };
 </script>

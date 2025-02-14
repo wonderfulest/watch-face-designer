@@ -38,6 +38,7 @@ import { useRectStore } from '@/stores/elements/rectElement';
 import { useCircleStore } from '@/stores/elements/circleElement';
 import { useProgressRingStore } from '@/stores/elements/progressRingElement';
 import { useLabelStore } from '@/stores/elements/labelElement';
+import emitter from '@/utils/eventBus';
 
 const textStore = useTextStore();
 const imageStore = useImageElementStore();
@@ -66,7 +67,7 @@ const getCategoryLabel = (category) => {
     return labels[category] || category;
 };
 
-const addElement = (category, type, config) => {
+const addElement = async (category, type, config) => {
     try {
         switch(category) {
             case 'basic':
@@ -111,7 +112,7 @@ const addElement = (category, type, config) => {
             default:
                 break;
         }
-        
+
         // 添加元素后切换到图层面板
         proxy.$parent.switchToLayer()
         isCollapsed.value = true;
@@ -119,6 +120,7 @@ const addElement = (category, type, config) => {
         console.error('添加元素失败:', error);
         alert(error.message);
     }
+          
 };
 </script>
 

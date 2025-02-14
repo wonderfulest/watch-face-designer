@@ -35,6 +35,7 @@ export const elementAttribute = {
   endAngle: 60, // 进度环结束角度
   radius: 50, // 进度环半径
   strokeWidth: 10, // 进度环宽度
+  dateFormatter: 'ddd, MMM D', // 日期格式
 };
 
 

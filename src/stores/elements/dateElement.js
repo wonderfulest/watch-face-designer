@@ -29,22 +29,23 @@ export const useDateStore = defineStore('dateElement', {
 
             try {
                 const elementId = nanoid();
-                let text = this.formatDate(new Date(), options.formatter || 'ddd, MMM D');
+                let text = this.formatDate(new Date(), options.dateFormatter);
                 const attr = {
                     eleType: 'date',
                     id: elementId,
                     left: options.left,
                     top: options.top,
-                    originX: options.originX || 'center',
-                    originY: options.originY || 'center',
-                    fontSize: options.size || 36,
-                    fill: options.color || '#FFFFFF',
-                    fontFamily: options.font || 'Arial',
-                    formatter: options.formatter || 'ddd, MMM D',
+                    originX: options.originX,
+                    originY: options.originY,
+                    fontSize: options.size,
+                    fill: options.color,
+                    fontFamily: options.fontFamily,
+                    formatter: options.dateFormatter,
                     selectable: true,
                     hasControls: true,
                     hasBorders: true,
                 }
+                console.log(111, attr);
                 // 创建文本对象
                 const element = new FabricText(text, attr);
 
@@ -75,17 +76,22 @@ export const useDateStore = defineStore('dateElement', {
                 y: Math.round(element.top),
                 originX: element.originX,
                 originY: element.originY,
-                font: element.fontFamily || "",
-                size: element.fontSize || 36,
-                color: element.fill || "",
-                formatter: element.formatter || 0
+                font: element.fontFamily,
+                size: element.fontSize,
+                color: element.fill,
+                formatter: element.formatter
             };
         },
         decodeConfig(config) {
             const decodedConfig = {
                 left: config.x,
                 top: config.y,
-                ...config,
+                color: config.color,
+                fontFamily: config.font,
+                size: config.size,
+                dateFormatter: config.formatter,
+                originX: config.originX,
+                originY: config.originY
             };
             return decodedConfig;
         }

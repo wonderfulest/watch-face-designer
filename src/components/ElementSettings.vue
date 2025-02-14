@@ -52,14 +52,15 @@ const activeElements = ref([]);
 const updateElements = () => {
     elements.value = baseStore.canvas.getObjects();
     activeElements.value = baseStore.canvas.getActiveObjects();
-    console.log('updateElements', activeElements.value)
+    // console.log('updateElements', activeElements.value)
 };
 
-const debouncedUpdateElements = debounce(updateElements, 300);
+const debouncedUpdateElements = debounce(updateElements, 1000);
 
 onMounted(() => {
     debouncedUpdateElements();
     emitter.on('refresh-canvas', (data) => {
+        // console.log('refresh-canvas event received');
         debouncedUpdateElements();
     });
 })
@@ -68,10 +69,12 @@ onUnmounted(() => {
    emitter.off('refresh-canvas')
 });
 
-// watch(activeElements, (newValue, oldValue) => {
-//   // 在这里添加你的逻辑，比如响应 `activeElements` 的变化
-//   debouncedUpdateElements();
-// });
+// 考虑删除，改为主动触发；因为变化太频繁了
+watch(activeElements, (newValue, oldValue) => {
+    // console.log('activeElements changed:', newValue, oldValue);
+  // 在这里添加你的逻辑，比如响应 `activeElements` 的变化
+  debouncedUpdateElements();
+});
 
 // 获取元素图标
 const getElementIcon = (type) => {

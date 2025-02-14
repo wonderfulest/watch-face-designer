@@ -43,21 +43,24 @@ export const TimeFormatOptions = [
 ];
 
 export const DateFormatOptions = [
-    "ddd, MMM D",
-    "YYYY-MM-DD",
-    "MM/DD/YYYY",
-    "DD-MM-YYYY",
-    "DD/MM/YYYY",
-    "MMMM D, YYYY",
-    "D MMMM YYYY",
-    "MMMM Do, YYYY",
-    "MMM D, YYYY",
-    "MMM D",
-    "dddd, MMM D",
-    "dddd, MMMM D, YYYY",
-    "YYYY/MM/DD",
-    "YYYY.MM.DD",
-    "DD.MM.YYYY",
+    "ddd, MMM D", // 例如: Wed, Sep 5
+    "YYYY-MM-DD", // 例如: 2023-09-05
+    "MM/DD/YYYY", // 例如: 09/05/2023
+    "DD-MM-YYYY", // 例如: 05-09-2023
+    "DD/MM/YYYY", // 例如: 05/09/2023
+    "MMMM D, YYYY", // 例如: September 5, 2023
+    "D MMMM YYYY", // 例如: 5 September 2023
+    "MMMM Do, YYYY", // 例如: September 5th, 2023
+    "MMM D, YYYY", // 例如: Sep 5, 2023
+    "MMM D", // 例如: Sep 5
+    "dddd, MMM D", // 例如: Wednesday, Sep 5
+    "dddd, MMMM D, YYYY", // 例如: Wednesday, September 5, 2023
+    "YYYY/MM/DD", // 例如: 2023/09/05
+    "YYYY.MM.DD", // 例如: 2023.09.05
+    "DD.MM.YYYY", // 例如: 05.09.2023
+    "dddd", // 星期几
+    "A", // AM/PM
+    "a", // am/pm
 ];
 
 // 布局方式选项
