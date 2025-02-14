@@ -11,6 +11,7 @@ import { useTimeStore } from '@/stores/elements/timeElement';
 import { useLayerStore } from '@/stores/layerStore';
 import { initAligningGuidelines } from '@/lib/aligning_guidelines';
 import { initCenteringGuidelines } from '@/lib/centering_guidelines';
+import { throttle } from '@/utils/performance';
 const canvasRef = ref(null);
 const baseStore = useBaseStore();
 const timeElement = useTimeStore();
@@ -20,8 +21,12 @@ const WATCH_SIZE = computed(() => baseStore.WATCH_SIZE);
 
 FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup'];
 
-onMounted(() => {
+// Canvas.vue
+const refreshCanvas = throttle((event) => {
+    emitter.emit('refresh-canvas', { event });
+}, 16); // 约60fps
 
+onMounted(() => {
     // 创建画布，尺寸比手表大一些以显示边界
     const canvas = new Canvas(canvasRef.value, {
         width: WATCH_SIZE.value,
@@ -29,46 +34,23 @@ onMounted(() => {
         radius: WATCH_SIZE.value / 2,
         backgroundColor: '#f5f5f5',
     });
+    
+    // 添加 passive 事件监听器
+    canvas.wrapperEl.addEventListener('wheel', () => {}, { passive: true });
+    
     // 对象间对齐辅助线
     initAligningGuidelines(canvas);
     initCenteringGuidelines(canvas);
     // 可以多选
     canvas.selection = true;
 
-    canvas.on('object:moving', (e) => {
-        refreshCanvas(e)
-    });
-
-    canvas.on('object:modified', (e) => {
-        refreshCanvas(e)
-    });
-
-    canvas.on('object:moved', (event) => {
-        refreshCanvas(event)
-    });
-
-    canvas.on('selection:created', (event) => {
-        refreshCanvas(event)
-    });
-
-    canvas.on('selection:updated', (event) => {
-        refreshCanvas(event)
-    });
-
-    canvas.on('selection:cleared', (event) => {
-        refreshCanvas(event)
-    });
-
-    canvas.on('deselected', (event) => {
-        refreshCanvas(event)
-    });
-
-    canvas.on('mouse:up', (e) => {
-        refreshCanvas(e)
-    });
-
-    canvas.on('mouse:down', function(event) {
-        refreshCanvas(event)
+    // 合并相似事件
+    canvas.on({
+        'object:moving object:modified object:moved': refreshCanvas,
+        'selection:created selection:updated selection:cleared': refreshCanvas,
+        'deselected': refreshCanvas,
+        'mouse:up': refreshCanvas,
+        'mouse:down': refreshCanvas
     });
 
     baseStore.setCanvas(canvas);
@@ -76,9 +58,6 @@ onMounted(() => {
     updateInterval = setInterval(() => timeElement.updateTimeDisplay(), 1000);
 });
 
-const refreshCanvas = (event) => {
-    emitter.emit('refresh-canvas', { event });
-};
 
 onUnmounted(() => {
     if (updateInterval) {

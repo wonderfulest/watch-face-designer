@@ -3,7 +3,7 @@
     <div class="layer-list">
       <h2 class="section-title">图层</h2>
       <draggable 
-        :list="sortedElements" 
+        :list="elements" 
         class="layers-list"
         :animation="150"
         @end="handleDragEnd"
@@ -157,39 +157,50 @@ const sortElements = () => {
   }
 };
 
-const updateElements = () => {
-  elements.value = baseStore.canvas.getObjects();
-  activeElements.value = baseStore.canvas.getActiveObjects();
-  
-  sortElements(); // 更新元素后重新排序
+// 批量更新
+const batchUpdate = () => {
+    if (!baseStore.canvas) return;
+    requestAnimationFrame(() => {
+        elements.value = baseStore.canvas.getObjects();
+        activeElements.value = baseStore.canvas.getActiveObjects();
+        baseStore.canvas.renderAll();
+    });
 };
+
+// 优化后的更新元素函数
+const updateElements = () => {
+    batchUpdate();
+};
+
+// 使用更短的延迟时间
+const debouncedUpdateElements = debounce(updateElements, 100);
 
 // 监听元素属性变化
 const setupElementListeners = () => {
-  elements.value.forEach(element => {
-    element.on('modified', (e) => {
-      if (e.transform) return; // 忽略位置和大小的修改
-      if (
-        e.target.metricSymbol !== e.target._previousState?.metricSymbol ||
-        e.target.metricGroup !== e.target._previousState?.metricGroup
-      ) {
-        // 保存当前状态用于下次比较
-        e.target._previousState = {
-          metricSymbol: e.target.metricSymbol,
-          metricGroup: e.target.metricGroup
-        };
-        sortElements(); // 属性变化时重新排序
-        // 更新画布顺序
-        sortedElements.value.forEach((element, index) => {
-          baseStore.canvas.moveObjectTo(element, index);
+    elements.value.forEach(element => {
+        element.on('modified', (e) => {
+            if (e.transform) return; // 忽略位置和大小的修改
+            if (
+                e.target.metricSymbol !== e.target._previousState?.metricSymbol ||
+                e.target.metricGroup !== e.target._previousState?.metricGroup
+            ) {
+                // 保存当前状态用于下次比较
+                e.target._previousState = {
+                    metricSymbol: e.target.metricSymbol,
+                    metricGroup: e.target.metricGroup
+                };
+                
+                // 使用 requestAnimationFrame 批量处理画布更新
+                requestAnimationFrame(() => {
+                    sortedElements.value.forEach((element, index) => {
+                        baseStore.canvas.moveObjectTo(element, index);
+                    });
+                    baseStore.canvas.renderAll();
+                });
+            }
         });
-        baseStore.canvas.renderAll();
-      }
     });
-  });
 };
-
-const debouncedUpdateElements = debounce(updateElements, 300);
 
 onMounted(() => {
   debouncedUpdateElements();

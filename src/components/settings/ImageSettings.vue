@@ -8,6 +8,8 @@
                 :show-file-list="false"
                 :before-upload="beforeUpload"
                 :http-request="handleCustomUpload"
+                :drag="true"
+                @drop.prevent
             >
                 <img 
                     v-if="imageUrl" 
@@ -173,5 +175,16 @@ watch(() => props.element?.top, (newTop) => {
     height: 100px;
     display: block;
     object-fit: cover;
+}
+
+.avatar-uploader :deep(.el-upload-dragger) {
+    width: 100px;
+    height: 100px;
+    padding: 0;
+}
+
+.avatar-uploader :deep(.el-upload-dragger.is-dragover) {
+    background-color: rgba(var(--el-color-primary-rgb), 0.1);
+    border-color: var(--el-color-primary);
 }
 </style> 

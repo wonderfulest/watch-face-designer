@@ -14,8 +14,11 @@ export const useBaseStore = defineStore('baseStore', {
   actions: {
     setCanvas(fabricCanvas) {
       this.canvas = fabricCanvas;
+      // 禁用自动渲染，手动控制渲染时机
+      this.canvas.renderOnAddRemove = false;
       this.addBackground();
     },
+  
     addBackground (){
        // 创建表盘背景圆
        const watchFace = new Circle({
