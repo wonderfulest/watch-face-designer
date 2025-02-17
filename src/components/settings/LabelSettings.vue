@@ -90,6 +90,7 @@ import { ref, watch } from 'vue'
 import { useBaseStore } from '@/stores/base'
 import ColorPicker from '@/components/color-picker/index.vue'
 import FontPicker from '@/components/font-picker/index.vue'
+import { useColorStore } from '@/stores/colorStore';
 
 import {
   fontSizes,
@@ -106,6 +107,7 @@ const props = defineProps({
 })
 
 const baseStore = useBaseStore()
+const colorStore = useColorStore()
 
 // 状态
 const positionX = ref(0)
@@ -192,7 +194,8 @@ const updateColor = () => {
   if (!props.element) return
 
   props.element.set({
-    fill: color.value
+    fill: color.value,
+    colorVarName: colorStore.getColorVarName(color.value)
   })
 
   baseStore.canvas.renderAll()

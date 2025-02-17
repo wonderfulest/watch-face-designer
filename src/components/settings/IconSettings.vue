@@ -72,6 +72,7 @@
 import { ref, watch, onMounted } from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useFontStore } from '@/stores/fontStore';
+import { useColorStore } from '@/stores/colorStore';
 import { fontSizes, originXOptions, DataTypeOptions, getMetricBySymbol } from '@/config/settings';
 import ColorPicker from '@/components/color-picker/index.vue';
 import FontPicker from '@/components/font-picker/index.vue';
@@ -85,6 +86,7 @@ const props = defineProps({
 
 const baseStore = useBaseStore();
 const fontStore = useFontStore();
+const colorStore = useColorStore();
 
 const fontSize = ref(props.element?.fontSize);
 const textColor = ref(props.element?.fill);
@@ -112,7 +114,10 @@ const updateFontSize = () => {
 
 const updateTextColor = () => {
     if (!props.element || !baseStore.canvas) return;
-    props.element.set('fill', textColor.value);
+    props.element.set({
+        'fill': textColor.value,
+        'colorVarName': colorStore.getColorVarName(textColor.value),
+    });
     baseStore.canvas.renderAll();
 };
 
