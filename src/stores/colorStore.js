@@ -3,14 +3,11 @@ import { useBaseStore } from './base';
 
 export const useColorStore = defineStore('color', {
   state: () => ({
-    colors: []
+    themeColors: [],
+    currentThemeIndex: 0
   }),
 
   actions: {
-    // 加载主题颜色
-    loadThemeColors(colors) {
-      this.colors = colors;
-    },
     // 添加颜色
     addColor(color, name) {
       if (!color || color === 'transparent') return;
@@ -34,22 +31,22 @@ export const useColorStore = defineStore('color', {
       // 生成默认变量名
       if (!name) {
         const baseVarName = 'color';
-        let index = this.colors.length + 1;
+        let index = this.themeColors[this.currentThemeIndex].length + 1;
         name = `${baseVarName}${index}`;
-        while (this.colors.find(c => c.name === name)) {
+        while (this.themeColors[this.currentThemeIndex].find(c => c.name === name)) {
           index++;
           name = `${baseVarName}${index}`;
         }
       }
 
       // 检查是否已存在相同名称的颜色
-      const existingIndex = this.colors.findIndex(c => c.name === name);
+      const existingIndex = this.themeColors[this.currentThemeIndex].findIndex(c => c.name === name);
       if (existingIndex !== -1) {
         // 更新现有颜色
-        this.colors[existingIndex].hex = color;
+        this.themeColors[this.currentThemeIndex][existingIndex].hex = color;
       } else {
         // 添加新颜色
-        this.colors.push({
+        this.themeColors[this.currentThemeIndex].push({
           name,
           hex: color
         });
@@ -60,21 +57,22 @@ export const useColorStore = defineStore('color', {
 
     // 获取所有颜色
     getAllColors() {
-      return this.colors;
+      return this.themeColors[this.currentThemeIndex] || [];
     },
 
     // 更新颜色变量名称
     updateColorName(oldName, newName) {
+      console.log('更新颜色变量名称',oldName, newName);
       if (!newName || oldName === newName) return false;
       
       // 检查新名称是否已存在
-      const exists = this.colors.some(c => c.name === newName);
+      const exists = this.themeColors[this.currentThemeIndex].some(c => c.name === newName);
       if (exists) return false;
 
       // 查找并更新颜色变量名称
-      const colorIndex = this.colors.findIndex(c => c.name === oldName);
+      const colorIndex = this.themeColors[this.currentThemeIndex].findIndex(c => c.name === oldName);
       if (colorIndex !== -1) {
-        this.colors[colorIndex].name = newName;
+        this.themeColors[this.currentThemeIndex][colorIndex].name = newName;
         return true;
       }
       return false;

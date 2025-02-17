@@ -76,10 +76,10 @@ const loadDesign = async (id) => {
     // 设置基础信息
     baseStore.watchFaceName = designData.attributes.name;
     baseStore.kpayId = designData.attributes.kpay_appid;
-    baseStore.themeColors = config.themeColors
-    // "themeColors": [[{ "name": "Light", "hex": "#55FF55" }]],
-    // config.themeColors[0]
-    colorStore.loadThemeColors(config.themeColors[0]);
+    // 设置主题颜色
+    colorStore.themeColors = config.themeColors;
+    // 默认选中第一个颜色
+    colorStore.currentThemeIndex = 0;
 
     // 等待画布初始化完成
     await new Promise((resolve) => {

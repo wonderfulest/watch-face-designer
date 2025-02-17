@@ -29,7 +29,7 @@
           <el-radio-button 
             v-for="(theme, index) in themeColors" 
             :key="index" 
-            :label="index"
+            :value="index"
           >
             主题 {{ index + 1 }}
           </el-radio-button>
@@ -90,21 +90,45 @@ const updateKpayId = () => {
 
 // 主题颜色
 const themeColors = computed({
-  get: () => baseStore.themeColors,
-  set: (value) => baseStore.themeColors = value
+  get: () => colorStore.themeColors,
+  set: (value) => colorStore.themeColors = value
 });
 
 // 当前主题索引
 const currentThemeIndex = computed({
-  get: () => baseStore.currentThemeIndex || 0,
+  get: () => colorStore.currentThemeIndex || 0,
   set: (value) => {
-    baseStore.currentThemeIndex = value;
-    colorStore.loadThemeColors(themeColors.value[value]);
+    colorStore.currentThemeIndex = value;
   }
 });
 
 // 当前主题的颜色变量
-const currentThemeColors = computed(() => themeColors.value[currentThemeIndex.value] || []);
+const currentThemeColors = computed({
+  get: () => {
+    const baseThemeColors = themeColors.value[0] || [];
+    // 如果当前主题为空，填充默认值
+    if (!themeColors.value[currentThemeIndex.value]) {
+      themeColors.value[currentThemeIndex.value] = baseThemeColors.map(color => ({
+        name: color.name,
+        hex: '#ffffff'
+      }));
+    } // 如果当前主题不为空，与基本主题合并填充默认值
+    else {
+      themeColors.value[currentThemeIndex.value] = baseThemeColors.map((color, index) => ({
+        name: color.name,
+        hex: themeColors.value[currentThemeIndex.value][index]?.hex || '#ffffff'
+      }));
+    }
+    // console.log('currentThemeIndex', currentThemeIndex.value)
+    // console.log('currentThemeColors', themeColors.value[currentThemeIndex.value])
+    // console.log('baseThemeColors', baseThemeColors)
+    // 返回当前主题的颜色变量
+    return themeColors.value[currentThemeIndex.value];
+  },
+  set: (newColors) => {
+    themeColors.value[currentThemeIndex.value] = newColors;
+  }
+});
 
 // 新增主题
 const addTheme = () => {
@@ -125,13 +149,10 @@ const removeTheme = () => {
 
 // 更新主题颜色
 const updateThemeColor = (color) => {
-  // 更新当前主题中的颜色
-  const themeIndex = currentThemeIndex.value;
   const colorIndex = currentThemeColors.value.findIndex(c => c.name === color.name);
   if (colorIndex !== -1) {
-    themeColors.value[themeIndex][colorIndex] = { ...color };
-    // 更新 colorStore 中的颜色
-    colorStore.loadThemeColors(themeColors.value[themeIndex]);
+    // 直接更新当前主题中的颜色
+    themeColors.value[currentThemeIndex.value][colorIndex].hex = color.hex;
   }
 };
 

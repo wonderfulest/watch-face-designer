@@ -157,10 +157,8 @@ const getEncodeConfig = (element) => {
     return encodeConfig;
 }
 
-
 // 生成配置对象
 const generateConfig = () => {
- 
   if (!baseStore.canvas.getObjects().length) {
     messageStore.warning("没有元素");
     return null;
@@ -169,7 +167,7 @@ const generateConfig = () => {
     version: "1.0",
     name: baseStore.watchFaceName,
     kpayId: baseStore.kpayId,
-    themeColors: [colorStore.getAllColors()],
+    themeColors: colorStore.themeColors,
     metricTypes: [],
     elements: [],
   };

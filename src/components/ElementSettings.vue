@@ -16,9 +16,9 @@
             @update="handleUpdate"
         />
     </div>
-    <!-- 没有选中任何元素 -->
+    <!-- 没有选中任何元素，显示全局配置 -->
     <div class="settings-panel" v-if="activeElements.length == 0">
-        <h3 class="settings-title">没有选中任何元素</h3>
+        <GlobalSettings />
     </div>
 </template>
 

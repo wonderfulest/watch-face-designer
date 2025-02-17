@@ -212,14 +212,24 @@ onMounted(() => {
 });
 
 const selectLayer = (layer) => {
-  if (baseStore.canvas && layer) {
-    baseStore.canvas.discardActiveObject();
+  baseStore.canvas.discardActiveObject();
+  if (layer.eleType === 'global') {
+    // 打开全局配置
+    console.log('show global settings')
+  } else if (baseStore.canvas && layer) {
     baseStore.canvas.setActiveObject(layer);
-    baseStore.canvas.renderAll();
   }
+  baseStore.canvas.renderAll();
+  // 更新
+  debouncedUpdateElements();
 };
 
 const isActived = (layerId) => {
+  // 如果是 global 元素，永远不显示为选中状态
+  const layer = elements.value.find(el => el.id === layerId);
+  if (layer && layer.type === 'global') return false;
+
+  // 检查是否在活动元素中
   for (const element of activeElements.value) {
     if (element.id == layerId) {
       return true;

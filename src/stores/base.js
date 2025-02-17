@@ -8,8 +8,6 @@ export const useBaseStore = defineStore('baseStore', {
     kpayId: '',
     WATCH_SIZE: 454,
     backgroundColor: '#000000',
-    themeColors: [],
-    currentThemeIndex: 0
   }),
 
   // actions
