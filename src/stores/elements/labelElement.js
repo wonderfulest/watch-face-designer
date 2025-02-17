@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useBaseStore } from '../base'
 import { useLayerStore } from '../layerStore'
+import { useColorStore } from '../colorStore'
 import { nanoid } from 'nanoid'
 import { FabricText } from 'fabric'
 import { getMetricBySymbol } from '@/config/settings'
@@ -9,9 +10,11 @@ export const useLabelStore = defineStore('labelElement', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
+    const colorStore = useColorStore()
     return {
       baseStore,
       layerStore,
+      colorStore
     }
   },
 
@@ -41,6 +44,7 @@ export const useLabelStore = defineStore('labelElement', {
           metricSymbol: options.metricSymbol,
           text: metric ? metric.enLabel : 'Label',
           varName: options.varName,
+          fillVarName: options.fillVarName,
         }
         console.log('创建标签元素', labelOptions)
 
@@ -81,7 +85,8 @@ export const useLabelStore = defineStore('labelElement', {
         metricGroup: element.metricGroup,
         metricSymbol: element.metricSymbol,
         text: element.text,
-        varName: element.varName
+        varName: element.varName,
+        fillVarName: this.colorStore.getColorVarName(element.fill),
       }
     },
 
@@ -98,7 +103,8 @@ export const useLabelStore = defineStore('labelElement', {
         metricGroup: config.metricGroup,
         metricSymbol: config.metricSymbol,
         text: config.text,
-        varName: config.varName
+        varName: config.varName,
+        fillVarName: config.fillVarName,
       }
       return decodedConfig
     }

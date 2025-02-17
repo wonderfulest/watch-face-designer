@@ -19,6 +19,8 @@ export const useBaseElementStore = defineStore('baseElement', {
   },
 
   actions: {
+
+    // 更新元素属性
     updateElement(element) {
       if (!element || !this.baseStore.canvas) return
       
@@ -143,6 +145,7 @@ export const useBaseElementStore = defineStore('baseElement', {
           this.updateElement({ ...element, fontSize: newSize })
         }
       }
-    }
+    },
+   
   }
 })

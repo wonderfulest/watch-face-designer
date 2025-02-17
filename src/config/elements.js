@@ -36,7 +36,8 @@ export const elementAttribute = {
   radius: 50, // 进度环半径
   strokeWidth: 10, // 进度环宽度
   dateFormatter: 'ddd, MMM D', // 日期格式
-  varName: ''
+  varName: '',// 数据变量名字
+  colorVarName: '', // 填充颜色变量名字
 };
 
 

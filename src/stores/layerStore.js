@@ -19,7 +19,6 @@ export const useLayerStore = defineStore('layerStore', {
   // actions
   actions: {
     addLayer(element) {
-      
       if (!element) {
         console.error('无效的元素');
         return;
@@ -50,5 +49,6 @@ export const useLayerStore = defineStore('layerStore', {
         }
       }
     },
+
   }
 }); 

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { useBaseStore } from '../base';
 import { useLayerStore } from '../layerStore';
+import { useColorStore } from '../colorStore';
 import { nanoid } from 'nanoid';
 import { FabricText } from 'fabric' 
 import { getMetricBySymbol } from '@/config/settings';
@@ -8,10 +9,12 @@ export const useIconStore = defineStore('iconElement', {
     state: () => {
         const baseStore = useBaseStore();
         const layerStore = useLayerStore();
+        const colorStore = useColorStore();
         
         return {
             baseStore,
             layerStore,
+            colorStore
         }
     },
 
@@ -43,6 +46,7 @@ export const useIconStore = defineStore('iconElement', {
                     metricGroup: options.metricGroup,
                     metricSymbol: metric.metricSymbol,
                     varName: options.varName,
+                    fillVarName: options.fillVarName,
                 }
                
                 // 创建文本对象
@@ -87,6 +91,7 @@ export const useIconStore = defineStore('iconElement', {
                 metricGroup: element.metricGroup,
                 metricSymbol: element.metricSymbol,
                 varName: element.varName,
+                fillVarName: element.fillVarName,
             };
         },
         decodeConfig(config) {
@@ -102,6 +107,7 @@ export const useIconStore = defineStore('iconElement', {
                 metricGroup: config.metricGroup,
                 metricSymbol: config.metricSymbol,
                 varName: config.varName,
+                fillVarName: config.fillVarName,
             };
             return decodedConfig;
         }

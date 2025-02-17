@@ -99,6 +99,8 @@ const currentThemeIndex = computed({
   get: () => colorStore.currentThemeIndex || 0,
   set: (value) => {
     colorStore.currentThemeIndex = value;
+    // 更新主题颜色
+    baseStore.toggleTheme(colorStore.themeColors[value]);
   }
 });
 

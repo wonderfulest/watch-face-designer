@@ -212,6 +212,7 @@ onMounted(() => {
 });
 
 const selectLayer = (layer) => {
+  console.log('selectLayer', layer);
   baseStore.canvas.discardActiveObject();
   if (layer.eleType === 'global') {
     // 打开全局配置

@@ -85,6 +85,12 @@ export const useColorStore = defineStore('color', {
         return hex.length === 1 ? '0' + hex : hex;
       };
       return '#' + toHex(r) + toHex(g) + toHex(b);
-    }
+    },
+
+    // 获取颜色变量名称
+    getColorVarName(hex) {
+      return this.themeColors[this.currentThemeIndex].find(c => c.hex === hex)?.name || '';
+    },
+
   }
 });

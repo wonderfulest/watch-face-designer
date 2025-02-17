@@ -63,5 +63,36 @@ export const useBaseStore = defineStore('baseStore', {
     getActiveObjects() {
       return this.canvas ? this.canvas.getActiveObjects() : [];
     },
+    // 切换主题
+    toggleTheme(colors) {
+      console.log('toggleTheme', colors)
+      if (!this.canvas) return
+
+      const colorMap = {}
+      for (const color of colors) {
+        colorMap[color.name] = color.hex
+      }
+      
+      const fabricObjects = this.canvas.getObjects();
+
+      for (const fabricObject of fabricObjects) {
+        if (fabricObject.eleType === 'progressRing') {
+          fabricObject.getObjects().find((obj) => obj.id.endsWith("_main")).set('stroke', colorMap[fabricObject.colorVarName])
+          fabricObject.getObjects().find((obj) => obj.id.endsWith("_bg")).set('stroke', colorMap[fabricObject.bgColorVarName])
+        } else {
+          // 普通元素颜色
+          if (fabricObject.colorVarName) {
+            fabricObject.set('fill', colorMap[fabricObject.colorVarName])
+          }
+          // 普通元素背景颜色
+          if (fabricObject.bgColorVarName) {
+            fabricObject.set('fill', colorMap[fabricObject.bgColorVarName])
+          }
+        }
+      }
+
+      this.canvas.renderAll()
+    },
+
   }
 }); 

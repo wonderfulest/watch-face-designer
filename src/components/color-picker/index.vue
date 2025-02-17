@@ -26,7 +26,7 @@
           :key="color"
           class="color-cell"
           :style="{ backgroundColor: color }"
-          @click="selectColor(color)"
+          @click="selectColor({ hex:color, name: varName })"
         ></div>
       </div>
 
@@ -47,19 +47,12 @@
             v-model="varName"
             class="var-name-input"
             placeholder="变量名"
-            v-if="showVarNameInput"
             @keyup.enter="confirmSaveVariable"
           >
         </div>
         <button 
-          class="save-variable-btn" 
-          @click="saveAsVariable"
-          v-if="!showVarNameInput"
-        >设为变量</button>
-        <button 
           class="save-variable-btn confirm" 
           @click="confirmSaveVariable"
-          v-else
         >确定</button>
       </div>
 
@@ -80,7 +73,7 @@
             :key="color.name"
             class="recent-color"
             :style="{ backgroundColor: color.hex }"
-            @click="selectColor(color.hex)"
+            @click="selectColor(color)"
           ></div>
         </div>
         <div v-else class="color-variables-list">
@@ -92,7 +85,7 @@
             <div 
               class="color-preview-small" 
               :style="{ backgroundColor: color.hex }"
-              @click.stop="selectColor(color.hex)"
+              @click.stop="selectColor(color)"
             ></div>
             <div class="color-variable-info">
               <div class="color-hex">{{ color.hex }}</div>
@@ -113,6 +106,13 @@
                   @click.stop
                 />
               </div>
+              <button 
+                class="delete-btn" 
+                @click.stop="deleteColor(color)"
+                title="删除颜色"
+              >
+                <i class="el-icon-delete">×</i>
+              </button>
             </div>
           </div>
         </div>
@@ -137,7 +137,6 @@ const emit = defineEmits(['update:modelValue', 'change']);
 // 状态
 const isOpen = ref(false);
 const hexColor = ref(props.modelValue === 'transparent' ? '#000000' : props.modelValue);
-const showVarNameInput = ref(false);
 const varName = ref('');
 
 // 颜色store
@@ -148,6 +147,16 @@ const colorVariables = computed(() => colorStore.getAllColors());
 const showColorList = ref(false);
 const editingName = ref(null);
 const newName = ref('');
+
+// 删除颜色
+const deleteColor = (color) => {
+  if (confirm(`确定要删除颜色 ${color.name} 吗？`)) {
+    const index = colorStore.themeColors[colorStore.currentThemeIndex].findIndex(c => c.name === color.name);
+    if (index !== -1) {
+      colorStore.themeColors[colorStore.currentThemeIndex].splice(index, 1);
+    }
+  }
+};
 
 // 切换颜色列表展开/收起
 const toggleColorList = () => {
@@ -211,9 +220,11 @@ const togglePicker = (event) => {
 
 // 选择颜色
 const selectColor = (color) => {
-  hexColor.value = color;
+  console.log('select color', color)
+  hexColor.value = color.hex;
+  varName.value = color.name;
   updateColor();
-  isOpen.value = false;
+  // 保持颜色选择器打开状态
 };
 
 // 更新颜色
@@ -232,19 +243,23 @@ const updateFromHex = () => {
 // 工具函数
 const isValidHex = (hex) => /^#[0-9A-F]{6}$/i.test(hex);
 
-// 保存为颜色变量
-const saveAsVariable = () => {
-  if (hexColor.value !== 'transparent') {
-    showVarNameInput.value = true;
-  }
-};
+
+import { ElMessage } from 'element-plus';
 
 // 确认保存颜色变量
 const confirmSaveVariable = () => {
   if (hexColor.value !== 'transparent') {
+    // 检查当前主题中是否已存在相同的颜色
+    const existingColor = colorStore.themeColors[colorStore.currentThemeIndex].find(
+      c => c.hex.toLowerCase() === hexColor.value.toLowerCase()
+    );
+
+    if (existingColor && existingColor.name !== varName.value) {
+      ElMessage.error(`当前主题中已存在相同的颜色: ${existingColor.name}`);
+      return;
+    }
+
     colorStore.addColor(hexColor.value, varName.value);
-    showVarNameInput.value = false;
-    varName.value = '';
   }
 };
 
@@ -416,7 +431,7 @@ watch(() => props.modelValue, (newValue) => {
 }
 
 .hex-input {
-  width: 100px;
+  width: 80px;
 }
 
 .var-name-input {
@@ -503,6 +518,24 @@ watch(() => props.modelValue, (newValue) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+}
+
+.delete-btn {
+  padding: 2px 6px;
+  background: none;
+  border: none;
+  color: #909399;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.delete-btn:hover {
+  color: #f56c6c;
+  background: #fef0f0;
 }
 
 .color-hex {
