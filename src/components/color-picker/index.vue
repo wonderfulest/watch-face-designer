@@ -43,20 +43,78 @@
             @input="updateFromHex"
             placeholder="#000000"
           >
+          <input
+            v-model="varName"
+            class="var-name-input"
+            placeholder="变量名"
+            v-if="showVarNameInput"
+            @keyup.enter="confirmSaveVariable"
+          >
         </div>
+        <button 
+          class="save-variable-btn" 
+          @click="saveAsVariable"
+          v-if="!showVarNameInput"
+        >设为变量</button>
+        <button 
+          class="save-variable-btn confirm" 
+          @click="confirmSaveVariable"
+          v-else
+        >确定</button>
       </div>
 
       <!-- 当前使用的颜色 -->
-      <div v-if="usedColors.length > 0" class="recent-colors">
-        <div class="recent-colors-title">当前使用的颜色</div>
-        <div class="recent-colors-grid">
+      <div v-if="colorVariables.length > 0" class="recent-colors">
+        <div class="recent-colors-header">
+          <div class="recent-colors-title">当前使用的颜色</div>
+          <button 
+            class="toggle-list-btn" 
+            @click="toggleColorList"
+          >
+            {{ showColorList ? '收起' : '展开' }}
+          </button>
+        </div>
+        <div v-if="!showColorList" class="recent-colors-grid">
           <div
-            v-for="color in usedColors"
-            :key="color"
+            v-for="color in colorVariables"
+            :key="color.name"
             class="recent-color"
-            :style="{ backgroundColor: color }"
-            @click="selectColor(color)"
+            :style="{ backgroundColor: color.hex }"
+            @click="selectColor(color.hex)"
           ></div>
+        </div>
+        <div v-else class="color-variables-list">
+          <div 
+            v-for="color in colorVariables" 
+            :key="color.name"
+            class="color-variable-item"
+          >
+            <div 
+              class="color-preview-small" 
+              :style="{ backgroundColor: color.hex }"
+              @click.stop="selectColor(color.hex)"
+            ></div>
+            <div class="color-variable-info">
+              <div class="color-hex">{{ color.hex }}</div>
+              <div 
+                class="color-name" 
+                :class="{ 'editing': editingName === color.name }"
+                @click.stop="startEdit(color.name)"
+              >
+                <span v-if="editingName !== color.name">{{ color.name }}</span>
+                <input
+                  v-else
+                  v-model="newName"
+                  :ref="el => { if (el) nameInputs[color.name] = el }"
+                  class="name-input"
+                  @keyup.enter="confirmEdit"
+                  @keyup.esc="cancelEdit"
+                  @blur="confirmEdit"
+                  @click.stop
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -64,7 +122,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { useColorStore } from '@/stores/colorStore';
 
 const props = defineProps({
@@ -79,12 +137,55 @@ const emit = defineEmits(['update:modelValue', 'change']);
 // 状态
 const isOpen = ref(false);
 const hexColor = ref(props.modelValue === 'transparent' ? '#000000' : props.modelValue);
+const showVarNameInput = ref(false);
+const varName = ref('');
 
 // 颜色store
 const colorStore = useColorStore();
 
 // 获取当前使用的颜色
-const usedColors = computed(() => colorStore.getAllColors());
+const colorVariables = computed(() => colorStore.getAllColors());
+const showColorList = ref(false);
+const editingName = ref(null);
+const newName = ref('');
+
+// 切换颜色列表展开/收起
+const toggleColorList = () => {
+  showColorList.value = !showColorList.value;
+  editingName.value = null;
+};
+
+// 开始编辑颜色变量名
+const startEdit = (name) => {
+  editingName.value = name;
+  newName.value = name;
+  nextTick(() => {
+    const input = nameInputs.value[name];
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  });
+};
+
+// 确认编辑
+const confirmEdit = () => {
+  if (editingName.value && newName.value) {
+    const success = colorStore.updateColorName(editingName.value, newName.value);
+    if (!success) {
+      newName.value = editingName.value; // 还原为原始名称
+    }
+  }
+  editingName.value = null;
+};
+
+// 取消编辑
+const cancelEdit = () => {
+  editingName.value = null;
+};
+
+// 获取输入框引用
+const nameInputs = ref({});
 
 // 生成颜色矩阵
 const colorMatrix = [
@@ -130,6 +231,22 @@ const updateFromHex = () => {
 
 // 工具函数
 const isValidHex = (hex) => /^#[0-9A-F]{6}$/i.test(hex);
+
+// 保存为颜色变量
+const saveAsVariable = () => {
+  if (hexColor.value !== 'transparent') {
+    showVarNameInput.value = true;
+  }
+};
+
+// 确认保存颜色变量
+const confirmSaveVariable = () => {
+  if (hexColor.value !== 'transparent') {
+    colorStore.addColor(hexColor.value, varName.value);
+    showVarNameInput.value = false;
+    varName.value = '';
+  }
+};
 
 // 监听点击外部关闭
 const handleOutsideClick = (event) => {
@@ -291,12 +408,35 @@ watch(() => props.modelValue, (newValue) => {
   align-items: center;
 }
 
-.hex-input {
-  width: 100px;
+.hex-input, .var-name-input {
   padding: 4px 6px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 12px;
+}
+
+.hex-input {
+  width: 100px;
+}
+
+.var-name-input {
+  width: 80px;
+  margin-left: 8px;
+}
+
+.save-variable-btn {
+  padding: 4px 8px;
+  background-color: #409EFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.save-variable-btn:hover {
+  background-color: #66b1ff;
 }
 
 .recent-colors {
@@ -305,10 +445,100 @@ watch(() => props.modelValue, (newValue) => {
   border-top: 1px solid #eee;
 }
 
+.recent-colors-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .recent-colors-title {
   font-size: 12px;
   color: #666;
-  margin-bottom: 8px;
+}
+
+.toggle-list-btn {
+  padding: 2px 8px;
+  font-size: 12px;
+  color: #666;
+  background-color: transparent;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toggle-list-btn:hover {
+  border-color: #409EFF;
+  color: #409EFF;
+}
+
+.color-variables-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.color-variable-item {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.color-variable-item:hover {
+  background-color: #f5f7fa;
+}
+
+.color-preview-small {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 8px;
+  border: 1px solid #ddd;
+}
+
+.color-variable-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.color-hex {
+  font-size: 12px;
+  color: #666;
+}
+
+.color-name {
+  font-size: 12px;
+  color: #409EFF;
+  cursor: text;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.color-name:hover {
+  background-color: #f0f7ff;
+}
+
+.color-name.editing {
+  background-color: #fff;
+}
+
+.name-input {
+  width: 100%;
+  border: 1px solid #409EFF;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 12px;
+  color: #409EFF;
+  outline: none;
+  background: transparent;
+}
+
+.name-input:focus {
+  border-color: #66b1ff;
 }
 
 .recent-colors-grid {

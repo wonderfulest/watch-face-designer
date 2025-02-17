@@ -3,17 +3,16 @@ import { useBaseStore } from './base';
 
 export const useColorStore = defineStore('color', {
   state: () => ({
-    colors: {}
+    colors: []
   }),
 
   actions: {
-    // 重置颜色统计
-    resetColors() {
-      this.colors = {};
+    // 加载主题颜色
+    loadThemeColors(colors) {
+      this.colors = colors;
     },
-
-    // 添加颜色到统计
-    addColor(color) {
+    // 添加颜色
+    addColor(color, name) {
       if (!color || color === 'transparent') return;
       
       // 如果是 rgba 格式，转换为 hex
@@ -32,55 +31,53 @@ export const useColorStore = defineStore('color', {
         }
       }
 
-      if (!this.colors[color]) {
-        this.colors[color] = 0;
+      // 生成默认变量名
+      if (!name) {
+        const baseVarName = 'color';
+        let index = this.colors.length + 1;
+        name = `${baseVarName}${index}`;
+        while (this.colors.find(c => c.name === name)) {
+          index++;
+          name = `${baseVarName}${index}`;
+        }
       }
-      this.colors[color] += 1;
+
+      // 检查是否已存在相同名称的颜色
+      const existingIndex = this.colors.findIndex(c => c.name === name);
+      if (existingIndex !== -1) {
+        // 更新现有颜色
+        this.colors[existingIndex].hex = color;
+      } else {
+        // 添加新颜色
+        this.colors.push({
+          name,
+          hex: color
+        });
+      }
+
+      return name;
     },
 
-    // 从画布收集所有颜色
-    collectColors() {
-      const baseStore = useBaseStore();
-      if (!baseStore.canvas) return;
-
-      this.resetColors();
-
-      baseStore.canvas.getObjects().forEach(obj => {
-        // 收集填充颜色
-        if (obj.fill && typeof obj.fill === 'string') {
-          this.addColor(obj.fill);
-        }
-        // 收集背景颜色
-        if (obj.backgroundColor && typeof obj.backgroundColor === 'string') {
-          this.addColor(obj.backgroundColor);
-        }
-        // 收集边框颜色
-        if (obj.stroke && typeof obj.stroke === 'string') {
-          this.addColor(obj.stroke);
-        }
-        // 如果是组合对象，遍历其子对象
-        if (obj.type === 'group' && obj._objects) {
-          obj._objects.forEach(child => {
-            if (child.fill && typeof child.fill === 'string') {
-              this.addColor(child.fill);
-            }
-            if (child.backgroundColor && typeof child.backgroundColor === 'string') {
-              this.addColor(child.backgroundColor);
-            }
-            if (child.stroke && typeof child.stroke === 'string') {
-              this.addColor(child.stroke);
-            }
-          });
-        }
-      });
-    },
-
-    // 获取所有使用的颜色
+    // 获取所有颜色
     getAllColors() {
-      this.collectColors();
-      return Object.entries(this.colors)
-        .sort(([, countA], [, countB]) => countB - countA)
-        .map(([color]) => color);
+      return this.colors;
+    },
+
+    // 更新颜色变量名称
+    updateColorName(oldName, newName) {
+      if (!newName || oldName === newName) return false;
+      
+      // 检查新名称是否已存在
+      const exists = this.colors.some(c => c.name === newName);
+      if (exists) return false;
+
+      // 查找并更新颜色变量名称
+      const colorIndex = this.colors.findIndex(c => c.name === oldName);
+      if (colorIndex !== -1) {
+        this.colors[colorIndex].name = newName;
+        return true;
+      }
+      return false;
     },
 
     // RGB 转 HEX

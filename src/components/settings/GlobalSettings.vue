@@ -12,42 +12,71 @@
       <label>背景颜色</label>
       <el-input type="color" v-model="backgroundColor" @change="updateBackgroundColor" />
     </div>
+
+    <!-- 颜色主题配置 -->
+    <div class="theme-settings">
+      <div class="theme-header">
+        <h3>颜色主题</h3>
+        <div class="theme-actions">
+          <el-button size="small" @click="addTheme">新增主题</el-button>
+          <el-button size="small" @click="removeTheme" :disabled="currentThemeIndex === 0">删除主题</el-button>
+        </div>
+      </div>
+
+      <!-- 主题切换 -->
+      <div class="theme-selector">
+        <el-radio-group v-model="currentThemeIndex">
+          <el-radio-button 
+            v-for="(theme, index) in themeColors" 
+            :key="index" 
+            :label="index"
+          >
+            主题 {{ index + 1 }}
+          </el-radio-button>
+        </el-radio-group>
+      </div>
+
+      <!-- 当前主题的颜色变量 -->
+      <div class="theme-colors">
+        <div 
+          v-for="color in currentThemeColors" 
+          :key="color.name"
+          class="color-item"
+        >
+          <span class="color-name">{{ color.name }}</span>
+          <el-input 
+            type="color" 
+            v-model="color.hex"
+            @change="updateThemeColor(color)"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { DataTypeOptions, getMetricBySymbol } from "@/config/settings";
-import { ref, watch, computed } from "vue";
-import { useBaseStore } from "@/stores/base";
-import { useFontStore } from '@/stores/fontStore';
-import {
-  fontSizes,
-  originXOptions,
-} from "@/config/settings";
-import moment from "moment";
+import { ref, computed, watch } from 'vue';
+import { useBaseStore } from '@/stores/base';
+import { useColorStore } from '@/stores/colorStore';
 
 const baseStore = useBaseStore();
-const fontStore = useFontStore();
+const colorStore = useColorStore();
 
-const props = defineProps({
-  element: {
-    type: Object,
-    required: true,
-  },
+// 背景颜色
+const backgroundColor = computed({
+  get: () => baseStore.backgroundColor,
+  set: (value) => baseStore.backgroundColor = value
 });
 
+// 更新背景颜色
+const updateBackgroundColor = (color) => {
+  baseStore.backgroundColor = color;
+};
 
-const backgroundColor = ref(props.element?.fill);
-
-const originX = ref(props.element?.originX);
-
-const metricSymbol = ref(
-  props.element?.metricSymbol || ":FIELD_TYPE_HEART_RATE"
-);
-
+// 表盘名称
 const watchFaceName = ref('');
 const kpayId = ref('');
-
 
 // 更新表盘名称
 const updateWatchFaceName = () => {
@@ -59,10 +88,51 @@ const updateKpayId = () => {
   baseStore.kpayId = kpayId.value;
 };
 
-const updateBackgroundColor = () => {
-  if (!props.element || !baseStore.canvas) return;
-  props.element.set("fill", backgroundColor.value);
-  baseStore.canvas.renderAll();
+// 主题颜色
+const themeColors = computed({
+  get: () => baseStore.themeColors,
+  set: (value) => baseStore.themeColors = value
+});
+
+// 当前主题索引
+const currentThemeIndex = computed({
+  get: () => baseStore.currentThemeIndex || 0,
+  set: (value) => {
+    baseStore.currentThemeIndex = value;
+    colorStore.loadThemeColors(themeColors.value[value]);
+  }
+});
+
+// 当前主题的颜色变量
+const currentThemeColors = computed(() => themeColors.value[currentThemeIndex.value] || []);
+
+// 新增主题
+const addTheme = () => {
+  const newTheme = currentThemeColors.value.map(color => ({
+    name: color.name,
+    hex: color.hex
+  }));
+  themeColors.value.push(newTheme);
+};
+
+// 删除主题
+const removeTheme = () => {
+  if (currentThemeIndex.value > 0) {
+    themeColors.value.splice(currentThemeIndex.value, 1);
+    currentThemeIndex.value = currentThemeIndex.value - 1;
+  }
+};
+
+// 更新主题颜色
+const updateThemeColor = (color) => {
+  // 更新当前主题中的颜色
+  const themeIndex = currentThemeIndex.value;
+  const colorIndex = currentThemeColors.value.findIndex(c => c.name === color.name);
+  if (colorIndex !== -1) {
+    themeColors.value[themeIndex][colorIndex] = { ...color };
+    // 更新 colorStore 中的颜色
+    colorStore.loadThemeColors(themeColors.value[themeIndex]);
+  }
 };
 
 // 监听 store 中的值变化
@@ -81,14 +151,65 @@ watch(() => baseStore.kpayId, (newId) => {
 </script>
 
 <style scoped>
-@import "@/assets/styles/settings.css";
-.example-text {
-  color: #555;
-  margin-left: 1em; /* 使用制表符对齐 */
+.setting-item {
+  margin-bottom: 16px;
 }
 
-/* 添加图标样式 */
-.align-buttons .iconify {
-  font-size: 18px;
+.setting-item label {
+  display: block;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.theme-settings {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.theme-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.theme-header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.theme-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.theme-selector {
+  margin-bottom: 16px;
+}
+
+.theme-colors {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.color-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background: #f5f7fa;
+  border-radius: 4px;
+}
+
+.color-name {
+  font-size: 12px;
+  color: #666;
+}
+
+.color-item :deep(.el-input) {
+  width: 80px;
 }
 </style>

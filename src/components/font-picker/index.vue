@@ -215,7 +215,10 @@ const lcdFonts = [
   { label: 'Digital System', value: 'digital-system' }
 ];
 
-const customFonts = ref([]);
+const customFonts = ref([
+{ label: 'conthrax-sb', value: 'conthrax-sb' },
+{ label: 'VarsityTeam-Bold', value: 'VarsityTeam-Bold' },
+]);
 
 const selectedFontLabel = computed(() => {
   const allFonts = [...iconFonts, ...sansSerifFonts, ...fixedWidthFonts, ...serifFonts, ...lcdFonts, ...customFonts.value];

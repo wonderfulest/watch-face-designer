@@ -93,13 +93,13 @@ export const DataTypeOptions = [
     { label: '通知', metricSymbol: ':FIELD_TYPE_NOTIFICATIONS', value: 19, defaultValue: '0', icon: '\u0025', enLabel: 'Notifications' },
     { label: '闹钟', metricSymbol: ':FIELD_TYPE_ALARMS', value: 20, defaultValue: '0', icon: '\u0024', enLabel: 'Alarms' },
     { label: '蓝牙连接状态', metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', value: 21, defaultValue: '1', icon: '\u0022', enLabel: 'Bluetooth Connection Status' },
-    { label: '天气', metricSymbol: ':FIELD_TYPE_WEATHER', value: 30, defaultValue: '0', icon: '\u0021', enLabel: 'Weather' },
-    { label: '温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE', value: 31, defaultValue: '25', icon: '\u0062', enLabel: 'Temperature' },
-    { label: '体感温度', metricSymbol: ':FIELD_TYPE_FEELS_LIKE_TEMPERATURE', value: 32, defaultValue: '25', icon: '\u0021', enLabel: 'Feels Like Temperature' },
+    { label: '天气', metricSymbol: ':FIELD_TYPE_WEATHER', value: 30, defaultValue: 'RAIN', icon: '\u0021', enLabel: 'Weather' },
+    { label: '温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE', value: 31, defaultValue: '25°', icon: '\u0062', enLabel: 'Temperature' },
+    { label: '体感温度', metricSymbol: ':FIELD_TYPE_FEELS_LIKE_TEMPERATURE', value: 32, defaultValue: '25°', icon: '\u0021', enLabel: 'Feels Like Temperature' },
     { label: '湿度', metricSymbol: ':FIELD_TYPE_HUMIDITY', value: 33, defaultValue: '50', icon: '\u0021', enLabel: 'Humidity' },
     { label: '风速', metricSymbol: ':FIELD_TYPE_WIND_SPEED', value: 34, defaultValue: '10', icon: '\u0021', enLabel: 'Wind Speed' },
     { label: '传感器温度', metricSymbol: ':FIELD_TYPE_SENSOR_TEMPERATURE', value: 35, defaultValue: '20', icon: '\u0021', enLabel: 'Sensor Temperature' },
-    { label: '天气描述', metricSymbol: ':FIELD_TYPE_WEATHER_DESCRIPTION', value: 36, defaultValue: '0', icon: '\u0021', enLabel: 'Weather Description' },
+    { label: '天气描述', metricSymbol: ':FIELD_TYPE_WEATHER_DESCRIPTION', value: 36, defaultValue: 'RAIN', icon: '\u0021', enLabel: 'Weather Description' },
     { label: '呼吸频率', metricSymbol: ':FIELD_TYPE_RESPIRATION_RATE', value: 37, defaultValue: '16', icon: '\u0037', enLabel: 'Respiration Rate' },
     { label: '静息心率', metricSymbol: ':FIELD_TYPE_RESTING_HEARTRATE', value: 38, defaultValue: '70', icon: '\u0038', enLabel: 'Resting Heart Rate' },
     { label: '周游泳距离', metricSymbol: ':FIELD_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 39, defaultValue: '1', icon: '\u0048', enLabel: 'Weekly Swimming Distance' },
@@ -111,7 +111,7 @@ export const DataTypeOptions = [
     { label: '云量', metricSymbol: ':FIELD_TYPE_WEATHER_CLOUDS', value: 54, defaultValue: '50', icon: '\u0021', enLabel: 'Cloud Cover' },
     { label: '能见度', metricSymbol: ':FIELD_TYPE_WEATHER_VISIBILITY', value: 55, defaultValue: '10', icon: '\u0021', enLabel: 'Visibility' },
     { label: 'VO2Max', metricSymbol: ':FIELD_TYPE_VO2_MAX', value: 57, defaultValue: '40', icon: '\u003a', enLabel: 'VO2 Max' },
-    { label: '位置信息', metricSymbol: ':FIELD_TYPE_LOCATION', value: 58, defaultValue: '0', icon: '\u0021', enLabel: 'Location' },
+    { label: '位置信息', metricSymbol: ':FIELD_TYPE_LOCATION', value: 58, defaultValue: 'LOS ANGELES', icon: '\u0021', enLabel: 'Location' },
     { label: '年', metricSymbol: ':FIELD_TYPE_DATE_YEAR', value: 70, defaultValue: '2023', icon: '\u0021', enLabel: 'Year' },
     { label: '月', metricSymbol: ':FIELD_TYPE_DATE_MONTH', value: 71, defaultValue: '1', icon: '\u0021', enLabel: 'Month' },
     { label: '日', metricSymbol: ':FIELD_TYPE_DATE_DAY', value: 72, defaultValue: '1', icon: '\u0021', enLabel: 'Day' },
@@ -135,6 +135,5 @@ export const DataTypeOptions = [
   
 // 获取指标配置信息
 export function getMetricBySymbol(metricSymbol) {
-    ('metricSymbol', metricSymbol)
     return DataTypeOptions.find(item => item.metricSymbol === metricSymbol);
 }

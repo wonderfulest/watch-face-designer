@@ -55,12 +55,11 @@ const updateElements = () => {
     // console.log('updateElements', activeElements.value)
 };
 
-const debouncedUpdateElements = debounce(updateElements, 1000);
+const debouncedUpdateElements = debounce(updateElements, 100);
 
 onMounted(() => {
     debouncedUpdateElements();
     emitter.on('refresh-canvas', (data) => {
-        // console.log('refresh-canvas event received');
         debouncedUpdateElements();
     });
 })
@@ -71,7 +70,7 @@ onUnmounted(() => {
 
 // 考虑删除，改为主动触发；因为变化太频繁了
 watch(activeElements, (newValue, oldValue) => {
-    // console.log('activeElements changed:', newValue, oldValue);
+  // console.log('activeElements changed:', newValue, oldValue);
   // 在这里添加你的逻辑，比如响应 `activeElements` 的变化
   debouncedUpdateElements();
 });

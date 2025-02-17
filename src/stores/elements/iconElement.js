@@ -42,6 +42,7 @@ export const useIconStore = defineStore('iconElement', {
                     hasBorders: true,
                     metricGroup: options.metricGroup,
                     metricSymbol: metric.metricSymbol,
+                    varName: options.varName,
                 }
                
                 // 创建文本对象
@@ -85,6 +86,7 @@ export const useIconStore = defineStore('iconElement', {
                 color: element.fill,
                 metricGroup: element.metricGroup,
                 metricSymbol: element.metricSymbol,
+                varName: element.varName,
             };
         },
         decodeConfig(config) {
@@ -99,6 +101,7 @@ export const useIconStore = defineStore('iconElement', {
                 originY: config.originY,
                 metricGroup: config.metricGroup,
                 metricSymbol: config.metricSymbol,
+                varName: config.varName,
             };
             return decodedConfig;
         }

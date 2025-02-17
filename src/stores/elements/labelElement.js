@@ -39,7 +39,8 @@ export const useLabelStore = defineStore('labelElement', {
           hasBorders: true,
           metricGroup: options.metricGroup,
           metricSymbol: options.metricSymbol,
-          text: metric ? metric.enLabel : 'Label'
+          text: metric ? metric.enLabel : 'Label',
+          varName: options.varName,
         }
         console.log('创建标签元素', labelOptions)
 
@@ -79,7 +80,8 @@ export const useLabelStore = defineStore('labelElement', {
         originY: element.originY,
         metricGroup: element.metricGroup,
         metricSymbol: element.metricSymbol,
-        text: element.text
+        text: element.text,
+        varName: element.varName
       }
     },
 
@@ -95,7 +97,8 @@ export const useLabelStore = defineStore('labelElement', {
         originY: config.originY,
         metricGroup: config.metricGroup,
         metricSymbol: config.metricSymbol,
-        text: config.text
+        text: config.text,
+        varName: config.varName
       }
       return decodedConfig
     }

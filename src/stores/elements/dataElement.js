@@ -43,6 +43,7 @@ export const useDataStore = defineStore('dataStore', {
                     hasBorders: true,
                     metricGroup: options.metricGroup,
                     metricSymbol: metric.metricSymbol,
+                    varName: options.varName   ,
                 }
                 // 创建文本对象
                 const element = new FabricText(metric.defaultValue, dataOptions);
@@ -84,6 +85,7 @@ export const useDataStore = defineStore('dataStore', {
                 font: element.fontFamily,
                 size: element.fontSize,
                 color: element.fill,
+                varName: element.varName,
             };
         },
         decodeConfig(config) {
@@ -100,6 +102,7 @@ export const useDataStore = defineStore('dataStore', {
                 size: config.size,
                 metricGroup: config.metricGroup,
                 metricSymbol: config.metricSymbol,
+                varName: config.varName,
             };
             return decodedConfig;
         },

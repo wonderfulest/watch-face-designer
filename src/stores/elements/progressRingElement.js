@@ -69,7 +69,9 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         originY: 'center',
         metricGroup: config.metricGroup,
         metricSymbol: config.metricSymbol,
+        varName: config.varName,
       })
+
       // 强制组重新计算边界
       group.setCoords()
 
@@ -161,6 +163,7 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         metricGroup: element.metricGroup,
         metricSymbol: element.metricSymbol,
         fullAngle: this.getFullAngle(mainRing.startAngle, bgRing.endAngle), // 不需要反序列化
+        varName: element.varName,
       };
     },
     decodeConfig(config) {
@@ -175,6 +178,7 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         bgColor: config.bgColor,
         metricGroup: config.metricGroup,
         metricSymbol: config.metricSymbol,
+        varName: config.varName,
       };
       return decodedConfig;
     },

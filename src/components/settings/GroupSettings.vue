@@ -13,6 +13,10 @@
             />
         </div>
         <div class="setting-item" v-if="mayMetricGroup && isMetricGroup">
+            <label>数据变量</label>
+            <input type="text" v-model="varName" @change="updateMetricVal" />   
+        </div>
+        <div class="setting-item" v-if="mayMetricGroup && isMetricGroup">
             <label>数据类型</label>
             <select v-model="metricSymbol" @change="updateMetricType">
                 <option v-for="(option, index) in DataTypeOptions" :key="index" :value="option.metricSymbol">
@@ -95,6 +99,7 @@ const labelElement = computed(() => getElementByType('label'));
 const progressRingElement = computed(() => getElementByType('progressRing'));
 
 const isMetricGroup = ref(false);
+const varName = ref('');
 const isGoalGroup = ref(false);
 const fontSize = ref(props.elements[0].fontSize || 36);
 const textColor = ref(props.elements[0].fill || '#FFFFFF');
@@ -111,6 +116,9 @@ onMounted(async () => {
     isGoalGroup.value = false;
     
     for (const element of props.elements) {
+        if (element.varName) {
+            varName.value = element.varName;
+        }
         if (element.metricGroup === undefined) {
             isMetricGroup.value = false;
             return;
@@ -200,6 +208,13 @@ const changeMetricGroup = (isMetricGroup) => {
     }
     if (isMetricGroup) {
         updateMetricType();
+    }
+}
+
+const updateMetricVal = () => {
+    console.log('updateMetricVal', varName.value)
+    for (const element of props.elements) {
+        element.set({'varName': varName.value});
     }
 }
 </script>

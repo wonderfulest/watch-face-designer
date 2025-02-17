@@ -218,19 +218,27 @@ const generateConfig = () => {
       dateId++;
     }
     // 获取dataId
-    if (encodeConfig.type == 'icon' || encodeConfig.type == 'data'
+    if ((encodeConfig.type == 'icon' || encodeConfig.type == 'data'
     || encodeConfig.type == 'label' || encodeConfig.type.indexOf('progress') != -1
-    || encodeConfig.type == 'badge') {
+    || encodeConfig.type == 'badge') && encodeConfig.varName !== '' && encodeConfig.varName !== undefined) {
       if (encodeConfig.metricGroup) { // 一组数据
         if (!metricMap.hasOwnProperty(encodeConfig.metricGroup) || metricMap[encodeConfig.metricGroup] == undefined) { // metricMap 用于标识数据项配置
           metricMap[encodeConfig.metricGroup] = dataId;
-          config.metricTypes.push(encodeConfig.metricValue);
+          config.metricTypes.push({
+            id: dataId,
+            value: encodeConfig.metricValue,
+            varName: encodeConfig.varName
+          });
           dataId++;
         } 
         encodeConfig.metricId = metricMap[encodeConfig.metricGroup]; // metricId 用于标识数据项配置
       } else { // 单独数据
         encodeConfig.metricId = dataId; // metricId 用于标识数据项配置
-        config.metricTypes.push(encodeConfig.metricValue);
+        config.metricTypes.push({
+          id: dataId,
+          value: encodeConfig.metricValue,
+          varName: encodeConfig.varName
+        });
         dataId++;
       }
     }
