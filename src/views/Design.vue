@@ -31,7 +31,7 @@ import axiosInstance from "@/config/axiosConfig";
 import { useTimeStore } from "@/stores/elements/timeElement";
 import { useDateStore } from "@/stores/elements/dateElement";
 import { useImageElementStore } from "@/stores/elements/imageElement";
-import { useBaseStore } from "@/stores/base";
+import { useBaseStore } from "@/stores/baseStore";
 import { useBadgeStore } from "@/stores/elements/badgeElement";
 import { useIconStore } from "@/stores/elements/iconElement";
 import { useDataStore } from "@/stores/elements/dataElement";

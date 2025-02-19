@@ -110,7 +110,7 @@
 
 <script setup>
 import { ref, watch, computed } from "vue";
-import { useBaseStore } from "@/stores/base";
+import { useBaseStore } from "@/stores/baseStore";
 
 import { useProgressRingStore } from "@/stores/elements/progressRingElement";
 import ColorPicker from "@/components/color-picker/index.vue";

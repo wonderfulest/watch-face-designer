@@ -96,7 +96,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import { useBadgeStore } from '@/stores/elements/badgeElement';
 import { useFontStore } from '@/stores/fontStore';
 import { fontSizes, originXOptions, DataTypeOptions, getMetricBySymbol } from '@/config/settings';

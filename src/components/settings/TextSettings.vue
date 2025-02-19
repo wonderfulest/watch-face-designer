@@ -63,7 +63,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import { useTextStore } from '@/stores/elements/textElement';
 import { useFontStore } from '@/stores/fontStore';
 import { fontSizes, originXOptions } from '@/config/settings';

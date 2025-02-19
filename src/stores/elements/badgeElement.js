@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { useBaseStore } from '../base';
+import { useBaseStore } from '../baseStore';
 import { useLayerStore } from '../layerStore';
 import { useBaseElementStore } from './baseElement';
 import { nanoid } from 'nanoid';

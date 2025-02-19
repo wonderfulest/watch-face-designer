@@ -87,10 +87,9 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { useBaseStore } from '@/stores/base'
+import { useBaseStore } from '@/stores/baseStore'
 import ColorPicker from '@/components/color-picker/index.vue'
 import FontPicker from '@/components/font-picker/index.vue'
-
 
 import {
   fontSizes,
@@ -107,7 +106,6 @@ const props = defineProps({
 })
 
 const baseStore = useBaseStore()
-
 
 // 状态
 const positionX = ref(0)

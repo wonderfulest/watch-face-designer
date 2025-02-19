@@ -24,7 +24,7 @@
 <script setup>
 import { ref, getCurrentInstance } from 'vue';
 import { elementConfigs } from '@/config/elements';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import { useTextStore } from '@/stores/elements/textElement';
 import { useImageElementStore } from '@/stores/elements/imageElement';
 import { useTimeStore } from '@/stores/elements/timeElement';

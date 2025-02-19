@@ -123,7 +123,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 
 const props = defineProps({
   modelValue: {

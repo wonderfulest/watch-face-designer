@@ -50,7 +50,7 @@
 import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
-import { useBaseStore } from '../../stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import { FabricImage } from 'fabric';
 
 const props = defineProps({

@@ -27,7 +27,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { debounce } from 'lodash-es';
 import emitter from '@/utils/eventBus';
 import { elementConfigs } from '@/config/elements';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import GlobalSettings from './settings/GlobalSettings.vue';
 import BaseSettings from './settings/BaseSettings.vue';
 import MetricSettings from './settings/MetricSettings.vue';

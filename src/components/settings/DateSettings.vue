@@ -75,7 +75,7 @@
 
 <script setup>
 import { ref, watch, computed, onMounted } from "vue";
-import { useBaseStore } from "@/stores/base";
+import { useBaseStore } from "@/stores/baseStore";
 import { useFontStore } from '@/stores/fontStore';
 import {
   fontSizes,

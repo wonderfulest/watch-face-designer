@@ -62,7 +62,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useBaseStore } from '../stores/base'
+import { useBaseStore } from '@/stores/baseStore'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useMessageStore } from '../stores/message'

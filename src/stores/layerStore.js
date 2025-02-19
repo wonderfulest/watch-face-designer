@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { useBaseStore } from './base';
+import { useBaseStore } from './baseStore';
 
 export const useLayerStore = defineStore('layerStore', {
   // state

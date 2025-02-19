@@ -69,7 +69,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { useBaseStore } from "@/stores/base";
+import { useBaseStore } from "@/stores/baseStore";
 import ColorPicker from "@/components/color-picker/index.vue";
 
 const props = defineProps({

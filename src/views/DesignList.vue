@@ -106,7 +106,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axiosInstance from '@/config/axiosConfig';
 import { useMessageStore } from '@/stores/message';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import dayjs from 'dayjs';
 
 const router = useRouter();

@@ -61,7 +61,7 @@ import { useMessageStore } from "@/stores/message";
 
 import { getMetricBySymbol } from "@/config/settings";
 
-import { useBaseStore } from "@/stores/base";
+import { useBaseStore } from "@/stores/baseStore";
 import { useTimeStore } from "@/stores/elements/timeElement";
 import { useDateStore } from "@/stores/elements/dateElement";
 import { useMetricStore } from "@/stores/elements/metricElement";
@@ -115,6 +115,8 @@ const openDialog = () => {
 };
 
 const getEncodeConfig = (element) => {
+  console.log('获取编码配置', element);
+
   let encodeConfig = null;
   if (element.eleType === "global") {
       encodeConfig = baseStore.encodeConfig(element);
@@ -171,7 +173,8 @@ const generateConfig = () => {
     metricTypes: [],
     elements: [],
   };
-  
+  // 背景色在颜色数组中的下标，用于配置
+  config.backgroundColorId = baseStore.themeColors[0].findIndex((color) => color.hex === baseStore.themeBackgroundColors[0]);
   const objects = baseStore.canvas.getObjects();
   // 元素在同类中的下标，用于配置
   let dataId = 0, imageId = 0, timeId = 0, dateId = 0;
@@ -179,6 +182,7 @@ const generateConfig = () => {
   
   // 遍历每个元素
   for (const element of objects) {
+    if (element.eleType === 'background-image') continue;
     let encodeConfig = getEncodeConfig(element);
     // 获取data
     if (encodeConfig.metricSymbol) {

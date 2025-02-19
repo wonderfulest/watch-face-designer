@@ -75,7 +75,7 @@
 <script setup>
 import moment from 'moment';
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import { useTimeStore } from '@/stores/elements/timeElement';
 import { useFontStore } from '@/stores/fontStore';
 

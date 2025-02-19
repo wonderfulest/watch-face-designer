@@ -8,15 +8,12 @@
       <label>Kpay ID</label>
       <el-input type="text" v-model="kpayId" @change="updateKpayId" />
     </div>
-    <div class="setting-item">
-      <label>背景颜色</label>
-      <ColorPicker v-model="backgroundColor" @update:modelValue="updateBackgroundColor" />
-    </div>
+  
 
-    <!-- 颜色主题配置 -->
+    <!-- 主题配置 -->
     <div class="theme-settings">
       <div class="theme-header">
-        <h3>颜色主题</h3>
+        <h3>主题</h3>
         <div class="theme-actions">
           <el-button size="small" @click="addTheme">新增主题</el-button>
           <el-button size="small" @click="removeTheme" :disabled="currentThemeIndex === 0">删除主题</el-button>
@@ -38,6 +35,7 @@
 
       <!-- 当前主题的颜色变量 -->
       <div class="theme-colors">
+        <!-- 颜色变量 名称 和 颜色值 -->
         <div 
           v-for="color in currentThemeColors" 
           :key="color.name"
@@ -50,29 +48,79 @@
           />
         </div>
       </div>
+
+      <!-- 背景颜色 -->
+      <div class="setting-item">
+        <label>背景色</label>
+        <ColorPicker v-model="backgroundColor" @update:modelValue="updateBackgroundColor" />
+      </div>
+
+      <!-- 背景图片选择 -->
+      <div class="setting-item">
+        <label>背景图片</label>
+        <div class="background-image-control">
+          <el-upload
+            action="#"
+            :auto-upload="false"
+            :show-file-list="false"
+            accept=".jpg,.jpeg,.png"
+            @change="handleBackgroundImageChange"
+          >
+            <el-button size="small" type="primary">选择图片</el-button>
+          </el-upload>
+          <el-button 
+            size="small" 
+            type="danger" 
+            @click="removeBackgroundImage"
+            v-if="currentBackgroundImage"
+          >
+            移除图片
+          </el-button>
+        </div>
+        <div class="background-image-preview" v-if="currentBackgroundImage">
+          <img :src="currentBackgroundImage" alt="背景图片预览" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import ColorPicker from '@/components/color-picker/index.vue';
 
 const baseStore = useBaseStore();
 
+// 当前主题索引
+const currentThemeIndex = computed({
+  get: () => baseStore.currentThemeIndex || 0,
+  set: (value) => {
+    baseStore.currentThemeIndex = value;
+    // 更新主题
+    baseStore.toggleTheme();
+  }
+});
+
 // 背景颜色
 const backgroundColor = computed({
-  get: () => baseStore.backgroundColor,
-  set: (value) => baseStore.backgroundColor = value
+  get: () => baseStore.themeBackgroundColors[currentThemeIndex.value] || '#000000',
+  set: (value) => {
+    // 确保数组长度与主题数量一致
+    while (baseStore.themeBackgroundColors.length < baseStore.themeColors.length) {
+      baseStore.themeBackgroundColors.push('#000000');
+    }
+    baseStore.themeBackgroundColors[currentThemeIndex.value] = value;
+  }
 });
 
 // 更新背景颜色
 const updateBackgroundColor = (color) => {
-  baseStore.backgroundColor = color;
+  console.log('updateBackgroundColor', color, 'currentThemeIndex', currentThemeIndex.value);
+  baseStore.themeBackgroundColors[currentThemeIndex.value] = color;
   // 更新画布背景
   if (baseStore.canvas) {
-    baseStore.updateBackgroundFill();
+    baseStore.toggleThemeBackground();
   }
 };
 
@@ -94,16 +142,6 @@ const updateKpayId = () => {
 const themeColors = computed({
   get: () => baseStore.themeColors,
   set: (value) => baseStore.themeColors = value
-});
-
-// 当前主题索引
-const currentThemeIndex = computed({
-  get: () => baseStore.currentThemeIndex || 0,
-  set: (value) => {
-    baseStore.currentThemeIndex = value;
-    // 更新主题颜色
-    baseStore.toggleTheme(baseStore.themeColors[value]);
-  }
 });
 
 // 当前主题的颜色变量
@@ -170,6 +208,63 @@ watch(() => baseStore.kpayId, (newId) => {
   }
 });
 
+// 背景图片
+const currentBackgroundImage = computed({
+  get: () => baseStore.themeBackgroundImages[currentThemeIndex.value],
+  set: (value) => {
+    // 确保数组长度与主题数量一致
+    while (baseStore.themeBackgroundImages.length < baseStore.themeColors.length) {
+      baseStore.themeBackgroundImages.push('');
+    }
+    baseStore.themeBackgroundImages[currentThemeIndex.value] = value;
+  }
+});
+
+// 处理背景图片变化
+const handleBackgroundImageChange = (file) => {
+  console.log('开始处理背景图片变化', file);
+  if (!file || !file.raw) {
+    console.warn('文件无效', file);
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    console.log('图片读取完成', {
+      currentThemeIndex: currentThemeIndex.value,
+      themeBackgroundImagesLength: baseStore.themeBackgroundImages.length,
+      themeColorsLength: baseStore.themeColors.length
+    });
+
+    // 确保数组长度与主题数量一致
+    while (baseStore.themeBackgroundImages.length < baseStore.themeColors.length) {
+      baseStore.themeBackgroundImages.push('');
+    }
+
+    // 更新当前主题的背景图片
+    baseStore.themeBackgroundImages[currentThemeIndex.value] = e.target.result;
+    console.log('背景图片已更新', {
+      imageLength: e.target.result.length,
+      currentThemeIndex: currentThemeIndex.value,
+      allBackgroundImages: baseStore.themeBackgroundImages
+    });
+
+    // 强制更新画布背景
+    baseStore.toggleThemeBackground();
+  };
+
+  reader.onerror = (error) => {
+    console.error('读取图片出错', error);
+  };
+
+  reader.readAsDataURL(file.raw);
+};
+
+// 移除背景图片
+const removeBackgroundImage = () => {
+  currentBackgroundImage.value = '';
+  baseStore.toggleThemeBackground();
+};
 </script>
 
 <style scoped>
@@ -224,14 +319,40 @@ watch(() => baseStore.kpayId, (newId) => {
   padding: 8px;
   background: #f5f7fa;
   border-radius: 4px;
+  gap: 8px;
 }
 
 .color-name {
   font-size: 12px;
   color: #666;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.color-item :deep(.el-input) {
-  width: 80px;
+.color-item :deep(.color-picker-wrapper) {
+  width: 300px;
+  flex-shrink: 0;
+}
+.background-image-control {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.background-image-preview {
+  width: 100%;
+  max-width: 200px;
+  height: 200px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #dcdfe6;
+}
+
+.background-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 </style>

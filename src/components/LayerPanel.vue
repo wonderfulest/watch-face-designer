@@ -50,7 +50,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { debounce } from "lodash-es";
 import emitter from "@/utils/eventBus";
 import { useLayerStore } from "@/stores/layerStore";
-import { useBaseStore } from "@/stores/base";
+import { useBaseStore } from "@/stores/baseStore";
 import { elementConfigs } from "@/config/elements";
 import draggable from 'vuedraggable';
 

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { Circle } from 'fabric'
+import { Circle, FabricImage } from 'fabric'
 export const useBaseStore = defineStore('baseStore', {
   // state
   state: () => ({
@@ -7,9 +7,8 @@ export const useBaseStore = defineStore('baseStore', {
     watchFaceName: '',
     kpayId: '',
     WATCH_SIZE: 454,
-    backgroundColor: '#000000',
     themeColors: [],
-    themeBackgroundColors: [],
+    themeBackgroundColors: ['#000000'],
     themeBackgroundImages: [],
     currentThemeIndex: 0,
   }),
@@ -28,34 +27,47 @@ export const useBaseStore = defineStore('baseStore', {
       this.canvas.renderOnAddRemove = false;
       this.addBackground();
     },
-    addBackground (){
+    addBackground() {
       console.log('addBackground')
-       // 创建表盘背景圆
-       const watchFace = new Circle({
-          eleType: 'global',
-          left: 0,
-          top: 0,
-          radius: this.$state.WATCH_SIZE / 2,
-          fill: this.$state.backgroundColor,
-          selectable: false,
-          evented: true
+      // 创建表盘背景圆
+      const watchFace = new Circle({
+        eleType: 'global',
+        left: 0,
+        top: 0,
+        radius: this.$state.WATCH_SIZE / 2,
+        fill: this.$state.themeBackgroundColors[this.$state.currentThemeIndex] || '#000000',
+        selectable: false,
+        evented: true
       });
+
+      // 设置背景图片
+      const currentBgImage = this.$state.themeBackgroundImages[this.$state.currentThemeIndex];
+      if (currentBgImage) {
+        console.log('set background image', currentBgImage);
+        FabricImage.fromURL(currentBgImage, (img) => {
+          // 计算缩放比例以填充圆形区域
+          const scale = (this.$state.WATCH_SIZE) / Math.min(img.width, img.height);
+          img.set({
+            eleType: 'background-image',
+            scaleX: scale,
+            scaleY: scale,
+            left: 0,
+            top: 0,
+            selectable: false,
+            evented: false,
+          });
+          this.canvas.add(img);
+          this.canvas.moveObjectTo(img, 0);
+        });
+      }
+
       this.canvas.set({
-          clipPath: watchFace
+        clipPath: watchFace
       });
       this.canvas.add(watchFace);
-      this.canvas.moveObjectTo(watchFace, 0); 
+      this.canvas.moveObjectTo(watchFace, 0);
     },
-    updateBackgroundFill() {
-      const objects = this.canvas.getObjects();
-      const watchFace = objects.find(obj => obj.eleType === 'global');
-      if (watchFace) {
-        watchFace.set('fill', this.backgroundColor);
-        this.canvas.renderAll();
-      } else {
-        console.log('未找到表盘对象，当前对象列表:', objects);
-      }
-    },
+
     loadGlobalElement() {
       // 全局元素加载
     },
@@ -151,7 +163,6 @@ export const useBaseStore = defineStore('baseStore', {
     encodeConfig(element) {
       return {
         type: 'global',
-        backgroundColor: this.$state.backgroundColor,
         width: element.width,
         height: element.height,
         radius: element.radius
@@ -164,10 +175,19 @@ export const useBaseStore = defineStore('baseStore', {
       return this.canvas ? this.canvas.getActiveObjects() : [];
     },
     // 切换主题
-    toggleTheme(colors) {
+    toggleTheme() {
+      // 更新颜色变量
+      this.toggleThemeColors()
+      // 更新背景颜色
+      this.toggleThemeBackground()
+      this.canvas.renderAll()
+    },
+    toggleThemeColors(){
+      const colors = this.themeColors[this.currentThemeIndex]
       console.log('toggleTheme', colors)
       if (!this.canvas) return
 
+      // 更新颜色变量
       const colorMap = {}
       for (const color of colors) {
         colorMap[color.name] = color.hex
@@ -190,9 +210,109 @@ export const useBaseStore = defineStore('baseStore', {
           }
         }
       }
-
-      this.canvas.renderAll()
     },
+    toggleThemeBackground() {
+      console.log('开始更新背景', {
+        hasCanvas: !!this.canvas,
+        currentThemeIndex: this.currentThemeIndex,
+        themeBackgroundImages: this.themeBackgroundImages
+      });
 
+      if (!this.canvas) {
+        console.warn('画布不存在');
+        return;
+      }
+
+      const objects = this.canvas.getObjects();
+      console.log('当前画布对象', objects.map(obj => ({ type: obj.type, eleType: obj.eleType })));
+
+      const watchFace = objects.find(obj => obj.eleType === 'global');
+      const oldBgImage = objects.find(obj => obj.eleType === 'background-image');
+
+      // 更新背景颜色
+      if (watchFace) {
+        watchFace.set('fill', this.themeBackgroundColors[this.currentThemeIndex] || '#000000');
+      }
+
+      // 先移除旧的背景图片
+      if (oldBgImage) {
+        console.log('移除旧的背景图片');
+        this.canvas.remove(oldBgImage);
+      }
+
+      // 添加新的背景图片
+      const currentBgImage = this.themeBackgroundImages[this.currentThemeIndex];
+      console.log('当前主题背景图片', {
+        currentThemeIndex: this.currentThemeIndex,
+        hasImage: !!currentBgImage,
+        imageLength: currentBgImage ? currentBgImage.length : 0
+      });
+
+      if (currentBgImage) {
+        console.log('开始加载新背景图片');
+        
+        // 创建一个新的 Image 对象
+        const img = new Image();
+        img.onload = () => {
+          console.log('原始图片加载完成', {
+            width: img.width,
+            height: img.height
+          });
+
+          // 创建 Fabric.Image 实例
+          const fabricImage = new FabricImage(img, {
+            eleType: 'background-image',
+            selectable: false,
+            evented: false,
+            originX: 'left',
+            originY: 'top',
+          });
+
+          // 计算缩放比例以填充圆形区域
+          const scale = (this.WATCH_SIZE) / Math.min(img.width, img.height);
+          
+          // 计算居中位置
+          const left = (this.WATCH_SIZE - img.width * scale) / 2;
+          const top = (this.WATCH_SIZE - img.height * scale) / 2;
+          
+          fabricImage.set({
+            scaleX: scale,
+            scaleY: scale,
+            left: left,
+            top: top,
+          });
+
+          console.log('设置图片属性', {
+            scale,
+            left,
+            top
+          });
+
+          if (watchFace) {
+            this.canvas.moveObjectTo(watchFace, 0); // 背景圆放在背景图片之上
+          }
+          
+          // 添加图片并设置层级
+          this.canvas.add(fabricImage);
+          this.canvas.moveObjectTo(fabricImage, 1); // 背景图片放在最底层
+          
+          this.canvas.renderAll();
+          console.log('背景图片更新完成');
+        };
+
+        img.onerror = (error) => {
+          console.error('加载图片出错', error);
+        };
+
+        // 设置图片源
+        img.src = currentBgImage;
+      } else if (watchFace) {
+        // 如果没有背景图片，确保背景圆在最底层
+        this.canvas.moveObjectTo(watchFace, 0);
+      }
+      
+      this.canvas.renderAll();
+      console.log('背景更新完成');
+    },
   }
 }); 

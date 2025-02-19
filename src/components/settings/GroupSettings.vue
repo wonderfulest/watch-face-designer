@@ -70,7 +70,7 @@ import moment from 'moment';
 import emitter from '@/utils/eventBus';
 import { nanoid } from 'nanoid';
 import { DataTypeOptions, getMetricBySymbol } from '@/config/settings'
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import { useFontStore } from '@/stores/fontStore';
 import { fontSizes, originXOptions } from '@/config/settings';
 import ColorPicker from '@/components/color-picker/index.vue';

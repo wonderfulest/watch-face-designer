@@ -6,7 +6,7 @@
 import { onMounted, ref, onUnmounted, computed } from 'vue';
 import { Canvas, FabricText, Circle, FabricObject } from 'fabric'
 import emitter from '@/utils/eventBus';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore';
 import { useTimeStore } from '@/stores/elements/timeElement';
 import { useLayerStore } from '@/stores/layerStore';
 import { initAligningGuidelines } from '@/lib/aligning_guidelines';
