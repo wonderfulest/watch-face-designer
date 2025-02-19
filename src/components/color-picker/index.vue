@@ -123,7 +123,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
-import { useColorStore } from '@/stores/colorStore';
+import { useBaseStore } from '@/stores/base';
 
 const props = defineProps({
   modelValue: {
@@ -140,10 +140,10 @@ const hexColor = ref(props.modelValue === 'transparent' ? '#000000' : props.mode
 const varName = ref('');
 
 // 颜色store
-const colorStore = useColorStore();
+const baseStore = useBaseStore();
 
 // 获取当前使用的颜色
-const colorVariables = computed(() => colorStore.getAllColors());
+const colorVariables = computed(() => baseStore.getAllColors());
 const showColorList = ref(false);
 const editingName = ref(null);
 const newName = ref('');
@@ -151,9 +151,9 @@ const newName = ref('');
 // 删除颜色
 const deleteColor = (color) => {
   if (confirm(`确定要删除颜色 ${color.name} 吗？`)) {
-    const index = colorStore.themeColors[colorStore.currentThemeIndex].findIndex(c => c.name === color.name);
+    const index = baseStore.themeColors[baseStore.currentThemeIndex].findIndex(c => c.name === color.name);
     if (index !== -1) {
-      colorStore.themeColors[colorStore.currentThemeIndex].splice(index, 1);
+      baseStore.themeColors[baseStore.currentThemeIndex].splice(index, 1);
     }
   }
 };
@@ -180,7 +180,7 @@ const startEdit = (name) => {
 // 确认编辑
 const confirmEdit = () => {
   if (editingName.value && newName.value) {
-    const success = colorStore.updateColorName(editingName.value, newName.value);
+    const success = baseStore.updateColorName(editingName.value, newName.value);
     if (!success) {
       newName.value = editingName.value; // 还原为原始名称
     }
@@ -250,7 +250,7 @@ import { ElMessage } from 'element-plus';
 const confirmSaveVariable = () => {
   if (hexColor.value !== 'transparent') {
     // 检查当前主题中是否已存在相同的颜色
-    const existingColor = colorStore.themeColors[colorStore.currentThemeIndex].find(
+    const existingColor = baseStore.themeColors[baseStore.currentThemeIndex].find(
       c => c.hex.toLowerCase() === hexColor.value.toLowerCase()
     );
 
@@ -259,7 +259,7 @@ const confirmSaveVariable = () => {
       return;
     }
 
-    colorStore.addColor(hexColor.value, varName.value);
+    baseStore.addColor(hexColor.value, varName.value);
   }
 };
 

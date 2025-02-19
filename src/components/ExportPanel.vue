@@ -58,7 +58,7 @@ import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 
 import { useMessageStore } from "@/stores/message";
-import { useColorStore } from "@/stores/colorStore";
+
 import { getMetricBySymbol } from "@/config/settings";
 
 import { useBaseStore } from "@/stores/base";
@@ -76,7 +76,7 @@ import { useProgressRingStore } from "@/stores/elements/progressRingElement";
 import { useRectStore } from "@/stores/elements/rectElement";
 
 
-const colorStore = useColorStore();
+
 const timeStore = useTimeStore();
 const dateStore = useDateStore();
 const metricStore = useMetricStore();
@@ -167,7 +167,7 @@ const generateConfig = () => {
     version: "1.0",
     name: baseStore.watchFaceName,
     kpayId: baseStore.kpayId,
-    themeColors: colorStore.themeColors,
+    themeColors: baseStore.themeColors,
     metricTypes: [],
     elements: [],
   };
@@ -189,16 +189,13 @@ const generateConfig = () => {
     }
     // 根据color获取colorId: 为color数组的索引
     if (encodeConfig.color) {
-      encodeConfig.color = encodeConfig.color;
-      encodeConfig.colorId = config.themeColors[0].findIndex((color) => color === encodeConfig.color);
+      encodeConfig.colorId = baseStore.currentThemeColors.findIndex((color) => color.hex === encodeConfig.color);
     }
     if (encodeConfig.bgColor) {
-      encodeConfig.bgColor = encodeConfig.bgColor;
-      encodeConfig.bgColorId = config.themeColors[0].findIndex((color) => color === encodeConfig.bgColor);
+      encodeConfig.bgColorId = baseStore.currentThemeColors.findIndex((color) => color.hex === encodeConfig.bgColor);
     }
     if (encodeConfig.stroke) {
-      encodeConfig.stroke = encodeConfig.stroke;
-      encodeConfig.strokeId = config.themeColors[0].findIndex((color) => color === encodeConfig.stroke);
+      encodeConfig.strokeId = baseStore.currentThemeColors.findIndex((color) => color.hex === encodeConfig.stroke);
     }
     // 获取imageId
     if (encodeConfig.type == 'image') {

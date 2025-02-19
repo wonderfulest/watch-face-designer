@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useBaseStore } from '../base'
 import { useLayerStore } from '../layerStore'
-import { useColorStore } from '../colorStore';
+
 import { Circle, Group } from 'fabric'
 import { nanoid } from 'nanoid'
 
@@ -9,11 +9,9 @@ export const useProgressRingStore = defineStore('progressRingElement', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
-    const colorStore = useColorStore()
     return {
       baseStore,
-      layerStore,
-      colorStore
+      layerStore
     }
   },
 
@@ -169,8 +167,8 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         metricSymbol: element.metricSymbol,
         fullAngle: this.getFullAngle(mainRing.startAngle, bgRing.endAngle), // 不需要反序列化
         varName: element.varName,
-        colorVarName: this.colorStore.getColorVarName(mainRing.stroke),
-        bgColorVarName: this.colorStore.getColorVarName(bgRing.stroke),
+        colorVarName: this.baseStore.getColorVarName(mainRing.stroke),
+        bgColorVarName: this.baseStore.getColorVarName(bgRing.stroke),
       };
     },
     decodeConfig(config) {

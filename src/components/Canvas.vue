@@ -32,7 +32,7 @@ onMounted(() => {
         width: WATCH_SIZE.value,
         height: WATCH_SIZE.value,
         radius: WATCH_SIZE.value / 2,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: baseStore.backgroundColor,
     });
     
     // 添加 passive 事件监听器

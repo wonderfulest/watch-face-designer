@@ -24,7 +24,7 @@ import ElementSettings from "@/components/ElementSettings.vue";
 import SidePanel from "@/components/SidePanel.vue";
 import { useKeyboardShortcuts } from "../composables/useKeyboardShortcuts";
 
-import { useColorStore } from "@/stores/colorStore";
+
 import { useMessageStore } from "@/stores/message";
 import { useFontStore } from "@/stores/fontStore";
 import axiosInstance from "@/config/axiosConfig";
@@ -40,7 +40,7 @@ import { useProgressRingStore } from "@/stores/elements/progressRingElement";
 import { useCircleStore } from "@/stores/elements/circleElement";
 import { useRectStore } from "@/stores/elements/rectElement";
 
-const colorStore = useColorStore();
+
 const imageStore = useImageElementStore();
 const route = useRoute();
 const baseStore = useBaseStore();
@@ -77,9 +77,9 @@ const loadDesign = async (id) => {
     baseStore.watchFaceName = designData.attributes.name;
     baseStore.kpayId = designData.attributes.kpay_appid;
     // 设置主题颜色
-    colorStore.themeColors = config.themeColors;
+    baseStore.themeColors = config.themeColors;
     // 默认选中第一个颜色
-    colorStore.currentThemeIndex = 0;
+    baseStore.currentThemeIndex = 0;
 
     // 等待画布初始化完成
     await new Promise((resolve) => {

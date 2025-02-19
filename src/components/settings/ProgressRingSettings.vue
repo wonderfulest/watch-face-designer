@@ -111,7 +111,7 @@
 <script setup>
 import { ref, watch, computed } from "vue";
 import { useBaseStore } from "@/stores/base";
-import { useColorStore } from '@/stores/colorStore';
+
 import { useProgressRingStore } from "@/stores/elements/progressRingElement";
 import ColorPicker from "@/components/color-picker/index.vue";
 import { DataTypeOptions } from "@/config/settings";
@@ -126,7 +126,7 @@ const props = defineProps({
 
 const baseStore = useBaseStore();
 const progressRingStore = useProgressRingStore();
-const colorStore = useColorStore();
+
 
 // 获取主圆环和背景圆环
 const mainRing = computed(() =>
@@ -212,8 +212,8 @@ const updateElement = () => {
     originY: "center",
     width: size,
     height: size,
-    colorVarName: colorStore.getColorVarName(color.value),
-    bgColorVarName: colorStore.getColorVarName(bgColor.value)
+    colorVarName: baseStore.getColorVarName(color.value),
+    bgColorVarName: baseStore.getColorVarName(bgColor.value)
   });
 
   // 强制组重新计算边界

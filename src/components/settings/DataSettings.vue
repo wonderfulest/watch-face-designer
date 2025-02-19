@@ -77,7 +77,7 @@
 import { ref, watch, onMounted } from "vue";
 import { useBaseStore } from "@/stores/base";
 import { useFontStore } from '@/stores/fontStore';
-import { useColorStore } from '@/stores/colorStore';
+
 import {
   fontSizes,
   originXOptions,
@@ -97,7 +97,7 @@ const props = defineProps({
 
 const baseStore = useBaseStore();
 const fontStore = useFontStore();
-const colorStore = useColorStore();
+
 
 // 设置项的响应式状态
 const fontSize = ref(props.element?.fontSize);
@@ -188,7 +188,7 @@ const updateTextColor = () => {
   if (!props.element || !baseStore.canvas) return;
   props.element.set({
     "fill": textColor.value,
-    "colorVarName": colorStore.getColorVarName(textColor.value),
+    "colorVarName": baseStore.getColorVarName(textColor.value),
   });
 
   baseStore.canvas.renderAll();
@@ -241,7 +241,7 @@ const updateMetricType = () => {
 @import "@/assets/styles/settings.css";
 .example-text {
   color: #555;
-  margin-left: 1em; /* 使用制表符对齐 */
+  margin-left: 1em;
 }
 
 .align-buttons .iconify {

@@ -78,6 +78,7 @@ import { ref, watch, onMounted, onUnmounted } from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useTimeStore } from '@/stores/elements/timeElement';
 import { useFontStore } from '@/stores/fontStore';
+
 import { fontSizes, originXOptions, TimeFormatOptions } from '@/config/settings';
 import ColorPicker from '@/components/color-picker/index.vue';
 import FontPicker from '@/components/font-picker/index.vue'; // Import FontPicker component
@@ -85,6 +86,7 @@ import FontPicker from '@/components/font-picker/index.vue'; // Import FontPicke
 const timeElement = useTimeStore();
 const fontStore = useFontStore();
 const baseStore = useBaseStore();
+
 
 const props = defineProps({
     element: {
@@ -127,13 +129,15 @@ const updateFontSize = () => {
 
 const updateTextColor = () => {
     if (!props.element || !baseStore.canvas) return;
-    props.element.set('fill', textColor.value);
+    props.element.set({
+        'fill': textColor.value,
+        'colorVarName': baseStore.getColorVarName(textColor.value),
+    });
     baseStore.canvas.renderAll();
 };
 
 const updateFontFamily = async (font) => {
     if (!props.element || !baseStore.canvas) return;
-    
     props.element.set('fontFamily', font);
     props.element.setCoords();
     baseStore.canvas.renderAll();

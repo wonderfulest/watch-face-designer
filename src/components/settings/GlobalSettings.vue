@@ -10,7 +10,7 @@
     </div>
     <div class="setting-item">
       <label>背景颜色</label>
-      <el-input type="color" v-model="backgroundColor" @change="updateBackgroundColor" />
+      <ColorPicker v-model="backgroundColor" @update:modelValue="updateBackgroundColor" />
     </div>
 
     <!-- 颜色主题配置 -->
@@ -44,10 +44,9 @@
           class="color-item"
         >
           <span class="color-name">{{ color.name }}</span>
-          <el-input 
-            type="color" 
+          <ColorPicker 
             v-model="color.hex"
-            @change="updateThemeColor(color)"
+            @update:modelValue="(value) => updateThemeColor({...color, hex: value})"
           />
         </div>
       </div>
@@ -58,10 +57,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useBaseStore } from '@/stores/base';
-import { useColorStore } from '@/stores/colorStore';
+import ColorPicker from '@/components/color-picker/index.vue';
 
 const baseStore = useBaseStore();
-const colorStore = useColorStore();
 
 // 背景颜色
 const backgroundColor = computed({
@@ -72,6 +70,10 @@ const backgroundColor = computed({
 // 更新背景颜色
 const updateBackgroundColor = (color) => {
   baseStore.backgroundColor = color;
+  // 更新画布背景
+  if (baseStore.canvas) {
+    baseStore.updateBackgroundFill();
+  }
 };
 
 // 表盘名称
@@ -90,17 +92,17 @@ const updateKpayId = () => {
 
 // 主题颜色
 const themeColors = computed({
-  get: () => colorStore.themeColors,
-  set: (value) => colorStore.themeColors = value
+  get: () => baseStore.themeColors,
+  set: (value) => baseStore.themeColors = value
 });
 
 // 当前主题索引
 const currentThemeIndex = computed({
-  get: () => colorStore.currentThemeIndex || 0,
+  get: () => baseStore.currentThemeIndex || 0,
   set: (value) => {
-    colorStore.currentThemeIndex = value;
+    baseStore.currentThemeIndex = value;
     // 更新主题颜色
-    baseStore.toggleTheme(colorStore.themeColors[value]);
+    baseStore.toggleTheme(baseStore.themeColors[value]);
   }
 });
 
@@ -121,9 +123,6 @@ const currentThemeColors = computed({
         hex: themeColors.value[currentThemeIndex.value][index]?.hex || '#ffffff'
       }));
     }
-    // console.log('currentThemeIndex', currentThemeIndex.value)
-    // console.log('currentThemeColors', themeColors.value[currentThemeIndex.value])
-    // console.log('baseThemeColors', baseThemeColors)
     // 返回当前主题的颜色变量
     return themeColors.value[currentThemeIndex.value];
   },
