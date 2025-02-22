@@ -9,7 +9,6 @@
       <el-input type="text" v-model="kpayId" @change="updateKpayId" />
     </div>
   
-
     <!-- 主题配置 -->
     <div class="theme-settings">
       <div class="theme-header">

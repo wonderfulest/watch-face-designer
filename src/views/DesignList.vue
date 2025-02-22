@@ -8,9 +8,7 @@
         <el-select v-model="selectedStatus" placeholder="选择状态" @change="handleStatusChange" class="status-filter">
           <el-option label="全部" value="" />
           <el-option label="草稿" value="draft" />
-          <el-option label="已拒绝" value="reject" />
-          <el-option label="已通过" value="accept" />
-          <el-option label="已打包" value="packaged" />
+          <el-option label="已提交" value="submitted" />
         </el-select>
         <el-button type="primary" @click="createNew">
           <Icon icon="material-symbols:add" />
@@ -65,6 +63,12 @@
             </div>
             <div class="actions">
               <el-button type="primary" size="small" @click="editDesign(design)">编辑</el-button>
+              <el-button 
+                v-if="design.attributes.status === 'draft'"
+                type="success" 
+                size="small" 
+                @click="submitDesign(design)"
+              >提交</el-button>
               <el-button type="danger" size="small" @click="confirmDelete(design)">删除</el-button>
             </div>
           </div>
@@ -104,7 +108,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import axiosInstance from '@/config/axiosConfig';
+import { getDesigns, getDesignDetail, updateDesignStatus, deleteDesign as apiDeleteDesign } from '@/api/design';
 import { useMessageStore } from '@/stores/message';
 import { useBaseStore } from '@/stores/baseStore';
 import dayjs from 'dayjs';
@@ -115,35 +119,27 @@ const baseStore = useBaseStore();
 const designs = ref([]);
 const deleteDialogVisible = ref(false);
 const designToDelete = ref(null);
-const selectedStatus = ref('');
+const selectedStatus = ref('draft'); // 默认显示草稿状态
 // 分页相关
 const currentPage = ref(1);
 const pageSize = ref(12);
 const total = ref(0);
 
-// 修改获取设计列表的函数
+// 获取设计列表
 const fetchDesigns = async () => {
   try {
     const userStr = localStorage.getItem('user');
     const user = JSON.parse(userStr);
     
-    const params = {
-      'pagination[page]': currentPage.value,
-      'pagination[pageSize]': pageSize.value,
-      'filters[user_id][$eq]': user.id,
-      'sort[0]': 'updatedAt:desc',
-      'populate': 'background'
-    };
-
-    // 添加状态筛选
-    if (selectedStatus.value) {
-      params['filters[status][$eq]'] = selectedStatus.value;
-    }
+    const response = await getDesigns({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      userId: user.id,
+      status: selectedStatus.value
+    });
     
-    const response = await axiosInstance.get('/designs', { params });
-    
-    designs.value = response.data.data;
-    total.value = response.data.meta.pagination.total;
+    designs.value = response.data;
+    total.value = response.meta.pagination.total;
   } catch (error) {
     console.error('获取设计列表失败:', error);
     messageStore.error('获取设计列表失败');
@@ -178,9 +174,7 @@ const formatDate = (date) => {
 const getStatusText = (status) => {
   const statusMap = {
     draft: '草稿',
-    reject: '已拒绝',
-    accept: '已通过',
-    packaged: '已打包'
+    submitted: '已提交'
   };
   return statusMap[status] || '未知';
 };
@@ -193,14 +187,8 @@ const createNew = () => {
 // 编辑设计
 const editDesign = async (design) => {
   try {
-    // 获取完整的设计数据
-    const response = await axiosInstance.get(`/designs/${design.id}`, {
-      params: {
-        'populate': '*'
-      }
-    });
-    
-    const designData = response.data.data;
+    const response = await getDesignDetail(design.id);
+    const designData = response.data;
     
     // 设置基础信息
     baseStore.watchFaceName = designData.attributes.name;
@@ -225,12 +213,24 @@ const confirmDelete = (design) => {
   deleteDialogVisible.value = true;
 };
 
+// 提交设计
+const submitDesign = async (design) => {
+  try {
+    await updateDesignStatus(design.id, 'submitted');
+    messageStore.success('提交成功');
+    await fetchDesigns(); // 刷新列表
+  } catch (error) {
+    console.error('提交失败:', error);
+    messageStore.error('提交失败');
+  }
+};
+
 // 删除设计
 const deleteDesign = async () => {
   if (!designToDelete.value) return;
   
   try {
-    await axiosInstance.delete(`/designs/${designToDelete.value.id}`);
+    await apiDeleteDesign(designToDelete.value.id);
     messageStore.success('删除成功');
     deleteDialogVisible.value = false;
     await fetchDesigns(); // 刷新列表
@@ -362,15 +362,7 @@ onMounted(() => {
   background-color: #909399;
 }
 
-.status-tag.reject {
-  background-color: #f56c6c;
-}
-
-.status-tag.accept {
+.status-tag.submitted {
   background-color: #67c23a;
-}
-
-.status-tag.packaged {
-  background-color: #409eff;
 }
 </style>

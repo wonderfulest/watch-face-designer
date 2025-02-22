@@ -11,7 +11,8 @@ export const elementAttribute = {
   backgroundColor: "#FFFFFF",
   fontFamily: "Arial",
   color: '#FFFFFF', // 进度环颜色
-  fontSize: 36,
+  fontSize: 30,
+  iconSize: 36,
   selectable: false,
   hasControls: true,
   hasBorders: true,
