@@ -35,7 +35,7 @@ export const useIconStore = defineStore('iconElement', {
                     eleType: 'icon',
                     left: options.left,
                     top: options.top,
-                    fontSize: Number(options.fontSize),
+                    fontSize: Number(options.iconSize),
                     fill: options.fill,
                     fontFamily: options.iconFontFamily,
                     originX: options.originX,  // 使用 originX 控制对齐方式

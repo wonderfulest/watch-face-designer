@@ -3,28 +3,66 @@
     <!-- 当前选中的字体预览 -->
     <div class="font-preview" @click="togglePanel">
       <span class="font-name">{{ selectedFontLabel }}</span>
-      <span class="preview-text" :style="{ fontFamily: selectedFontLabel }">12:23 AM 72°F & Sunny</span>
+      <span class="preview-text" :style="{ fontFamily: modelValue }">12:23 AM 72°F & Sunny 0123456789</span>
     </div>
 
     <!-- 字体选择面板 -->
     <div v-if="isOpen" class="font-panel">
+      <div class="search-container">
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="搜索字体..."
+          class="search-input"
+          @input="filterFonts"
+        />
+      </div>
       <div class="font-library">
+        <!-- 搜索结果 -->
+        <div v-if="searchQuery && filteredFonts.length > 0" class="font-section">
+          <div class="section-header">
+            <span class="arrow expanded">›</span>
+            搜索结果
+          </div>
+          <div class="section-content">
+            <div v-for="group in groupByFamily(filteredFonts)" :key="group.family" class="font-family-group">
+              <div class="family-name">{{ group.family }}</div>
+              <div
+                v-for="font in group.fonts"
+                :key="font.value"
+                class="font-item"
+                :class="{ active: modelValue === font.value }"
+                @click="selectFont(font.value)"
+              >
+                <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 无搜索结果提示 -->
+        <div v-if="searchQuery && filteredFonts.length === 0" class="no-results">
+          未找到匹配的字体
+        </div>
+
         <!-- 最近使用的字体 -->
+        <div v-if="!searchQuery">
         <div v-if="fontStore.recentFonts.length > 0" class="font-section">
           <div class="section-header" @click="toggleSection('recent')">
             <span class="arrow" :class="{ expanded: expandedSections['recent'] }">›</span>
             最近使用
           </div>
           <div v-if="expandedSections['recent']" class="section-content">
-            <div
-              v-for="font in fontStore.recentFonts"
-              :key="font.value"
-              class="font-item"
-              :class="{ active: modelValue === font.value }"
-              @click="selectFont(font.value)"
-            >
-              <span class="font-name">{{ font.label }}</span>
-              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
+            <div v-for="group in groupByFamily(fontStore.recentFonts)" :key="group.family" class="font-family-group">
+              <div
+                v-for="font in group.fonts"
+                :key="font.value"
+                class="font-item"
+                :class="{ active: modelValue === font.value }"
+                @click="selectFont(font.value)"
+              >
+                <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+              </div>
             </div>
           </div>
         </div>
@@ -35,15 +73,17 @@
             SANS-SERIF
           </div>
           <div v-if="expandedSections['sans-serif']" class="section-content">
-            <div
-              v-for="font in sansSerifFonts"
-              :key="font.value"
-              class="font-item"
-              :class="{ active: modelValue === font.value }"
-              @click="selectFont(font.value)"
-            >
-              <span class="font-name">{{ font.label }}</span>
-              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
+            <div v-for="group in groupByFamily(sansSerifFonts)" :key="group.family" class="font-family-group">
+              <div class="family-name">{{ group.family }}</div>
+              <div
+                v-for="font in group.fonts"
+                :key="font.value"
+                class="font-item"
+                :class="{ active: modelValue === font.value }"
+                @click="selectFont(font.value)"
+              >
+                <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+              </div>
             </div>
           </div>
         </div>
@@ -54,15 +94,17 @@
             FIXED WIDTH
           </div>
           <div v-if="expandedSections['fixed']" class="section-content">
-            <div
-              v-for="font in fixedWidthFonts"
-              :key="font.value"
-              class="font-item"
-              :class="{ active: modelValue === font.value }"
-              @click="selectFont(font.value)"
-            >
-              <span class="font-name">{{ font.label }}</span>
-              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
+            <div v-for="group in groupByFamily(fixedWidthFonts)" :key="group.family" class="font-family-group">
+              <div class="family-name">{{ group.family }}</div>
+              <div
+                v-for="font in group.fonts"
+                :key="font.value"
+                class="font-item"
+                :class="{ active: modelValue === font.value }"
+                @click="selectFont(font.value)"
+              >
+                <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+              </div>
             </div>
           </div>
         </div>
@@ -73,15 +115,17 @@
             SERIF
           </div>
           <div v-if="expandedSections['serif']" class="section-content">
-            <div
-              v-for="font in serifFonts"
-              :key="font.value"
-              class="font-item"
-              :class="{ active: modelValue === font.value }"
-              @click="selectFont(font.value)"
-            >
-              <span class="font-name">{{ font.label }}</span>
-              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
+            <div v-for="group in groupByFamily(serifFonts)" :key="group.family" class="font-family-group">
+              <div class="family-name">{{ group.family }}</div>
+              <div
+                v-for="font in group.fonts"
+                :key="font.value"
+                class="font-item"
+                :class="{ active: modelValue === font.value }"
+                @click="selectFont(font.value)"
+              >
+                <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+              </div>
             </div>
           </div>
         </div>
@@ -92,15 +136,17 @@
             LCD
           </div>
           <div v-if="expandedSections['lcd']" class="section-content">
-            <div
-              v-for="font in lcdFonts"
-              :key="font.value"
-              class="font-item"
-              :class="{ active: modelValue === font.value }"
-              @click="selectFont(font.value)"
-            >
-              <span class="font-name">{{ font.label }}</span>
-              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
+            <div v-for="group in groupByFamily(lcdFonts)" :key="group.family" class="font-family-group">
+              <div class="family-name">{{ group.family }}</div>
+              <div
+                v-for="font in group.fonts"
+                :key="font.value"
+                class="font-item"
+                :class="{ active: modelValue === font.value }"
+                @click="selectFont(font.value)"
+              >
+                <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+              </div>
             </div>
           </div>
         </div>
@@ -111,15 +157,17 @@
             ICON
           </div>
           <div v-if="expandedSections['icon']" class="section-content">
-            <div
-              v-for="font in iconFonts"
-              :key="font.value"
-              class="font-item"
-              :class="{ active: modelValue === font.value }"
-              @click="selectFont(font.value)"
-            >
-              <span class="font-name">{{ font.label }}</span>
-              <span class="preview-text" :style="{ fontFamily: font.value }">0123456789</span>
+            <div v-for="group in groupByFamily(iconFonts)" :key="group.family" class="font-family-group">
+              <div class="family-name">{{ group.family }}</div>
+              <div
+                v-for="font in group.fonts"
+                :key="font.value"
+                class="font-item"
+                :class="{ active: modelValue === font.value }"
+                @click="selectFont(font.value)"
+              >
+                <span class="preview-text" :style="{ fontFamily: font.value }">0123456789</span>
+              </div>
             </div>
           </div>
         </div>
@@ -133,18 +181,26 @@
             <div v-if="customFonts.length === 0" class="no-fonts">
               No custom fonts added yet
             </div>
-            <div
-              v-else
-              v-for="font in customFonts"
-              :key="font.value"
-              class="font-item"
-              :class="{ active: modelValue === font.value }"
-              @click="selectFont(font.value)"
-            >
-              <span class="font-name">{{ font.label }}</span>
-              <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny</span>
-            </div>
+            <template v-else>
+              <div
+                v-for="group in groupByFamily(customFonts)"
+                :key="group.family"
+                class="font-family-group"
+              >
+                <div class="family-name">{{ group.family }}</div>
+                <div
+                  v-for="font in group.fonts"
+                  :key="font.value"
+                  class="font-item"
+                  :class="{ active: modelValue === font.value }"
+                  @click="selectFont(font.value)"
+                >
+                  <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+                </div>
+              </div>
+            </template>
           </div>
+        </div>
         </div>
       </div>
 
@@ -171,10 +227,13 @@ const emit = defineEmits(['update:modelValue', 'change']);
 const fontStore = useFontStore();
 
 const isOpen = ref(false);
+const searchQuery = ref('');
+const filteredFonts = ref([]);
+
 const expandedSections = ref({
   'recent': true,
-  'sans-serif': false,
-  'fixed': false,
+  'sans-serif': true,
+  'fixed': true,
   'serif': false,
   'lcd': true,
   'icon': true,
@@ -183,42 +242,130 @@ const expandedSections = ref({
 
 // 字体列表
 const iconFonts = [
-  { label: 'super-regular', value: 'super-regular' }
+  { label: 'super-regular', value: 'super-regular', family: 'super-regular' }
 ];
 
 const sansSerifFonts = [
-  { label: 'Arial', value: 'arial' },
-  { label: 'Amiko', value: 'Amiko400' },
-  { label: 'Amiko SemiBold', value: 'Amiko600' },
-  { label: 'Amiko Bold', value: 'Amiko700' },
-  // { label: 'Helvetica', value: 'helvetica' },
-  // { label: 'Verdana', value: 'verdana' },
-  { label: 'Roboto Light', value: 'Roboto-Light' }
+  { label: 'Amiko Regular', value: 'Amiko-Regular', family: 'Amiko' },
+  { label: 'Amiko SemiBold', value: 'Amiko-SemiBold', family: 'Amiko' },
+  { label: 'Amiko Bold', value: 'Amiko-Bold', family: 'Amiko' },
+  { label: 'Arimo Regular', value: 'Arimo-Regular', family: 'Arimo' },
+  { label: 'Arimo Bold', value: 'Arimo-Bold', family: 'Arimo' },
+  { label: 'Bebas Neue Bold', value: 'BebasNeue-Bold', family: 'Bebas Neue' },
+  { label: 'Bebas Neue Book', value: 'BebasNeue-Book', family: 'Bebas Neue' },
+  { label: 'Bebas Neue Light', value: 'BebasNeue-Light', family: 'Bebas Neue' },
+  { label: 'Bebas Neue Regular', value: 'BebasNeue-Regular', family: 'Bebas Neue' },
+  { label: 'Bebas Neue Thin', value: 'BebasNeue-Thin', family: 'Bebas Neue' },
+
+  { label: 'IBM Plex Sans Condensed Regular', value: 'IBMPlexSansCondensed-Regular', family: 'IBM Plex Sans Condensed' },
+  { label: 'IBM Plex Sans Condensed Medium', value: 'IBMPlexSansCondensed-Medium', family: 'IBM Plex Sans Condensed' },
+  { label: 'IBM Plex Sans Condensed SemiBold', value: 'IBMPlexSansCondensed-SemiBold', family: 'IBM Plex Sans Condensed' },
+  { label: 'IBM Plex Sans Condensed Bold', value: 'IBMPlexSansCondensed-Bold', family: 'IBM Plex Sans Condensed' },
+  { label: 'Montserrat Regular', value: 'Montserrat-Regular', family: 'Montserrat' },
+  { label: 'Montserrat Medium', value: 'Montserrat-Medium', family: 'Montserrat' },
+  { label: 'Montserrat Bold', value: 'Montserrat-Bold', family: 'Montserrat' },
+  { label: 'Muli Regular', value: 'Muli-Regular', family: 'Muli' },
+  { label: 'Muli SemiBold', value: 'Muli-SemiBold', family: 'Muli' },
+  { label: 'Muli Bold', value: 'Muli-Bold', family: 'Muli' },
+  { label: 'Muli ExtraBold', value: 'Muli-ExtraBold', family: 'Muli' },
+  { label: 'Muli Black', value: 'Muli-Black', family: 'Muli' },
+  { label: 'Nunito Regular', value: 'Nunito-Regular', family: 'Nunito' },
+  { label: 'Nunito SemiBold', value: 'Nunito-SemiBold', family: 'Nunito' },
+  { label: 'Nunito Bold', value: 'Nunito-Bold', family: 'Nunito' },
+  { label: 'Nunito ExtraBold', value: 'Nunito-ExtraBold', family: 'Nunito' },
+  { label: 'Nunito Black', value: 'Nunito-Black', family: 'Nunito' },
+  { label: 'Overpass Regular', value: 'Overpass-Regular', family: 'Overpass' },
+  { label: 'Overpass SemiBold', value: 'Overpass-SemiBold', family: 'Overpass' },
+  { label: 'Overpass Bold', value: 'Overpass-Bold', family: 'Overpass' },
+  { label: 'Overpass ExtraBold', value: 'Overpass-ExtraBold', family: 'Overpass' },
+  { label: 'Overpass Black', value: 'Overpass-Black', family: 'Overpass' },
+  { label: 'Work Sans Regular', value: 'WorkSans-Regular', family: 'Work Sans' },
+  { label: 'Work Sans Medium', value: 'WorkSans-Medium', family: 'Work Sans' },
+  { label: 'Work Sans Bold', value: 'WorkSans-Bold', family: 'Work Sans' },
+  { label: 'Work Sans ExtraBold', value: 'WorkSans-ExtraBold', family: 'Work Sans' },
+  { label: 'Work Sans Black', value: 'WorkSans-Black', family: 'Work Sans' }
 ];
 
 const fixedWidthFonts = [
-  { label: 'Bebas Neue', value: 'bebas_neue' },
-  { label: 'Courier New', value: 'courier-new' },
-  { label: 'Monaco', value: 'monaco' },
-  { label: 'Consolas', value: 'consolas' }
+  { label: 'Apple Classic', value: 'Apple-Classic', family: 'Apple Classic' },
+  { label: 'Apple Curved', value: 'Apple-Curved', family: 'Apple Curved' },
+  { label: 'Apple Curved Thin', value: 'Apple-Curved-Thin', family: 'Apple Curved' },
+  { label: 'Apple Curved UltraThin', value: 'Apple-Curved-UltraThin', family: 'Apple Curved' },
+  { label: 'Apple Modern', value: 'Apple-Modern', family: 'Apple Modern' },
+  { label: 'Apple Modern Thin', value: 'Apple-Modern-Thin', family: 'Apple Modern' },
+  { label: 'Cousine Regular', value: 'Cousine-Regular', family: 'Cousine' },
+  { label: 'Cousine Bold', value: 'Cousine-Bold', family: 'Cousine' },
+  { label: 'IBM Plex Mono Regular', value: 'IBMPlexMono-Regular', family: 'IBM Plex Mono' },
+  { label: 'IBM Plex Mono Medium', value: 'IBMPlexMono-Medium', family: 'IBM Plex Mono' },
+  { label: 'IBM Plex Mono SemiBold', value: 'IBMPlexMono-SemiBold', family: 'IBM Plex Mono' },
+  { label: 'IBM Plex Mono Bold', value: 'IBMPlexMono-Bold', family: 'IBM Plex Mono' },
+  { label: 'Inconsolata Regular', value: 'Inconsolata-Regular', family: 'Inconsolata' },
+  { label: 'Inconsolata Bold', value: 'Inconsolata-Bold', family: 'Inconsolata' },
+  { label: 'Overpass Mono Regular', value: 'OverpassMono-Regular', family: 'Overpass Mono' },
+  { label: 'Overpass Mono SemiBold', value: 'OverpassMono-SemiBold', family: 'Overpass Mono' },
+  { label: 'Overpass Mono Bold', value: 'OverpassMono-Bold', family: 'Overpass Mono' },
+  { label: 'Roboto Mono Regular', value: 'RobotoMono-Regular', family: 'Roboto Mono' },
+  { label: 'Roboto Mono Medium', value: 'RobotoMono-Medium', family: 'Roboto Mono' },
+  { label: 'Roboto Mono Bold', value: 'RobotoMono-Bold', family: 'Roboto Mono' },
+  { label: 'Source Code Pro Regular', value: 'SourceCodePro-Regular', family: 'Source Code Pro' },
+  { label: 'Source Code Pro Medium', value: 'SourceCodePro-Medium', family: 'Source Code Pro' },
+  { label: 'Source Code Pro SemiBold', value: 'SourceCodePro-SemiBold', family: 'Source Code Pro' },
+  { label: 'Source Code Pro Bold', value: 'SourceCodePro-Bold', family: 'Source Code Pro' },
+  { label: 'Source Code Pro Black', value: 'SourceCodePro-Black', family: 'Source Code Pro' },
+  { label: 'Ubuntu Mono Regular', value: 'UbuntuMono-Regular', family: 'Ubuntu Mono' },
+  { label: 'Ubuntu Mono Bold', value: 'UbuntuMono-Bold', family: 'Ubuntu Mono' }
 ];
 
 const serifFonts = [
-  { label: 'Times New Roman', value: 'times-new-roman' },
-  { label: 'Georgia', value: 'georgia' },
-  { label: 'Palatino', value: 'palatino' }
+  { label: 'Aleo Regular', value: 'Aleo-Regular', family: 'Aleo' },
+  { label: 'Aleo Bold', value: 'Aleo-Bold', family: 'Aleo' },
+  { label: 'Arvo Regular', value: 'Arvo-Regular', family: 'Arvo' },
+  { label: 'Arvo Bold', value: 'Arvo-Bold', family: 'Arvo' },
+  { label: 'BioRhyme Regular', value: 'BioRhyme-Regular', family: 'BioRhyme' },
+  { label: 'BioRhyme Bold', value: 'BioRhyme-Bold', family: 'BioRhyme' },
+  { label: 'BioRhyme ExtraBold', value: 'BioRhyme-ExtraBold', family: 'BioRhyme' },
+  { label: 'Bitter Regular', value: 'Bitter-Regular', family: 'Bitter' },
+  { label: 'Bitter Bold', value: 'Bitter-Bold', family: 'Bitter' },
+  { label: 'Glegoo Regular', value: 'Glegoo-Regular', family: 'Glegoo' },
+  { label: 'Glegoo Bold', value: 'Glegoo-Bold', family: 'Glegoo' },
+  { label: 'Kadwa Regular', value: 'Kadwa-Regular', family: 'Kadwa' },
+  { label: 'Kadwa Bold', value: 'Kadwa-Bold', family: 'Kadwa' },
+  { label: 'Kameron Regular', value: 'Kameron-Regular', family: 'Kameron' },
+  { label: 'Kameron Bold', value: 'Kameron-Bold', family: 'Kameron' },
+  { label: 'Libre Baskerville Regular', value: 'LibreBaskerville-Regular', family: 'Libre Baskerville' },
+  { label: 'Libre Baskerville Bold', value: 'LibreBaskerville-Bold', family: 'Libre Baskerville' },
+  { label: 'Noto Serif Regular', value: 'NotoSerif-Regular', family: 'Noto Serif' },
+  { label: 'Noto Serif Bold', value: 'NotoSerif-Bold', family: 'Noto Serif' },
+  { label: 'Roboto Slab Regular', value: 'RobotoSlab-Regular', family: 'Roboto Slab' },
+  { label: 'Roboto Slab Bold', value: 'RobotoSlab-Bold', family: 'Roboto Slab' },
+  { label: 'Sumana Regular', value: 'Sumana-Regular', family: 'Sumana' },
+  { label: 'Sumana Bold', value: 'Sumana-Bold', family: 'Sumana' }
 ];
 
 const lcdFonts = [
-  { label: 'Patopian 1986', value: 'patopian-1986' },
-  { label: 'Minisystem', value: 'minisystem' },
-  { label: 'Digital System', value: 'digital-system' }
+  { label: 'Digital System', value: 'DigitalSystem-Regular', family: 'Digital System' },
+  { label: 'Minisystem', value: 'Minisystem-Regular', family: 'Minisystem' },
+  { label: 'Patopian 1986', value: 'Patopian1986-Regular', family: 'Patopian 1986' }
 ];
 
 const customFonts = ref([
-{ label: 'conthrax-sb', value: 'conthrax-sb' },
-{ label: 'VarsityTeam-Bold', value: 'VarsityTeam-Bold' },
+{ label: 'conthrax-sb', value: 'conthrax-sb', family: 'conthrax-sb' },
+{ label: 'VarsityTeam-Bold', value: 'VarsityTeam-Bold', family: 'VarsityTeam' },
 ]);
+
+const groupByFamily = (fonts) => {
+  const groups = new Map();
+  fonts.forEach(font => {
+    if (!groups.has(font.family)) {
+      groups.set(font.family, []);
+    }
+    groups.get(font.family).push(font);
+  });
+  return Array.from(groups.entries()).map(([family, fonts]) => ({
+    family,
+    fonts
+  }));
+};
 
 const selectedFontLabel = computed(() => {
   const allFonts = [...iconFonts, ...sansSerifFonts, ...fixedWidthFonts, ...serifFonts, ...lcdFonts, ...customFonts.value];
@@ -242,6 +389,41 @@ const selectFont = (font) => {
   emit('change', font);
   fontStore.addRecentFont(font);
   isOpen.value = false;
+};
+
+const filterFonts = () => {
+  const query = searchQuery.value.toLowerCase();
+  if (!query) {
+    filteredFonts.value = [];
+    return;
+  }
+  
+  const allFonts = [
+    ...iconFonts,
+    ...sansSerifFonts,
+    ...fixedWidthFonts,
+    ...serifFonts,
+    ...lcdFonts,
+    ...customFonts.value
+  ];
+  
+  // 先按family分组
+  const fontsByFamily = groupByFamily(allFonts);
+  
+  // 过滤匹配的family组
+  const matchingGroups = fontsByFamily.filter(group => 
+    group.family.toLowerCase().includes(query)
+  );
+  
+  // 如果没有匹配的family，再搜索具体的字体名
+  if (matchingGroups.length === 0) {
+    filteredFonts.value = allFonts.filter(font => 
+      font.label.toLowerCase().includes(query)
+    );
+  } else {
+    // 如果有匹配的family，展平所有匹配组中的字体
+    filteredFonts.value = matchingGroups.flatMap(group => group.fonts);
+  }
 };
 
 // 添加自定义字体
@@ -301,8 +483,34 @@ onUnmounted(() => {
   z-index: 1000;
 }
 
+.search-container {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.search-input:focus {
+  border-color: #409eff;
+}
+
+.no-results {
+  padding: 24px;
+  text-align: center;
+  color: #909399;
+  font-size: 14px;
+}
+
 .font-library {
-  max-height: 400px;
+  max-height: 800px;
   overflow-y: auto;
 }
 
@@ -313,7 +521,6 @@ onUnmounted(() => {
 .section-header {
   padding: 12px;
   font-size: 13px;
-  font-weight: 500;
   color: #333;
   cursor: pointer;
   display: flex;
@@ -333,6 +540,14 @@ onUnmounted(() => {
 
 .section-content {
   padding: 8px 0;
+}
+
+.family-name {
+  font-size: 12px;
+  color: #909399;
+  padding: 8px 12px;
+  background: #f5f7fa;
+  border-bottom: 1px solid #eee;
 }
 
 .font-item {
@@ -358,7 +573,7 @@ onUnmounted(() => {
 }
 
 .preview-text {
-  font-size: 14px;
+  font-size: 18px;
   color: #333;
 }
 

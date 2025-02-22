@@ -175,6 +175,12 @@ const generateConfig = () => {
   };
   // 背景色在颜色数组中的下标，用于配置
   config.backgroundColorId = baseStore.themeColors[0].findIndex((color) => color.hex === baseStore.themeBackgroundColors[0]);
+  if (config.backgroundColorId === -1) {
+    messageStore.warning("请配置背景色颜色变量");
+    return null;
+  }
+  // 先初始化空数组，稍后会更新为上传后的URL
+  config.themeBackgroundImages = new Array(baseStore.themeBackgroundImages.length).fill('');
   const objects = baseStore.canvas.getObjects();
   // 元素在同类中的下标，用于配置
   let dataId = 0, imageId = 0, timeId = 0, dateId = 0;
@@ -257,7 +263,7 @@ const dowloadConfig = async () => {
   const config = generateConfig();
   if (!config) return;
 
-  // 图片上传
+  // 上传元素图片
   for (const item of config.elements) {
     if (item.type === "image" && item.src && item.src.startsWith("blob:")) {
       const imageUpload = await uploadImageFile(item.src);
@@ -265,6 +271,20 @@ const dowloadConfig = async () => {
     } else if (item.type === "image" && item.src && item.src.startsWith("data:")) {
       const imageUpload = await uploadBase64Image(item.src);
       item.src = imageUpload.url; // 更新配置中的图片URL为上传后的URL
+    }
+  }
+
+  // 上传背景图片
+  for (let i = 0; i < baseStore.themeBackgroundImages.length; i++) {
+    const bgImage = baseStore.themeBackgroundImages[i];
+    if (bgImage && bgImage.startsWith('data:')) {
+      try {
+        const imageUpload = await uploadBase64Image(bgImage);
+        config.themeBackgroundImages[i] = imageUpload.url;
+      } catch (error) {
+        console.error('上传背景图片失败:', error);
+        config.themeBackgroundImages[i] = '';
+      }
     }
   }
   const blob = new Blob([JSON.stringify(config)], {
@@ -405,18 +425,20 @@ const uploadApp = async () => {
   try {
     // 应用创建
     const designDo = await createOrUpdateFaceDesign();
-    // 图片上传
-    for (const item of config.elements) {
-      if (item.type === "image" && item.src && item.src.startsWith("blob:")) {
-        const imageUpload = await uploadImageFile(item.src);
-        item.src = imageUpload.url; // 更新配置中的图片URL为上传后的URL
+    // 上传背景图片
+    for (let i = 0; i < baseStore.themeBackgroundImages.length; i++) {
+      const bgImage = baseStore.themeBackgroundImages[i];
+      console.log('bgImage', bgImage);
+      let imageUpload = null;
+      if (bgImage && bgImage.startsWith('data:')) {
+        imageUpload = await uploadBase64Image(bgImage);
+      } else if (bgImage && bgImage.startsWith('blob:')) {
+        imageUpload = await uploadImageFile(bgImage);
+      } 
+      if (imageUpload) {
+        config.themeBackgroundImages[i] = imageUpload.url;
         if (!designDo.background) {
-          designDo.background = imageUpload.id;
-        }
-      } else if (item.type === "image" && item.src && item.src.startsWith("data:")) {
-        const imageUpload = await uploadBase64Image(item.src);
-        item.src = imageUpload.url; // 更新配置中的图片URL为上传后的URL
-        if (!designDo.background) {
+          console.log('designDo.background', designDo.background, imageUpload.id);
           designDo.background = imageUpload.id;
         }
       }

@@ -78,6 +78,8 @@ const loadDesign = async (id) => {
     baseStore.kpayId = designData.attributes.kpay_appid;
     // 设置主题颜色
     baseStore.themeColors = config.themeColors;
+    // 设置主题背景图片
+    baseStore.themeBackgroundImages = config.themeBackgroundImages;
     // 默认选中第一个颜色
     baseStore.currentThemeIndex = 0;
 
@@ -92,18 +94,8 @@ const loadDesign = async (id) => {
       };
       checkCanvas();
     });
-
-    // 预加载所有字体
-    if (config && config.elements) {
-      const fontsLoaded = await fontStore.loadFontsForElements(config.elements);
-      if (!fontsLoaded) {
-        messageStore.error("部分字体加载失败，可能影响显示效果");
-      }
-
-      // 等待字体完全加载
-      await document.fonts.ready;
-    }
-
+    // 切换主题背景
+    baseStore.toggleThemeBackground();
     // 加载元素到画布
     if (config && config.elements) {
       for (const element of config.elements) {
