@@ -425,20 +425,21 @@ const uploadApp = async () => {
   try {
     // 应用创建
     const designDo = await createOrUpdateFaceDesign();
+
     // 上传背景图片
     for (let i = 0; i < baseStore.themeBackgroundImages.length; i++) {
       const bgImage = baseStore.themeBackgroundImages[i];
-      console.log('bgImage', bgImage);
-      let imageUpload = null;
+      let imageUpload = {};
       if (bgImage && bgImage.startsWith('data:')) {
         imageUpload = await uploadBase64Image(bgImage);
       } else if (bgImage && bgImage.startsWith('blob:')) {
         imageUpload = await uploadImageFile(bgImage);
-      } 
+      } else if (bgImage && bgImage.startsWith('http')) {
+        imageUpload.url = bgImage;
+      }
       if (imageUpload) {
         config.themeBackgroundImages[i] = imageUpload.url;
         if (!designDo.background) {
-          console.log('designDo.background', designDo.background, imageUpload.id);
           designDo.background = imageUpload.id;
         }
       }

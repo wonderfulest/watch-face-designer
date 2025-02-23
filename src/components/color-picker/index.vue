@@ -243,19 +243,26 @@ const updateFromHex = () => {
 // 工具函数
 const isValidHex = (hex) => /^#[0-9A-F]{6}$/i.test(hex);
 
-
 import { ElMessage } from 'element-plus';
 
 // 确认保存颜色变量
 const confirmSaveVariable = () => {
+  console.log('confirm save variable', hexColor.value, varName.value)
   if (hexColor.value !== 'transparent') {
     // 检查当前主题中是否已存在相同的颜色
-    const existingColor = baseStore.themeColors[baseStore.currentThemeIndex].find(
+    const existingIndex = baseStore.themeColors[baseStore.currentThemeIndex].findIndex(
       c => c.hex.toLowerCase() === hexColor.value.toLowerCase()
     );
+    const existingColor = baseStore.themeColors[baseStore.currentThemeIndex][existingIndex];
 
     if (existingColor && existingColor.name !== varName.value) {
-      ElMessage.error(`当前主题中已存在相同的颜色: ${existingColor.name}`);
+      console.log(`当前主题中已存在相同的颜色: ${existingColor.name}, 索引为：${existingIndex}`);
+      // 修改所有主题中对应的颜色名称
+      for (let i = 0; i < baseStore.themeColors.length; i++) {
+        if (i !== baseStore.currentThemeIndex) {
+          baseStore.themeColors[i][existingIndex].name = varName.value;
+        }
+      }
       return;
     }
 

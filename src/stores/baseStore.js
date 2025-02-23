@@ -106,6 +106,12 @@ export const useBaseStore = defineStore('baseStore', {
         }
       }
 
+      // 如果已经存在相同颜色值对应的颜色 hex
+      let existingColor = this.themeColors[this.currentThemeIndex].find(c => c.hex === color)
+      if (existingColor) {
+        return;
+      }
+
       // 生成默认变量名
       if (!name) {
         const baseVarName = 'color';
@@ -212,19 +218,12 @@ export const useBaseStore = defineStore('baseStore', {
       }
     },
     toggleThemeBackground() {
-      console.log('开始更新背景', {
-        hasCanvas: !!this.canvas,
-        currentThemeIndex: this.currentThemeIndex,
-        themeBackgroundImages: this.themeBackgroundImages
-      });
-
       if (!this.canvas) {
         console.warn('画布不存在');
         return;
       }
 
       const objects = this.canvas.getObjects();
-      console.log('当前画布对象', objects.map(obj => ({ type: obj.type, eleType: obj.eleType })));
 
       const watchFace = objects.find(obj => obj.eleType === 'global');
       const oldBgImage = objects.find(obj => obj.eleType === 'background-image');
@@ -236,29 +235,15 @@ export const useBaseStore = defineStore('baseStore', {
 
       // 先移除旧的背景图片
       if (oldBgImage) {
-        console.log('移除旧的背景图片');
         this.canvas.remove(oldBgImage);
       }
 
       // 添加新的背景图片
       const currentBgImage = this.themeBackgroundImages[this.currentThemeIndex];
-      console.log('当前主题背景图片', {
-        currentThemeIndex: this.currentThemeIndex,
-        hasImage: !!currentBgImage,
-        imageLength: currentBgImage ? currentBgImage.length : 0
-      });
-
       if (currentBgImage) {
-        console.log('开始加载新背景图片');
-        
         // 创建一个新的 Image 对象
         const img = new Image();
         img.onload = () => {
-          console.log('原始图片加载完成', {
-            width: img.width,
-            height: img.height
-          });
-
           // 创建 Fabric.Image 实例
           const fabricImage = new FabricImage(img, {
             eleType: 'background-image',
@@ -282,12 +267,6 @@ export const useBaseStore = defineStore('baseStore', {
             top: top,
           });
 
-          console.log('设置图片属性', {
-            scale,
-            left,
-            top
-          });
-
           if (watchFace) {
             this.canvas.moveObjectTo(watchFace, 0); // 背景圆放在背景图片之上
           }
@@ -297,7 +276,6 @@ export const useBaseStore = defineStore('baseStore', {
           this.canvas.moveObjectTo(fabricImage, 1); // 背景图片放在最底层
           
           this.canvas.renderAll();
-          console.log('背景图片更新完成');
         };
 
         img.onerror = (error) => {

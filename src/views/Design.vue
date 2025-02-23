@@ -24,7 +24,6 @@ import ElementSettings from "@/components/ElementSettings.vue";
 import SidePanel from "@/components/SidePanel.vue";
 import { useKeyboardShortcuts } from "../composables/useKeyboardShortcuts";
 
-
 import { useMessageStore } from "@/stores/message";
 import { useFontStore } from "@/stores/fontStore";
 import axiosInstance from "@/config/axiosConfig";
@@ -39,7 +38,6 @@ import { useLabelStore } from "@/stores/elements/labelElement";
 import { useProgressRingStore } from "@/stores/elements/progressRingElement";
 import { useCircleStore } from "@/stores/elements/circleElement";
 import { useRectStore } from "@/stores/elements/rectElement";
-
 
 const imageStore = useImageElementStore();
 const route = useRoute();

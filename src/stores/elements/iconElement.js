@@ -35,7 +35,7 @@ export const useIconStore = defineStore('iconElement', {
                     eleType: 'icon',
                     left: options.left,
                     top: options.top,
-                    fontSize: Number(options.iconSize),
+                    fontSize: Number(options.fontSize),
                     fill: options.fill,
                     fontFamily: options.iconFontFamily,
                     originX: options.originX,  // 使用 originX 控制对齐方式
@@ -54,6 +54,9 @@ export const useIconStore = defineStore('iconElement', {
 
                 // 添加到画布
                 this.baseStore.canvas.add(element);
+
+                // 添加颜色
+                this.baseStore.addColor(element.fill, iconOptions.colorVarName);
 
                 // 添加到图层
                 this.layerStore.addLayer(element);
