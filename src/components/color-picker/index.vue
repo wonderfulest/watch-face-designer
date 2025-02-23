@@ -244,29 +244,28 @@ const updateFromHex = () => {
 const isValidHex = (hex) => /^#[0-9A-F]{6}$/i.test(hex);
 
 import { ElMessage } from 'element-plus';
+import emitter from '@/utils/eventBus';
 
 // 确认保存颜色变量
 const confirmSaveVariable = () => {
-  console.log('confirm save variable', hexColor.value, varName.value)
   if (hexColor.value !== 'transparent') {
     // 检查当前主题中是否已存在相同的颜色
     const existingIndex = baseStore.themeColors[baseStore.currentThemeIndex].findIndex(
       c => c.hex.toLowerCase() === hexColor.value.toLowerCase()
     );
-    const existingColor = baseStore.themeColors[baseStore.currentThemeIndex][existingIndex];
-
-    if (existingColor && existingColor.name !== varName.value) {
-      console.log(`当前主题中已存在相同的颜色: ${existingColor.name}, 索引为：${existingIndex}`);
-      // 修改所有主题中对应的颜色名称
-      for (let i = 0; i < baseStore.themeColors.length; i++) {
-        if (i !== baseStore.currentThemeIndex) {
-          baseStore.themeColors[i][existingIndex].name = varName.value;
+    // 如果已经存在相同颜色，更新颜色名称
+    if (existingIndex !== -1) {
+      baseStore.themeColors[baseStore.currentThemeIndex][existingIndex].name = varName.value;
+      // 如果存在多个相同颜色，删除除第一个外的其他颜色
+      for (let i = existingIndex + 1; i < baseStore.themeColors[baseStore.currentThemeIndex].length; i++) {
+        if (baseStore.themeColors[baseStore.currentThemeIndex][i].hex.toLowerCase() === hexColor.value.toLowerCase()) {
+          console.log('删除颜色', baseStore.themeColors[baseStore.currentThemeIndex][i])
+          baseStore.themeColors[baseStore.currentThemeIndex].splice(i, 1);
         }
       }
-      return;
     }
-
     baseStore.addColor(hexColor.value, varName.value);
+    ElMessage.success('颜色变量已保存');
   }
 };
 

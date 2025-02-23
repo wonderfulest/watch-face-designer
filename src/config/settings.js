@@ -105,7 +105,7 @@ export const DataTypeOptions = [
     { label: '静息心率', metricSymbol: ':FIELD_TYPE_RESTING_HEARTRATE', value: 38, defaultValue: '70', icon: '\u0038', enLabel: 'Resting Heart Rate' },
     { label: '周游泳距离', metricSymbol: ':FIELD_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 39, defaultValue: '1', icon: '\u0048', enLabel: 'Weekly Swimming Distance' },
     { label: '周步行距离', metricSymbol: ':FIELD_TYPE_WEEKLY_WALKING_DISTANCE', value: 40, defaultValue: '10', icon: '\u0049', enLabel: 'Weekly Walking Distance' },
-    { label: '气压', metricSymbol: ':FIELD_TYPE_WEATHER_PRESSURE', value: 50, defaultValue: '1013', icon: '\u0063', enLabel: 'Weather Pressure' },
+    { label: '气压', metricSymbol: ':FIELD_TYPE_WEATHER_PRESSURE', value: 50, defaultValue: '1013', icon: '\u0063', enLabel: 'Barometer' },
     { label: '温度范围', metricSymbol: ':FIELD_TYPE_TEMPERATURE_RANGE', value: 51, defaultValue: '25', icon: '\u0021', enLabel: 'Temperature Range' },
     { label: '紫外线指数', metricSymbol: ':FIELD_TYPE_WEATHER_UVINDEX', value: 52, defaultValue: '3', icon: '\u0021', enLabel: 'UV Index' },
     { label: '露点', metricSymbol: ':FIELD_TYPE_WEATHER_DEWPOINT', value: 53, defaultValue: '10', icon: '\u0021', enLabel: 'Dew Point' },

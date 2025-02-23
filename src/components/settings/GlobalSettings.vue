@@ -85,9 +85,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { useBaseStore } from '@/stores/baseStore';
 import ColorPicker from '@/components/color-picker/index.vue';
+import emitter from '@/utils/eventBus';
 
 const baseStore = useBaseStore();
 
@@ -175,7 +176,7 @@ const addTheme = () => {
     hex: color.hex
   }));
   themeColors.value.push(newTheme);
-};
+}; 
 
 // 删除主题
 const removeTheme = () => {

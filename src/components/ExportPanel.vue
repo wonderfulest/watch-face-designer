@@ -56,6 +56,7 @@ import { ref } from "vue";
 import _ from "lodash";
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
+import { ElMessage } from 'element-plus';
 
 import { useMessageStore } from "@/stores/message";
 
@@ -159,6 +160,15 @@ const getEncodeConfig = (element) => {
     return encodeConfig;
 }
 
+const encodeColor = (color, eleType) => {
+  let id = baseStore.themeColors[baseStore.currentThemeIndex].findIndex((c) => c.hex == color);
+  if (id == -1) {
+    ElMessage.error("未找到颜色变量" + eleType);
+  }
+  return id;
+}
+
+
 // 生成配置对象
 const generateConfig = () => {
   if (!baseStore.canvas.getObjects().length) {
@@ -199,14 +209,15 @@ const generateConfig = () => {
     }
     // 根据color获取colorId: 为color数组的索引
     if (encodeConfig.color) {
-      encodeConfig.colorId = baseStore.currentThemeColors.findIndex((color) => color.hex === encodeConfig.color);
+      encodeConfig.colorId = encodeColor(encodeConfig.color, element.eleType);
     }
     if (encodeConfig.bgColor) {
-      encodeConfig.bgColorId = baseStore.currentThemeColors.findIndex((color) => color.hex === encodeConfig.bgColor);
+      encodeConfig.bgColorId = encodeColor(encodeConfig.bgColor, element.eleType);
     }
     if (encodeConfig.stroke) {
-      encodeConfig.strokeId = baseStore.currentThemeColors.findIndex((color) => color.hex === encodeConfig.stroke);
+      encodeConfig.strokeId = encodeColor(encodeConfig.stroke, element.eleType);
     }
+  
     // 获取imageId
     if (encodeConfig.type == 'image') {
       encodeConfig.imageId = imageId; // imageId 用于标识图片配置
@@ -254,8 +265,10 @@ const generateConfig = () => {
   return config;
 };
 
+
 // 导出配置
 const dowloadConfig = async () => {
+  console.log('dowloadConfig', baseStore.watchFaceName, baseStore.kpayId)
   if (!baseStore.watchFaceName || !baseStore.kpayId) {
     messageStore.error("请设置应用名称和kpayId");
     return null;
@@ -263,30 +276,22 @@ const dowloadConfig = async () => {
   const config = generateConfig();
   if (!config) return;
 
-  // 上传元素图片
-  for (const item of config.elements) {
-    if (item.type === "image" && item.src && item.src.startsWith("blob:")) {
-      const imageUpload = await uploadImageFile(item.src);
-      item.src = imageUpload.url; // 更新配置中的图片URL为上传后的URL
-    } else if (item.type === "image" && item.src && item.src.startsWith("data:")) {
-      const imageUpload = await uploadBase64Image(item.src);
-      item.src = imageUpload.url; // 更新配置中的图片URL为上传后的URL
-    }
-  }
-
   // 上传背景图片
   for (let i = 0; i < baseStore.themeBackgroundImages.length; i++) {
     const bgImage = baseStore.themeBackgroundImages[i];
+    let imageUpload = {};
     if (bgImage && bgImage.startsWith('data:')) {
-      try {
-        const imageUpload = await uploadBase64Image(bgImage);
-        config.themeBackgroundImages[i] = imageUpload.url;
-      } catch (error) {
-        console.error('上传背景图片失败:', error);
-        config.themeBackgroundImages[i] = '';
-      }
+      imageUpload = await uploadBase64Image(bgImage);
+    } else if (bgImage && bgImage.startsWith('blob:')) {
+      imageUpload = await uploadImageFile(bgImage);
+    } else if (bgImage && bgImage.startsWith('http')) {
+      imageUpload.url = bgImage;
+    }
+    if (imageUpload) {
+      config.themeBackgroundImages[i] = imageUpload.url;
     }
   }
+
   const blob = new Blob([JSON.stringify(config)], {
     type: "application/json",
   });

@@ -189,6 +189,7 @@ export const useBaseStore = defineStore('baseStore', {
       this.canvas.renderAll()
     },
     toggleThemeColors(){
+      if (this.currentThemeIndex === -1) return
       const colors = this.themeColors[this.currentThemeIndex]
       console.log('toggleTheme', colors)
       if (!this.canvas) return
