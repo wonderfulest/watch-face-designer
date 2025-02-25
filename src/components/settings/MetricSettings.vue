@@ -118,7 +118,7 @@ const iconSize = ref(iconElement?.fontSize || 36);
 const iconColor = ref(iconElement?.fill || '#FFFFFF');
 const textSize = ref(textElement?.fontSize || 36);
 const textColor = ref(textElement?.fill || '#FFFFFF');
-const textFontFamily = ref(textElement?.fontFamily || 'Arial');
+const textFontFamily = ref(textElement?.fontFamily);
 const layoutType = ref(props.element.group.layoutType || ':LAYOUT_TYPES_CENTER');
 
 // 加载字体列表

@@ -224,7 +224,10 @@ const selectColor = (color) => {
   hexColor.value = color.hex;
   varName.value = color.name;
   updateColor();
-  // 保持颜色选择器打开状态
+  // 添加颜色
+  baseStore.addColor(color.hex, color.name);
+  // 更新颜色变量
+  baseStore.toggleThemeColors();
 };
 
 // 更新颜色

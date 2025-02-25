@@ -55,6 +55,7 @@ onMounted(() => {
 
     baseStore.setCanvas(canvas);
 
+    // 时间更新
     updateInterval = setInterval(() => timeElement.updateTimeDisplay(), 1000);
 });
 

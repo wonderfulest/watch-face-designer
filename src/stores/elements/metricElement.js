@@ -47,7 +47,7 @@ export const useMetricStore = defineStore('dataElement', {
                 const textObject = new fabric.Text(metric.text, {
                     fontSize: Number(options.size) || 36,  // 修改默认字体大小为 36
                     fill: '#FFFFFF',
-                    fontFamily: options.fontFamily || 'Arial',
+                    fontFamily: options.fontFamily,
                     selectable: true,
                     hasControls: true,
                     hasBorders: true,

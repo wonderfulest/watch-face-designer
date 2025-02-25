@@ -83,12 +83,12 @@ const baseStore = useBaseStore();
 const fontStore = useFontStore();
 
 // 设置项的响应式状态
-const fontSize = ref(props.element?.fontSize || 36);
-const textColor = ref(props.element?.fill || '#FFFFFF');
-const fontFamily = ref(props.element?.fontFamily || 'Arial');
-const originX = ref(props.element?.originX || 'center');
-const positionX = ref(Math.round(props.element?.left || 0));
-const positionY = ref(Math.round(props.element?.top || 0));
+const fontSize = ref(props.element?.fontSize);
+const textColor = ref(props.element?.fill);
+const fontFamily = ref(props.element?.fontFamily);
+const originX = ref(props.element?.originX);
+const positionX = ref(Math.round(props.element?.left));
+const positionY = ref(Math.round(props.element?.top));
 
 // 监听元素属性变化
 watch(() => props.element, (obj) => {

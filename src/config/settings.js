@@ -41,6 +41,8 @@ export const TimeFormatOptions = [
     { value: 'ss', label: 'ss' },
     { value: 'HH:', label: 'HH:' },
     { value: ':mm', label: ':mm' },
+    { value: 'A', label: 'A' }, // AM/PM/24H
+    { value: 'a', label: 'a' }, // am/pm/24h
 ];
 
 export const DateFormatOptions = [
@@ -60,8 +62,6 @@ export const DateFormatOptions = [
     "YYYY.MM.DD", // 例如: 2023.09.05
     "DD.MM.YYYY", // 例如: 05.09.2023
     "dddd", // 星期几
-    "A", // AM/PM
-    "a", // am/pm
 ];
 
 // 布局方式选项

@@ -9,7 +9,7 @@ export const elementAttribute = {
   fill: "#FFFFFF",
   bgColor: '#FFFFFF', // 进度环背景颜色
   backgroundColor: "#FFFFFF",
-  fontFamily: "Arial",
+  fontFamily: "Arimo-Regular",
   color: '#FFFFFF', // 进度环颜色
   fontSize: 30,
   iconSize: 36,
@@ -37,7 +37,7 @@ export const elementAttribute = {
   radius: 50, // 进度环半径
   strokeWidth: 10, // 进度环宽度
   dateFormatter: 'ddd, MMM D', // 日期格式
-  varName: '',// 数据变量名字
+  varName: '', // 数据变量名字
   colorVarName: '', // 填充颜色变量名字
 };
 

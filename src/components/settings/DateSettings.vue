@@ -97,15 +97,15 @@ const baseStore = useBaseStore();
 const fontStore = useFontStore();
 
 // 设置项的响应式状态
-const fontSize = ref(props.element?.fontSize || 36);
-const textColor = ref(props.element?.fill || '#FFFFFF');
-const fontFamily = ref(props.element?.fontFamily || 'Arial');
-const positionX = ref(Math.round(props.element?.left || 0));
-const positionY = ref(Math.round(props.element?.top || 0));
+const fontSize = ref(props.element?.fontSize);
+const textColor = ref(props.element?.fill);
+const fontFamily = ref(props.element?.fontFamily);
+const positionX = ref(Math.round(props.element?.left));
+const positionY = ref(Math.round(props.element?.top));
 
-const originX = ref(props.element?.originX || 'center');
+const originX = ref(props.element?.originX);
 
-const formatter = ref(props.element?.formatter || "YYYY-MM-DD");
+const formatter = ref(props.element?.formatter);
 
 // 计算属性：生成当前日期的示例格式
 const dateExamples = computed(() => {
@@ -195,6 +195,7 @@ const updateFontSize = () => {
 const updateTextColor = () => {
   if (!props.element || !baseStore.canvas) return;
   props.element.set("fill", textColor.value);
+  props.element.set('colorVarName', baseStore.getColorVarName(textColor.value));
   props.element.setCoords();
   baseStore.canvas.renderAll();
 };

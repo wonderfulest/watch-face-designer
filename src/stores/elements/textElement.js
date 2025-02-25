@@ -30,7 +30,7 @@ export const useTextStore = defineStore('textElement', {
                     top: options.top,
                     fontSize: Number(options.size) || 36,
                     fill: options.textColor || '#FFFFFF',
-                    fontFamily: options.fontFamily || 'Arial',
+                    fontFamily: options.fontFamily,
                     selectable: true,
                     hasControls: true,
                     hasBorders: true,
