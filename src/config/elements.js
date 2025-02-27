@@ -31,7 +31,7 @@ export const elementAttribute = {
   badgeType: 12, // 徽章默认数据类型：电池电量
   textColor: "#FFFFFF",
   metricSymbol: ':FIELD_TYPE_HEART_RATE',
-  iconFontFamily: 'super-regular',
+  iconFontFamily: 'SuperIcons',
   startAngle: 120, // 进度环开始角度
   endAngle: 60, // 进度环结束角度
   radius: 50, // 进度环半径
