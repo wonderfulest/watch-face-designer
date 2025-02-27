@@ -4,6 +4,7 @@ import { useLayerStore } from '../layerStore';
 import { nanoid } from 'nanoid';
 import moment from 'moment';
 import { FabricText } from 'fabric';
+import { DateFormatOptions } from '@/config/settings';
 
 export const useDateStore = defineStore('dateElement', {
     state: () => {
@@ -29,7 +30,8 @@ export const useDateStore = defineStore('dateElement', {
 
             try {
                 const elementId = nanoid();
-                let text = this.formatDate(new Date(), options.dateFormatter);
+                const formatter = DateFormatOptions.find(option => option.value === options.dateFormatter).label;
+                let text = this.formatDate(new Date(), formatter);
                 const attr = {
                     eleType: 'date',
                     id: elementId,

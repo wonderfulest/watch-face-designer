@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid';
 import moment from 'moment';
 import { ref } from 'vue';
 import { FabricText } from 'fabric';
+import { TimeFormatOptions } from '@/config/settings';
 
 export const useTimeStore = defineStore('timeStore', {
     state: () => {
@@ -28,7 +29,7 @@ export const useTimeStore = defineStore('timeStore', {
             }
 
             try {
-                let text = this.formatTime(new Date(), options.formatter);
+                let text = this.formatTime(new Date(), TimeFormatOptions.find(option => option.value === options.formatter).label);
                 const timeOptions =  {
                     eleType: 'time',
                     id: nanoid(),

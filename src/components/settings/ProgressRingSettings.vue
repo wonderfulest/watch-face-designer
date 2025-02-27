@@ -14,6 +14,10 @@
         </option>
       </select>
     </div>
+    <div class="setting-item">
+        <label>数据变量</label>
+        <input type="text" v-model="varName" @change="updateElement" />   
+    </div>
     <!-- 位置设置 -->
     <div class="setting-item">
       <label>位置</label>
@@ -147,6 +151,7 @@ const color = ref("#2cc8ce");
 const bgColor = ref("#165759");
 const progress = ref(50);
 const metricSymbol = ref(":FIELD_TYPE_HEART_RATE");
+const varName = ref('');
 
 // 监听元素变化，同步状态
 watch(
@@ -213,7 +218,8 @@ const updateElement = () => {
     width: size,
     height: size,
     colorVarName: baseStore.getColorVarName(color.value),
-    bgColorVarName: baseStore.getColorVarName(bgColor.value)
+    bgColorVarName: baseStore.getColorVarName(bgColor.value),
+    varName: varName.value
   });
 
   // 强制组重新计算边界

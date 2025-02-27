@@ -205,7 +205,7 @@ const updateOriginX = (value) => {
 const updateTimeFormat = () => {
     if (!props.element || !baseStore.canvas) return;
     props.element.set('formatter', formatter.value);
-    props.element.set('text', moment(new Date()).format(formatter.value));
+    props.element.set('text',TimeFormatOptions.find(option => option.value === formatter.value).example);
     baseStore.canvas.renderAll();
 };
 

@@ -98,7 +98,6 @@ const props = defineProps({
 const baseStore = useBaseStore();
 const fontStore = useFontStore();
 
-
 // 设置项的响应式状态
 const fontSize = ref(props.element?.fontSize);
 const textColor = ref(props.element?.fill);
@@ -106,9 +105,7 @@ const fontFamily = ref(props.element?.fontFamily);
 const positionX = ref(Math.round(props.element?.left));
 const positionY = ref(Math.round(props.element?.top));
 const originX = ref(props.element?.originX);
-const metricSymbol = ref(
-  props.element?.metricSymbol || ":FIELD_TYPE_HEART_RATE"
-);
+const metricSymbol = ref(props.element?.metricSymbol);
 
 // 加载字体列表
 onMounted(async () => {
@@ -232,7 +229,7 @@ const updateMetricType = () => {
   if (!props.element || !baseStore.canvas) return;
   props.element.set("metricSymbol", metricSymbol.value);
   const metric = getMetricBySymbol(metricSymbol.value);
-  props.element.set("text", metric.icon);
+  props.element.set("text", metric.defaultValue);
   baseStore.canvas.renderAll();
 };
 </script>

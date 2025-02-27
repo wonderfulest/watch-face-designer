@@ -161,13 +161,12 @@ const getEncodeConfig = (element) => {
 }
 
 const encodeColor = (color, eleType) => {
-  let id = baseStore.themeColors[baseStore.currentThemeIndex].findIndex((c) => c.hex == color);
+  let id = baseStore.themeColors[0].findIndex((c) => c.hex == color);
   if (id == -1) {
     ElMessage.error("未找到颜色变量" + eleType);
   }
   return id;
 }
-
 
 // 生成配置对象
 const generateConfig = () => {
@@ -234,9 +233,10 @@ const generateConfig = () => {
       dateId++;
     }
     // 获取dataId
-    if ((encodeConfig.type == 'icon' || encodeConfig.type == 'data'
-    || encodeConfig.type == 'label' || encodeConfig.type.indexOf('progress') != -1
-    || encodeConfig.type == 'badge') && encodeConfig.varName !== '' && encodeConfig.varName !== undefined) {
+    if (
+      (encodeConfig.type == 'icon' || encodeConfig.type == 'data' || encodeConfig.type == 'label' || encodeConfig.type.indexOf('progress') != -1) 
+      && !_.isEmpty(encodeConfig.varName)
+    ) {
       if (encodeConfig.metricGroup) { // 一组数据
         if (!metricMap.hasOwnProperty(encodeConfig.metricGroup) || metricMap[encodeConfig.metricGroup] == undefined) { // metricMap 用于标识数据项配置
           metricMap[encodeConfig.metricGroup] = dataId;

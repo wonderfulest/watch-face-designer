@@ -7,9 +7,10 @@ import axiosInstance from '@/config/axiosConfig';
  * @param {number} params.pageSize - 每页数量
  * @param {string} params.userId - 用户ID
  * @param {string} params.status - 状态筛选
+ * @param {string} params.name - 名称筛选
  * @returns {Promise} 设计列表数据
  */
-export const getDesigns = async ({ page, pageSize, userId, status }) => {
+export const getDesigns = async ({ page, pageSize, userId, status, name }) => {
   const params = {
     'pagination[page]': page,
     'pagination[pageSize]': pageSize,
@@ -20,6 +21,9 @@ export const getDesigns = async ({ page, pageSize, userId, status }) => {
 
   if (status) {
     params['filters[status][$eq]'] = status;
+  }
+  if (name) {
+    params['filters[name][$contains]'] = name;
   }
 
   const response = await axiosInstance.get('/designs', { params });
@@ -51,6 +55,13 @@ export const updateDesignStatus = async (id, status) => {
     data: {
       status
     }
+  });
+  return response.data;
+};
+
+export const updateDesign = async (id, data) => {
+  const response = await axiosInstance.put(`/designs/${id}`, {
+    data
   });
   return response.data;
 };

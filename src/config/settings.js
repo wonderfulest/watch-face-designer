@@ -33,35 +33,43 @@ export const originYOptions = [
     { value: 'bottom', label: '向下', icon: alignmentIcons.bottom }
 ];
 
+// 时间格式选项
 export const TimeFormatOptions = [
-    { value: 'HH:mm:ss', label: 'HH:mm:ss' },
-    { value: 'HH:mm', label: 'HH:mm' },
-    { value: 'HH', label: 'HH' },
-    { value: 'mm', label: 'mm' },
-    { value: 'ss', label: 'ss' },
-    { value: 'HH:', label: 'HH:' },
-    { value: ':mm', label: ':mm' },
-    { value: 'A', label: 'A' }, // AM/PM/24H
-    { value: 'a', label: 'a' }, // am/pm/24h
+    { value: 0, label: 'HH:mm', example: '12:34' },
+    { value: 1, label: 'HH:mm:ss', example: '12:34:56' }, // 例如: 12:34:56
+    { value: 2, label: 'HH', example: '12' },
+    { value: 3, label: 'mm', example: '34' },
+    { value: 4, label: 'ss', example: '56' },
+    { value: 5, label: 'HH:', example: '12:' },
+    { value: 6, label: ':mm', example: ':34' },
+    { value: 7, label: 'A', example: 'PM' }, // AM/PM/24H
+    { value: 8, label: 'a', example: 'pm' }, // am/pm/24h
 ];
 
+// 日期格式选项
 export const DateFormatOptions = [
-    "ddd, MMM D", // 例如: Wed, Sep 5
-    "YYYY-MM-DD", // 例如: 2023-09-05
-    "MM/DD/YYYY", // 例如: 09/05/2023
-    "DD-MM-YYYY", // 例如: 05-09-2023
-    "DD/MM/YYYY", // 例如: 05/09/2023
-    "MMMM D, YYYY", // 例如: September 5, 2023
-    "D MMMM YYYY", // 例如: 5 September 2023
-    "MMMM Do, YYYY", // 例如: September 5th, 2023
-    "MMM D, YYYY", // 例如: Sep 5, 2023
-    "MMM D", // 例如: Sep 5
-    "dddd, MMM D", // 例如: Wednesday, Sep 5
-    "dddd, MMMM D, YYYY", // 例如: Wednesday, September 5, 2023
-    "YYYY/MM/DD", // 例如: 2023/09/05
-    "YYYY.MM.DD", // 例如: 2023.09.05
-    "DD.MM.YYYY", // 例如: 05.09.2023
-    "dddd", // 星期几
+    { value: 0, label: "DD", example: "05" }, // 例如: 05
+    { value: 1, label: "ddd", example: "Mon" }, // 例如: Mon
+    { value: 2, label: "dddd", example: "Monday" }, // 星期几
+    { value: 3, label: "Do", example: "5th" }, // 例如: 5th
+    { value: 4, label: "MMM", example: "Sep" }, // 例如: Sep
+    { value: 5, label: "MMMM", example: "September" }, // 例如: September
+    { value: 6, label: "MMM D", example: "Sep 5" }, // 例如: Sep 5
+    { value: 7, label: "MMMM D", example: "September 5" }, // 例如: September 5
+    // 涵盖星期、月份和日子等
+    { value: 8, label: "dddd, MMM D", example: "Monday, Sep 5" }, // 例如: Monday, Sep 5
+    { value: 9, label: "dddd, MMMM D", example: "Monday, September 5" }, // 例如: Monday, September 5
+    { value: 10, label: "MMM D, dddd", example: "Sep 5, Monday" }, // 例如: Sep 5, Monday
+    { value: 11, label: "MMMM, D dddd", example: "September, 5 Monday" }, // 例如: September, 5 Monday
+    { value: 12, label: "MMMM D, dddd", example: "September 5, Monday" }, // 例如: September 5, Monday
+    // 带年份
+    { value: 13, label: "MMM D, YYYY", example: "Sep 5, 2023" }, // 例如: Sep 5, 2023
+    { value: 14, label: "D MMM YYYY", example: "5 Sep 2023" }, // 例如: 5 Sep 2023
+    { value: 15, label: "DD.MM.YYYY", example: "05.09.2023" }, // 例如: 05.09.2023
+    { value: 16, label: "MM/DD/YYYY", example: "09/05/2023" }, // 例如: 09/05/2023
+    { value: 17, label: "YYYY-MM-DD", example: "2023-09-05" }, // 例如: 2023-09-05
+    { value: 18, label: "MMMM Do, YYYY", example: "September 5th, 2023" }, // 例如: September 5th, 2023
+    { value: 19, label: "MMM D, YYYY, dddd", example: "Sep 5, 2023, Monday" }, // 例如: Sep 5, 2023, Monday
 ];
 
 // 布局方式选项
@@ -94,13 +102,15 @@ export const DataTypeOptions = [
     { label: '通知', metricSymbol: ':FIELD_TYPE_NOTIFICATIONS', value: 19, defaultValue: '0', icon: '\u0025', enLabel: 'Notifications' },
     { label: '闹钟', metricSymbol: ':FIELD_TYPE_ALARMS', value: 20, defaultValue: '0', icon: '\u0024', enLabel: 'Alarms' },
     { label: '蓝牙连接状态', metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', value: 21, defaultValue: '1', icon: '\u0022', enLabel: 'Bluetooth Connection Status' },
-    { label: '天气', metricSymbol: ':FIELD_TYPE_WEATHER', value: 30, defaultValue: 'RAIN', icon: '\u0021', enLabel: 'Weather' },
-    { label: '温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE', value: 31, defaultValue: '25°', icon: '\u0062', enLabel: 'Temperature' },
-    { label: '体感温度', metricSymbol: ':FIELD_TYPE_FEELS_LIKE_TEMPERATURE', value: 32, defaultValue: '25°', icon: '\u0021', enLabel: 'Feels Like Temperature' },
+    { label: '天气', metricSymbol: ':FIELD_TYPE_WEATHER', value: 30, defaultValue: '25°C', icon: '\uF000', enLabel: 'Weather' },
+    { label: '温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE', value: 31, defaultValue: '25°C', icon: '\u0062', enLabel: 'Temperature' },
+    { label: '体感温度', metricSymbol: ':FIELD_TYPE_FEELS_LIKE_TEMPERATURE', value: 32, defaultValue: '25°C', icon: '\u0021', enLabel: 'Feels Like Temperature' },
+    { label: '每天最高温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE_HIGH', value: 41, defaultValue: '30°C', icon: '\u0021', enLabel: 'High' },
+    { label: '每天最低温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE_LOW', value: 42, defaultValue: '15°C', icon: '\u0021', enLabel: 'Low' },
     { label: '湿度', metricSymbol: ':FIELD_TYPE_HUMIDITY', value: 33, defaultValue: '50', icon: '\u0021', enLabel: 'Humidity' },
     { label: '风速', metricSymbol: ':FIELD_TYPE_WIND_SPEED', value: 34, defaultValue: '10', icon: '\u0021', enLabel: 'Wind Speed' },
     { label: '传感器温度', metricSymbol: ':FIELD_TYPE_SENSOR_TEMPERATURE', value: 35, defaultValue: '20', icon: '\u0021', enLabel: 'Sensor Temperature' },
-    { label: '天气描述', metricSymbol: ':FIELD_TYPE_WEATHER_DESCRIPTION', value: 36, defaultValue: 'RAIN', icon: '\u0021', enLabel: 'Weather Description' },
+    { label: '天气描述', metricSymbol: ':FIELD_TYPE_WEATHER_DESCRIPTION', value: 36, defaultValue: 'Clear Sky', icon: '\u0021', enLabel: 'Weather Description' },
     { label: '呼吸频率', metricSymbol: ':FIELD_TYPE_RESPIRATION_RATE', value: 37, defaultValue: '16', icon: '\u0037', enLabel: 'Respiration Rate' },
     { label: '静息心率', metricSymbol: ':FIELD_TYPE_RESTING_HEARTRATE', value: 38, defaultValue: '70', icon: '\u0038', enLabel: 'Resting Heart Rate' },
     { label: '周游泳距离', metricSymbol: ':FIELD_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 39, defaultValue: '1', icon: '\u0048', enLabel: 'Weekly Swimming Distance' },
@@ -112,10 +122,10 @@ export const DataTypeOptions = [
     { label: '云量', metricSymbol: ':FIELD_TYPE_WEATHER_CLOUDS', value: 54, defaultValue: '50', icon: '\u0021', enLabel: 'Cloud Cover' },
     { label: '能见度', metricSymbol: ':FIELD_TYPE_WEATHER_VISIBILITY', value: 55, defaultValue: '10', icon: '\u0021', enLabel: 'Visibility' },
     { label: 'VO2Max', metricSymbol: ':FIELD_TYPE_VO2_MAX', value: 57, defaultValue: '40', icon: '\u003a', enLabel: 'VO2 Max' },
-    { label: '位置信息', metricSymbol: ':FIELD_TYPE_LOCATION', value: 58, defaultValue: 'LOS ANGELES', icon: '\u0021', enLabel: 'Location' },
+    { label: '位置信息', metricSymbol: ':FIELD_TYPE_LOCATION', value: 58, defaultValue: 'Los Angeles', icon: '\u0021', enLabel: 'Location' },
     { label: '年', metricSymbol: ':FIELD_TYPE_DATE_YEAR', value: 70, defaultValue: '2023', icon: '\u0021', enLabel: 'Year' },
-    { label: '月', metricSymbol: ':FIELD_TYPE_DATE_MONTH', value: 71, defaultValue: '1', icon: '\u0021', enLabel: 'Month' },
-    { label: '日', metricSymbol: ':FIELD_TYPE_DATE_DAY', value: 72, defaultValue: '1', icon: '\u0021', enLabel: 'Day' },
+    { label: '月', metricSymbol: ':FIELD_TYPE_DATE_MONTH', value: 71, defaultValue: '10', icon: '\u0021', enLabel: 'Month' },
+    { label: '日', metricSymbol: ':FIELD_TYPE_DATE_DAY', value: 72, defaultValue: '10', icon: '\u0021', enLabel: 'Day' },
     { label: '星期几', metricSymbol: ':FIELD_TYPE_DATE_WEEKDAY', value: 76, defaultValue: '1', icon: '\u0021', enLabel: 'Weekday' },
     { label: '第几周', metricSymbol: ':FIELD_TYPE_DATE_YEARWEEK', value: 77, defaultValue: '29', icon: '\u0021', enLabel: 'Week of Year' },
     // ---------------------------- 目标数据项 --------------------------------
@@ -132,7 +142,7 @@ export const DataTypeOptions = [
     { label: '周游泳目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 109, defaultValue: '2', icon: '\u0048', enLabel: 'Target Weekly Swimming Distance' },
     { label: '周步行目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_WALKING_DISTANCE', value: 110, defaultValue: '20', icon: '\u0049', enLabel: 'Target Weekly Walking Distance' },
     { label: '秒针', metricSymbol: ':GOAL_TYPE_SECOND_OF_MINUTE', value: 120, defaultValue: '40', icon: '\u0021', enLabel: 'Second of Minute' },
-  ];
+];
   
 // 获取指标配置信息
 export function getMetricBySymbol(metricSymbol) {

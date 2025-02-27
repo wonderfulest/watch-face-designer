@@ -147,7 +147,8 @@ const themeColors = computed({
 // 当前主题的颜色变量
 const currentThemeColors = computed({
   get: () => {
-    const baseThemeColors = themeColors.value[0] || [];
+    const baseThemeColors = themeColors.value.length > 0 ? themeColors.value[0]: [];
+   console.log('baseThemeColors 111', baseThemeColors);
     // 如果当前主题为空，填充默认值
     if (!themeColors.value[currentThemeIndex.value]) {
       themeColors.value[currentThemeIndex.value] = baseThemeColors.map(color => ({

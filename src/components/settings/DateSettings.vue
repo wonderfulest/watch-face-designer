@@ -61,12 +61,12 @@
       <label>日期格式</label>
       <select v-model="formatter" @change="updateDateFormat">
         <option
-          v-for="(example, format) in dateExamples"
-          :key="format"
-          :value="format"
+          v-for="{ label, value, example } in DateFormatOptions"
+          :key="value"
+          :value="value"
           :title="'例如: ' + example"
         >
-          {{ format }}
+          {{ label }} - 例如: {{ example }}
         </option>
       </select>
     </div>
@@ -107,15 +107,6 @@ const originX = ref(props.element?.originX);
 
 const formatter = ref(props.element?.formatter);
 
-// 计算属性：生成当前日期的示例格式
-const dateExamples = computed(() => {
-
-  const now = new Date();
-  return DateFormatOptions.reduce((acc, format) => {
-    acc[format] = moment(now).format(format);
-    return acc;
-  }, {});
-});
 
 // 加载字体列表
 onMounted(async () => {
@@ -238,7 +229,8 @@ const updateOriginX = (value) => {
 const updateDateFormat = () => {
   if (!props.element || !baseStore.canvas) return;
   props.element.set("formatter", formatter.value);
-  props.element.set("text", moment(new Date()).format(formatter.value));
+  var dateText = DateFormatOptions.find(option => option.value === formatter.value).example;
+  props.element.set("text", dateText);
   props.element.setCoords();
   baseStore.canvas.renderAll();
 };

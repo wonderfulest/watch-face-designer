@@ -4,14 +4,44 @@
       <div class="header-left">
         <h1>Wonder Facer</h1>
         <nav class="header-nav">
-          <router-link to="/design" class="nav-link">
+          <a @click="showDesignerConfirm" class="nav-link">
             <Icon icon="material-symbols:edit-square" />
             设计器
-          </router-link>
-          <router-link to="/designs" class="nav-link">
+          </a>
+          <el-dialog
+            v-model="designerDialogVisible"
+            title="提示"
+            width="30%"
+          >
+            <span>关闭当前操作，并打开新的设计？</span>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button @click="designerDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmNewDesign">
+                  确定
+                </el-button>
+              </span>
+            </template>
+          </el-dialog>
+          <a @click="showDesignsListConfirm" class="nav-link">
             <Icon icon="material-symbols:list" />
             我的设计
-          </router-link>
+          </a>
+          <el-dialog
+            v-model="designsListDialogVisible"
+            title="提示"
+            width="30%"
+          >
+            <span>关闭当前操作，并打开设计列表？</span>
+            <template #footer>
+              <span class="dialog-footer">
+                <el-button @click="designsListDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmOpenDesignsList">
+                  确定
+                </el-button>
+              </span>
+            </template>
+          </el-dialog>
         </nav>
       </div>
       <div class="app-info" v-if="$route.path === '/design'">
@@ -69,8 +99,6 @@ import { useMessageStore } from '../stores/message'
 import ExportPanel from '@/components/ExportPanel.vue';
 
 const baseStore = useBaseStore()
-const router = useRouter()
-const route = useRoute()
 const messageStore = useMessageStore()
 const authStore = useAuthStore()
 
@@ -101,7 +129,38 @@ const toggleExportPanel = () => {
   isDialogVisible.value = !isDialogVisible.value;
 };
 
+const router = useRouter();
 const showDropdown = ref(false);
+const designerDialogVisible = ref(false);
+const designsListDialogVisible = ref(false);
+
+function showDesignerConfirm() {
+  designerDialogVisible.value = true;
+}
+
+function showDesignsListConfirm() {
+  designsListDialogVisible.value = true;
+}
+
+function confirmOpenDesignsList() {
+  designsListDialogVisible.value = false;
+  // Reset the base store state
+  baseStore.$reset();
+  // Navigate to designs list
+  router.push('/designs');
+}
+
+function confirmNewDesign() {
+  designerDialogVisible.value = false;
+  console.log('confirmNewDesign');
+  // Reset the base store state
+  baseStore.$reset();
+  // Navigate to design with a new key to force remount
+  router.push({
+    path: '/design',
+    query: { new: Date.now().toString() }
+  });
+}
 
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;

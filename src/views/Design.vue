@@ -16,7 +16,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, defineProps } from "vue";
+
+const props = defineProps({
+  key: String
+});
 import { useRoute } from "vue-router";
 import { nanoid } from "nanoid";
 import Canvas from "@/components/Canvas.vue";
@@ -160,11 +164,37 @@ const loadDesign = async (id) => {
   }
 };
 
+// 初始化新设计
+const initNewDesign = async () => {
+  // 等待画布初始化完成
+  await new Promise((resolve) => {
+    const checkCanvas = () => {
+      if (baseStore.canvas) {
+        resolve();
+      } else {
+        setTimeout(checkCanvas, 100);
+      }
+    };
+    checkCanvas();
+  });
+
+  // 设置默认值
+  baseStore.watchFaceName = '';
+  baseStore.kpayId = '';
+  baseStore.themeColors = [];
+  baseStore.themeBackgroundImages = [];
+  baseStore.currentThemeIndex = 0;
+  baseStore.canvas.requestRenderAll();
+};
+
 onMounted(() => {
   // 检查URL参数中是否有设计ID
   const designId = route.query.id;
+  console.log('onMounted designId', designId);
   if (designId) {
     loadDesign(designId);
+  } else {
+    initNewDesign();
   }
 });
 </script>

@@ -3,16 +3,27 @@
     <div class="header">
       <div class="header-left">
         <h2>我的设计</h2>
+        <el-button type="primary" @click="createNew">
+          <Icon icon="material-symbols:add" />
+          新建设计
+        </el-button>
       </div>
       <div class="header-right">
+        <el-input
+          v-model="searchName"
+          placeholder="搜索名称"
+          class="name-filter"
+          clearable
+          @keyup.enter="handleSearch"
+        />
         <el-select v-model="selectedStatus" placeholder="选择状态" @change="handleStatusChange" class="status-filter">
           <el-option label="全部" value="" />
           <el-option label="草稿" value="draft" />
           <el-option label="已提交" value="submitted" />
         </el-select>
-        <el-button type="primary" @click="createNew">
-          <Icon icon="material-symbols:add" />
-          新建设计
+        <el-button type="primary" @click="handleSearch">
+          <Icon icon="material-symbols:search" />
+          搜索
         </el-button>
       </div>
     </div>
@@ -62,14 +73,13 @@
               <span>更新时间: {{ formatDate(design.attributes.updatedAt) }}</span>
             </div>
             <div class="actions">
-              <el-button type="primary" size="small" @click="editDesign(design)">编辑</el-button>
+              <el-button type="primary" size="small" @click="openCanvas(design)">编辑</el-button>
               <el-button 
                 v-if="design.attributes.status === 'draft'"
                 type="success" 
                 size="small" 
                 @click="submitDesign(design)"
               >提交</el-button>
-              <el-button type="danger" size="small" @click="confirmDelete(design)">删除</el-button>
             </div>
           </div>
         </el-card>
@@ -102,13 +112,47 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 编辑对话框 -->
+    <el-dialog
+      v-model="editDialogVisible"
+      title="编辑设计"
+      width="60%"
+    >
+      <el-form :model="editForm" label-width="120px">
+        <el-form-item label="名称">
+          <el-input v-model="editForm.name" />
+        </el-form-item>
+        <el-form-item label="KPay ID">
+          <el-input v-model="editForm.kpay_appid" />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="editForm.status">
+            <el-option label="草稿" value="draft" />
+            <el-option label="已提交" value="submitted" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="editForm.description" type="textarea" :rows="3" />
+        </el-form-item>
+        <el-form-item label="配置">
+          <el-input v-model="editForm.config_json" type="textarea" :rows="10" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitEdit">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { getDesigns, getDesignDetail, updateDesignStatus, deleteDesign as apiDeleteDesign } from '@/api/design';
+import { getDesigns, getDesignDetail, updateDesignStatus, updateDesign, deleteDesign as apiDeleteDesign } from '@/api/design';
 import { useMessageStore } from '@/stores/message';
 import { useBaseStore } from '@/stores/baseStore';
 import dayjs from 'dayjs';
@@ -118,8 +162,20 @@ const messageStore = useMessageStore();
 const baseStore = useBaseStore();
 const designs = ref([]);
 const deleteDialogVisible = ref(false);
+const editDialogVisible = ref(false);
 const designToDelete = ref(null);
 const selectedStatus = ref('draft'); // 默认显示草稿状态
+const searchName = ref(''); // 搜索名称
+
+// 编辑表单数据
+const editForm = ref({
+  id: null,
+  name: '',
+  kpay_appid: '',
+  status: '',
+  description: '',
+  config_json: ''
+});
 // 分页相关
 const currentPage = ref(1);
 const pageSize = ref(12);
@@ -135,7 +191,8 @@ const fetchDesigns = async () => {
       page: currentPage.value,
       pageSize: pageSize.value,
       userId: user.id,
-      status: selectedStatus.value
+      status: selectedStatus.value,
+      name: searchName.value
     });
     
     designs.value = response.data;
@@ -155,6 +212,12 @@ const handleCurrentChange = (val) => {
 // 处理每页数量变化
 const handleSizeChange = (val) => {
   pageSize.value = val;
+  currentPage.value = 1; // 重置到第一页
+  fetchDesigns();
+};
+
+// 处理搜索
+const handleSearch = () => {
   currentPage.value = 1; // 重置到第一页
   fetchDesigns();
 };
@@ -184,8 +247,8 @@ const createNew = () => {
   router.push('/');
 };
 
-// 编辑设计
-const editDesign = async (design) => {
+// 打开画布编辑器
+const openCanvas = async (design) => {
   try {
     const response = await getDesignDetail(design.id);
     const designData = response.data;
@@ -195,12 +258,35 @@ const editDesign = async (design) => {
     baseStore.kpayId = designData.attributes.kpay_appid;
     
     // 解析并设置元素配置
-    if (designData.attributes.config) {
-      baseStore.elements = JSON.parse(designData.attributes.config);
+    if (designData.attributes.config_json) {
+      baseStore.elements = JSON.parse(designData.attributes.config_json);
     }
     
     // 导航到设计页面
     router.push('/design?id=' + designData.id);
+  } catch (error) {
+    console.error('加载设计失败:', error);
+    messageStore.error('加载设计失败');
+  }
+};
+
+// 编辑基本信息
+const editDesign = async (design) => {
+  try {
+    const response = await getDesignDetail(design.id);
+    const designData = response.data;
+    
+    // 设置编辑表单数据
+    editForm.value = {
+      id: designData.id,
+      name: designData.attributes.name,
+      kpay_appid: designData.attributes.kpay_appid,
+      status: designData.attributes.status,
+      description: designData.attributes.description,
+      config_json: JSON.stringify(JSON.parse(designData.attributes.config_json), null, 2)
+    };
+    
+    editDialogVisible.value = true;
   } catch (error) {
     console.error('加载设计失败:', error);
     messageStore.error('加载设计失败');
@@ -240,6 +326,34 @@ const deleteDesign = async () => {
   }
 };
 
+// 提交编辑表单
+const submitEdit = async () => {
+  try {
+    // 验证并解析 JSON
+    const configJson = JSON.parse(editForm.value.config_json);
+
+    const data = {
+      name: editForm.value.name,
+      kpay_appid: editForm.value.kpay_appid,
+      status: editForm.value.status,
+      description: editForm.value.description,
+      config_json: JSON.stringify(configJson) // 保存时压缩 JSON
+    };
+
+    await updateDesign(editForm.value.id, data);
+    messageStore.success('保存成功');
+    editDialogVisible.value = false;
+    await fetchDesigns(); // 刷新列表
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      messageStore.error('JSON 格式错误，请检查配置');
+    } else {
+      console.error('保存失败:', error);
+      messageStore.error('保存失败');
+    }
+  }
+};
+
 onMounted(() => {
   fetchDesigns();
 });
@@ -272,6 +386,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.name-filter {
+  width: 200px;
 }
 
 .status-filter {

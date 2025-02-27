@@ -240,11 +240,13 @@ const expandedSections = ref({
   'custom': false
 });
 
-// 字体列表
+// icons字体列表
 const iconFonts = [
+  { label: 'SuperIcons', value: 'SuperIcons', family: 'SuperIcons' },
   { label: 'super-regular', value: 'super-regular', family: 'super-regular' }
 ];
 
+// sans-serif 字体列表
 const sansSerifFonts = [
   { label: 'Amiko Regular', value: 'Amiko-Regular', family: 'Amiko' },
   { label: 'Amiko SemiBold', value: 'Amiko-SemiBold', family: 'Amiko' },
