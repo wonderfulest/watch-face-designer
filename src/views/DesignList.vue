@@ -3,10 +3,6 @@
     <div class="header">
       <div class="header-left">
         <h2>我的设计</h2>
-        <el-button type="primary" @click="createNew">
-          <Icon icon="material-symbols:add" />
-          新建设计
-        </el-button>
       </div>
       <div class="header-right">
         <el-input
@@ -33,7 +29,12 @@
         <el-card class="design-card" shadow="hover">
           <template #header>
             <div class="card-header">
-              <span class="title">{{ design.attributes.name }}</span>
+              <div class="header-left">
+                <span class="title">{{ design.attributes.name }}</span>
+                <div class="status-tag" :class="design.attributes.status">
+                  {{ getStatusText(design.attributes.status) }}
+                </div>
+              </div>
               <div class="actions">
                 <el-button-group>
                   <el-button 
@@ -57,9 +58,7 @@
             </div>
           </template>
           <div class="design-info">
-            <div class="status-tag" :class="design.attributes.status">
-              {{ getStatusText(design.attributes.status) }}
-            </div>
+
             <div class="design-background" v-if="design.attributes.background">
               <img 
                 :src="design.attributes.background.data?.attributes?.url" 
@@ -69,6 +68,7 @@
             </div>
             <p class="description">{{ design.attributes.description || '暂无描述' }}</p>
             <div class="meta">
+              <span>ID: {{ design.id }}</span>
               <span>KPay ID: {{ design.attributes.kpay_appid }}</span>
               <span>更新时间: {{ formatDate(design.attributes.updatedAt) }}</span>
             </div>
@@ -118,6 +118,7 @@
       v-model="editDialogVisible"
       title="编辑设计"
       width="60%"
+      :top="'5vh'"
     >
       <el-form :model="editForm" label-width="120px">
         <el-form-item label="名称">
@@ -133,10 +134,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="描述">
-          <el-input v-model="editForm.description" type="textarea" :rows="3" />
+          <el-input v-model="editForm.description" type="textarea" :rows="4" />
         </el-form-item>
         <el-form-item label="配置">
-          <el-input v-model="editForm.config_json" type="textarea" :rows="10" />
+          <el-input v-model="editForm.config_json" type="textarea" :rows="32" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -409,6 +410,12 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 }
 
 .title {
@@ -469,11 +476,10 @@ onMounted(() => {
 
 .status-tag {
   display: inline-block;
-  padding: 4px 8px;
+  padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
   color: #fff;
-  margin-bottom: 8px;
 }
 
 .status-tag.draft {

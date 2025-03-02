@@ -57,7 +57,7 @@ export const DateFormatOptions = [
     { value: 6, label: "MMM D", example: "Sep 5" }, // 例如: Sep 5
     { value: 7, label: "MMMM D", example: "September 5" }, // 例如: September 5
     // 涵盖星期、月份和日子等
-    { value: 8, label: "dddd, MMM D", example: "Monday, Sep 5" }, // 例如: Monday, Sep 5
+    { value: 8, label: "ddd DD", example: "Mon 05" }, // 例如: Mon 05
     { value: 9, label: "dddd, MMMM D", example: "Monday, September 5" }, // 例如: Monday, September 5
     { value: 10, label: "MMM D, dddd", example: "Sep 5, Monday" }, // 例如: Sep 5, Monday
     { value: 11, label: "MMMM, D dddd", example: "September, 5 Monday" }, // 例如: September, 5 Monday
