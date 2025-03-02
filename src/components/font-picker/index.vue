@@ -285,7 +285,8 @@ const sansSerifFonts = [
   { label: 'Work Sans Medium', value: 'WorkSans-Medium', family: 'Work Sans' },
   { label: 'Work Sans Bold', value: 'WorkSans-Bold', family: 'Work Sans' },
   { label: 'Work Sans ExtraBold', value: 'WorkSans-ExtraBold', family: 'Work Sans' },
-  { label: 'Work Sans Black', value: 'WorkSans-Black', family: 'Work Sans' }
+  { label: 'Work Sans Black', value: 'WorkSans-Black', family: 'Work Sans' },
+  { label: 'Super Comic', value: 'Super-Comic', family: 'Super-Comic' }
 ];
 
 const fixedWidthFonts = [

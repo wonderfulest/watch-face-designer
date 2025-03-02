@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'Super-Comic';
+    src: url('/src/assets/fonts/Super-Comic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 /* Icon Fonts */
 @font-face {
     font-family: 'SuperIcons';
