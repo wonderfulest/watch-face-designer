@@ -1,4 +1,4 @@
-import axiosInstance from '@/config/axiosConfig';
+import axiosInstance from '@/config/axiosConfig'
 
 /**
  * 获取设计列表
@@ -16,19 +16,19 @@ export const getDesigns = async ({ page, pageSize, userId, status, name }) => {
     'pagination[pageSize]': pageSize,
     'filters[user_id][$eq]': userId,
     'sort[0]': 'updatedAt:desc',
-    'populate': 'background'
-  };
+    populate: 'background'
+  }
 
   if (status) {
-    params['filters[status][$eq]'] = status;
+    params['filters[status][$eq]'] = status
   }
   if (name) {
-    params['filters[name][$contains]'] = name;
+    params['filters[name][$contains]'] = name
   }
 
-  const response = await axiosInstance.get('/designs', { params });
-  return response.data;
-};
+  const response = await axiosInstance.get('/designs', { params })
+  return response.data
+}
 
 /**
  * 获取设计详情
@@ -38,11 +38,11 @@ export const getDesigns = async ({ page, pageSize, userId, status, name }) => {
 export const getDesignDetail = async (id) => {
   const response = await axiosInstance.get(`/designs/${id}`, {
     params: {
-      'populate': '*'
+      populate: '*'
     }
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
 
 /**
  * 更新设计状态
@@ -55,16 +55,16 @@ export const updateDesignStatus = async (id, status) => {
     data: {
       status
     }
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
 
 export const updateDesign = async (id, data) => {
   const response = await axiosInstance.put(`/designs/${id}`, {
     data
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
 
 /**
  * 删除设计
@@ -72,6 +72,6 @@ export const updateDesign = async (id, data) => {
  * @returns {Promise} 删除结果
  */
 export const deleteDesign = async (id) => {
-  const response = await axiosInstance.delete(`/designs/${id}`);
-  return response.data;
-};
+  const response = await axiosInstance.delete(`/designs/${id}`)
+  return response.data
+}

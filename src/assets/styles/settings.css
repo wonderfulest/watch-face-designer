@@ -1,4 +1,3 @@
-
 /* 设置面板通用样式 */
 .settings-section {
   padding: 16px;
@@ -36,8 +35,8 @@
 
 /* 表单控件样式 */
 .setting-item select,
-.setting-item input[type="text"],
-.setting-item input[type="number"] {
+.setting-item input[type='text'],
+.setting-item input[type='number'] {
   width: 100%;
   height: 32px;
   padding: 0 12px;
@@ -49,14 +48,14 @@
 }
 
 .setting-item select:hover,
-.setting-item input[type="text"]:hover,
-.setting-item input[type="number"]:hover {
+.setting-item input[type='text']:hover,
+.setting-item input[type='number']:hover {
   border-color: #c0c4cc;
 }
 
 .setting-item select:focus,
-.setting-item input[type="text"]:focus,
-.setting-item input[type="number"]:focus {
+.setting-item input[type='text']:focus,
+.setting-item input[type='number']:focus {
   border-color: #409eff;
   outline: none;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
@@ -86,7 +85,7 @@
 }
 
 /* 特殊输入框样式 */
-input[type="color"] {
+input[type='color'] {
   height: 40px;
   padding: 2px;
   width: 100%;
@@ -94,7 +93,7 @@ input[type="color"] {
   border-radius: 4px;
 }
 
-input[type="range"] {
+input[type='range'] {
   width: 100%;
   margin: 8px 0;
 }

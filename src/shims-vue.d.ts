@@ -5,5 +5,5 @@ declare module '*.vue' {
 }
 
 interface Window {
-  fabric: any;
-} 
+  fabric: any
+}

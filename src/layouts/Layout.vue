@@ -8,18 +8,12 @@
             <Icon icon="material-symbols:edit-square" />
             设计器
           </a>
-          <el-dialog
-            v-model="designerDialogVisible"
-            title="提示"
-            width="30%"
-          >
+          <el-dialog v-model="designerDialogVisible" title="提示" width="30%">
             <span>关闭当前操作，并打开新的设计？</span>
             <template #footer>
               <span class="dialog-footer">
                 <el-button @click="designerDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="confirmNewDesign">
-                  确定
-                </el-button>
+                <el-button type="primary" @click="confirmNewDesign">确定</el-button>
               </span>
             </template>
           </el-dialog>
@@ -27,37 +21,21 @@
             <Icon icon="material-symbols:list" />
             我的设计
           </a>
-          <el-dialog
-            v-model="designsListDialogVisible"
-            title="提示"
-            width="30%"
-          >
+          <el-dialog v-model="designsListDialogVisible" title="提示" width="30%">
             <span>关闭当前操作，并打开设计列表？</span>
             <template #footer>
               <span class="dialog-footer">
                 <el-button @click="designsListDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="confirmOpenDesignsList">
-                  确定
-                </el-button>
+                <el-button type="primary" @click="confirmOpenDesignsList">确定</el-button>
               </span>
             </template>
           </el-dialog>
         </nav>
       </div>
       <div class="app-info" v-if="$route.path === '/design'">
-        <el-input 
-          type="text" 
-          v-model="watchFaceName" 
-          placeholder="表盘名称"
-          :input-style="{ border: 'none', background: 'transparent' }"
-        />
-        <el-input 
-          type="text" 
-          v-model="kpayId" 
-          placeholder="KPAY"
-          :input-style="{ border: 'none', background: 'transparent' }"
-        />
-      </div> 
+        <el-input type="text" v-model="watchFaceName" placeholder="表盘名称" :input-style="{ border: 'none', background: 'transparent' }" />
+        <el-input type="text" v-model="kpayId" placeholder="KPAY" :input-style="{ border: 'none', background: 'transparent' }" />
+      </div>
       <div class="actions">
         <button class="action-btn" @click="handleDownload">下载</button>
         <button class="action-btn" @click="toggleExportPanel">预览</button>
@@ -81,11 +59,7 @@
       <div class="app-content">
         <router-view></router-view>
       </div>
-      <ExportPanel 
-        ref="exportPanelRef"
-        :isDialogVisible="isDialogVisible" 
-        @update:isDialogVisible="isDialogVisible = $event" 
-      />
+      <ExportPanel ref="exportPanelRef" :isDialogVisible="isDialogVisible" @update:isDialogVisible="isDialogVisible = $event" />
     </main>
   </div>
 </template>
@@ -96,7 +70,7 @@ import { useBaseStore } from '@/stores/baseStore'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useMessageStore } from '../stores/message'
-import ExportPanel from '@/components/ExportPanel.vue';
+import ExportPanel from '@/components/ExportPanel.vue'
 
 const baseStore = useBaseStore()
 const messageStore = useMessageStore()
@@ -104,94 +78,94 @@ const authStore = useAuthStore()
 
 const isDialogVisible = ref(false)
 
-const exportPanelRef = ref(null);
+const exportPanelRef = ref(null)
 
 const watchFaceName = computed({
   get: () => baseStore.watchFaceName,
-  set: value => baseStore.setWatchFaceName(value)
+  set: (value) => baseStore.setWatchFaceName(value)
 })
 
 const kpayId = computed({
   get: () => baseStore.kpayId,
-  set: value => baseStore.setKpayId(value)
+  set: (value) => baseStore.setKpayId(value)
 })
 
 const deactivateObject = () => {
   if (baseStore.canvas.getActiveObjects().length > 0) {
     for (const object of baseStore.canvas.getActiveObjects()) {
-      baseStore.canvas.discardActiveObject();
+      baseStore.canvas.discardActiveObject()
     }
   }
-};
+}
 
 const toggleExportPanel = () => {
-  deactivateObject();
-  isDialogVisible.value = !isDialogVisible.value;
-};
+  deactivateObject()
+  isDialogVisible.value = !isDialogVisible.value
+}
 
-const router = useRouter();
-const showDropdown = ref(false);
-const designerDialogVisible = ref(false);
-const designsListDialogVisible = ref(false);
+const router = useRouter()
+const showDropdown = ref(false)
+const designerDialogVisible = ref(false)
+const designsListDialogVisible = ref(false)
 
 function showDesignerConfirm() {
-  designerDialogVisible.value = true;
+  designerDialogVisible.value = true
 }
 
 function showDesignsListConfirm() {
-  designsListDialogVisible.value = true;
+  designsListDialogVisible.value = true
 }
 
 function confirmOpenDesignsList() {
-  designsListDialogVisible.value = false;
+  designsListDialogVisible.value = false
   // Reset the base store state
-  baseStore.$reset();
+  baseStore.$reset()
   // Navigate to designs list
-  router.push('/designs');
+  router.push('/designs')
 }
 
 function confirmNewDesign() {
-  designerDialogVisible.value = false;
-  console.log('confirmNewDesign');
+  designerDialogVisible.value = false
+  console.log('confirmNewDesign')
   // Reset the base store state
-  baseStore.$reset();
+  baseStore.$reset()
   // Navigate to design with a new key to force remount
   router.push({
     path: '/design',
     query: { new: Date.now().toString() }
-  });
+  })
 }
 
 const toggleDropdown = () => {
-  showDropdown.value = !showDropdown.value;
-};
+  showDropdown.value = !showDropdown.value
+}
 
 const closeDropdown = (e) => {
   if (!e.target.closest('.user-menu')) {
-    showDropdown.value = false;
+    showDropdown.value = false
   }
-};
+}
 
-window.addEventListener('click', closeDropdown);
+window.addEventListener('click', closeDropdown)
 
 const handleLogout = () => {
-  authStore.logout();
+  authStore.logout()
 
-  router.push('/login');
-};
+  router.push('/login')
+}
 
 const handleDownload = () => {
-  deactivateObject();
+  deactivateObject()
   if (exportPanelRef.value) {
-    exportPanelRef.value.dowloadConfig();
+    exportPanelRef.value.dowloadConfig()
   }
-};
+}
 const handleUpload = async () => {
-  deactivateObject();
+  deactivateObject()
   if (exportPanelRef.value) {
-    await exportPanelRef.value.uploadApp();
+    await exportPanelRef.value.uploadApp()
   }
-};
+}
 </script>
 
 <style scoped>

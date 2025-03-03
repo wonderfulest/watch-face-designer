@@ -19,12 +19,11 @@ export const useBaseElementStore = defineStore('baseElement', {
   },
 
   actions: {
-
     // 更新元素属性
     updateElement(element) {
       if (!element || !this.baseStore.canvas) return
-      
-      const fabricObject = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+
+      const fabricObject = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
 
       if (!fabricObject) return
 
@@ -37,17 +36,17 @@ export const useBaseElementStore = defineStore('baseElement', {
       if (element.fill !== undefined) fabricObject.set('fill', element.fill)
       if (element.fontFamily !== undefined) fabricObject.set('fontFamily', element.fontFamily)
       if (element.text !== undefined) fabricObject.set('text', element.text)
-      
+
       // 更新其他通用属性
       // if (element.width !== undefined) fabricObject.set('width', element.width)
       // if (element.height !== undefined) fabricObject.set('height', element.height)
       if (element.angle !== undefined) fabricObject.set('angle', element.angle)
       if (element.scaleX !== undefined) fabricObject.set('scaleX', element.scaleX)
       if (element.scaleY !== undefined) fabricObject.set('scaleY', element.scaleY)
-      
+
       // 更新控制点位置
       fabricObject.setCoords()
-      
+
       this.baseStore.canvas.renderAll()
     },
 
@@ -90,21 +89,21 @@ export const useBaseElementStore = defineStore('baseElement', {
       const canvas = this.baseStore.canvas
       if (!canvas) return
       if (!this._clipboard) return
-  
+
       // clone again, so you can do multiple copies.
       const clonedObj = await this._clipboard.clone()
       canvas.discardActiveObject()
       clonedObj.set({
         left: clonedObj.left + 20,
         top: clonedObj.top + 20,
-        evented: true,
+        evented: true
       })
       console.log('clonedObj', clonedObj._objects)
       const newMetricGroup = nanoid()
       for (const obj of clonedObj._objects) {
         const changed = {
           id: nanoid(),
-          eleType: obj.eleType,
+          eleType: obj.eleType
         }
         if (obj.metricGroup) changed.metricGroup = newMetricGroup
         if (obj.metricSymbol) changed.metricSymbol = obj.metricSymbol
@@ -112,25 +111,25 @@ export const useBaseElementStore = defineStore('baseElement', {
       }
       if (clonedObj instanceof ActiveSelection) {
         // active selection needs a reference to the canvas.
-        clonedObj.canvas = canvas;
+        clonedObj.canvas = canvas
         clonedObj.forEachObject((obj) => {
-          canvas.add(obj);
-        });
+          canvas.add(obj)
+        })
         // this should solve the unselectability
-        clonedObj.setCoords();
+        clonedObj.setCoords()
       } else {
-        canvas.add(clonedObj);
+        canvas.add(clonedObj)
       }
-      this._clipboard.top += 20;
-      this._clipboard.left += 20;
+      this._clipboard.top += 20
+      this._clipboard.left += 20
 
       // 添加到图层
-      this.layerStore.addLayer(clonedObj);
+      this.layerStore.addLayer(clonedObj)
       // 设置区同步
-      emitter.emit('refresh-canvas');
+      emitter.emit('refresh-canvas')
 
-      canvas.setActiveObject(clonedObj);
-      canvas.requestRenderAll();
+      canvas.setActiveObject(clonedObj)
+      canvas.requestRenderAll()
     },
 
     changeFontSize(increment) {
@@ -145,7 +144,6 @@ export const useBaseElementStore = defineStore('baseElement', {
           this.updateElement({ ...element, fontSize: newSize })
         }
       }
-    },
-   
+    }
   }
 })

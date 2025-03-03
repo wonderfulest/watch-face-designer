@@ -5,19 +5,11 @@
       <div class="position-inputs">
         <div>
           <span>X:</span>
-          <input
-            type="number"
-            v-model.number="positionX"
-            @change="updatePosition"
-          />
+          <input type="number" v-model.number="positionX" @change="updatePosition" />
         </div>
         <div>
           <span>Y:</span>
-          <input
-            type="number"
-            v-model.number="positionY"
-            @change="updatePosition"
-          />
+          <input type="number" v-model.number="positionY" @change="updatePosition" />
         </div>
       </div>
     </div>
@@ -27,25 +19,11 @@
       <div class="size-inputs">
         <div class="input-group">
           <label>半径</label>
-          <input 
-            type="number" 
-            v-model.number="radius" 
-            @input="validateAndUpdateRadius"
-            min="0" 
-            step="1"
-            required
-          />
+          <input type="number" v-model.number="radius" @input="validateAndUpdateRadius" min="0" step="1" required />
         </div>
         <div class="input-group">
           <label>线宽</label>
-          <input
-            type="number"
-            v-model.number="strokeWidth"
-            @input="validateAndUpdateStrokeWidth"
-            min="0"
-            step="1"
-            required
-          />
+          <input type="number" v-model.number="strokeWidth" @input="validateAndUpdateStrokeWidth" min="0" step="1" required />
         </div>
       </div>
     </div>
@@ -68,131 +46,130 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
-import { useBaseStore } from "@/stores/baseStore";
-import ColorPicker from "@/components/color-picker/index.vue";
+import { ref, watch, onMounted } from 'vue'
+import { useBaseStore } from '@/stores/baseStore'
+import ColorPicker from '@/components/color-picker/index.vue'
 
 const props = defineProps({
   element: {
     type: Object,
-    required: true,
-  },
-});
+    required: true
+  }
+})
 
-const baseStore = useBaseStore();
+const baseStore = useBaseStore()
 
 // 设置项的响应式状态
-const positionX = ref(Math.round(props.element.left));
-const positionY = ref(Math.round(props.element.top));
-const radius = ref(props.element.radius || 1);
-const strokeWidth = ref(props.element.strokeWidth || 1);
+const positionX = ref(Math.round(props.element.left))
+const positionY = ref(Math.round(props.element.top))
+const radius = ref(props.element.radius || 1)
+const strokeWidth = ref(props.element.strokeWidth || 1)
 
-const fill = ref(props.element.fill);
-const stroke = ref(props.element.stroke);
+const fill = ref(props.element.fill)
+const stroke = ref(props.element.stroke)
 
 // 验证并更新半径
 const validateAndUpdateRadius = (event) => {
-  let value = event.target.value;
+  let value = event.target.value
   if (value === '' || isNaN(value) || value < 1) {
-    radius.value = 0;
+    radius.value = 0
   } else {
-    radius.value = Math.floor(Number(value));
+    radius.value = Math.floor(Number(value))
   }
-  updateElement();
-};
+  updateElement()
+}
 
 // 验证并更新线宽
 const validateAndUpdateStrokeWidth = (event) => {
-  let value = event.target.value;
+  let value = event.target.value
   if (value === '' || isNaN(value) || value < 1) {
-    strokeWidth.value = 0;
+    strokeWidth.value = 0
   } else {
-    strokeWidth.value = Math.floor(Number(value));
+    strokeWidth.value = Math.floor(Number(value))
   }
-  updateElement();
-};
+  updateElement()
+}
 
 // 监听画布上的对象变化
 watch(
   () => props.element?.left,
   (newLeft) => {
     if (newLeft !== undefined) {
-      positionX.value = Math.round(newLeft);
+      positionX.value = Math.round(newLeft)
     }
   }
-);
+)
 
 watch(
   () => props.element?.top,
   (newTop) => {
     if (newTop !== undefined) {
-      positionY.value = Math.round(newTop);
+      positionY.value = Math.round(newTop)
     }
   }
-);
+)
 
 watch(
   () => props.element?.radius,
   (newRadius) => {
     if (newRadius !== undefined) {
-      radius.value = newRadius;
+      radius.value = newRadius
     }
   }
-);
+)
 
 watch(
   () => props.element?.strokeWidth,
   (newWidth) => {
     if (newWidth !== undefined) {
-      strokeWidth.value = newWidth;
+      strokeWidth.value = newWidth
     }
   }
-);
+)
 
 watch(
   () => props.element?.fill,
   (newColor) => {
     if (newColor !== undefined) {
-      fill.value = newColor;
+      fill.value = newColor
     }
   }
-);
+)
 
 watch(
   () => props.element?.stroke,
   (newStroke) => {
     if (newStroke !== undefined) {
-      stroke.value = newStroke;
+      stroke.value = newStroke
     }
   }
-);
+)
 
 const updatePosition = () => {
-  if (!props.element || !baseStore.canvas) return;
+  if (!props.element || !baseStore.canvas) return
   props.element.set({
     left: positionX.value,
-    top: positionY.value,
-  });
-  baseStore.canvas.renderAll();
-};
+    top: positionY.value
+  })
+  baseStore.canvas.renderAll()
+}
 
 const updateElement = () => {
-  if (!props.element || !baseStore.canvas) return;
+  if (!props.element || !baseStore.canvas) return
   const opt = {
     radius: radius.value,
     strokeWidth: strokeWidth.value,
     fill: fill.value,
-    stroke: stroke.value,
+    stroke: stroke.value
   }
-  props.element.set(opt);
-  props.element.setCoords();
-  baseStore.canvas.renderAll();
-};
-
+  props.element.set(opt)
+  props.element.setCoords()
+  baseStore.canvas.renderAll()
+}
 </script>
 
 <style scoped>
-@import "@/assets/styles/settings.css";
+@import '@/assets/styles/settings.css';
 
 /* 添加图标样式 */
 .align-buttons button {

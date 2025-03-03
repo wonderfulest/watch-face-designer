@@ -24,7 +24,7 @@ export const useLabelStore = defineStore('labelElement', {
 
       try {
         const metric = getMetricBySymbol(options.metricSymbol)
-        
+
         const labelOptions = {
           id: nanoid(),
           eleType: 'label',
@@ -42,25 +42,25 @@ export const useLabelStore = defineStore('labelElement', {
           metricSymbol: options.metricSymbol,
           text: metric ? metric.enLabel : 'Label',
           varName: options.varName,
-          colorVarName: options.colorVarName,
+          colorVarName: options.colorVarName
         }
         console.log('创建标签元素', labelOptions)
 
         // 创建文本对象
         const element = new FabricText(labelOptions.text, labelOptions)
 
-         // 添加到画布
-         this.baseStore.canvas.add(element);
+        // 添加到画布
+        this.baseStore.canvas.add(element)
 
-         // 添加到图层
-         this.layerStore.addLayer(element);
+        // 添加到图层
+        this.layerStore.addLayer(element)
 
-         // 渲染画布
-         this.baseStore.canvas.renderAll();
+        // 渲染画布
+        this.baseStore.canvas.renderAll()
 
-         // 设置为当前选中对象
-         this.baseStore.canvas.discardActiveObject();
-         this.baseStore.canvas.setActiveObject(element);
+        // 设置为当前选中对象
+        this.baseStore.canvas.discardActiveObject()
+        this.baseStore.canvas.setActiveObject(element)
 
         return element
       } catch (error) {
@@ -84,7 +84,7 @@ export const useLabelStore = defineStore('labelElement', {
         metricSymbol: element.metricSymbol,
         text: element.text,
         varName: element.varName,
-        colorVarName: this.baseStore.getColorVarName(element.fill),
+        colorVarName: this.baseStore.getColorVarName(element.fill)
       }
     },
 
@@ -102,7 +102,7 @@ export const useLabelStore = defineStore('labelElement', {
         metricSymbol: config.metricSymbol,
         text: config.text,
         varName: config.varName,
-        colorVarName: config.colorVarName,
+        colorVarName: config.colorVarName
       }
       return decodedConfig
     }

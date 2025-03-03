@@ -1,25 +1,17 @@
 <template>
-  <transition-group 
-    name="message-fade" 
-    tag="div" 
-    class="message-container"
-  >
-    <div
-      v-for="msg in messages"
-      :key="msg.id"
-      :class="['message', msg.type]"
-    >
+  <transition-group name="message-fade" tag="div" class="message-container">
+    <div v-for="msg in messages" :key="msg.id" :class="['message', msg.type]">
       <span class="message-content">{{ msg.content }}</span>
     </div>
   </transition-group>
 </template>
 
 <script setup>
-import { useMessageStore } from '../stores/message';
-import { storeToRefs } from 'pinia';
+import { useMessageStore } from '../stores/message'
+import { storeToRefs } from 'pinia'
 
-const messageStore = useMessageStore();
-const { messages } = storeToRefs(messageStore);
+const messageStore = useMessageStore()
+const { messages } = storeToRefs(messageStore)
 </script>
 
 <style scoped>
@@ -89,4 +81,4 @@ const { messages } = storeToRefs(messageStore);
   transform: translateY(-20px);
   opacity: 0;
 }
-</style> 
+</style>

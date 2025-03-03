@@ -5,19 +5,11 @@
       <div class="position-inputs">
         <div>
           <span>X:</span>
-          <input
-            type="number"
-            v-model.number="positionX"
-            @change="updatePosition"
-          />
+          <input type="number" v-model.number="positionX" @change="updatePosition" />
         </div>
         <div>
           <span>Y:</span>
-          <input
-            type="number"
-            v-model.number="positionY"
-            @change="updatePosition"
-          />
+          <input type="number" v-model.number="positionY" @change="updatePosition" />
         </div>
       </div>
     </div>
@@ -27,53 +19,24 @@
       <div class="size-inputs">
         <div class="input-group">
           <label>宽</label>
-          <input 
-            type="number" 
-            v-model.number="width" 
-            @input="validateAndUpdateWidth"
-            min="0" 
-            step="1"
-            required
-          />
+          <input type="number" v-model.number="width" @input="validateAndUpdateWidth" min="0" step="1" required />
         </div>
         <div class="input-group">
           <label>高</label>
-          <input
-            type="number"
-            v-model.number="height"
-            @input="validateAndUpdateHeight"
-            min="0"
-            step="1"
-            required
-          />
+          <input type="number" v-model.number="height" @input="validateAndUpdateHeight" min="0" step="1" required />
         </div>
       </div>
       <div class="size-inputs">
         <div class="input-group">
           <label>边框线宽</label>
-      <input
-        type="number"
-        v-model.number="strokeWidth"
-        @input="updateElement"
-        min="0"
-        step="1"
-        required
-      />
+          <input type="number" v-model.number="strokeWidth" @input="updateElement" min="0" step="1" required />
         </div>
         <div class="input-group">
           <label>圆角</label>
-      <input
-        type="number"
-        v-model.number="borderRadius"
-        @input="updateElement"
-        min="0"
-        step="1"
-        required
-      />
+          <input type="number" v-model.number="borderRadius" @input="updateElement" min="0" step="1" required />
         </div>
       </div>
     </div>
-
 
     <!-- 颜色属性 -->
     <div class="setting-item">
@@ -93,118 +56,118 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
-import { useBaseStore } from "@/stores/baseStore";
-import ColorPicker from "@/components/color-picker/index.vue";
+import { ref, watch, onMounted } from 'vue'
+import { useBaseStore } from '@/stores/baseStore'
+import ColorPicker from '@/components/color-picker/index.vue'
 
 const props = defineProps({
   element: {
     type: Object,
-    required: true,
-  },
-});
+    required: true
+  }
+})
 
-const baseStore = useBaseStore();
+const baseStore = useBaseStore()
 
 // 设置项的响应式状态
-const positionX = ref(Math.round(props.element.left));
-const positionY = ref(Math.round(props.element.top));
-const width = ref(props.element.width);
-const height = ref(props.element.height);
+const positionX = ref(Math.round(props.element.left))
+const positionY = ref(Math.round(props.element.top))
+const width = ref(props.element.width)
+const height = ref(props.element.height)
 
-const fill = ref(props.element.fill);
-const stroke = ref(props.element.stroke);
-const strokeWidth = ref(props.element.strokeWidth);
-const borderRadius = ref(props.element.rx);
+const fill = ref(props.element.fill)
+const stroke = ref(props.element.stroke)
+const strokeWidth = ref(props.element.strokeWidth)
+const borderRadius = ref(props.element.rx)
 
 // 验证并更新宽高
 const validateAndUpdateWidth = (event) => {
-  let value = event.target.value;
+  let value = event.target.value
   if (value === '' || isNaN(value) || value < 1) {
-    width.value = 0;
+    width.value = 0
   } else {
-    width.value = Math.floor(Number(value));
+    width.value = Math.floor(Number(value))
   }
-  updateElement();
-};
+  updateElement()
+}
 
 // 验证并更新线宽
 const validateAndUpdateHeight = (event) => {
-  let value = event.target.value;
+  let value = event.target.value
   if (value === '' || isNaN(value) || value < 1) {
-    height.value = 0;
+    height.value = 0
   } else {
-    height.value = Math.floor(Number(value));
+    height.value = Math.floor(Number(value))
   }
-  updateElement();
-};
+  updateElement()
+}
 
 // 监听画布上的对象变化
 watch(
   () => props.element?.left,
   (newLeft) => {
     if (newLeft !== undefined) {
-      positionX.value = Math.round(newLeft);
+      positionX.value = Math.round(newLeft)
     }
   }
-);
+)
 
 watch(
   () => props.element.top,
   (newTop) => {
     if (newTop !== undefined) {
-      positionY.value = Math.round(newTop);
+      positionY.value = Math.round(newTop)
     }
   }
-);
+)
 
 watch(
   () => props.element?.radius,
   (newRadius) => {
     if (newRadius !== undefined) {
-      radius.value = newRadius;
+      radius.value = newRadius
     }
   }
-);
+)
 
 watch(
   () => props.element?.strokeWidth,
   (newWidth) => {
     if (newWidth !== undefined) {
-      strokeWidth.value = newWidth;
+      strokeWidth.value = newWidth
     }
   }
-);
+)
 
 watch(
   () => props.element?.fill,
   (newColor) => {
     if (newColor !== undefined) {
-      fill.value = newColor;
+      fill.value = newColor
     }
   }
-);
+)
 
 watch(
   () => props.element?.stroke,
   (newStroke) => {
     if (newStroke !== undefined) {
-      stroke.value = newStroke;
+      stroke.value = newStroke
     }
   }
-);
+)
 
 const updatePosition = () => {
-  if (!props.element || !baseStore.canvas) return;
+  if (!props.element || !baseStore.canvas) return
   props.element.set({
     left: positionX.value,
-    top: positionY.value,
-  });
-  baseStore.canvas.renderAll();
-};
+    top: positionY.value
+  })
+  baseStore.canvas.renderAll()
+}
 
 const updateElement = () => {
-  if (!props.element || !baseStore.canvas) return;
+  if (!props.element || !baseStore.canvas) return
   const opt = {
     width: width.value,
     height: height.value,
@@ -214,15 +177,14 @@ const updateElement = () => {
     rx: borderRadius.value,
     ry: borderRadius.value
   }
-  props.element.set(opt);
-  props.element.setCoords();
-  baseStore.canvas.renderAll();
-};
-
+  props.element.set(opt)
+  props.element.setCoords()
+  baseStore.canvas.renderAll()
+}
 </script>
 
 <style scoped>
-@import "@/assets/styles/settings.css";
+@import '@/assets/styles/settings.css';
 
 /* 添加图标样式 */
 .align-buttons button {
