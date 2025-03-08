@@ -37,8 +37,7 @@
         <el-input type="text" v-model="kpayId" placeholder="KPAY" :input-style="{ border: 'none', background: 'transparent' }" />
       </div>
       <div class="actions">
-        <button class="action-btn" @click="handleDownload">下载</button>
-        <button class="action-btn" @click="toggleExportPanel">预览</button>
+        <button class="action-btn" @click="handleScreenshot">截图</button>
         <button class="action-btn" @click="handleUpload">上传</button>
       </div>
       <div class="user-menu" @click="toggleDropdown" v-if="authStore.isAuthenticated">
@@ -164,6 +163,36 @@ const handleUpload = async () => {
   deactivateObject()
   if (exportPanelRef.value) {
     await exportPanelRef.value.uploadApp()
+  }
+}
+
+const handleScreenshot = () => {
+  deactivateObject()
+  if (!baseStore.canvas) {
+    messageStore.error('没有可用的画布')
+    return
+  }
+  
+  try {
+    // 创建一个临时链接来下载图片
+    const dataURL = baseStore.canvas.toDataURL({
+      format: 'png',
+      quality: 1
+    })
+    
+    const link = document.createElement('a')
+    const filename = watchFaceName.value ? `${watchFaceName.value}.png` : 'watch-face.png'
+    
+    link.href = dataURL
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    messageStore.success('截图已保存')
+  } catch (error) {
+    console.error('截图保存失败:', error)
+    messageStore.error('截图保存失败')
   }
 }
 </script>

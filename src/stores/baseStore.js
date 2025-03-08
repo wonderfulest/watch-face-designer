@@ -291,6 +291,8 @@ export const useBaseStore = defineStore('baseStore', {
 
         // 设置图片源
         img.src = currentBgImage
+        console.log(currentBgImage)
+        // img.src = 'http://localhost:5174/background_def8bb5f5f.png'
       } else if (watchFace) {
         // 如果没有背景图片，确保背景圆在最底层
         this.canvas.moveObjectTo(watchFace, 0)

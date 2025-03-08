@@ -211,24 +211,12 @@ const handleBackgroundImageChange = (file) => {
 
   const reader = new FileReader()
   reader.onload = (e) => {
-    console.log('图片读取完成', {
-      currentThemeIndex: currentThemeIndex.value,
-      themeBackgroundImagesLength: baseStore.themeBackgroundImages.length,
-      themeColorsLength: baseStore.themeColors.length
-    })
-
     // 确保数组长度与主题数量一致
     while (baseStore.themeBackgroundImages.length < baseStore.themeColors.length) {
       baseStore.themeBackgroundImages.push('')
     }
-
     // 更新当前主题的背景图片
     baseStore.themeBackgroundImages[currentThemeIndex.value] = e.target.result
-    console.log('背景图片已更新', {
-      imageLength: e.target.result.length,
-      currentThemeIndex: currentThemeIndex.value,
-      allBackgroundImages: baseStore.themeBackgroundImages
-    })
 
     // 强制更新画布背景
     baseStore.toggleThemeBackground()
