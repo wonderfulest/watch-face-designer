@@ -11,7 +11,7 @@
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",
-          "value": "https://studio.garminface.com/"
+          "value": "https://*.garminface.com/"
         },
         {
           "key": "Access-Control-Allow-Methods",
