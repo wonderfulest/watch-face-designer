@@ -99,8 +99,16 @@ const updateBackgroundColor = (color) => {
 }
 
 // 表盘名称
-const watchFaceName = ref('')
-const kpayId = ref('')
+const watchFaceName = computed({
+  get: () => baseStore.watchFaceName,
+  set: (value) => (baseStore.watchFaceName = value)
+})
+
+// Kpay ID
+const kpayId = computed({
+  get: () => baseStore.kpayId,
+  set: (value) => (baseStore.kpayId = value)
+})
 
 // 更新表盘名称
 const updateWatchFaceName = () => {
