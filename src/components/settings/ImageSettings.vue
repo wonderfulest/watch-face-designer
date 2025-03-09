@@ -73,7 +73,7 @@ const handleCustomUpload = async (options) => {
     // Create a temporary image to get original dimensions
     const img = new Image()
     img.src = localUrl
-    // img.crossOrigin = 'anonymous'
+    img.crossOrigin = 'anonymous'
 
     img.onload = () => {
       // Get canvas dimensions
