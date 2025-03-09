@@ -42,7 +42,10 @@
             </div>
           </template>
           <div class="design-info">
-            <div class="design-background" v-if="design.attributes.background">
+            <div class="design-background" v-if="design.attributes.screenshot?.data">
+              <img :src="design.attributes.screenshot.data?.attributes?.url" :alt="design.attributes.name" class="background-image" />
+            </div>
+            <div class="design-background" v-else-if="design.attributes.background?.data">
               <img :src="design.attributes.background.data?.attributes?.url" :alt="design.attributes.name" class="background-image" />
             </div>
             <p class="description">{{ design.attributes.description || '暂无描述' }}</p>

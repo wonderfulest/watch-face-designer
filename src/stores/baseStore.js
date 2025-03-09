@@ -10,7 +10,8 @@ export const useBaseStore = defineStore('baseStore', {
     themeColors: [],
     themeBackgroundColors: ['#000000'],
     themeBackgroundImages: [],
-    currentThemeIndex: 0
+    currentThemeIndex: 0,
+    screenshot: null // 存储表盘截图数据
   }),
 
   getters: {
@@ -21,6 +22,81 @@ export const useBaseStore = defineStore('baseStore', {
 
   // actions
   actions: {
+    // 捕获并保存表盘截图
+    captureScreenshot() {
+      if (!this.canvas) {
+        console.error('没有可用的画布')
+        return this.getFallbackScreenshot()
+      }
+      
+      try {
+        // 确保画布内容是最新的
+        this.canvas.renderAll()
+        
+        // 获取截图数据
+        const dataURL = this.canvas.toDataURL({
+          format: 'png',
+          quality: 1
+        })
+        
+        // 保存截图数据到 state
+        this.screenshot = dataURL
+        
+        return dataURL
+      } catch (error) {
+        console.error('截图捕获失败:', error)
+        // 如果截图失败，使用备用图片
+        return this.getFallbackScreenshot()
+      }
+    },
+    
+    // 获取备用截图
+    getFallbackScreenshot() {
+      // 使用本地图片作为备用
+      const localImagePath = '/screen-default.png';
+      
+      // 创建一个新的 Image 对象来加载本地图片
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = localImagePath;
+      
+      // 返回一个 Promise，当图片加载完成后解析
+      return new Promise((resolve) => {
+        img.onload = () => {
+          // 创建一个临时画布来获取图片数据
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = img.width;
+          tempCanvas.height = img.height;
+          const ctx = tempCanvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          
+          // 获取数据 URL
+          const dataURL = tempCanvas.toDataURL('image/png');
+          
+          // 保存截图数据到 state
+          this.screenshot = dataURL;
+          
+          resolve(dataURL);
+        };
+        
+        img.onerror = () => {
+          console.error('加载备用图片失败');
+          // 即使备用图片加载失败也返回 null
+          this.screenshot = null;
+          resolve(null);
+        };
+      });
+    },
+    
+    // 获取当前截图
+    getScreenshot() {
+      return this.screenshot
+    },
+    
+    // 清除截图
+    clearScreenshot() {
+      this.screenshot = null
+    },
     setCanvas(fabricCanvas) {
       this.canvas = fabricCanvas
       // 禁用自动渲染，手动控制渲染时机
@@ -43,7 +119,6 @@ export const useBaseStore = defineStore('baseStore', {
       // 设置背景图片
       const currentBgImage = this.$state.themeBackgroundImages[this.$state.currentThemeIndex]
       if (currentBgImage) {
-        console.log('set background image', currentBgImage)
         FabricImage.fromURL(currentBgImage, (img) => {
           // 计算缩放比例以填充圆形区域
           const scale = this.$state.WATCH_SIZE / Math.min(img.width, img.height)

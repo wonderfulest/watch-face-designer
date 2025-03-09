@@ -414,12 +414,33 @@ const uploadApp = async () => {
         }
       }
     }
+    
+    // 上传表盘截图
+    const screenshot = baseStore.getScreenshot()
+    if (screenshot) {
+      try {
+        const screenshotUpload = await uploadBase64Image(screenshot)
+        if (screenshotUpload && screenshotUpload.url) {
+          // designDo.screenshot = screenshotUpload.url
+          designDo.screenshot = screenshotUpload.id
+        }
+      } catch (screenshotError) {
+        console.error('上传表盘截图失败:', screenshotError)
+        // 截图上传失败不影响整体上传过程
+      }
+    }
     // 配置更新
     const userStr = localStorage.getItem('user')
     const user = JSON.parse(userStr)
-    designDo['name'] = app.app_name
-    designDo['kpay_appid'] = app.kpay
-    designDo['description'] = app.description
+    // 使用 baseStore 中的值
+    const appData = {
+      app_name: baseStore.watchFaceName,
+      kpay: baseStore.kpayId,
+      description: baseStore.watchFaceName
+    }
+    designDo['name'] = appData.app_name
+    designDo['kpay_appid'] = appData.kpay
+    designDo['description'] = appData.description
     designDo['user_id'] = user.id
     designDo['config_json'] = JSON.stringify(config)
     await updateFaceDesign(designDo)

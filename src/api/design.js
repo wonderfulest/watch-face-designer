@@ -16,7 +16,7 @@ export const getDesigns = async ({ page, pageSize, userId, status, name }) => {
     'pagination[pageSize]': pageSize,
     'filters[user_id][$eq]': userId,
     'sort[0]': 'updatedAt:desc',
-    populate: 'background'
+    populate: 'background,screenshot'
   }
 
   if (status) {

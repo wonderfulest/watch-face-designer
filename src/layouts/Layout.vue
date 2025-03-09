@@ -166,20 +166,18 @@ const handleUpload = async () => {
   }
 }
 
-const handleScreenshot = () => {
+const handleScreenshot = async () => {
   deactivateObject()
-  if (!baseStore.canvas) {
-    messageStore.error('没有可用的画布')
-    return
-  }
   
   try {
-    // 创建一个临时链接来下载图片
-    const dataURL = baseStore.canvas.toDataURL({
-      format: 'png',
-      quality: 1
-    })
+    // 使用 baseStore 的截图功能捕获并保存截图
+    const dataURL = await baseStore.captureScreenshot()
     
+    if (!dataURL) {
+      throw new Error('截图数据为空')
+    }
+    
+    // 创建一个临时链接来下载图片
     const link = document.createElement('a')
     const filename = watchFaceName.value ? `${watchFaceName.value}.png` : 'watch-face.png'
     
