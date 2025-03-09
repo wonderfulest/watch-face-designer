@@ -373,7 +373,7 @@ onMounted(() => {
 
 <style scoped>
 .design-list {
-  padding: 24px;
+  padding: 0 32px;
   height: calc(100vh - 60px); /* 减去顶部导航栏的高度 */
   overflow-y: auto;
 }

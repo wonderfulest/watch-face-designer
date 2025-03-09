@@ -36,7 +36,7 @@
         <el-input type="text" v-model="watchFaceName" placeholder="表盘名称" :input-style="{ border: 'none', background: 'transparent' }" />
         <el-input type="text" v-model="kpayId" placeholder="KPAY" :input-style="{ border: 'none', background: 'transparent' }" />
       </div>
-      <div class="actions">
+      <div class="actions" v-if="$route.path === '/design'">
         <button class="action-btn" @click="handleScreenshot">截图</button>
         <button class="action-btn" @click="handleUpload">上传</button>
       </div>
@@ -267,6 +267,7 @@ const handleScreenshot = async () => {
   margin-left: auto;
   display: flex;
   gap: 10px;
+  margin-right: 120px; /* Add space for the user menu */
 }
 
 .action-btn {
@@ -322,8 +323,13 @@ const handleScreenshot = async () => {
 }
 
 .user-menu {
-  position: relative;
+  position: absolute;
+  top: 0;
+  right: 20px;
   cursor: pointer;
+  height: 60px;
+  display: flex;
+  align-items: center;
 }
 
 .user-avatar {

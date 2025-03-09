@@ -1,6 +1,38 @@
 <template>
   <el-dialog :model-value="isDialogVisible" title="导出配置" class="export-dialog" @open="openDialog" @update:model-value="emit('update:isDialogVisible', $event)" :before-close="closeDialog">
-    <div class="export-preview">
+    <div v-if="uploading" class="upload-progress">
+      <div class="upload-header">
+        <h3>正在上传...</h3>
+        <div class="upload-info">
+          <div class="info-item">
+            <el-tag type="primary" effect="dark" size="large">进度: {{ currentProgress }}%</el-tag>
+          </div>
+          <div class="info-item">
+            <el-tag type="success" effect="dark" size="large">状态: {{ currentStatus }}</el-tag>
+          </div>
+        </div>
+      </div>
+      
+      <div class="progress-container">
+        <el-progress :percentage="currentProgress" :format="progressFormat" :stroke-width="20" />
+        <div class="progress-details">
+          <div class="current-progress">
+            <span class="progress-label">当前进度:</span> 
+            <span class="progress-value">{{ currentProgress }}%</span>
+          </div>
+          <div class="upload-status">
+            <span class="status-label">状态:</span> 
+            <span class="status-value">{{ currentStatus }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div v-if="isUploadTimeout" class="timeout-warning">
+        上传时间超过1分钟，可能存在网络问题
+        <el-button size="small" type="danger" @click="cancelUpload">取消上传</el-button>
+      </div>
+    </div>
+    <div v-else class="export-preview">
       <div class="preview-header">
         <span>预览</span>
         <div class="preview-actions">
@@ -41,7 +73,7 @@ import { ref } from 'vue'
 import _ from 'lodash'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElProgress, ElLoading, ElTag } from 'element-plus'
 
 import { useMessageStore } from '@/stores/message'
 
@@ -90,16 +122,51 @@ const baseStore = useBaseStore()
 const closeDialog = () => {
   // 使用 emit 通知父组件更新 isDialogVisible
   emit('update:isDialogVisible', false)
+  
+  // 清除上传相关状态
+  clearTimeout(uploadTimeoutTimer)
+  if (loadingInstance) {
+    loadingInstance.close()
+    loadingInstance = null
+  }
 }
 
 const jsonConfig = ref({})
+const uploading = ref(false)
+const isUploadTimeout = ref(false)
+let uploadTimeoutTimer = null
+let loadingInstance = null
+// 使用直接的变量而不是ref
+let currentProgress = 0
+let currentStatus = ''
+
+const progressFormat = (percentage) => {
+  return percentage === 100 ? '完成' : `${percentage}%`
+}
+
+// 更新进度和状态的辅助函数
+const updateProgress = (status, progress) => {
+  currentStatus = status
+  currentProgress = progress
+  if (loadingInstance) {
+    loadingInstance.setText(`${status} (${progress}%)`)
+  }
+}
 
 const openDialog = () => {
   jsonConfig.value = generateConfig()
+  uploading.value = false
+  currentProgress = 0
+  currentStatus = ''
+  isUploadTimeout.value = false
+  clearTimeout(uploadTimeoutTimer)
+  if (loadingInstance) {
+    loadingInstance.close()
+    loadingInstance = null
+  }
 }
 
 const getEncodeConfig = (element) => {
-  console.log('获取编码配置', element)
 
   let encodeConfig = null
   if (element.eleType === 'global') {
@@ -391,11 +458,39 @@ const uploadApp = async () => {
     return
   }
 
+  // 开始上传，显示进度条
+  uploading.value = true
+  currentProgress = 0
+  currentStatus = '准备上传...'
+  isUploadTimeout.value = false
+  
+  // 创建全屏遮罩
+  loadingInstance = ElLoading.service({
+    lock: true,
+    text: `${currentStatus} (${currentProgress}%)`,
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
+  
+  // 设置超时定时器，1分钟后显示超时提示
+  uploadTimeoutTimer = setTimeout(() => {
+    isUploadTimeout.value = true
+  }, 60000) // 60秒 = 1分钟
+
   try {
     // 应用创建
+    currentStatus = '创建应用...'
+    currentProgress = 10
+    if (loadingInstance) {
+      loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
+    }
     const designDo = await createOrUpdateFaceDesign()
 
     // 上传背景图片
+    currentStatus = '上传背景图片...'
+    currentProgress = 30
+    if (loadingInstance) {
+      loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
+    }
     for (let i = 0; i < baseStore.themeBackgroundImages.length; i++) {
       const bgImage = baseStore.themeBackgroundImages[i]
       let imageUpload = {}
@@ -414,21 +509,31 @@ const uploadApp = async () => {
       }
     }
     
-    // 上传表盘截图
-    const screenshot = baseStore.getScreenshot()
-    if (screenshot) {
-      try {
+    // 上传表盘截图 - 对画布进行实时截图
+    currentStatus = '上传表盘截图...'
+    currentProgress = 60
+    if (loadingInstance) {
+      loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
+    }
+    try {
+      // 先捕获最新的画布截图
+      const screenshot = await baseStore.captureScreenshot()
+      if (screenshot) {
         const screenshotUpload = await uploadBase64Image(screenshot)
         if (screenshotUpload && screenshotUpload.url) {
-          // designDo.screenshot = screenshotUpload.url
           designDo.screenshot = screenshotUpload.id
         }
-      } catch (screenshotError) {
-        console.error('上传表盘截图失败:', screenshotError)
-        // 截图上传失败不影响整体上传过程
       }
+    } catch (screenshotError) {
+      console.error('上传表盘截图失败:', screenshotError)
+      // 截图上传失败不影响整体上传过程
     }
     // 配置更新
+    currentStatus = '更新配置信息...'
+    currentProgress = 80
+    if (loadingInstance) {
+      loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
+    }
     const userStr = localStorage.getItem('user')
     const user = JSON.parse(userStr)
     // 使用 baseStore 中的值
@@ -443,12 +548,47 @@ const uploadApp = async () => {
     designDo['user_id'] = user.id
     designDo['config_json'] = JSON.stringify(config)
     await updateFaceDesign(designDo)
-    messageStore.success('配置上传成功')
-    closeDialog()
+    currentStatus = '上传完成！'
+    currentProgress = 100
+    if (loadingInstance) {
+      loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
+    }
+    
+    // 延迟关闭进度条，让用户看到完成状态
+    setTimeout(() => {
+      uploading.value = false
+      messageStore.success('配置上传成功')
+      closeDialog()
+      
+      // 清除超时定时器和遮罩
+      clearTimeout(uploadTimeoutTimer)
+      if (loadingInstance) {
+        loadingInstance.close()
+        loadingInstance = null
+      }
+    }, 1000)
+    
     return designDo
   } catch (error) {
     console.error('配置上传失败:', error)
-    messageStore.error(error.message || '配置上传失败，请稍后重试')
+    currentStatus = '上传失败: ' + (error.message || '未知错误')
+    currentProgress = 0
+    if (loadingInstance) {
+      loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
+    }
+    
+    // 延迟关闭进度条，让用户看到错误信息
+    setTimeout(() => {
+      uploading.value = false
+      messageStore.error(error.message || '配置上传失败，请稍后重试')
+      
+      // 清除超时定时器和遮罩
+      clearTimeout(uploadTimeoutTimer)
+      if (loadingInstance) {
+        loadingInstance.close()
+        loadingInstance = null
+      }
+    }, 2000)
   }
   return null
 }
@@ -460,6 +600,25 @@ const updateFaceDesign = async (design) => {
     return false
   }
   return true
+}
+
+// 取消上传
+const cancelUpload = () => {
+  currentStatus = '已取消上传'
+  currentProgress = 0
+  
+  // 关闭遮罩
+  if (loadingInstance) {
+    loadingInstance.close()
+    loadingInstance = null
+  }
+  
+  // 延迟关闭上传进度条
+  setTimeout(() => {
+    uploading.value = false
+    isUploadTimeout.value = false
+    clearTimeout(uploadTimeoutTimer)
+  }, 1500)
 }
 
 // 复制配置到剪贴板
@@ -541,5 +700,100 @@ defineExpose({
   display: flex;
   justify-content: flex-end;
   gap: 8px;
+}
+
+.upload-progress {
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.upload-progress h3 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  color: #333;
+}
+
+.upload-header {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-info {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.info-item {
+  font-size: 16px;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-details {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  background-color: #f5f7fa;
+  padding: 12px 15px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.upload-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-label {
+  font-weight: 600;
+  color: #606266;
+}
+
+.status-value {
+  font-size: 15px;
+  color: #303133;
+  background-color: #ecf5ff;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border-left: 3px solid #409EFF;
+}
+
+.current-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progress-label {
+  font-weight: 600;
+  color: #606266;
+}
+
+.progress-value {
+  font-size: 15px;
+  font-weight: bold;
+  color: #409EFF;
+  background-color: #ecf5ff;
+  padding: 2px 8px;
+  border-radius: 3px;
+  border-left: 3px solid #409EFF;
+}
+
+.timeout-warning {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #FEF0F0;
+  color: #F56C6C;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 </style>
