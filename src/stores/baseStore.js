@@ -291,7 +291,6 @@ export const useBaseStore = defineStore('baseStore', {
 
         // 设置图片源
         img.src = currentBgImage
-        img.crossOrigin = 'anonymous'
 
       } else if (watchFace) {
         // 如果没有背景图片，确保背景圆在最底层
