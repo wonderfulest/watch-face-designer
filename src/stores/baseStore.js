@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { Circle, FabricImage } from 'fabric'
+import { getMetricBySymbol } from '@/config/settings'
 export const useBaseStore = defineStore('baseStore', {
   // state
   state: () => ({
@@ -12,6 +13,8 @@ export const useBaseStore = defineStore('baseStore', {
     themeBackgroundColors: ['#000000'],
     themeBackgroundImages: [],
     currentThemeIndex: 0,
+    textCase: 0, // 文本大小写设置：0=默认, 1=全大写, 2=全小写, 3=驼峰
+    labelLengthType: 0, // 标签长度类型：0=图标, 1=短文本, 2=中等文本, 3=长文本
     screenshot: null // 存储表盘截图数据
   }),
 
@@ -23,6 +26,144 @@ export const useBaseStore = defineStore('baseStore', {
 
   // actions
   actions: {
+    // 设置标签长度类型并更新所有标签元素
+    setLabelLengthType(value) {
+      console.log('设置标签长度类型:', value)
+      
+      // 如果没有画布，直接返回
+      if (!this.canvas) {
+        console.warn('没有画布，无法更新标签元素')
+        return
+      }
+      
+      // 获取所有对象
+      const objects = this.canvas.getObjects()
+      console.log('更新标签长度类型: 找到', objects.length, '个对象')
+      
+      // 遇到标签元素时需要重新加载
+      let labelCount = 0
+      
+      // 延迟执行以确保状态已更新
+      setTimeout(() => {
+        objects.forEach(obj => {
+          // 标签元素处理
+          if (obj.eleType === 'label' && obj.metricSymbol) {
+            labelCount++
+            
+            // 重新加载标签内容
+            const metric = getMetricBySymbol(obj.metricSymbol)
+            
+            if (metric) {
+              // 根据 labelLengthType 选择合适的标签长度
+              let newText = 'Label'
+              
+              if (typeof metric.enLabel === 'object') {
+                if (this.labelLengthType === 1) { // 短文本
+                  newText = metric.enLabel.short || metric.enLabel.medium || metric.enLabel.long || 'Label'
+                } else if (this.labelLengthType === 2) { // 中等文本
+                  newText = metric.enLabel.medium || metric.enLabel.short || metric.enLabel.long || 'Label'
+                } else if (this.labelLengthType === 3) { // 长文本
+                  newText = metric.enLabel.long || metric.enLabel.medium || metric.enLabel.short || 'Label'
+                } else { // 默认使用短文本
+                  newText = metric.enLabel.short || metric.enLabel.medium || metric.enLabel.long || 'Label'
+                }
+              } else {
+                // 兼容旧版本，如果 enLabel 不是对象而是字符串
+                newText = metric.enLabel
+              }
+              
+              // 保存新的原始文本
+              obj.originalText = newText
+              
+              // 应用文本大小写设置
+              if (this.textCase === 1) { // 全大写
+                newText = newText.toUpperCase()
+              } else if (this.textCase === 2) { // 全小写
+                newText = newText.toLowerCase()
+              } else if (this.textCase === 3) { // 驼峰式
+                newText = newText.replace(/\b\w/g, c => c.toUpperCase())
+              }
+              
+              // 更新文本
+              obj.set('text', newText)
+            }
+          }
+        })
+        
+        // 强制重新渲染画布
+        this.canvas.renderAll()
+        
+        console.log('标签长度类型更新完成 - 标签元素:', labelCount)
+      }, 10)
+    },
+    // 设置文本大小写并更新所有文本元素
+    setTextCase(value) {
+      console.log('设置文本大小写:', value)
+      
+      // 如果没有画布，直接返回
+      if (!this.canvas) {
+        console.warn('没有画布，无法更新文本元素')
+        return
+      }
+      
+      // 获取所有对象
+      const objects = this.canvas.getObjects()
+      console.log('更新文本大小写: 找到', objects.length, '个对象')
+      
+      // 遍历并更新所有元素
+      let dateCount = 0
+      let labelCount = 0
+      let stepsCount = 0
+      
+      // 延迟执行以确保状态已更新
+      setTimeout(() => {
+        objects.forEach(obj => {
+          // 日期元素处理
+          if (obj.eleType === 'date') {
+            dateCount++
+            
+            // 直接触发元素的更新函数
+            if (typeof obj.updateTextCase === 'function') {
+              try {
+                obj.updateTextCase()
+              } catch (error) {
+                console.error('更新日期元素时出错:', error)
+              }
+            }
+          } 
+          // 标签元素处理
+          else if (obj.eleType === 'label') {
+            labelCount++
+            
+            // 如果有原始文本，则重新格式化
+            if (obj.originalText) {
+              let formattedText = obj.originalText
+              
+              // 应用文本大小写设置
+              if (this.textCase === 1) { // 全大写
+                formattedText = formattedText.toUpperCase()
+              } else if (this.textCase === 2) { // 全小写
+                formattedText = formattedText.toLowerCase()
+              } else if (this.textCase === 3) { // 驼峰式
+                formattedText = formattedText.replace(/\b\w/g, c => c.toUpperCase())
+              }
+              
+              obj.set('text', formattedText)
+            }
+          }
+          // 步数元素处理
+          else if (obj.eleType === 'steps') {
+            stepsCount++
+            // 步数元素已经正常工作，不需要额外处理
+          }
+        })
+        
+        // 强制重新渲染画布
+        this.canvas.renderAll()
+        
+        console.log('文本大小写更新完成 - 日期元素:', dateCount, '标签元素:', labelCount, '步数元素:', stepsCount)
+      }, 10)
+    },
     // 捕获并保存表盘截图
     captureScreenshot() {
       if (!this.canvas) {

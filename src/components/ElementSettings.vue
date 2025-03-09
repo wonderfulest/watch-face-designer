@@ -46,9 +46,9 @@ const elements = ref([])
 const activeElements = ref([])
 
 const updateElements = () => {
+  if (!baseStore.canvas) return
   elements.value = baseStore.canvas.getObjects()
   activeElements.value = baseStore.canvas.getActiveObjects()
-  // console.log('updateElements', activeElements.value)
 }
 
 const debouncedUpdateElements = debounce(updateElements, 100)

@@ -218,6 +218,8 @@ const generateConfig = () => {
     name: baseStore.watchFaceName,
     kpayId: baseStore.kpayId,
     themeColors: baseStore.themeColors,
+    textCase: baseStore.textCase, // 添加文本大小写设置
+    labelLengthType: baseStore.labelLengthType, // 添加标签长度类型设置
     metricTypes: [],
     elements: []
   }

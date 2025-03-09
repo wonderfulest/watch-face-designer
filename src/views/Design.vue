@@ -82,6 +82,23 @@ const loadDesign = async (id) => {
     baseStore.themeColors = config.themeColors
     // 设置主题背景图片
     baseStore.themeBackgroundImages = config.themeBackgroundImages
+    // 设置文本大小写
+    if (config.textCase !== undefined) {
+      baseStore.textCase = config.textCase
+      // 如果有设置文本大小写，则触发更新
+      setTimeout(() => {
+        baseStore.setTextCase(config.textCase)
+      }, 500) // 等待画布加载完成
+    }
+    
+    // 设置标签长度类型
+    if (config.labelLengthType !== undefined) {
+      baseStore.labelLengthType = config.labelLengthType
+      // 如果有设置标签长度类型，则触发更新
+      setTimeout(() => {
+        baseStore.setLabelLengthType(config.labelLengthType)
+      }, 600) // 在文本大小写设置后执行
+    }
     // 默认选中第一个颜色
     baseStore.currentThemeIndex = 0
 

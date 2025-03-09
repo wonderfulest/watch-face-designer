@@ -8,6 +8,30 @@
       <label>Kpay ID</label>
       <el-input type="text" v-model="kpayId" @change="updateKpayId" />
     </div>
+    
+    <!-- 文本大小写设置 -->
+    <div class="setting-item">
+      <label>文本大小写设置</label>
+      <el-select v-model="textCase" placeholder="请选择文本大小写样式" @change="updateTextCase">
+        <el-option :value="0" label="默认" />
+        <el-option :value="1" label="全大写 (UPPERCASE)" />
+        <el-option :value="2" label="全小写 (lowercase)" />
+        <el-option :value="3" label="驼峰式 (CamelCase)" />
+      </el-select>
+      <div class="setting-description">影响日期、标签等文本元素的显示样式</div>
+    </div>
+    
+    <!-- 标签长度类型设置 -->
+    <div class="setting-item">
+      <label>标签长度类型</label>
+      <el-select v-model="labelLengthType" placeholder="请选择标签长度类型" @change="updateLabelLengthType">
+        <el-option :value="0" label="图标 (Icon)" />
+        <el-option :value="1" label="短文本 (Short)" />
+        <el-option :value="2" label="中等文本 (Medium)" />
+        <el-option :value="3" label="长文本 (Long)" />
+      </el-select>
+      <div class="setting-description">仅影响标签元素的显示文本长度</div>
+    </div>
 
     <!-- 主题配置 -->
     <div class="theme-settings">
@@ -63,6 +87,7 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useBaseStore } from '@/stores/baseStore'
 import ColorPicker from '@/components/color-picker/index.vue'
 import emitter from '@/utils/eventBus'
+import { ElSelect, ElOption } from 'element-plus'
 
 const baseStore = useBaseStore()
 
@@ -130,7 +155,6 @@ const themeColors = computed({
 const currentThemeColors = computed({
   get: () => {
     const baseThemeColors = themeColors.value.length > 0 ? themeColors.value[0] : []
-    console.log('baseThemeColors 111', baseThemeColors)
     // 如果当前主题为空，填充默认值
     if (!themeColors.value[currentThemeIndex.value]) {
       themeColors.value[currentThemeIndex.value] = baseThemeColors.map((color) => ({
@@ -178,6 +202,67 @@ const updateThemeColor = (color) => {
   }
 }
 
+// 文本大小写设置
+const textCase = computed({
+  get: () => baseStore.textCase,
+  set: (value) => {
+    baseStore.textCase = value
+  }
+})
+
+// 标签长度类型设置
+const labelLengthType = computed({
+  get: () => baseStore.labelLengthType,
+  set: (value) => {
+    baseStore.labelLengthType = value
+  }
+})
+
+// 更新文本大小写设置
+const updateTextCase = (value) => {
+  console.log('全局设置 - 更新文本大小写设置:', value)
+
+  baseStore.setTextCase(value)
+  
+  // 打印当前画布上的所有元素类型，以便调试
+  if (baseStore.canvas) {
+    console.log('当前画布上的元素类型:')
+    const objects = baseStore.canvas.getObjects()
+    const elementTypes = {}
+    
+    objects.forEach(obj => {
+      if (!elementTypes[obj.eleType]) {
+        elementTypes[obj.eleType] = 0
+      }
+      elementTypes[obj.eleType]++
+    })
+    
+    console.log('元素类型统计:', elementTypes)
+  }
+}
+
+// 更新标签长度类型设置
+const updateLabelLengthType = (value) => {
+  console.log('全局设置 - 更新标签长度类型:', value)
+
+  baseStore.setLabelLengthType(value)
+  
+  // 打印当前画布上的标签元素数量，以便调试
+  if (baseStore.canvas) {
+    console.log('当前画布上的标签元素:')
+    const objects = baseStore.canvas.getObjects()
+    let labelCount = 0
+    
+    objects.forEach(obj => {
+      if (obj.eleType === 'label') {
+        labelCount++
+      }
+    })
+    
+    console.log('标签元素数量:', labelCount)
+  }
+}
+
 // 监听 store 中的值变化
 watch(
   () => baseStore.watchFaceName,
@@ -193,6 +278,15 @@ watch(
   (newId) => {
     if (newId !== kpayId.value) {
       kpayId.value = newId
+    }
+  }
+)
+
+watch(
+  () => baseStore.textCase,
+  (newValue) => {
+    if (newValue !== textCase.value) {
+      textCase.value = newValue
     }
   }
 )
@@ -331,5 +425,12 @@ const removeBackgroundImage = () => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.setting-description {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #909399;
+  line-height: 1.4;
 }
 </style>
