@@ -4,5 +4,24 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)", // 这里匹配所有路径
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "https://studio.garminface.com/"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type"
+        }
+      ]
+    }
   ]
 }
