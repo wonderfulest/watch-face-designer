@@ -58,8 +58,8 @@ export const useBaseStore = defineStore('baseStore', {
       // 创建一个新的 Image 对象来加载本地图片
       const img = new Image();
       img.crossOrigin = 'anonymous';
+
       img.src = localImagePath;
-      
       // 返回一个 Promise，当图片加载完成后解析
       return new Promise((resolve) => {
         img.onload = () => {
@@ -366,7 +366,7 @@ export const useBaseStore = defineStore('baseStore', {
 
         // 设置图片源
         img.src = currentBgImage
-
+        img.crossOrigin = 'anonymous'
       } else if (watchFace) {
         // 如果没有背景图片，确保背景圆在最底层
         this.canvas.moveObjectTo(watchFace, 0)
