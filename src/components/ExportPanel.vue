@@ -283,12 +283,12 @@ const createOrUpdateFaceDesign = async () => {
   const app = {
     kpay: baseStore.kpayId,
     app_name: baseStore.watchFaceName,
-    description: baseStore.watchFaceName
+    description: baseStore.watchFaceName,
+    id: baseStore.id
   }
   try {
-    let res = await axiosInstance.get(`/designs?filters[kpay_appid][$eq]=${app.kpay}`)
-    if (res.data.data.length == 0) {
-      // 不存在 kpay
+    if (!app.id) {
+        // 不存在 kpay
       await axiosInstance.post(`/designs`, {
         data: {
           name: app.app_name,
@@ -303,11 +303,10 @@ const createOrUpdateFaceDesign = async () => {
         kpay_appid: app.kpay,
         description: app.description
       }
-
-      await axiosInstance.put(`/designs/${res.data.data[0].id}`, { data: design }, {})
+      await axiosInstance.put(`/designs/${app.id}`, { data: design }, {})
     }
-    res = await axiosInstance.get(`/designs?filters[kpay_appid][$eq]=${app.kpay}`)
-    let body = res.data.data[0]
+    const res = await axiosInstance.get(`/designs/${app.id}`)
+    let body = res.data.data
     return { ...body.attributes, id: body.id }
   } catch (err) {
     messageStore.error(err.message)

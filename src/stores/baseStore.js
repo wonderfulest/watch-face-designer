@@ -4,6 +4,7 @@ export const useBaseStore = defineStore('baseStore', {
   // state
   state: () => ({
     canvas: null,
+    id: null,
     watchFaceName: '',
     kpayId: '',
     WATCH_SIZE: 454,

@@ -56,6 +56,7 @@
             </div>
             <div class="actions">
               <el-button type="primary" size="small" @click="openCanvas(design)">编辑</el-button>
+              <el-button type="warning" size="small" @click="copyDesign(design)">复制</el-button>
               <el-button v-if="design.attributes.status === 'draft'" type="success" size="small" @click="submitDesign(design)">提交</el-button>
             </div>
           </div>
@@ -109,6 +110,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="editDialogVisible = false">取消</el-button>
+
           <el-button type="primary" @click="submitEdit">保存</el-button>
         </span>
       </template>
@@ -122,6 +124,7 @@ import { useRouter } from 'vue-router'
 import { getDesigns, getDesignDetail, updateDesignStatus, updateDesign, deleteDesign as apiDeleteDesign } from '@/api/design'
 import { useMessageStore } from '@/stores/message'
 import { useBaseStore } from '@/stores/baseStore'
+import axiosInstance from '@/config/axiosConfig'
 import dayjs from 'dayjs'
 
 const router = useRouter()
@@ -317,6 +320,48 @@ const submitEdit = async () => {
     } else {
       console.error('保存失败:', error)
       messageStore.error('保存失败')
+    }
+  }
+}
+
+// 复制表盘设计
+const copyDesign = async (design) => {
+  try {
+    // 验证并解析 JSON
+    const configJson = JSON.parse(design.attributes.config_json)
+    
+    // 生成新的表盘名称，添加“复制”后缀
+    const newName = `${design.attributes.name}——copy`
+    
+    // 生成新的 kpay ID，确保其唯一性
+    const timestamp = new Date().getTime()
+    const newKpayId = `mock_${timestamp}`
+    
+    // 创建新表盘数据
+    const newDesignData = {
+      data: {
+        name: newName,
+        kpay_appid: newKpayId,
+        status: 'draft', // 复制的表盘默认为草稿状态
+        description: design.attributes.description,
+        config_json: JSON.stringify(configJson), // 保存时压缩 JSON
+        user_id: design.attributes.user_id
+      }
+    }
+    
+    // 调用 API 创建新表盘
+    const response = await axiosInstance.post('/designs', newDesignData)
+    
+    if (response.data) {
+      messageStore.success('复制成功')
+      await fetchDesigns() // 刷新列表
+    }
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      messageStore.error('JSON 格式错误，请检查配置')
+    } else {
+      console.error('复制失败:', error)
+      messageStore.error('复制失败')
     }
   }
 }

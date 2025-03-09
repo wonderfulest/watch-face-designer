@@ -74,8 +74,8 @@ const loadDesign = async (id) => {
     const designData = response.data.data
     const config = JSON.parse(designData.attributes.config_json)
 
-    console.log(config)
     // 设置基础信息
+    baseStore.id = id
     baseStore.watchFaceName = designData.attributes.name
     baseStore.kpayId = designData.attributes.kpay_appid
     // 设置主题颜色
