@@ -72,6 +72,7 @@ const handleCustomUpload = async (options) => {
   if (props.element && baseStore.canvas) {
     // Create a temporary image to get original dimensions
     const img = new Image()
+    img.crossOrigin = 'anonymous'
     img.src = localUrl
 
     img.onload = () => {
