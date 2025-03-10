@@ -5,7 +5,7 @@ import router from '@/router'
 
 const axiosInstance = axios.create({
   baseURL: 'https://api.garminface.com/api',
-  timeout: 10000,
+  timeout: 60000,
   headers: {
     Accept: 'application/json, text/plain, */*',
     'Content-Type': 'application/json'

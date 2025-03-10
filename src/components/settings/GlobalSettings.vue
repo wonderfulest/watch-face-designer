@@ -25,7 +25,6 @@
     <div class="setting-item">
       <label>标签长度类型</label>
       <el-select v-model="labelLengthType" placeholder="请选择标签长度类型" @change="updateLabelLengthType">
-        <el-option :value="0" label="图标 (Icon)" />
         <el-option :value="1" label="短文本 (Short)" />
         <el-option :value="2" label="中等文本 (Medium)" />
         <el-option :value="3" label="长文本 (Long)" />
