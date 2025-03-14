@@ -358,13 +358,16 @@ const createOrUpdateFaceDesign = async () => {
   try {
     if (!app.id) {
         // 不存在 kpay
-      await axiosInstance.post(`/designs`, {
+      const res = await axiosInstance.post(`/designs`, {
         data: {
           name: app.app_name,
           kpay_appid: app.kpay,
           description: app.description
         }
       })
+      // 更新 baseStore.id
+      app.id = res.data.data.id
+      baseStore.id = app.id
     } else {
       // 更新
       const design = {
@@ -523,6 +526,10 @@ const uploadApp = async () => {
       if (screenshot) {
         const screenshotUpload = await uploadBase64Image(screenshot)
         if (screenshotUpload && screenshotUpload.url) {
+          // 确保 designDo 存在
+          if (!designDo) {
+            designDo = {}
+          }
           designDo.screenshot = screenshotUpload.id
         }
       }
@@ -544,6 +551,12 @@ const uploadApp = async () => {
       kpay: baseStore.kpayId,
       description: baseStore.watchFaceName
     }
+    
+    // 确保 designDo 存在
+    if (!designDo) {
+      designDo = {}
+    }
+    
     designDo['name'] = appData.app_name
     designDo['kpay_appid'] = appData.kpay
     designDo['description'] = appData.description
@@ -597,11 +610,25 @@ const uploadApp = async () => {
 
 const updateFaceDesign = async (design) => {
   try {
-    await axiosInstance.put(`/designs/${design.id}`, { data: design }, {})
+    // 如果没有ID，则创建新设计
+    if (!design.id) {
+      const response = await axiosInstance.post('/designs', { data: design }, {})
+      // 更新设计对象的ID
+      if (response && response.data && response.data.data) {
+        design.id = response.data.data.id
+        // 更新 baseStore 中的 ID
+        baseStore.id = design.id
+      }
+      return true
+    } else {
+      // 更新现有设计
+      await axiosInstance.put(`/designs/${design.id}`, { data: design }, {})
+      return true
+    }
   } catch (err) {
+    console.error('更新设计失败:', err)
     return false
   }
-  return true
 }
 
 // 取消上传
