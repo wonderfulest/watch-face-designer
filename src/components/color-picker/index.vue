@@ -220,6 +220,10 @@ const previewColor = computed(() => hexColor.value)
 // 切换颜色选择器
 const togglePicker = (event) => {
   event.stopPropagation()
+  if (isOpen.value && !varName.value) {
+    ElMessage.error('切换颜色选择器时，请输入变量名')
+    return
+  }
   isOpen.value = !isOpen.value
 }
 
@@ -230,7 +234,9 @@ const selectColor = (color) => {
   varName.value = color.name
   updateColor()
   // 添加颜色
-  baseStore.addColor(color.hex, color.name)
+  if (color.name) {
+    baseStore.addColor(color.hex, color.name)
+  }
   // 更新颜色变量
   baseStore.toggleThemeColors()
 }
@@ -256,6 +262,10 @@ import emitter from '@/utils/eventBus'
 
 // 确认保存颜色变量
 const confirmSaveVariable = () => {
+  if (!varName.value) {
+    ElMessage.error('保存颜色变量时，请输入变量名')
+    return
+  }
   if (hexColor.value !== 'transparent') {
     // 检查当前主题中是否已存在相同的颜色
     const existingIndex = baseStore.themeColors[baseStore.currentThemeIndex].findIndex((c) => c.hex.toLowerCase() === hexColor.value.toLowerCase())
@@ -277,6 +287,10 @@ const confirmSaveVariable = () => {
 
 // 监听点击外部关闭
 const handleOutsideClick = (event) => {
+  if (isOpen.value && !varName.value) {
+    ElMessage.error('关闭颜色选择器时，请输入变量名')
+    return
+  }
   if (!event.target.closest('.color-picker-wrapper')) {
     isOpen.value = false
   }
@@ -285,6 +299,7 @@ const handleOutsideClick = (event) => {
 // 添加和移除事件监听
 onMounted(() => {
   document.addEventListener('click', handleOutsideClick)
+  varName.value = baseStore.getColorVarName(props.modelValue)
 })
 
 onUnmounted(() => {

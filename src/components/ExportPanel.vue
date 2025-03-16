@@ -225,10 +225,7 @@ const generateConfig = () => {
   }
   // 背景色在颜色数组中的下标，用于配置
   config.backgroundColorId = baseStore.themeColors[0].findIndex((color) => color.hex === baseStore.themeBackgroundColors[0])
-  if (config.backgroundColorId === -1) {
-    messageStore.warning('请配置背景色颜色变量')
-    return null
-  }
+  
   // 先初始化空数组，稍后会更新为上传后的URL
   config.themeBackgroundImages = new Array(baseStore.themeBackgroundImages.length).fill('')
   const objects = baseStore.canvas.getObjects()

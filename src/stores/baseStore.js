@@ -454,7 +454,8 @@ export const useBaseStore = defineStore('baseStore', {
 
       // 更新背景颜色
       if (watchFace) {
-        watchFace.set('fill', this.themeBackgroundColors[this.currentThemeIndex] || '#000000')
+        console.log('set fill watchFace', watchFace, this.themeBackgroundColors[this.currentThemeIndex])
+        watchFace.set('fill', this.themeBackgroundColors[this.currentThemeIndex])
       }
 
       // 先移除旧的背景图片

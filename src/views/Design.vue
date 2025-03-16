@@ -82,6 +82,10 @@ const loadDesign = async (id) => {
     baseStore.themeColors = config.themeColors
     // 设置主题背景图片
     baseStore.themeBackgroundImages = config.themeBackgroundImages
+    // 设置主题背景颜色
+    if (config.backgroundColorId !== -1 && config.backgroundColorId < baseStore.themeColors[0].length){
+      baseStore.themeBackgroundColors[0] = baseStore.themeColors[0][config.backgroundColorId].hex
+    }
     // 设置文本大小写
     if (config.textCase !== undefined) {
       baseStore.textCase = config.textCase
@@ -113,6 +117,7 @@ const loadDesign = async (id) => {
       }
       checkCanvas()
     })
+    
     // 切换主题背景
     baseStore.toggleThemeBackground()
     // 加载元素到画布
