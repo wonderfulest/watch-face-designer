@@ -658,8 +658,72 @@ const filterFonts = () => {
 
 // 添加自定义字体
 const addCustomFont = () => {
-  // TODO: 实现添加自定义字体的功能
-  ;('Add custom font')
+  // 创建一个隐藏的文件输入元素
+  const fileInput = document.createElement('input')
+  fileInput.type = 'file'
+  fileInput.accept = '.ttf'
+  fileInput.style.display = 'none'
+  document.body.appendChild(fileInput)
+
+  // 监听文件选择事件
+  fileInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0]
+    if (!file) {
+      document.body.removeChild(fileInput)
+      return
+    }
+
+    try {
+      // 生成唯一的字体名称 (使用文件名，但移除扩展名)
+      const fontName = file.name.replace(/\.ttf$/i, '')
+      
+      // 创建 URL 对象
+      const fontUrl = URL.createObjectURL(file)
+      
+      // 创建并加载字体
+      const fontFace = new FontFace(fontName, `url(${fontUrl})`)
+      await fontFace.load()
+      
+      // 添加到文档字体
+      document.fonts.add(fontFace)
+      
+      // 标记为已加载
+      fontStore.loadedFonts.add(fontName)
+      
+      // 创建新的字体对象
+      const newFont = {
+        label: fontName,
+        value: fontName,
+        family: fontName
+      }
+      
+      // 检查是否已存在相同的字体
+      const existingFontIndex = customFonts.findIndex(font => font.value === fontName)
+      if (existingFontIndex !== -1) {
+        // 如果已存在，替换它
+        customFonts[existingFontIndex] = newFont
+      } else {
+        // 如果不存在，添加到数组
+        customFonts.push(newFont)
+      }
+      
+      // 添加到最近使用的字体
+      fontStore.addRecentFont(newFont)
+      
+      // 自动选择新添加的字体
+      selectFont(newFont)
+      
+    } catch (error) {
+      console.error('加载自定义字体失败:', error)
+      alert('加载字体失败，请确保上传的是有效的TTF文件。')
+    } finally {
+      // 清理文件输入元素
+      document.body.removeChild(fileInput)
+    }
+  })
+
+  // 触发文件选择对话框
+  fileInput.click()
 }
 
 // 监听点击外部关闭面板
