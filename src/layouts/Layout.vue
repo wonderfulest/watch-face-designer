@@ -2,7 +2,7 @@
   <div class="app-container">
     <header class="app-header">
       <div class="header-left">
-        <h1>Garmin Studio</h1>
+        <h1>Face Studio</h1>
         <nav class="header-nav">
           <a @click="showDesignerConfirm" class="nav-link">
             <Icon icon="material-symbols:edit-square" />
