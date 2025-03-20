@@ -485,7 +485,7 @@ const uploadApp = async () => {
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
-    const designDo = await createOrUpdateFaceDesign()
+    let designDo = await createOrUpdateFaceDesign()
 
     if (!designDo) {
       messageStore.error('创建设计失败')

@@ -1,7 +1,10 @@
 <template>
   <header class="app-header">
     <div class="header-left">
-      <h1>Face Studio</h1>
+      <div class="brand">
+        <img src="@/assets/favicon.svg" alt="Facer Studio" class="logo">
+        <h1 class="brand-title">Facer Studio</h1>
+      </div>
       <nav class="header-nav">
         <a @click="showDesignerConfirm" class="nav-link">
           <Icon icon="material-symbols:edit-square" />
@@ -268,12 +271,28 @@ onMounted(() => {
   gap: 32px;
 }
 
-.header-left h1 {
-  font-size: 20px;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: rotate(360deg);
+}
+
+.brand-title {
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #2c3e50;
   margin: 0;
-  background: linear-gradient(45deg, #2196F3, #00BCD4);
+  background: linear-gradient(120deg, #409EFF, #2c3e50);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -466,9 +485,10 @@ onMounted(() => {
     border-bottom-color: #333;
   }
 
-  .header-left h1 {
-    background: linear-gradient(45deg, #64B5F6, #4DD0E1);
+  .brand-title {
+    background: linear-gradient(120deg, #409EFF, #ffffff);
     -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .nav-link {
