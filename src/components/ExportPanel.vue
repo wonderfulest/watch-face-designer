@@ -487,6 +487,11 @@ const uploadApp = async () => {
     }
     const designDo = await createOrUpdateFaceDesign()
 
+    if (!designDo) {
+      messageStore.error('创建设计失败')
+      return
+    }
+
     // 上传背景图片
     currentStatus = '上传背景图片...'
     currentProgress = 30
@@ -580,7 +585,7 @@ const uploadApp = async () => {
       }
     }, 1000)
     
-    return designDo
+    return true
   } catch (error) {
     console.error('配置上传失败:', error)
     currentStatus = '上传失败: ' + (error.message || '未知错误')
@@ -601,8 +606,8 @@ const uploadApp = async () => {
         loadingInstance = null
       }
     }, 2000)
+    return false
   }
-  return null
 }
 
 const updateFaceDesign = async (design) => {

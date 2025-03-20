@@ -127,7 +127,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useFontStore } from '@/stores/fontStore'
 import { useMessageStore } from '@/stores/message'
 import { getFonts, createFont, uploadFontFile, getFontBySlug } from '@/api/fonts'
@@ -315,6 +315,26 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleOutsideClick)
 })
+
+const switchTab = (tab) => {
+  if (activeTab.value === tab) return
+  
+  // 先设置动画状态
+  isAnimating.value = true
+  
+  // 等待动画开始后再切换标签
+  setTimeout(() => {
+    activeTab.value = tab
+    // 等待 DOM 更新后再初始化打字效果
+    nextTick(() => {
+      initTypedEffect(tab)
+      // 最后移除动画状态
+      setTimeout(() => {
+        isAnimating.value = false
+      }, 300)
+    })
+  }, 50)
+}
 </script>
 
 <style scoped>
