@@ -717,7 +717,7 @@ const addCustomFont = () => {
         name: fontName,
         slug: fontName.toLowerCase().replace(/\s+/g, '-'),
         family: fontName,
-        status: 'upload',
+        status: 'Submitted', // 提交状态
         ttf: uploadResult.id // 使用上传后返回的文件ID
       }
       

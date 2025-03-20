@@ -21,6 +21,18 @@ const routes = [
         name: 'DesignList',
         component: () => import('@/views/DesignList.vue'),
         meta: { requiresAuth: true }
+      },
+      {
+        path: 'fonts',
+        name: 'Fonts',
+        component: () => import('@/views/Fonts.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: 'FAQ',
+        name: 'FAQ',
+        component: () => import('@/views/FAQ.vue'),
+        meta: { requiresAuth: true }
       }
     ]
   },

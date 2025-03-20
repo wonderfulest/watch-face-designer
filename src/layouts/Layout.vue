@@ -46,6 +46,15 @@
           <span class="username">{{ authStore.user.username }}</span>
         </div>
         <div class="dropdown-menu" v-if="showDropdown">
+          <div class="dropdown-item" @click="router.push('/fonts')">
+            <Icon icon="material-symbols:font-download-outline" />
+            字体预览
+          </div>
+          <div class="dropdown-item" @click="router.push('/FAQ')">
+            <Icon icon="material-symbols:help-outline" />
+            帮助中心
+          </div>
+          <div class="dropdown-divider"></div>
           <div class="dropdown-item" @click="handleLogout">
             <Icon icon="material-symbols:logout" />
             退出登录
@@ -358,8 +367,14 @@ const handleScreenshot = async () => {
   background-color: white;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  min-width: 120px;
+  min-width: 140px;
   z-index: 1000;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 4px 0;
 }
 
 .dropdown-item {
@@ -369,6 +384,7 @@ const handleScreenshot = async () => {
   padding: 8px 16px;
   color: #333;
   transition: background-color 0.2s;
+  cursor: pointer;
 }
 
 .dropdown-item:hover {

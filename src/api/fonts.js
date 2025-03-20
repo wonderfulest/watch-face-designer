@@ -13,7 +13,8 @@ export const getFonts = async ({ page, pageSize, name, status }) => {
   const params = {
     'pagination[page]': page,
     'pagination[pageSize]': pageSize,
-    'sort[0]': 'updatedAt:desc'
+    'sort[0]': 'updatedAt:desc',
+    'populate': '*' // 获取关联的文件信息
   }
 
   if (name) {
@@ -49,10 +50,10 @@ export const getFontDetail = async (id) => {
 export const uploadFontFile = async (file) => {
   const formData = new FormData()
   formData.append('files', file, file.name)
-  
+
   console.log('Uploading file:', file)
   console.log('FormData entries:', Array.from(formData.entries()))
-  
+
   const response = await axiosInstance.post('/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -67,11 +68,14 @@ export const uploadFontFile = async (file) => {
  * @param {string} data.name - 字体名称
  * @param {string} data.slug - 字体标识
  * @param {string} data.family - 字体族名称
- * @param {string} data.status - 字体状态
+ * @param {string} data.status - 字体状态：Submitted, Approved, Rejected
  * @param {number} data.ttf - 字体文件ID
  * @returns {Promise} 创建结果
  */
 export const createFont = async (data) => {
+  if (data.status != 'Submitted') {
+    throw new Error('字体状态错误')
+  }
   const response = await axiosInstance.post('/super-fonts', {
     data: {
       name: data.name,
@@ -83,6 +87,7 @@ export const createFont = async (data) => {
   })
   return response.data
 }
+
 
 /**
  * 更新字体信息
