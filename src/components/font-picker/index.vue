@@ -59,6 +59,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useFontStore } from '@/stores/fontStore'
+import { getFonts, createFont, uploadFontFile } from '@/api/fonts'
 
 const props = defineProps({
   modelValue: {
@@ -674,16 +675,55 @@ const addCustomFont = () => {
     }
 
     try {
-      // 生成唯一的字体名称 (使用文件名，但移除扩展名)
+      // 检查文件是否有效
+      if (!file || file.size === 0) {
+        throw new Error('无效的文件')
+      }
+      
+      console.log('准备上传文件:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      })
+      
+      // 1. 先上传字体文件
+      const uploadResult = await uploadFontFile(file)
+      console.log('文件上传结果:', uploadResult)
+      
+      // 生成字体名称 (使用文件名，但移除扩展名)
       const fontName = file.name.replace(/\.ttf$/i, '')
       
-      // 创建 URL 对象
+      // 查询是否存在同名字体
+      const response = await getFonts({ 
+        page: 1, 
+        pageSize: 1, 
+        name: fontName 
+      })
+      
+      if (response.data.length > 0) {
+        alert('该字体名称已存在，请重命名后重试')
+        return
+      }
+
+      // 创建 URL 对象用于预览
       const fontUrl = URL.createObjectURL(file)
       
-      // 创建并加载字体
+      // 先测试字体是否可用
       const fontFace = new FontFace(fontName, `url(${fontUrl})`)
       await fontFace.load()
       
+      // 2. 创建字体记录
+      const fontData = {
+        name: fontName,
+        slug: fontName.toLowerCase().replace(/\s+/g, '-'),
+        family: fontName,
+        status: 'upload',
+        ttf: uploadResult.id // 使用上传后返回的文件ID
+      }
+      
+      const result = await createFont(fontData)
+      const serverFont = result.data.attributes
+
       // 添加到文档字体
       document.fonts.add(fontFace)
       
@@ -692,18 +732,19 @@ const addCustomFont = () => {
       
       // 创建新的字体对象
       const newFont = {
-        label: fontName,
-        value: fontName,
-        family: fontName
+        label: serverFont.name,
+        value: serverFont.family,
+        family: serverFont.family,
+        id: result.data.id,
+        slug: serverFont.slug,
+        url: uploadResult.url // 保存字体文件URL
       }
       
       // 检查是否已存在相同的字体
-      const existingFontIndex = customFonts.findIndex(font => font.value === fontName)
+      const existingFontIndex = customFonts.findIndex(font => font.value === serverFont.family)
       if (existingFontIndex !== -1) {
-        // 如果已存在，替换它
         customFonts[existingFontIndex] = newFont
       } else {
-        // 如果不存在，添加到数组
         customFonts.push(newFont)
       }
       
@@ -714,8 +755,12 @@ const addCustomFont = () => {
       selectFont(newFont)
       
     } catch (error) {
-      console.error('加载自定义字体失败:', error)
-      alert('加载字体失败，请确保上传的是有效的TTF文件。')
+      console.error('字体处理失败:', error)
+      const errorMessage = error.response?.data?.error?.message 
+        || error.response?.data?.message 
+        || error.message
+        || '字体处理失败，请确保上传的是有效的TTF文件。'
+      alert(errorMessage)
     } finally {
       // 清理文件输入元素
       document.body.removeChild(fileInput)
