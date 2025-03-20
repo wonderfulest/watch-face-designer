@@ -70,6 +70,32 @@
                   <li>请确保字体版权合规</li>
                   <li>系统默认字体无需单独上传</li>
                 </ul>
+
+                <div class="mt-4">
+                  <p class="font-medium text-red-500">重要提示：字体文件命名规则</p>
+                  <ul class="list-disc ml-4 mt-2">
+                    <li>字体文件名必须与字体的 PostScript Name 保持完全一致</li>
+                    <li>您可以使用以下工具查看字体的 PostScript Name：</li>
+                    <ul class="list-circle ml-8 mt-2">
+                      <li>FontForge（开源免费）
+                        <div class="bg-gray-100 p-2 mt-1 rounded text-sm font-mono">
+                          fontforge -lang=ff -c 'Open($1); Print($fontname)' 字体文件路径
+                        </div>
+                      </li>
+                      <li>FontCreator（Windows系统）</li>
+                      <li>TransType（跨平台）</li>
+                      <li>FontLab（专业字体编辑软件）</li>
+                    </ul>
+                    <li class="mt-2">示例：如果字体的 PostScript Name 为 "SourceHanSansCN-Bold"，则文件名必须为 "SourceHanSansCN-Bold.ttf"</li>
+                  </ul>
+                </div>
+
+                <div class="bg-blue-50 p-4 rounded mt-4">
+                  <p class="text-blue-700">
+                    <i class="el-icon-info mr-2"></i>
+                    提示：正确的文件命名可以确保字体在系统中正常加载和使用。错误的命名可能导致字体无法正常显示或产生渲染问题。
+                  </p>
+                </div>
               </div>
             </el-collapse-item>
 
@@ -119,8 +145,8 @@
               <div class="faq-content">
                 <p>如需帮助，可通过以下方式联系我们：</p>
                 <ul class="list-disc ml-4">
-                  <li>发送邮件至：support@example.com</li>
-                  <li>工作时间：周一至周五 9:00-18:00</li>
+                  <li>发送邮件至：wonder.gface@gmail.com</li>
+                  <li>工作时间：周一至周日 0:00-24:00</li>
                   <li>在线客服：点击右下角客服图标</li>
                 </ul>
               </div>
@@ -185,5 +211,13 @@ const activeTab = ref('basic')
   border-radius: 8px;
   margin-bottom: 16px;
   box-shadow: 0 2px 12px 0 rgba(0,0,0,0.05);
+}
+
+.list-circle {
+  list-style-type: circle;
+}
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 </style> 

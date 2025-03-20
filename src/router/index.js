@@ -1,11 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import Layout from '@/components/layout/Layout.vue'
 
 const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/layouts/Layout.vue'),
+    component: Layout,
     redirect: '/design',
     meta: { requiresAuth: true },
     children: [
