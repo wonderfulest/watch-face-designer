@@ -43,6 +43,22 @@ export const getFontDetail = async (id) => {
 }
 
 /**
+ * 获取字体详情
+ * @param {string} slug - 字体标识
+ * @returns {Promise} 字体详情数据
+ */
+export const getFontBySlug = async (slug) => {
+
+  const response = await axiosInstance.get(`/super-fonts?filters[slug][$eq]=${slug}`, {
+    params: {
+      populate: '*'
+    }
+  })
+  console.log('slug , response', slug, response.data)
+  return response.data[0]
+}
+
+/**
  * 上传字体文件
  * @param {File} file - TTF文件
  * @returns {Promise} 上传结果

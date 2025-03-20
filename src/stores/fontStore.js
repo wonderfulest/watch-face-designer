@@ -605,7 +605,7 @@ export const useFontStore = defineStore('fontStore', {
         if (!fontInfo) {
           const response = await getFonts({
             name: fontName,
-            status: 'Approved'
+            // status: 'Approved'
           })
           
           if (!response.data || response.data.length === 0) {

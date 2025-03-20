@@ -34,8 +34,10 @@ import { useRectStore } from '@/stores/elements/rectElement'
 import { useCircleStore } from '@/stores/elements/circleElement'
 import { useProgressRingStore } from '@/stores/elements/progressRingElement'
 import { useLabelStore } from '@/stores/elements/labelElement'
+import { useFontStore } from '@/stores/fontStore'
 import emitter from '@/utils/eventBus'
 
+const fontStore = useFontStore()
 const textStore = useTextStore()
 const imageStore = useImageElementStore()
 const timeElement = useTimeStore()

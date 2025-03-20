@@ -53,13 +53,85 @@
       <!-- 添加自定义字体按钮 -->
       <button class="add-font-btn" @click="addCustomFont">Add Custom Font</button>
     </div>
+
+    <!-- 添加字体对话框 -->
+    <el-dialog
+      v-model="dialogVisible"
+      title="添加自定义字体"
+      width="500px"
+      :close-on-click-modal="false"
+    >
+      <div class="font-form">
+        <!-- 拖拽上传区域 -->
+        <el-upload
+          class="font-upload-area"
+          drag
+          accept=".ttf"
+          :auto-upload="false"
+          :show-file-list="false"
+          :on-change="handleFontFileChange"
+        >
+          <div class="upload-content">
+            <el-icon class="upload-icon"><Upload /></el-icon>
+            <div class="upload-text">
+              <span>点击选择或拖拽上传字体文件</span>
+              <p class="upload-tip">仅支持 TTF 格式</p>
+            </div>
+          </div>
+        </el-upload>
+
+        <!-- 字体信息预览 -->
+        <div v-if="selectedFile" class="font-info">
+          <div class="info-header">
+            <span class="file-name">{{ selectedFile.name }}</span>
+            <el-button 
+              type="text" 
+              class="remove-btn"
+              @click="removeFile"
+            >
+              <el-icon><Close /></el-icon>
+            </el-button>
+          </div>
+
+          <!-- 预览区域 -->
+          <div class="preview-section">
+            <div class="preview-label">预览效果：</div>
+            <div 
+              class="font-preview" 
+              :style="{ fontFamily: previewFontFamily }"
+            >
+              <div class="preview-text">
+                <span class="preview-numbers">0123456789,:°F& Sunny</span>
+                <span class="preview-letters">AaBbCcDdEe</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="cancelUpload">取消</el-button>
+          <el-button 
+            type="primary" 
+            @click="confirmUpload" 
+            :loading="uploading"
+            :disabled="!selectedFile"
+          >
+            确认上传
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useFontStore } from '@/stores/fontStore'
-import { getFonts, createFont, uploadFontFile } from '@/api/fonts'
+import { useMessageStore } from '@/stores/message'
+import { getFonts, createFont, uploadFontFile, getFontBySlug } from '@/api/fonts'
+import { Upload, Close } from '@element-plus/icons-vue'
 
 const props = defineProps({
   modelValue: {
@@ -70,10 +142,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'change'])
 const fontStore = useFontStore()
+const messageStore = useMessageStore()
 
 const isOpen = ref(false)
 const searchQuery = ref('')
 const filteredFonts = ref([])
+const dialogVisible = ref(false)
+const uploading = ref(false)
+const selectedFile = ref(null)
+const fontForm = ref({
+  name: '',
+  family: ''
+})
 
 // 使用 store 中的数据
 const fontSections = computed(() => fontStore.fontSections)
@@ -118,13 +198,107 @@ const filterFonts = () => {
 }
 
 // 添加自定义字体
-const addCustomFont = async (font) => {
-  // ... 其他逻辑 ...
-  fontStore.addCustomFont({
-    label: fontName,
-    value: fontName,
-    family: fontName
-  })
+const addCustomFont = () => {
+  dialogVisible.value = true
+}
+
+// 用于预览的字体样式
+const previewFontFamily = computed(() => {
+  if (!selectedFile.value) return 'inherit'
+  return selectedFile.value.name.replace(/\.ttf$/i, '')
+})
+
+// 处理字体文件选择
+const handleFontFileChange = async (file) => {
+  if (!file) return
+  
+  // 检查文件类型
+  if (!file.raw.type.includes('font') && !file.name.endsWith('.ttf')) {
+    messageStore.error('请上传TTF格式的字体文件')
+    return
+  }
+
+  try {
+    // 创建 Font Face 用于预览
+    const fontUrl = URL.createObjectURL(file.raw)
+    const fontFace = new FontFace(
+      file.name.replace(/\.ttf$/i, ''),
+      `url(${fontUrl})`
+    )
+    await fontFace.load()
+    document.fonts.add(fontFace)
+    
+    selectedFile.value = file
+  } catch (error) {
+    messageStore.error('字体文件加载失败')
+    console.error('Font load error:', error)
+  }
+}
+
+// 移除已选文件
+const removeFile = () => {
+  selectedFile.value = null
+}
+
+// 取消上传
+const cancelUpload = () => {
+  dialogVisible.value = false
+  selectedFile.value = null
+}
+
+// 确认上传
+const confirmUpload = async () => {
+  if (!selectedFile.value) {
+    messageStore.error('请选择字体文件')
+    return
+  }
+
+  uploading.value = true
+  try {
+    // 如果字体库中已经存在该字体，则直接返回
+    const fontInStore = fontStore.fonts.find(font => font.name === fontForm.value.name)
+    if (fontInStore) {
+      messageStore.error('字体库中已存在该字体')
+      return
+    }
+    const slug = fontForm.value.name.toLowerCase().replace(/\s+/g, '-')
+    // 如果数据库中已经存在该字体，则直接返回
+    const fontInDb = await getFontBySlug(slug)
+    if (fontInDb) {
+      messageStore.error('数据库中已存在该字体')
+      return
+    }
+    // 上传字体文件
+    const fileResult = await uploadFontFile(selectedFile.value.raw)
+    const fontName = selectedFile.value.name.replace(/\.ttf$/i, '')
+    
+    // 创建字体记录
+    const fontData = {
+      name: fontName,
+      slug: slug,
+      family: fontName,
+      status: 'Submitted',
+      ttf: fileResult.id
+    }
+    
+    await createFont(fontData)
+
+    // 添加到字体库
+    fontStore.addCustomFont({
+      label: fontName,
+      value: fontName,
+      family: fontName
+    })
+
+    messageStore.success('字体上传成功，等待审核')
+    dialogVisible.value = false
+  } catch (error) {
+    messageStore.error(error.response?.data?.message || '字体上传失败')
+    console.error('Font upload error:', error)
+  } finally {
+    uploading.value = false
+    selectedFile.value = null
+  }
 }
 
 // 监听点击外部关闭面板
@@ -310,5 +484,161 @@ onUnmounted(() => {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.font-upload {
+  margin: 16px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.font-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.font-upload-area {
+  width: 100%;
+}
+
+:deep(.el-upload-dragger) {
+  width: 100%;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.upload-icon {
+  font-size: 48px;
+  color: #409EFF;
+}
+
+.upload-text {
+  text-align: center;
+}
+
+.upload-tip {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #999;
+}
+
+.font-info {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.file-name {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.remove-btn {
+  padding: 2px;
+}
+
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-label {
+  font-size: 14px;
+  color: #666;
+}
+
+.font-preview {
+  background: white;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.preview-text {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  font-size: 16px;
+}
+
+.preview-numbers {
+  font-size: 24px;
+  color: #409EFF;
+}
+
+.preview-letters {
+  font-size: 20px;
+  color: #333;
+}
+
+.preview-chinese {
+  font-size: 18px;
+  color: #666;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .form-item label {
+    color: #e0e0e0;
+  }
+
+  .form-tip {
+    color: #888;
+  }
+
+  .font-preview {
+    border-color: #444;
+    background: #2a2a2a;
+    color: #e0e0e0;
+  }
+
+  .font-info {
+    background: #2a2a2a;
+  }
+
+  .file-name {
+    color: #e0e0e0;
+  }
+
+  .preview-label {
+    color: #e0e0e0;
+  }
+
+  .font-preview {
+    background: #1a1a1a;
+    border-color: #444;
+  }
+
+  .preview-letters {
+    color: #e0e0e0;
+  }
+
+  .preview-chinese {
+    color: #bbb;
+  }
+
+  .upload-tip {
+    color: #888;
+  }
 }
 </style>

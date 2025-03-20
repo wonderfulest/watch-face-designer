@@ -249,16 +249,297 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* 将原有的样式复制过来 */
 .app-header {
   height: 60px;
   background: #fff;
   border-bottom: 1px solid #eee;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 100;
 }
 
-/* ... 其他样式保持不变 ... */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.header-left h1 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  background: linear-gradient(45deg, #2196F3, #00BCD4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-nav {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  color: #666;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.nav-link:hover {
+  color: #2196F3;
+  background-color: rgba(33, 150, 243, 0.08);
+}
+
+.nav-link :deep(svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.app-info {
+  display: flex;
+  gap: 16px;
+  max-width: 400px;
+}
+
+.app-info :deep(.el-input) {
+  width: 180px;
+}
+
+.app-info :deep(.el-input__wrapper) {
+  box-shadow: none !important;
+  padding: 0 8px;
+}
+
+.app-info :deep(.el-input__inner) {
+  height: 36px;
+  font-size: 14px;
+  color: #333;
+}
+
+.app-info :deep(.el-input__inner::placeholder) {
+  color: #999;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  padding: 8px 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.action-btn:hover {
+  color: #2196F3;
+  border-color: #2196F3;
+  background: rgba(33, 150, 243, 0.04);
+}
+
+.user-menu {
+  position: relative;
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-avatar:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.avatar-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  user-select: none;
+  transition: transform 0.2s ease;
+}
+
+.user-avatar:hover .avatar-circle {
+  transform: scale(1.05);
+}
+
+.username {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  min-width: 160px;
+  padding: 6px;
+  z-index: 1000;
+  transform-origin: top right;
+  animation: dropdown-fade 0.2s ease;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  color: #333;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: rgba(33, 150, 243, 0.08);
+  color: #2196F3;
+}
+
+.dropdown-item :deep(svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #f0f0f0;
+  margin: 6px;
+}
+
+@keyframes dropdown-fade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .app-header {
+    background: #1a1a1a;
+    border-bottom-color: #333;
+  }
+
+  .header-left h1 {
+    background: linear-gradient(45deg, #64B5F6, #4DD0E1);
+    -webkit-background-clip: text;
+  }
+
+  .nav-link {
+    color: #e0e0e0;
+  }
+
+  .nav-link:hover {
+    background-color: rgba(33, 150, 243, 0.15);
+  }
+
+  .app-info :deep(.el-input__inner) {
+    color: #e0e0e0;
+    background: transparent;
+  }
+
+  .action-btn {
+    background: #2a2a2a;
+    border-color: #404040;
+    color: #e0e0e0;
+  }
+
+  .action-btn:hover {
+    background: rgba(33, 150, 243, 0.15);
+  }
+
+  .username {
+    color: #e0e0e0;
+  }
+
+  .dropdown-menu {
+    background-color: #2a2a2a;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .dropdown-item {
+    color: #e0e0e0;
+  }
+
+  .dropdown-item:hover {
+    background-color: rgba(33, 150, 243, 0.15);
+  }
+
+  .dropdown-divider {
+    background-color: #404040;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 16px;
+  }
+
+  .header-left {
+    gap: 20px;
+  }
+
+  .header-left h1 {
+    font-size: 18px;
+  }
+
+  .nav-link {
+    padding: 6px 12px;
+  }
+
+  .app-info :deep(.el-input) {
+    width: 140px;
+  }
+
+  .username {
+    max-width: 80px;
+  }
+}
 </style> 
