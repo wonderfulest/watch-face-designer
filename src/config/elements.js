@@ -61,11 +61,11 @@ export const elementConfigs = {
     label: { metricSymbol: ':FIELD_TYPE_HEART_RATE', icon: 'fa-brands:hips', label: '标签', ...elementAttribute }
   },
   // 图形
-  shape: {
-    rect: { icon: 'mdi:rectangle', label: '矩形', ...elementAttribute },
-    circle: { icon: 'mdi:circle', label: '圆形', ...elementAttribute },
-    triangle: { icon: 'mdi:triangle', label: '三角形', ...elementAttribute }
-  },
+  // shape: {
+  //   rect: { icon: 'mdi:rectangle', label: '矩形', ...elementAttribute },
+  //   circle: { icon: 'mdi:circle', label: '圆形', ...elementAttribute },
+  //   triangle: { icon: 'mdi:triangle', label: '三角形', ...elementAttribute }
+  // },
   // 进度
   progress: {
     bar: { icon: 'pajamas:progress', label: '进度条', ...elementAttribute },

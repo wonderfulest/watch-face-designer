@@ -120,6 +120,8 @@ const loadDesign = async (id) => {
     
     // 切换主题背景
     baseStore.toggleThemeBackground()
+    // 加载字体
+    await fontStore.loadFontsForElements(config.elements)
     // 加载元素到画布
     if (config && config.elements) {
       for (const element of config.elements) {

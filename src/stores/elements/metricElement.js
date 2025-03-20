@@ -33,7 +33,7 @@ export const useMetricStore = defineStore('dataElement', {
         }
         // 创建图标
         const icon = new fabric.Text(metric.icon, {
-          fontFamily: 'super-regular', // 使用新的字体
+          fontFamily: 'SuperIcons', // 使用新的字体
           fontSize: Number(options.size), // 修改默认字体大小为 36
           fill: '#FFFFFF',
           selectable: true,

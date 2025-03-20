@@ -65,6 +65,9 @@ const getCategoryLabel = (category) => {
 
 const addElement = async (category, type, config) => {
   try {
+    // 加载字体
+    await fontStore.loadFont(config.fontFamily)
+    // 添加元素
     switch (category) {
       case 'basic':
         if (type === 'text') {
