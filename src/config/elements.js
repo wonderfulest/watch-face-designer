@@ -44,11 +44,11 @@ export const elementAttribute = {
 
 export const elementConfigs = {
   // 基础元素
-  basic: {
-    text: { icon: 'mdi:note-text', label: '文本', defaultText: '新文本', size: 36, ...elementAttribute },
-    image: { icon: 'mdi:image', label: '图片', ...elementAttribute },
-    badge: { icon: 'bi:badge-8k-fill', label: '徽章', ...elementAttribute }
-  },
+  // basic: {
+  //   text: { icon: 'mdi:note-text', label: '文本', defaultText: '新文本', size: 36, ...elementAttribute },
+  //   image: { icon: 'mdi:image', label: '图片', ...elementAttribute },
+  //   badge: { icon: 'bi:badge-8k-fill', label: '徽章', ...elementAttribute }
+  // },
   // 时间元素
   time: {
     time: { icon: 'mdi:clock-time-four-outline', label: '时间', size: 96, formatter: 'HH:mm:ss', ...elementAttribute },
@@ -59,6 +59,13 @@ export const elementConfigs = {
     icon: { metricSymbol: ':FIELD_TYPE_HEART_RATE', icon: 'ic:round-insert-emoticon', label: '图标', ...elementAttribute },
     data: { metricSymbol: ':FIELD_TYPE_HEART_RATE', icon: 'stash:data-numbers-solid', label: '数据', ...elementAttribute },
     label: { metricSymbol: ':FIELD_TYPE_HEART_RATE', icon: 'fa-brands:hips', label: '标签', ...elementAttribute }
+  },
+  // 指示器
+  indicator: {
+    bluetooth: { metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', icon: 'ic:round-insert-emoticon', label: '蓝牙', ...elementAttribute },
+    disturb: { metricSymbol: ':INDICATOR_TYPE_DISTURB', icon: 'stash:data-numbers-solid', label: '勿扰时间', ...elementAttribute },
+    alarms: { metricSymbol: ':INDICATOR_TYPE_ALARMS', icon: 'fa-brands:hips', label: '闹钟', ...elementAttribute },
+    notification: { metricSymbol: ':INDICATOR_TYPE_NOTIFICATIONS', icon: 'fa-brands:hips', label: '手机通知', ...elementAttribute },
   },
   // 图形
   // shape: {

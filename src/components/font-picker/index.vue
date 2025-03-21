@@ -101,7 +101,7 @@
               :style="{ fontFamily: previewFontFamily }"
             >
               <div class="preview-text">
-                <span class="preview-numbers">0123456789,:°F& Sunny</span>
+                <span class="preview-numbers">0123456789,:°F Sunny</span>
                 <span class="preview-letters">AaBbCcDdEe</span>
               </div>
             </div>
@@ -219,10 +219,17 @@ const handleFontFileChange = async (file) => {
   }
 
   try {
+    // 设置字体名称到 fontForm
+    const fontName = file.name.replace(/\.ttf$/i, '')
+    fontForm.value = {
+      name: fontName,
+      family: fontName
+    }
+
     // 创建 Font Face 用于预览
     const fontUrl = URL.createObjectURL(file.raw)
     const fontFace = new FontFace(
-      file.name.replace(/\.ttf$/i, ''),
+      fontName,
       `url(${fontUrl})`
     )
     await fontFace.load()
@@ -248,29 +255,33 @@ const cancelUpload = () => {
 
 // 确认上传
 const confirmUpload = async () => {
-  if (!selectedFile.value) {
+  if (!selectedFile.value || !fontForm.value.name) {
     messageStore.error('请选择字体文件')
     return
   }
 
   uploading.value = true
   try {
+    const fontName = fontForm.value.name
+    const slug = fontName.toLowerCase().replace(/\s+/g, '-')
+    console.log('fontName:', fontName, 'slug:', slug) // 添加调试日志
+
     // 如果字体库中已经存在该字体，则直接返回
-    const fontInStore = fontStore.fonts.find(font => font.name === fontForm.value.name)
+    const fontInStore = fontStore.fonts.find(font => font.name === fontName)
     if (fontInStore) {
       messageStore.error('字体库中已存在该字体')
       return
     }
-    const slug = fontForm.value.name.toLowerCase().replace(/\s+/g, '-')
+
     // 如果数据库中已经存在该字体，则直接返回
     const fontInDb = await getFontBySlug(slug)
     if (fontInDb) {
       messageStore.error('数据库中已存在该字体')
       return
     }
+
     // 上传字体文件
     const fileResult = await uploadFontFile(selectedFile.value.raw)
-    const fontName = selectedFile.value.name.replace(/\.ttf$/i, '')
     
     // 创建字体记录
     const fontData = {
@@ -290,6 +301,7 @@ const confirmUpload = async () => {
       family: fontName
     })
 
+    
     messageStore.success('字体上传成功，等待审核')
     dialogVisible.value = false
   } catch (error) {
@@ -298,6 +310,11 @@ const confirmUpload = async () => {
   } finally {
     uploading.value = false
     selectedFile.value = null
+    // 重置表单
+    fontForm.value = {
+      name: '',
+      family: ''
+    }
   }
 }
 
