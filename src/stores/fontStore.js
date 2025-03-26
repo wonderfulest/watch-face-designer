@@ -6,6 +6,7 @@ import { getFonts } from '@/api/fonts'
 const BUILTIN_FONTS = {
   icon: [
     { label: 'SuperIcons', value: 'SuperIcons', family: 'SuperIcons' },
+    { label: 'Yoghurt One', value: 'Yoghurt-One', family: 'Yoghurt-One' }
   ],
   lcd: [
     {

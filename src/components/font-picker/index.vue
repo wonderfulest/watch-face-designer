@@ -13,23 +13,50 @@
       </div>
       <div class="font-library">
         <!-- 搜索结果 -->
-        <div v-if="searchQuery && filteredFonts.length > 0" class="font-section">
-          <div class="section-header">
-            <span class="arrow expanded">›</span>
-            搜索结果
-          </div>
-          <div class="section-content">
-            <div v-for="group in groupByFamily(filteredFonts)" :key="group.family" class="font-family-group">
-              <div class="family-name">{{ group.family }}</div>
-              <div v-for="font in group.fonts" :key="font.value" class="font-item" :class="{ active: modelValue === font.value }" @click="selectFont(font)">
-                <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+        <div v-if="searchQuery" class="font-section">
+          <!-- 本地搜索结果 -->
+          <template v-if="filteredFonts.length > 0">
+            <div class="section-header">
+              <span class="arrow expanded">›</span>
+              本地字体
+            </div>
+            <div class="section-content">
+              <div v-for="group in groupByFamily(filteredFonts)" :key="group.family" class="font-family-group">
+                <div class="family-name">{{ group.family }}</div>
+                <div v-for="font in group.fonts" :key="font.value" class="font-item" :class="{ active: modelValue === font.value }" @click="selectFont(font)">
+                  <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+                </div>
               </div>
             </div>
+          </template>
+
+          <!-- 远程搜索结果 -->
+          <template v-if="remoteSearchResults.length > 0">
+            <div class="section-header">
+              <span class="arrow expanded">›</span>
+              在线字体
+            </div>
+            <div class="section-content">
+              <div v-for="group in groupByFamily(remoteSearchResults)" :key="group.family" class="font-family-group">
+                <div class="family-name">{{ group.family }}</div>
+                <div v-for="font in group.fonts" :key="font.value" class="font-item" :class="{ active: modelValue === font.value }" @click="selectFont(font)">
+                  <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- 加载状态 -->
+          <div v-if="isSearching" class="search-loading">
+            <el-icon class="is-loading"><Loading /></el-icon>
+            正在搜索...
+          </div>
+
+          <!-- 无搜索结果提示 -->
+          <div v-if="!isSearching && filteredFonts.length === 0 && remoteSearchResults.length === 0" class="no-results">
+            未找到匹配的字体
           </div>
         </div>
-
-        <!-- 无搜索结果提示 -->
-        <div v-if="searchQuery && filteredFonts.length === 0" class="no-results">未找到匹配的字体</div>
 
         <!-- 字体类型 -->
         <div v-for="section in fontSections" :key="section.label" class="font-section">
@@ -131,7 +158,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useFontStore } from '@/stores/fontStore'
 import { useMessageStore } from '@/stores/message'
 import { getFonts, createFont, uploadFontFile, getFontBySlug } from '@/api/fonts'
-import { Upload, Close } from '@element-plus/icons-vue'
+import { Upload, Close, Loading } from '@element-plus/icons-vue'
 
 const props = defineProps({
   modelValue: {
@@ -154,6 +181,9 @@ const fontForm = ref({
   name: '',
   family: ''
 })
+
+const remoteSearchResults = ref([])
+const isSearching = ref(false)
 
 // 使用 store 中的数据
 const fontSections = computed(() => fontStore.fontSections)
@@ -193,8 +223,37 @@ const selectFont = (font) => {
 }
 
 // 搜索字体
-const filterFonts = () => {
+const filterFonts = async () => {
+  // 先清空远程搜索结果
+  remoteSearchResults.value = []
+  
+  // 本地搜索
   filteredFonts.value = fontStore.searchFonts(searchQuery.value)
+  
+  // 如果本地搜索无结果且搜索词不为空，则请求服务器
+  if (searchQuery.value && filteredFonts.value.length === 0) {
+    try {
+      isSearching.value = true
+      const response = await getFonts({
+        page: 1,
+        pageSize: 10,
+        name: searchQuery.value,
+        status: 'Approved' // 只搜索已审核通过的字体
+      })
+      
+      // 转换服务器返回的字体数据格式
+      remoteSearchResults.value = response.data.map(font => ({
+        label: font.attributes.name,
+        value: font.attributes.name,
+        family: font.attributes.family || font.attributes.name
+      }))
+    } catch (error) {
+      console.error('Remote font search error:', error)
+      messageStore.error('远程搜索失败')
+    } finally {
+      isSearching.value = false
+    }
+  }
 }
 
 // 添加自定义字体
@@ -676,6 +735,29 @@ const switchTab = (tab) => {
 
   .upload-tip {
     color: #888;
+  }
+}
+
+.search-loading {
+  padding: 20px;
+  text-align: center;
+  color: #909399;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.search-loading .el-icon {
+  font-size: 16px;
+  color: #409EFF;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .search-loading {
+    color: #A3A6AD;
   }
 }
 </style>
