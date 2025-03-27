@@ -95,6 +95,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useBaseStore } from '@/stores/baseStore'
 import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
+import { useExportStore } from '@/stores/exportStore'
 
 const props = defineProps({
   // 其他需要保留的 props
@@ -107,6 +108,7 @@ const route = useRoute()
 const baseStore = useBaseStore()
 const authStore = useAuthStore()
 const messageStore = useMessageStore()
+const exportStore = useExportStore()
 
 const showDropdown = ref(false)
 const designerDialogVisible = ref(false)
@@ -218,17 +220,16 @@ const handleScreenshot = async () => {
 
 const handleUpload = async () => {
   deactivateObject()
-  // 获取设计组件中的 exportPanelRef
-  const designComponent = document.querySelector('router-view')?.component?.exposed
-  if (designComponent?.exportPanelRef?.value) {
-    await designComponent.exportPanelRef.value.uploadApp()
-  } else {
-    console.warn('无法获取设计组件的导出功能')
+  try {
+    await exportStore.uploadApp()
+    // 上传成功后跳转到设计列表
+    router.push({
+      path: '/designs'
+    })
+  } catch (error) {
+    console.error('上传失败:', error)
+    messageStore.error('上传失败: ' + (error.message || '未知错误'))
   }
-  // 重新获取设计
-  router.push({
-    path: '/designs'
-  })
 }
 
 // 生命周期钩子

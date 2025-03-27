@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted, defineProps, watch } from 'vue'
 
 const props = defineProps({
   key: String
@@ -39,6 +39,7 @@ import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
 
 import { useMessageStore } from '@/stores/message'
 import { useFontStore } from '@/stores/fontStore'
+import { useExportStore } from '@/stores/exportStore'
 import axiosInstance from '@/config/axiosConfig'
 import { useTimeStore } from '@/stores/elements/timeElement'
 import { useDateStore } from '@/stores/elements/dateElement'
@@ -58,6 +59,7 @@ const router = useRouter()
 const baseStore = useBaseStore()
 const messageStore = useMessageStore()
 const fontStore = useFontStore()
+const exportStore = useExportStore()
 const canvasRef = ref(null)
 const exportPanelRef = ref(null)
 const isDialogVisible = ref(false)
@@ -71,6 +73,13 @@ const progressRingStore = useProgressRingStore()
 const circleStore = useCircleStore()
 const rectStore = useRectStore()
 let saveTimer = null
+
+// 监听 exportPanelRef 变化，注册到 store 中
+watch(exportPanelRef, (newValue) => {
+  if (newValue) {
+    exportStore.setExportPanelRef(newValue)
+  }
+}, { immediate: true })
 
 // 启用键盘快捷键
 useKeyboardShortcuts()
@@ -218,9 +227,11 @@ const setupAutoSave = () => {
   if (appConfig.autoSave.enabled) {
     console.log('设置自动保存，间隔:', appConfig.autoSave.interval)
     saveTimer = setInterval(() => {
-      if (exportPanelRef.value && typeof exportPanelRef.value.saveConfig === 'function') {
+      try {
         console.log('执行自动保存...')
-        exportPanelRef.value.saveConfig()
+        exportStore.saveConfig()
+      } catch (error) {
+        console.error('自动保存失败:', error)
       }
     }, appConfig.autoSave.interval)
   }
