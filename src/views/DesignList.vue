@@ -44,11 +44,17 @@
           <div class="design-info">
             <div class="design-background" v-if="design.attributes.screenshot?.data">
               <img :src="design.attributes.screenshot.data?.attributes?.url" :alt="design.attributes.name" class="background-image" />
+              <div class="creator-badge" v-if="user.id == 5">
+                <span>作者：{{ getCreatorName(design) }}</span>
+              </div>
             </div>
             <div class="design-background" v-else-if="design.attributes.background?.data">
               <img :src="design.attributes.background.data?.attributes?.url" :alt="design.attributes.name" class="background-image" />
+              <div class="creator-badge" v-if="user.id == 5">
+                <span>作者：{{ getCreatorName(design) }}</span>
+              </div>
             </div>
-            <p class="description">{{ design.attributes.description || '暂无描述' }}</p>
+            <!-- <p class="description">{{ design.attributes.description || '暂无描述' }}</p> -->
             <div class="meta">
               <span>ID: {{ design.id }}</span>
               <span>KPay ID: {{ design.attributes.kpay_appid }}</span>
@@ -126,6 +132,7 @@ import { useMessageStore } from '@/stores/message'
 import { useBaseStore } from '@/stores/baseStore'
 import axiosInstance from '@/config/axiosConfig'
 import dayjs from 'dayjs'
+import { getUsers } from '@/api/users'
 
 const router = useRouter()
 const messageStore = useMessageStore()
@@ -136,6 +143,10 @@ const editDialogVisible = ref(false)
 const designToDelete = ref(null)
 const selectedStatus = ref('draft') // 默认显示草稿状态
 const searchName = ref('') // 搜索名称
+const users = ref({}) // 用于存储用户信息的映射
+
+const userStr = localStorage.getItem('user')
+const user = ref(JSON.parse(userStr))
 
 // 编辑表单数据
 const editForm = ref({
@@ -154,19 +165,36 @@ const total = ref(0)
 // 获取设计列表
 const fetchDesigns = async () => {
   try {
-    const userStr = localStorage.getItem('user')
-    const user = JSON.parse(userStr)
+    
 
     const response = await getDesigns({
       page: currentPage.value,
       pageSize: pageSize.value,
-      userId: user.id,
+      userId: user.value.id,
       status: selectedStatus.value,
       name: searchName.value
     })
 
     designs.value = response.data
     total.value = response.meta.pagination.total
+
+    // 提取所有设计的用户ID并去重
+    const userIdSet = new Set(
+      designs.value
+        .map(design => design.attributes.user_id || design.attributes.user?.data?.id)
+        .filter(id => id) // 过滤掉空值
+    )
+    const uniqueUserIds = Array.from(userIdSet)
+    
+    // 加载用户信息
+    if (uniqueUserIds.length > 0) {
+      const usersData = await getUsers(uniqueUserIds)
+      // 转换为ID映射
+      users.value = usersData.reduce((acc, user) => {
+        acc[user.id] = user
+        return acc
+      }, {})
+    }
   } catch (error) {
     console.error('获取设计列表失败:', error)
     messageStore.error('获取设计列表失败')
@@ -330,7 +358,7 @@ const copyDesign = async (design) => {
     // 验证并解析 JSON
     const configJson = JSON.parse(design.attributes.config_json)
     
-    // 生成新的表盘名称，添加“复制”后缀
+    // 生成新的表盘名称，添加"复制"后缀
     const newName = `${design.attributes.name}——copy`
     
     // 生成新的 kpay ID，确保其唯一性
@@ -364,6 +392,17 @@ const copyDesign = async (design) => {
       messageStore.error('复制失败')
     }
   }
+}
+
+// 获取创作者名称
+const getCreatorName = (design) => {
+  const userId = design.attributes.user_id || design.attributes.user?.data?.id
+  if (!userId) return '未知用户'
+  
+  const user = users.value[userId]
+  if (!user) return '未知用户'
+  
+  return user.username || user.nickname || user.email?.split('@')[0] || '未知用户'
 }
 
 onMounted(() => {
@@ -463,14 +502,10 @@ onMounted(() => {
 }
 
 .design-background {
-  width: 240px;
-  height: 240px;
-  margin: 0 auto 12px;
-  border-radius: 50%;
+  position: relative;
+  height: 180px;
   overflow: hidden;
-  background-color: #f5f5f5;
-  border: 8px solid #333;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px 8px 0 0;
 }
 
 .background-image {
@@ -499,5 +534,26 @@ onMounted(() => {
 
 .status-tag.submitted {
   background-color: #67c23a;
+}
+
+.creator-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  backdrop-filter: blur(3px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .creator-badge {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
 }
 </style>

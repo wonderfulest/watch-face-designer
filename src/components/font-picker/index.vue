@@ -16,18 +16,18 @@
         <div v-if="searchQuery" class="font-section">
           <!-- 本地搜索结果 -->
           <template v-if="filteredFonts.length > 0">
-            <div class="section-header">
-              <span class="arrow expanded">›</span>
+          <div class="section-header">
+            <span class="arrow expanded">›</span>
               本地字体
-            </div>
-            <div class="section-content">
-              <div v-for="group in groupByFamily(filteredFonts)" :key="group.family" class="font-family-group">
-                <div class="family-name">{{ group.family }}</div>
-                <div v-for="font in group.fonts" :key="font.value" class="font-item" :class="{ active: modelValue === font.value }" @click="selectFont(font)">
-                  <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
-                </div>
+          </div>
+          <div class="section-content">
+            <div v-for="group in groupByFamily(filteredFonts)" :key="group.family" class="font-family-group">
+              <div class="family-name">{{ group.family }}</div>
+              <div v-for="font in group.fonts" :key="font.value" class="font-item" :class="{ active: modelValue === font.value }" @click="selectFont(font)">
+                <span class="preview-text" :style="{ fontFamily: font.value }">12:23 AM 72°F & Sunny 0123456789</span>
               </div>
             </div>
+          </div>
           </template>
 
           <!-- 远程搜索结果 -->
@@ -50,9 +50,9 @@
           <div v-if="isSearching" class="search-loading">
             <el-icon class="is-loading"><Loading /></el-icon>
             正在搜索...
-          </div>
+        </div>
 
-          <!-- 无搜索结果提示 -->
+        <!-- 无搜索结果提示 -->
           <div v-if="!isSearching && filteredFonts.length === 0 && remoteSearchResults.length === 0" class="no-results">
             未找到匹配的字体
           </div>
@@ -274,12 +274,12 @@ const handleFontFileChange = async (file) => {
   // 检查文件类型
   if (!file.raw.type.includes('font') && !file.name.endsWith('.ttf')) {
     messageStore.error('请上传TTF格式的字体文件')
-    return
-  }
+      return
+    }
 
-  try {
+    try {
     // 设置字体名称到 fontForm
-    const fontName = file.name.replace(/\.ttf$/i, '')
+      const fontName = file.name.replace(/\.ttf$/i, '')
     fontForm.value = {
       name: fontName,
       family: fontName
@@ -291,9 +291,9 @@ const handleFontFileChange = async (file) => {
       fontName,
       `url(${fontUrl})`
     )
-    await fontFace.load()
-    document.fonts.add(fontFace)
-    
+      await fontFace.load()
+      document.fonts.add(fontFace)
+      
     selectedFile.value = file
   } catch (error) {
     messageStore.error('字体文件加载失败')
