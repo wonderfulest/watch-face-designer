@@ -470,7 +470,6 @@ const saveConfig = async () => {
     name: appData.app_name,
     kpay_appid: appData.kpay,
     description: appData.description,
-    user_id: user.id,
     config_json: JSON.stringify(config)
   }
   try {
@@ -604,7 +603,9 @@ const uploadApp = async () => {
     designDo['name'] = appData.app_name
     designDo['kpay_appid'] = appData.kpay
     designDo['description'] = appData.description
-    designDo['user_id'] = user.id
+    if (!designDo['user_id']) {
+      designDo['user_id'] = user.id
+    }
     designDo['config_json'] = JSON.stringify(config)
     await updateFaceDesign(designDo)
     currentStatus = '上传完成！'

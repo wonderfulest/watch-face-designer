@@ -225,7 +225,6 @@ const initNewDesign = async () => {
 // 设置自动保存
 const setupAutoSave = () => {
   if (appConfig.autoSave.enabled) {
-    console.log('设置自动保存，间隔:', appConfig.autoSave.interval)
     saveTimer = setInterval(() => {
       try {
         console.log('执行自动保存...')
@@ -240,7 +239,6 @@ const setupAutoSave = () => {
 onMounted(() => {
   // 检查URL参数中是否有设计ID
   const designId = route.query.id
-  console.log('onMounted designId', designId)
   if (designId) {
     loadDesign(designId)
   } else {
