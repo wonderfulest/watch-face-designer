@@ -5,8 +5,9 @@ import { getFonts } from '@/api/fonts'
 // 将所有字体数组定义在 store 外部
 const BUILTIN_FONTS = {
   icon: [
+    { label: 'Qiwei One', value: 'Qiwei-One', family: 'Qiwei-One' },
+    { label: 'Yoghurt One', value: 'Yoghurt-One', family: 'Yoghurt-One' },
     { label: 'SuperIcons', value: 'SuperIcons', family: 'SuperIcons' },
-    { label: 'Yoghurt One', value: 'Yoghurt-One', family: 'Yoghurt-One' }
   ],
   lcd: [
     {

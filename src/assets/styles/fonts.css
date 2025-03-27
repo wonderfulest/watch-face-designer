@@ -8,8 +8,8 @@
 
 /* Icon Fonts */
 @font-face {
-  font-family: 'SuperIcons';
-  src: url('/src/assets/fonts/SuperIcons.ttf') format('truetype');
+  font-family: 'Qiwei-One';
+  src: url('/src/assets/fonts/Qiwei-One.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -22,6 +22,15 @@
   font-style: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: 'SuperIcons';
+  src: url('/src/assets/fonts/SuperIcons.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Sans-Serif Fonts */
 @font-face {
   font-family: 'Amiko-Regular';
