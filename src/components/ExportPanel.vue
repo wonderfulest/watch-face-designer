@@ -92,7 +92,7 @@ import { useLabelStore } from '@/stores/elements/labelElement'
 import { useCircleStore } from '@/stores/elements/circleElement'
 import { useProgressRingStore } from '@/stores/elements/progressRingElement'
 import { useRectStore } from '@/stores/elements/rectElement'
-
+import { useRouter } from 'vue-router'
 const timeStore = useTimeStore()
 const dateStore = useDateStore()
 const metricStore = useMetricStore()
@@ -106,7 +106,7 @@ const labelStore = useLabelStore()
 const progressRingStore = useProgressRingStore()
 const circleStore = useCircleStore()
 const rectStore = useRectStore()
-
+const router = useRouter()
 // 定义属性
 const props = defineProps({
   isDialogVisible: {
@@ -448,6 +448,48 @@ const uploadBase64Image = async (base64Data) => {
   }
 }
 
+// 定时保存配置
+const saveConfig = async () => {
+  const config = generateConfig()
+  if (!config) return
+  const userStr = localStorage.getItem('user')
+  const user = JSON.parse(userStr)
+  // 使用 baseStore 中的值
+  const appData = {
+    app_name: baseStore.watchFaceName,
+    kpay: baseStore.kpayId,
+    description: baseStore.watchFaceName
+  }
+  if (!appData.app_name || !appData.kpay) {
+    messageStore.error('请先设置应用名称和kpayId')
+    return
+  }
+  
+  const designDo = {
+    id: baseStore.id,
+    name: appData.app_name,
+    kpay_appid: appData.kpay,
+    description: appData.description,
+    user_id: user.id,
+    config_json: JSON.stringify(config)
+  }
+  try {
+    const designId = await updateFaceDesign(designDo)
+    console.log('自动保存成功', designId)
+    // 如果 query 中 id 为空，则更新 query 中的 id
+    if (!router.currentRoute.value.query.id) {
+      router.push({
+        path: '/design',
+        query: { id: designId }
+      })
+    }
+    return designId
+  } catch (error) {
+    console.error('自动保存失败', error)
+  }
+  return -1
+}
+
 // 上传配置到服务器
 const uploadApp = async () => {
   const config = generateConfig()
@@ -621,15 +663,15 @@ const updateFaceDesign = async (design) => {
         // 更新 baseStore 中的 ID
         baseStore.id = design.id
       }
-      return true
+      return design.id 
     } else {
       // 更新现有设计
       await axiosInstance.put(`/designs/${design.id}`, { data: design }, {})
-      return true
+      return design.id 
     }
   } catch (err) {
     console.error('更新设计失败:', err)
-    return false
+    return -1
   }
 }
 
@@ -668,10 +710,17 @@ const copyConfig = () => {
     })
 }
 
+// 添加打开导出对话框的方法
+const openExportDialog = () => {
+  emit('update:isDialogVisible', true)
+}
+
 // 暴露方法给父组件
 defineExpose({
   uploadApp,
-  dowloadConfig
+  dowloadConfig,
+  saveConfig,
+  openExportDialog
 })
 </script>
 

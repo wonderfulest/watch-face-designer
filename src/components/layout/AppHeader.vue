@@ -51,8 +51,8 @@
     </div>
 
     <div class="actions" v-if="route.path === '/design'">
-      <button class="action-btn" @click="handleScreenshot">截图</button>
-      <button class="action-btn" @click="handleUpload">上传</button>
+      <button class="action-btn" @click="handleScreenshot">截 图</button>
+      <button class="action-btn" @click="handleUpload">上 传</button>
     </div>
 
     <div class="user-menu" @click="toggleDropdown" v-if="authStore.isAuthenticated">
@@ -97,10 +97,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
 
 const props = defineProps({
-  exportPanelRef: {
-    type: Object,
-    required: true
-  }
+  // 其他需要保留的 props
 })
 
 const emit = defineEmits(['update:isDialogVisible'])
@@ -221,9 +218,17 @@ const handleScreenshot = async () => {
 
 const handleUpload = async () => {
   deactivateObject()
-  if (props.exportPanelRef) {
-    await props.exportPanelRef.uploadApp()
+  // 获取设计组件中的 exportPanelRef
+  const designComponent = document.querySelector('router-view')?.component?.exposed
+  if (designComponent?.exportPanelRef?.value) {
+    await designComponent.exportPanelRef.value.uploadApp()
+  } else {
+    console.warn('无法获取设计组件的导出功能')
   }
+  // 重新获取设计
+  router.push({
+    path: '/designs'
+  })
 }
 
 // 生命周期钩子

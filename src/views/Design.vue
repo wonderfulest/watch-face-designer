@@ -12,20 +12,29 @@
     <div class="right-panel">
       <ElementSettings v-if="baseStore.canvas != null" />
     </div>
+
+    <!-- 导出面板 -->
+    <ExportPanel 
+      ref="exportPanelRef" 
+      :isDialogVisible="isDialogVisible" 
+      @update:isDialogVisible="isDialogVisible = $event" 
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted, defineProps } from 'vue'
 
 const props = defineProps({
   key: String
 })
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { nanoid } from 'nanoid'
 import Canvas from '@/components/Canvas.vue'
 import ElementSettings from '@/components/ElementSettings.vue'
 import SidePanel from '@/components/SidePanel.vue'
+import ExportPanel from '@/components/ExportPanel.vue'
+import appConfig from '@/config/appConfig'
 import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
 
 import { useMessageStore } from '@/stores/message'
@@ -45,10 +54,13 @@ import { useRectStore } from '@/stores/elements/rectElement'
 
 const imageStore = useImageElementStore()
 const route = useRoute()
+const router = useRouter()
 const baseStore = useBaseStore()
 const messageStore = useMessageStore()
 const fontStore = useFontStore()
 const canvasRef = ref(null)
+const exportPanelRef = ref(null)
+const isDialogVisible = ref(false)
 const timeStore = useTimeStore()
 const dateStore = useDateStore()
 const badgeStore = useBadgeStore()
@@ -58,6 +70,7 @@ const labelStore = useLabelStore()
 const progressRingStore = useProgressRingStore()
 const circleStore = useCircleStore()
 const rectStore = useRectStore()
+let saveTimer = null
 
 // 启用键盘快捷键
 useKeyboardShortcuts()
@@ -200,6 +213,19 @@ const initNewDesign = async () => {
   baseStore.canvas.requestRenderAll()
 }
 
+// 设置自动保存
+const setupAutoSave = () => {
+  if (appConfig.autoSave.enabled) {
+    console.log('设置自动保存，间隔:', appConfig.autoSave.interval)
+    saveTimer = setInterval(() => {
+      if (exportPanelRef.value && typeof exportPanelRef.value.saveConfig === 'function') {
+        console.log('执行自动保存...')
+        exportPanelRef.value.saveConfig()
+      }
+    }, appConfig.autoSave.interval)
+  }
+}
+
 onMounted(() => {
   // 检查URL参数中是否有设计ID
   const designId = route.query.id
@@ -209,6 +235,21 @@ onMounted(() => {
   } else {
     initNewDesign()
   }
+  
+  // 设置自动保存
+  setupAutoSave()
+})
+
+onUnmounted(() => {
+  // 清除自动保存定时器
+  if (saveTimer) {
+    clearInterval(saveTimer)
+  }
+})
+
+// 向外部暴露方法
+defineExpose({
+  exportPanelRef
 })
 </script>
 
