@@ -503,15 +503,19 @@ onMounted(() => {
 
 .design-background {
   position: relative;
-  height: 180px;
+  width: 100%;
+  padding-bottom: 100%; /* 创建一个正方形容器 */
   overflow: hidden;
   border-radius: 8px 8px 0 0;
 }
 
 .background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* 保持图片比例并填充整个容器 */
 }
 
 .pagination-container {

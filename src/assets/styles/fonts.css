@@ -16,6 +16,14 @@
 }
 
 @font-face {
+  font-family: 'Qiwei-Two';
+  src: url('/src/assets/fonts/Qiwei-Two.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Yoghurt-One';
   src: url('/src/assets/fonts/Yoghurt-One.ttf') format('truetype');
   font-weight: normal;
