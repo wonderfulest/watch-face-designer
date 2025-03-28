@@ -86,8 +86,9 @@ import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useBaseStore } from '@/stores/baseStore'
 import ColorPicker from '@/components/color-picker/index.vue'
 import emitter from '@/utils/eventBus'
-import { ElSelect, ElOption } from 'element-plus'
-
+import { ElSelect, ElOption, ElMessage, ElLoading } from 'element-plus'
+import axiosInstance from '@/config/axiosConfig'
+import { uploadBase64Image, uploadImageFile } from '@/utils/image'
 const baseStore = useBaseStore()
 
 // 当前主题索引
@@ -310,21 +311,56 @@ const handleBackgroundImageChange = (file) => {
     return
   }
 
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    // 确保数组长度与主题数量一致
-    while (baseStore.themeBackgroundImages.length < baseStore.themeColors.length) {
-      baseStore.themeBackgroundImages.push('')
-    }
-    // 更新当前主题的背景图片
-    baseStore.themeBackgroundImages[currentThemeIndex.value] = e.target.result
+  // 创建 loading 实例
+  const loadingInstance = ElLoading.service({
+    lock: true,
+    text: '正在上传图片...',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
 
-    // 强制更新画布背景
-    baseStore.toggleThemeBackground()
+  const reader = new FileReader()
+  reader.onload = async (e) => {
+    try {
+      // 确保数组长度与主题数量一致
+      while (baseStore.themeBackgroundImages.length < baseStore.themeColors.length) {
+        baseStore.themeBackgroundImages.push('')
+      }
+
+      // 上传背景图片
+      const bgImage = e.target.result
+      let imageUpload = {}
+      if (bgImage && bgImage.startsWith('data:')) {
+        imageUpload = await uploadBase64Image(bgImage)
+      } else if (bgImage && bgImage.startsWith('blob:')) {
+        imageUpload = await uploadImageFile(bgImage)
+      } else if (bgImage && bgImage.startsWith('http')) {
+        imageUpload.url = bgImage
+      }
+      
+      if (!imageUpload) {
+        throw new Error('上传背景图片失败')
+      }
+
+      // 更新当前主题的背景图片
+      baseStore.themeBackgroundImages[currentThemeIndex.value] = imageUpload.url
+
+      // 强制更新画布背景
+      baseStore.toggleThemeBackground()
+      
+      ElMessage.success('图片上传成功')
+    } catch (error) {
+      console.error('上传背景图片失败:', error)
+      ElMessage.error('上传背景图片失败')
+    } finally {
+      // 关闭 loading
+      loadingInstance.close()
+    }
   }
 
   reader.onerror = (error) => {
     console.error('读取图片出错', error)
+    ElMessage.error('读取图片失败')
+    loadingInstance.close()
   }
 
   reader.readAsDataURL(file.raw)

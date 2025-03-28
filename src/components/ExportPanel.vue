@@ -69,14 +69,13 @@
  * configuration to the server, and copying the configuration to the clipboard.
  */
 import axiosInstance from '@/config/axiosConfig'
+import { uploadBase64Image, uploadImageFile } from '@/utils/image'
 import { ref } from 'vue'
 import _ from 'lodash'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 import { ElMessage, ElProgress, ElLoading, ElTag } from 'element-plus'
-
 import { useMessageStore } from '@/stores/message'
-
 import { getMetricBySymbol } from '@/config/settings'
 
 import { useBaseStore } from '@/stores/baseStore'
@@ -226,8 +225,9 @@ const generateConfig = () => {
   // 背景色在颜色数组中的下标，用于配置
   config.backgroundColorId = baseStore.themeColors[0].findIndex((color) => color.hex === baseStore.themeBackgroundColors[0])
   
-  // 先初始化空数组，稍后会更新为上传后的URL
-  config.themeBackgroundImages = new Array(baseStore.themeBackgroundImages.length).fill('')
+  // 背景图片数组
+  config.themeBackgroundImages = baseStore.themeBackgroundImages
+  
   const objects = baseStore.canvas.getObjects()
   // 元素在同类中的下标，用于配置
   let dataId = 0,
@@ -316,22 +316,6 @@ const dowloadConfig = async () => {
   const config = generateConfig()
   if (!config) return
 
-  // 上传背景图片
-  for (let i = 0; i < baseStore.themeBackgroundImages.length; i++) {
-    const bgImage = baseStore.themeBackgroundImages[i]
-    let imageUpload = {}
-    if (bgImage && bgImage.startsWith('data:')) {
-      imageUpload = await uploadBase64Image(bgImage)
-    } else if (bgImage && bgImage.startsWith('blob:')) {
-      imageUpload = await uploadImageFile(bgImage)
-    } else if (bgImage && bgImage.startsWith('http')) {
-      imageUpload.url = bgImage
-    }
-    if (imageUpload) {
-      config.themeBackgroundImages[i] = imageUpload.url
-    }
-  }
-
   const blob = new Blob([JSON.stringify(config)], {
     type: 'application/json'
   })
@@ -345,6 +329,7 @@ const dowloadConfig = async () => {
   URL.revokeObjectURL(url)
 }
 
+// 创建或更新表盘设计
 const createOrUpdateFaceDesign = async () => {
   const app = {
     kpay: baseStore.kpayId,
@@ -381,71 +366,6 @@ const createOrUpdateFaceDesign = async () => {
     messageStore.error(err.message)
   }
   return null
-}
-
-const uploadImageFile = async (blobUrl) => {
-  try {
-    // 从 blob URL 获取文件数据
-    const response = await fetch(blobUrl)
-    const blob = await response.blob()
-
-    // 创建 FormData 对象
-    const formData = new FormData()
-    formData.append('files', blob, 'background.png')
-
-    // 上传文件
-    const res = await axiosInstance.post('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    return res.data[0]
-  } catch (error) {
-    console.error('上传图片失败:', error)
-    throw error
-  }
-}
-
-const uploadBase64Image = async (base64Data) => {
-  try {
-    // Remove data URL prefix if present
-    const base64Content = base64Data.includes('base64,') ? base64Data.split('base64,')[1] : base64Data
-
-    // Convert base64 to blob
-    const byteCharacters = atob(base64Content)
-    const byteArrays = []
-
-    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-      const slice = byteCharacters.slice(offset, offset + 512)
-      const byteNumbers = new Array(slice.length)
-
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i)
-      }
-
-      const byteArray = new Uint8Array(byteNumbers)
-      byteArrays.push(byteArray)
-    }
-
-    const blob = new Blob(byteArrays, { type: 'image/png' })
-
-    // Create FormData and append blob
-    const formData = new FormData()
-    formData.append('files', blob, 'background.png')
-
-    // Upload file
-    const res = await axiosInstance.post('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    return res.data[0]
-  } catch (error) {
-    console.error('Failed to upload base64 image:', error)
-    throw error
-  }
 }
 
 // 定时保存配置
@@ -539,24 +459,8 @@ const uploadApp = async () => {
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
-    for (let i = 0; i < baseStore.themeBackgroundImages.length; i++) {
-      const bgImage = baseStore.themeBackgroundImages[i]
-      let imageUpload = {}
-      if (bgImage && bgImage.startsWith('data:')) {
-        imageUpload = await uploadBase64Image(bgImage)
-      } else if (bgImage && bgImage.startsWith('blob:')) {
-        imageUpload = await uploadImageFile(bgImage)
-      } else if (bgImage && bgImage.startsWith('http')) {
-        imageUpload.url = bgImage
-      }
-      if (imageUpload) {
-        config.themeBackgroundImages[i] = imageUpload.url
-        if (!designDo.background) {
-          designDo.background = imageUpload.id
-        }
-      }
-    }
-    
+    config.themeBackgroundImages = baseStore.themeBackgroundImages
+
     // 上传表盘截图 - 对画布进行实时截图
     currentStatus = '上传表盘截图...'
     currentProgress = 60
@@ -653,6 +557,7 @@ const uploadApp = async () => {
   }
 }
 
+// 更新表盘设计
 const updateFaceDesign = async (design) => {
   try {
     // 如果没有ID，则创建新设计
