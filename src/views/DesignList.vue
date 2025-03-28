@@ -6,10 +6,19 @@
       </div>
       <div class="header-right">
         <el-input v-model="searchName" placeholder="搜索名称" class="name-filter" clearable @keyup.enter="handleSearch" />
+        <!-- <el-input v-model="searchUsername" placeholder="搜索用户名" class="username-filter" clearable @keyup.enter="handleSearch" /> -->
         <el-select v-model="selectedStatus" placeholder="选择状态" @change="handleStatusChange" class="status-filter">
           <el-option label="全部" value="" />
           <el-option label="草稿" value="draft" />
           <el-option label="已提交" value="submitted" />
+        </el-select>
+        <el-select v-model="sortField" placeholder="排序字段" @change="handleSortChange" class="sort-field-filter">
+          <el-option label="创建时间" value="createdAt" />
+          <el-option label="更新时间" value="updatedAt" />
+        </el-select>
+        <el-select v-model="sortOrder" placeholder="排序方式" @change="handleSortChange" class="sort-order-filter">
+          <el-option label="升序" value="asc" />
+          <el-option label="降序" value="desc" />
         </el-select>
         <el-button type="primary" @click="handleSearch">
           <Icon icon="material-symbols:search" />
@@ -143,6 +152,9 @@ const editDialogVisible = ref(false)
 const designToDelete = ref(null)
 const selectedStatus = ref('draft') // 默认显示草稿状态
 const searchName = ref('') // 搜索名称
+const searchUsername = ref('')
+const sortField = ref('updatedAt')
+const sortOrder = ref('desc')
 const users = ref({}) // 用于存储用户信息的映射
 
 const userStr = localStorage.getItem('user')
@@ -165,14 +177,18 @@ const total = ref(0)
 // 获取设计列表
 const fetchDesigns = async () => {
   try {
-    
+    // 处理排序字段
+    const sortFieldValue = sortField.value === 'createdAt' ? 'createdAt' : 'updatedAt'
+    const sortParam = `${sortFieldValue}:${sortOrder.value}`
 
     const response = await getDesigns({
       page: currentPage.value,
       pageSize: pageSize.value,
       userId: user.value.id,
       status: selectedStatus.value,
-      name: searchName.value
+      name: searchName.value,
+      username: searchUsername.value,
+      sort: sortParam
     })
 
     designs.value = response.data
@@ -222,6 +238,12 @@ const handleSearch = () => {
 
 // 处理状态变化
 const handleStatusChange = () => {
+  currentPage.value = 1 // 重置到第一页
+  fetchDesigns()
+}
+
+// 处理排序变化
+const handleSortChange = () => {
   currentPage.value = 1 // 重置到第一页
   fetchDesigns()
 }
@@ -443,8 +465,20 @@ onMounted(() => {
   width: 200px;
 }
 
+.username-filter {
+  width: 200px;
+}
+
 .status-filter {
   width: 120px;
+}
+
+.sort-field-filter {
+  width: 120px;
+}
+
+.sort-order-filter {
+  width: 100px;
 }
 
 .design-grid {
