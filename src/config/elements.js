@@ -11,10 +11,10 @@ export const elementAttribute = {
   fill: '#FFFFFF',
   bgColor: '#FFFFFF', // 进度环背景颜色
   backgroundColor: '#FFFFFF',
-  fontFamily: 'Arimo-Regular',
+  fontFamily: 'RobotoCondensed-Regular',
   color: '#FFFFFF', // 进度环颜色
-  fontSize: 30,
-  iconSize: 36,
+  fontSize: 36,
+  iconSize: 42,
   selectable: false,
   hasControls: true,
   hasBorders: true,
@@ -33,7 +33,7 @@ export const elementAttribute = {
   badgeType: 12, // 徽章默认数据类型：电池电量
   textColor: '#FFFFFF',
   metricSymbol: ':FIELD_TYPE_HEART_RATE',
-  iconFontFamily: 'SuperIcons',
+  iconFontFamily: 'Yoghurt-One',
   startAngle: 120, // 进度环开始角度
   endAngle: 60, // 进度环结束角度
   radius: 50, // 进度环半径
