@@ -52,6 +52,10 @@ import { useLabelStore } from '@/stores/elements/labelElement'
 import { useProgressRingStore } from '@/stores/elements/progressRingElement'
 import { useCircleStore } from '@/stores/elements/circleElement'
 import { useRectStore } from '@/stores/elements/rectElement'
+import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
+import { useDisturbStore } from '@/stores/elements/disturbElement'
+import { useAlarmsStore } from '@/stores/elements/alarmsElement'
+import { useNotificationStore } from '@/stores/elements/notificationElement'
 
 const imageStore = useImageElementStore()
 const route = useRoute()
@@ -72,6 +76,10 @@ const labelStore = useLabelStore()
 const progressRingStore = useProgressRingStore()
 const circleStore = useCircleStore()
 const rectStore = useRectStore()
+const bluetoothStore = useBluetoothStore()
+const disturbStore = useDisturbStore()
+const alarmsStore = useAlarmsStore()
+const notificationStore = useNotificationStore()
 let saveTimer = null
 
 // 监听 exportPanelRef 变化，注册到 store 中
@@ -184,9 +192,21 @@ const loadDesign = async (id) => {
           } else if (element.type === 'rect') {
             const options = await rectStore.decodeConfig(element)
             await rectStore.addElement(options)
+          } else if (element.type == 'bluetooth') {
+            const options = await bluetoothStore.decodeConfig(element)
+            await bluetoothStore.addElement(options)
+          } else if (element.type == 'disturb') {
+            const options = await disturbStore.decodeConfig(element)
+            await disturbStore.addElement(options)
+          } else if (element.type == 'alarms') {
+            const options = await alarmsStore.decodeConfig(element)
+            await alarmsStore.addElement(options)
+          } else if (element.type == 'notification') {
+            const options = await notificationStore.decodeConfig(element)
+            await notificationStore.addElement(options)
           } else {
             console.warn(`Unknown element type: ${element.type}`)
-            messageStore.warn(`未知的元素类型:${element.type}`)
+            messageStore.warning(`未知的元素类型:${element.type}`)
           }
         } catch (err) {
           console.error(`Error loading element of type ${element.type}:`, err)

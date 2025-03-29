@@ -39,7 +39,10 @@ import ProgressRingSettings from './settings/ProgressRingSettings.vue'
 import LabelSettings from './settings/LabelSettings.vue'
 import CircleSettings from './settings/CircleSettings.vue'
 import RectSettings from './settings/RectSettings.vue'
-
+import BluetoothSettings from './settings/BluetoothSettings.vue'
+import DisturbSettings from './settings/DisturbSettings.vue'
+import AlarmsSettings from './settings/AlarmsSettings.vue'
+import NotificationSettings from './settings/NotificationSettings.vue'
 const baseStore = useBaseStore()
 
 const elements = ref([])
@@ -106,6 +109,10 @@ const getSettingsComponent = (type) => {
     label: LabelSettings,
     circle: CircleSettings,
     rect: RectSettings,
+    bluetooth: BluetoothSettings,
+    disturb: DisturbSettings,
+    alarms: AlarmsSettings,
+    notification: NotificationSettings,
     default: BaseSettings
   }
   return componentMap[type] || componentMap.default

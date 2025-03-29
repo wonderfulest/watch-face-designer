@@ -91,7 +91,11 @@ import { useLabelStore } from '@/stores/elements/labelElement'
 import { useCircleStore } from '@/stores/elements/circleElement'
 import { useProgressRingStore } from '@/stores/elements/progressRingElement'
 import { useRectStore } from '@/stores/elements/rectElement'
+import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
 import { useRouter } from 'vue-router'
+import { useDisturbStore } from '@/stores/elements/disturbElement'
+import { useAlarmsStore } from '@/stores/elements/alarmsElement'
+import { useNotificationStore } from '@/stores/elements/notificationElement'
 const timeStore = useTimeStore()
 const dateStore = useDateStore()
 const metricStore = useMetricStore()
@@ -105,7 +109,11 @@ const labelStore = useLabelStore()
 const progressRingStore = useProgressRingStore()
 const circleStore = useCircleStore()
 const rectStore = useRectStore()
+const bluetoothStore = useBluetoothStore()
 const router = useRouter()
+const disturbStore = useDisturbStore()
+const alarmsStore = useAlarmsStore()
+const notificationStore = useNotificationStore()
 // 定义属性
 const props = defineProps({
   isDialogVisible: {
@@ -166,35 +174,55 @@ const openDialog = () => {
 }
 
 const getEncodeConfig = (element) => {
-
-  let encodeConfig = null
-  if (element.eleType === 'global') {
-    encodeConfig = baseStore.encodeConfig(element)
-  } else if (element.eleType === 'badge') {
-    encodeConfig = badgeStore.encodeConfig(element)
-  } else if (element.eleType === 'time') {
-    encodeConfig = timeStore.encodeConfig(element)
-  } else if (element.eleType === 'date') {
-    encodeConfig = dateStore.encodeConfig(element)
-  } else if (element.eleType === 'metric') {
-    encodeConfig = metricStore.encodeConfig(element)
-  } else if (element.eleType === 'text') {
-    encodeConfig = textStore.encodeConfig(element)
-  } else if (element.eleType === 'icon') {
-    encodeConfig = iconStore.encodeConfig(element)
-  } else if (element.eleType === 'data') {
-    encodeConfig = dataStore.encodeConfig(element)
-  } else if (element.eleType === 'label') {
-    encodeConfig = labelStore.encodeConfig(element)
-  } else if (element.eleType === 'progressRing') {
-    encodeConfig = progressRingStore.encodeConfig(element)
-  } else if (element.eleType === 'rect') {
-    encodeConfig = rectStore.encodeConfig(element)
-  } else if (element.eleType === 'image') {
-    encodeConfig = imageStore.encodeConfig(element)
-  } else if (element.eleType === 'circle') {
-    encodeConfig = circleStore.encodeConfig(element)
+  if (!element) {
+    console.error('无效的元素对象')
+    return null
   }
+  
+  console.log('element', element.eleType)
+  let encodeConfig = null
+  
+  try {
+    if (element.eleType === 'global') {
+      encodeConfig = baseStore.encodeConfig(element)
+    } else if (element.eleType === 'badge') {
+      encodeConfig = badgeStore.encodeConfig(element)
+    } else if (element.eleType === 'time') {
+      encodeConfig = timeStore.encodeConfig(element)
+    } else if (element.eleType === 'date') {
+      encodeConfig = dateStore.encodeConfig(element)
+    } else if (element.eleType === 'metric') {
+      encodeConfig = metricStore.encodeConfig(element)
+    } else if (element.eleType === 'text') {
+      encodeConfig = textStore.encodeConfig(element)
+    } else if (element.eleType === 'icon') {
+      encodeConfig = iconStore.encodeConfig(element)
+    } else if (element.eleType === 'data') {
+      encodeConfig = dataStore.encodeConfig(element)
+    } else if (element.eleType === 'label') {
+      encodeConfig = labelStore.encodeConfig(element)
+    } else if (element.eleType === 'progressRing') {
+      encodeConfig = progressRingStore.encodeConfig(element)
+    } else if (element.eleType === 'rect') {
+      encodeConfig = rectStore.encodeConfig(element)
+    } else if (element.eleType === 'image') {
+      encodeConfig = imageStore.encodeConfig(element)
+    } else if (element.eleType === 'circle') {
+      encodeConfig = circleStore.encodeConfig(element)
+    } else if (element.eleType === 'bluetooth') {
+      encodeConfig = bluetoothStore.encodeConfig(element)
+    } else if (element.eleType === 'disturb') {
+      encodeConfig = disturbStore.encodeConfig(element)
+    } else if (element.eleType === 'alarms') {
+      encodeConfig = alarmsStore.encodeConfig(element)
+    } else if (element.eleType === 'notification') {
+      encodeConfig = notificationStore.encodeConfig(element)
+    }
+  } catch (error) {
+    console.error('编码配置时出错:', error)
+    return null
+  }
+  
   return encodeConfig
 }
 

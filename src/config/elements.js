@@ -1,3 +1,5 @@
+import { assign } from "lodash-es"
+
 // 元素默认配置
 export const elementAttribute = {
   left: 227,
@@ -42,6 +44,16 @@ export const elementAttribute = {
   colorVarName: '' // 填充颜色变量名字
 }
 
+const indicatorAttribute = assign({}, elementAttribute, {
+  left: 227,
+  top: 227,
+  originX: 'center',
+  originY: 'center',
+  fontSize: 42,
+  fontFamily: 'Yoghurt-One',
+  color: '#FFFFFF',
+})
+
 export const elementConfigs = {
   // 基础元素
   // basic: {
@@ -62,10 +74,10 @@ export const elementConfigs = {
   },
   // 指示器
   indicator: {
-    bluetooth: { metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', icon: 'material-symbols:bluetooth-rounded', label: '蓝牙', ...elementAttribute },
-    disturb: { metricSymbol: ':INDICATOR_TYPE_DISTURB', icon: 'ic:outline-do-disturb-on', label: '勿扰时间', ...elementAttribute },
-    alarms: { metricSymbol: ':INDICATOR_TYPE_ALARMS', icon: 'material-symbols:alarm-outline', label: '闹钟', ...elementAttribute },
-    notification: { metricSymbol: ':INDICATOR_TYPE_NOTIFICATIONS', icon: 'hugeicons:notification-01', label: '手机通知', ...elementAttribute },
+    bluetooth: { metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', icon: 'material-symbols:bluetooth-rounded', label: '蓝牙', ...indicatorAttribute },
+    disturb: { metricSymbol: ':INDICATOR_TYPE_DISTURB', icon: 'ic:outline-do-disturb-on', label: '勿扰时间', ...indicatorAttribute },
+    alarms: { metricSymbol: ':INDICATOR_TYPE_ALARMS', icon: 'material-symbols:alarm-outline', label: '闹钟', ...indicatorAttribute },
+    notification: { metricSymbol: ':INDICATOR_TYPE_NOTIFICATIONS', icon: 'hugeicons:notification-01', label: '手机通知', ...indicatorAttribute },
   },
   // 图形
   // shape: {

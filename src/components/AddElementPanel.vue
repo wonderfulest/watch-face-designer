@@ -35,6 +35,10 @@ import { useCircleStore } from '@/stores/elements/circleElement'
 import { useProgressRingStore } from '@/stores/elements/progressRingElement'
 import { useLabelStore } from '@/stores/elements/labelElement'
 import { useFontStore } from '@/stores/fontStore'
+import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
+import { useDisturbStore } from '@/stores/elements/disturbElement'
+import { useAlarmsStore } from '@/stores/elements/alarmsElement'
+import { useNotificationStore } from '@/stores/elements/notificationElement'
 import emitter from '@/utils/eventBus'
 
 const fontStore = useFontStore()
@@ -48,10 +52,13 @@ const dataStore = useDataStore()
 const badgeStore = useBadgeStore()
 const labelStore = useLabelStore()
 const progressRingStore = useProgressRingStore()
-
+const bluetoothStore = useBluetoothStore()
 const rectStore = useRectStore()
 const circleStore = useCircleStore()
 const layerStore = useLayerStore()
+const disturbStore = useDisturbStore()
+const alarmsStore = useAlarmsStore()
+const notificationStore = useNotificationStore()
 const isCollapsed = ref(false)
 
 const { proxy } = getCurrentInstance()
@@ -60,7 +67,10 @@ const getCategoryLabel = (category) => {
   const labels = {
     basic: '基础元素',
     time: '时间元素',
-    metric: '数据元素'
+    metric: '数据元素',
+    indicator: '指示器',
+    progress: '进度',
+    shape: '形状'
   }
   return labels[category] || category
 }
@@ -94,6 +104,17 @@ const addElement = async (category, type, config) => {
           dataStore.addElement({ ...config })
         } else if (type === 'label') {
           labelStore.addElement({ ...config })
+        }
+        break
+      case 'indicator':
+        if (type === 'bluetooth') {
+          bluetoothStore.addElement(config)
+        } else if (type === 'disturb') {
+          disturbStore.addElement(config)
+        } else if (type === 'alarms') {
+          alarmsStore.addElement(config)
+        } else if (type === 'notification') {
+          notificationStore.addElement(config)
         }
         break
       case 'shape':
