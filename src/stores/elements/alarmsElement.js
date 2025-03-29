@@ -53,10 +53,10 @@ export const useAlarmsStore = defineStore('alarmsElement', {
       try {
         return {
           type: 'alarms',
-          left: element.left,
-          top: element.top,
-          fontSize: element.fontSize,
-          fontFamily: element.fontFamily || 'Yoghurt-One',
+          x: element.left,
+          y: element.top,
+          size: element.fontSize,
+          font: element.fontFamily,
           color: element.fill
         }
       } catch (error) {
@@ -67,10 +67,10 @@ export const useAlarmsStore = defineStore('alarmsElement', {
 
     decodeConfig(config) {
       return {
-        left: config.left,
-        top: config.top,
-        fontSize: config.fontSize,
-        fontFamily: config.fontFamily || 'Yoghurt-One',
+        left: config.x,
+        top: config.y,
+        fontSize: config.size,
+        fontFamily: config.font,
         color: config.color
       }
     }

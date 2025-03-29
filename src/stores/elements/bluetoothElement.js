@@ -61,37 +61,24 @@ export const useBluetoothStore = defineStore('bluetoothElement', {
         console.error('蓝牙元素对象无效')
         return null
       }
-      
-      try {
-        console.log('编码蓝牙元素配置:', {
-          left: element.left,
-          top: element.top,
-          fontSize: element.fontSize,
-          fontFamily: element.fontFamily,
-          color: element.fill
-        })
-        
-        return {
-          type: 'bluetooth',
-          left: element.left,
-          top: element.top,
-          fontSize: element.fontSize,
-          fontFamily: element.fontFamily || 'SuperIcons',
-          color: element.fill
-        }
-      } catch (error) {
-        console.error('编码蓝牙元素配置时出错:', error)
-        return null
+      return {
+        type: 'bluetooth',
+        x: element.left,
+        y: element.top,
+        size: element.fontSize,
+        font: element.fontFamily,
+        color: element.fill
       }
+     
     },
 
     // 解码配置
     decodeConfig(config) {
       return {
-        left: config.left,
-        top: config.top,
-        fontSize: config.fontSize,
-        fontFamily: config.fontFamily,
+        left: config.x,
+        top: config.y,
+        fontSize: config.size,
+        fontFamily: config.font,
         color: config.color
       }
     }

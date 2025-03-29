@@ -51,20 +51,20 @@ export const useNotificationStore = defineStore('notificationElement', {
       }
       return {
         type: 'notification',
-        left: element.left,
-        top: element.top,
-        fontSize: element.fontSize,
-        fontFamily: element.fontFamily,
+        x: element.left,
+        y: element.top,
+        size: element.fontSize,
+        font: element.fontFamily,
         color: element.fill
       }
     },
 
     decodeConfig(config) {
       return {
-        left: config.left,
-        top: config.top,
-        fontSize: config.fontSize,
-        fontFamily: config.fontFamily ,
+        left: config.x,
+        top: config.y,
+        fontSize: config.size,
+        fontFamily: config.font,
         color: config.color
       }
     }

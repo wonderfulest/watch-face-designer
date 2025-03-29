@@ -50,27 +50,22 @@ export const useDisturbStore = defineStore('disturbElement', {
         return null
       }
       
-      try {
-        return {
-          type: 'disturb',
-          left: element.left,
-          top: element.top,
-          fontSize: element.fontSize,
-          fontFamily: element.fontFamily || 'Yoghurt-One',
-          color: element.fill
-        }
-      } catch (error) {
-        console.error('编码勿扰元素配置时出错:', error)
-        return null
+      return {
+        type: 'disturb',
+        x: element.left,
+        y: element.top,
+        size: element.fontSize,
+        font: element.fontFamily,
+        color: element.fill
       }
     },
 
     decodeConfig(config) {
       return {
-        left: config.left,
-        top: config.top,
-        fontSize: config.fontSize,
-        fontFamily: config.fontFamily || 'Yoghurt-One',
+        left: config.x,
+        top: config.y,
+        fontSize: config.size,
+        fontFamily: config.font,
         color: config.color
       }
     }
