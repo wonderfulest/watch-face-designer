@@ -15,6 +15,7 @@ export const useBaseStore = defineStore('baseStore', {
     currentThemeIndex: 0,
     textCase: 0, // 文本大小写设置：0=默认, 1=全大写, 2=全小写, 3=驼峰
     labelLengthType: 1, // 标签长度类型：1=短文本, 2=中等文本, 3=长文本
+    showUnit: false, // 是否显示数据项单位
     screenshot: null // 存储表盘截图数据
   }),
 

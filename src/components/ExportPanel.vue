@@ -219,6 +219,7 @@ const generateConfig = () => {
     themeColors: baseStore.themeColors,
     textCase: baseStore.textCase, // 添加文本大小写设置
     labelLengthType: baseStore.labelLengthType, // 添加标签长度类型设置
+    showUnit: baseStore.showUnit, // 添加是否显示数据项单位设置
     metricTypes: [],
     elements: []
   }

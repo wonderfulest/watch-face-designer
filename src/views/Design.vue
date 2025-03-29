@@ -125,6 +125,10 @@ const loadDesign = async (id) => {
         baseStore.setLabelLengthType(config.labelLengthType)
       }, 600) // 在文本大小写设置后执行
     }
+    // 设置是否显示数据项单位
+    if (config.showUnit !== undefined) {
+      baseStore.showUnit = config.showUnit
+    }
     // 默认选中第一个颜色
     baseStore.currentThemeIndex = 0
 

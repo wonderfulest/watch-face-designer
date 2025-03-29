@@ -21,6 +21,12 @@
       <div class="setting-description">影响日期、标签等文本元素的显示样式</div>
     </div>
     
+    <!-- 是否显示数据项单位 -->
+    <div class="setting-item">
+      <label>是否显示数据项单位</label>
+      <el-switch v-model="showUnit" @change="updateShowUnit" />
+    </div>
+
     <!-- 标签长度类型设置 -->
     <div class="setting-item">
       <label>标签长度类型</label>
@@ -89,6 +95,7 @@ import emitter from '@/utils/eventBus'
 import { ElSelect, ElOption, ElMessage, ElLoading } from 'element-plus'
 import axiosInstance from '@/config/axiosConfig'
 import { uploadBase64Image, uploadImageFile } from '@/utils/image'
+import { getMetricBySymbol } from '@/config/settings'
 const baseStore = useBaseStore()
 
 // 当前主题索引
@@ -218,6 +225,14 @@ const labelLengthType = computed({
   }
 })
 
+// 是否显示数据项单位
+const showUnit = computed({
+  get: () => baseStore.showUnit,
+  set: (value) => {
+    baseStore.showUnit = value
+  }
+})
+
 // 更新文本大小写设置
 const updateTextCase = (value) => {
   console.log('全局设置 - 更新文本大小写设置:', value)
@@ -239,6 +254,27 @@ const updateTextCase = (value) => {
     
     console.log('元素类型统计:', elementTypes)
   }
+}
+
+// 更新是否显示数据项单位
+const updateShowUnit = (value) => {
+  console.log('全局设置 - 更新是否显示数据项单位:', value)
+  baseStore.showUnit = value
+  // 更新画布上的数据项单位
+  if (baseStore.canvas) {
+    const objects = baseStore.canvas.getObjects()
+    const elementTypes = {}
+    
+    for (const obj of objects) {
+      if (obj.eleType === 'data') {
+        const metric = getMetricBySymbol(obj.metricSymbol)
+        obj.set({
+          text: metric.defaultValue + (baseStore.showUnit ? metric.unit : ''),
+        })
+      }
+    }
+  }
+  baseStore.canvas.renderAll()
 }
 
 // 更新标签长度类型设置

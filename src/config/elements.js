@@ -62,10 +62,10 @@ export const elementConfigs = {
   },
   // 指示器
   indicator: {
-    bluetooth: { metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', icon: 'ic:round-insert-emoticon', label: '蓝牙', ...elementAttribute },
-    disturb: { metricSymbol: ':INDICATOR_TYPE_DISTURB', icon: 'stash:data-numbers-solid', label: '勿扰时间', ...elementAttribute },
-    alarms: { metricSymbol: ':INDICATOR_TYPE_ALARMS', icon: 'fa-brands:hips', label: '闹钟', ...elementAttribute },
-    notification: { metricSymbol: ':INDICATOR_TYPE_NOTIFICATIONS', icon: 'fa-brands:hips', label: '手机通知', ...elementAttribute },
+    bluetooth: { metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', icon: 'material-symbols:bluetooth-rounded', label: '蓝牙', ...elementAttribute },
+    disturb: { metricSymbol: ':INDICATOR_TYPE_DISTURB', icon: 'ic:outline-do-disturb-on', label: '勿扰时间', ...elementAttribute },
+    alarms: { metricSymbol: ':INDICATOR_TYPE_ALARMS', icon: 'material-symbols:alarm-outline', label: '闹钟', ...elementAttribute },
+    notification: { metricSymbol: ':INDICATOR_TYPE_NOTIFICATIONS', icon: 'hugeicons:notification-01', label: '手机通知', ...elementAttribute },
   },
   // 图形
   // shape: {
