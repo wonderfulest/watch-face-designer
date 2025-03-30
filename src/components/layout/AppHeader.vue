@@ -23,6 +23,10 @@
           <Icon icon="material-symbols:list" />
           我的设计
         </a>
+        <router-link to="/sales" class="nav-link">
+          <Icon icon="material-symbols:list" />
+          销售数据
+        </router-link>
         <el-dialog v-model="designsListDialogVisible" title="提示" width="30%">
           <span>关闭当前操作，并打开设计列表？</span>
           <template #footer>
