@@ -23,7 +23,7 @@
           <Icon icon="material-symbols:list" />
           我的设计
         </a>
-        <router-link to="/sales" class="nav-link">
+        <router-link to="/sales" class="nav-link" v-if="user.id == 5 || user.id == 17" >
           <Icon icon="material-symbols:list" />
           销售数据
         </router-link>
@@ -101,6 +101,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
 import { useExportStore } from '@/stores/exportStore'
 
+
 const props = defineProps({
   // 其他需要保留的 props
 })
@@ -114,6 +115,8 @@ const authStore = useAuthStore()
 const messageStore = useMessageStore()
 const exportStore = useExportStore()
 
+
+const user = computed(() => authStore.user)
 const showDropdown = ref(false)
 const designerDialogVisible = ref(false)
 const designsListDialogVisible = ref(false)

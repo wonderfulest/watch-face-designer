@@ -6,8 +6,25 @@
       </div>
       <div class="header-right">
         <el-input v-model="searchName" placeholder="搜索名称" class="name-filter" clearable @keyup.enter="handleSearch" />
-        <!-- <el-input v-model="searchUsername" placeholder="搜索用户名" class="username-filter" clearable @keyup.enter="handleSearch" /> -->
-        <el-select v-model="selectedStatus" placeholder="选择状态" @change="handleStatusChange" class="status-filter">
+         <!-- 替换原来的用户输入框为下拉选择框 -->
+      <el-select 
+        v-model="selectedUserId" 
+        placeholder="选择用户" 
+        clearable 
+        class="user-filter"
+        @change="handleUserChange"
+        v-if="user.id == 5"
+      >
+        <el-option
+          v-for="user in usersList"
+          :key="user.id"
+          :label="user.username"
+          :value="user.id"
+        >
+          <span>{{ user.username }}</span>
+          <span class="user-email">({{ user.email }})</span>
+        </el-option>
+      </el-select>        <el-select v-model="selectedStatus" placeholder="选择状态" @change="handleStatusChange" class="status-filter">
           <el-option label="全部" value="" />
           <el-option label="草稿" value="draft" />
           <el-option label="已提交" value="submitted" />
@@ -134,11 +151,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getDesigns, getDesignDetail, updateDesignStatus, updateDesign, deleteDesign as apiDeleteDesign } from '@/api/design'
 import { useMessageStore } from '@/stores/message'
 import { useBaseStore } from '@/stores/baseStore'
+import { useAuthStore } from '@/stores/auth'
 import axiosInstance from '@/config/axiosConfig'
 import dayjs from 'dayjs'
 import { getUsers } from '@/api/users'
@@ -146,6 +164,7 @@ import { getUsers } from '@/api/users'
 const router = useRouter()
 const messageStore = useMessageStore()
 const baseStore = useBaseStore()
+const authStore = useAuthStore()
 const designs = ref([])
 const deleteDialogVisible = ref(false)
 const editDialogVisible = ref(false)
@@ -157,8 +176,15 @@ const sortField = ref('updatedAt')
 const sortOrder = ref('desc')
 const users = ref({}) // 用于存储用户信息的映射
 
-const userStr = localStorage.getItem('user')
-const user = ref(JSON.parse(userStr))
+
+const user = computed(() => authStore.user)
+
+
+// 添加用户列表状态
+const usersList = ref([])
+const selectedUserId = ref(null)
+
+
 
 // 编辑表单数据
 const editForm = ref({
@@ -174,6 +200,21 @@ const currentPage = ref(1)
 const pageSize = ref(36)
 const total = ref(0)
 
+// 获取用户列表
+const fetchUsers = async () => {
+  try {
+    const response = await axiosInstance.get('/users', {
+      params: {
+        'pagination[pageSize]': 100,
+        'populate': '*'
+      }
+    })
+    usersList.value = response.data
+  } catch (error) {
+    console.error('获取用户列表失败:', error)
+    messageStore.error('获取用户列表失败')
+  }
+}
 // 获取设计列表
 const fetchDesigns = async () => {
   try {
@@ -184,7 +225,7 @@ const fetchDesigns = async () => {
     const response = await getDesigns({
       page: currentPage.value,
       pageSize: pageSize.value,
-      userId: user.value.id,
+      userId: selectedUserId.value || user.value.id,
       status: selectedStatus.value,
       name: searchName.value,
       username: searchUsername.value,
@@ -241,6 +282,12 @@ const handleStatusChange = () => {
   currentPage.value = 1 // 重置到第一页
   fetchDesigns()
 }
+// 处理用户选择变化
+const handleUserChange = () => {
+  currentPage.value = 1 // 重置到第一页
+  fetchDesigns()
+}
+
 
 // 处理排序变化
 const handleSortChange = () => {
@@ -428,11 +475,21 @@ const getCreatorName = (design) => {
 }
 
 onMounted(() => {
+  fetchUsers()
   fetchDesigns()
 })
 </script>
 
 <style scoped>
+.user-filter {
+  width: 200px;
+}
+
+.user-email {
+  margin-left: 8px;
+  color: #909399;
+  font-size: 12px;
+}
 .design-list {
   padding: 0 32px;
   height: calc(100vh - 60px); /* 减去顶部导航栏的高度 */
