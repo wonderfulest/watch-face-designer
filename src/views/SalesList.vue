@@ -48,6 +48,32 @@
                 </template>
             </el-table-column>
             <el-table-column prop="product" label="产品" width="150" />
+            <el-table-column prop="productId" label="产品ID" width="100" />
+            <el-table-column label="设计预览" width="120">
+                <template #default="{ row }">
+                    <div class="design-preview" v-if="designInfo[row.productId]?.screenshot">
+                        <el-image
+                            :src="designInfo[row.productId].screenshot"
+                            :preview-src-list="[designInfo[row.productId].screenshot]"
+                            fit="cover"
+                            class="preview-image"
+                        >
+                            <template #error>
+                                <div class="image-placeholder">暂无预览</div>
+                            </template>
+                        </el-image>
+                    </div>
+                    <div class="image-placeholder" v-else>暂无预览</div>
+                </template>
+            </el-table-column>
+            <el-table-column label="设计作者" width="150">
+                <template #default="{ row }">
+                    <span v-if="designInfo[row.productId]">
+                        ID: {{ designInfo[row.productId].user_id }}
+                    </span>
+                    <span v-else>-</span>
+                </template>
+            </el-table-column>
             <el-table-column prop="country" label="国家" width="100" />
             <el-table-column prop="platform" label="平台" width="100" />
             <el-table-column prop="device" label="设备" min-width="200" />
@@ -62,8 +88,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { getSalesHistory } from '@/api/sales'
+import { getDesignsByProductIds } from '@/api/design'
 import { ElMessage } from 'element-plus'
 
 const loading = ref(false)
@@ -75,6 +102,9 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 
 const successOnly = ref(true)
+
+// 添加设计信息的响应式引用
+const designInfo = ref({}) // 用于存储产品ID到设计信息的映射
 
 // 添加时间格式化函数
 const formatDateTime = (dateStr) => {
@@ -97,6 +127,36 @@ const formatDateTime = (dateStr) => {
     hour12: false
   }).replace(/\//g, '-')
 }
+
+// 获取设计信息
+const fetchDesignInfo = async (purchases) => {
+  try {
+    const productIds = purchases
+      .map(purchase => purchase.productId)
+      .filter(id => id)
+
+    if (productIds.length === 0) return
+
+    const response = await getDesignsByProductIds(productIds)
+    
+    const newDesignInfo = {}
+    response.data.forEach(design => {
+      if (design.attributes.kpay_product_id) {
+        newDesignInfo[design.attributes.kpay_product_id] = {
+          user_id: design.attributes.user_id || design.attributes.user?.data?.id,
+          name: design.attributes.name,
+          screenshot: design.attributes.screenshot?.data?.attributes?.url || null
+        }
+      }
+    })
+    
+    designInfo.value = newDesignInfo
+  } catch (error) {
+    console.error('获取设计信息失败:', error)
+    ElMessage.error('获取设计信息失败')
+  }
+}
+
 const fetchData = async () => {
     loading.value = true
     try {
@@ -108,6 +168,9 @@ const fetchData = async () => {
             successOnly: successOnly.value
         })
         salesData.value = data
+        
+        // 获取设计信息
+        await fetchDesignInfo(data.purchases)
     } catch (error) {
         ElMessage.error('获取销售记录失败')
     } finally {
@@ -185,5 +248,37 @@ onMounted(() => {
 
 :deep(.el-table td) {
     padding: 12px 0;
+}
+
+.design-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-placeholder {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f7fa;
+  color: #909399;
+  font-size: 12px;
+  border-radius: 4px;
+  margin: 0 auto;
+}
+
+:deep(.el-image) {
+  width: 100%;
+  height: 100%;
 }
 </style>
