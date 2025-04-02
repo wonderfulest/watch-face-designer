@@ -44,6 +44,11 @@ export const TimeFormatOptions = [
 
 // 日期格式选项
 export const DateFormatOptions = [
+  // 涵盖星期、月份和日子等
+  { value: 8, label: 'ddd DD', example: 'Mon 05' }, // 例如: Mon 05
+  { value: 9, label: 'MMM D, ddd', example: 'Sep 5, Mon' }, // 例如: Sep 5, Mon
+  { value: 10, label: 'MMM D, dddd', example: 'Sep 5, Monday' }, // 例如: Sep 5, Monday
+  // 不涵盖星期、月份和日子等
   { value: 0, label: 'DD', example: '05' }, // 例如: 05
   { value: 1, label: 'ddd', example: 'Mon' }, // 例如: Mon
   { value: 2, label: 'dddd', example: 'Monday' }, // 星期几
@@ -52,10 +57,8 @@ export const DateFormatOptions = [
   { value: 5, label: 'MMMM', example: 'September' }, // 例如: September
   { value: 6, label: 'MMM D', example: 'Sep 5' }, // 例如: Sep 5
   { value: 7, label: 'MMMM D', example: 'September 5' }, // 例如: September 5
+
   // 涵盖星期、月份和日子等
-  { value: 8, label: 'ddd DD', example: 'Mon 05' }, // 例如: Mon 05
-  { value: 9, label: 'MMMM D, dddd', example: 'September 5, Monday' }, // 例如: September 5, Monday
-  { value: 10, label: 'MMM D, dddd', example: 'Sep 5, Monday' }, // 例如: Sep 5, Monday
   { value: 11, label: 'MMMM, D dddd', example: 'September, 5 Monday' }, // 例如: September, 5 Monday
   { value: 12, label: 'dddd, MMMM D', example: 'Monday, September 5' }, // 例如: Monday, September 5
 
