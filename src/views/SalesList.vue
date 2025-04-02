@@ -57,6 +57,8 @@
                             :preview-src-list="[designInfo[row.productId].screenshot]"
                             fit="cover"
                             class="preview-image"
+                            :preview-teleported="true"
+                            :initial-index="0"
                         >
                             <template #error>
                                 <div class="image-placeholder">暂无预览</div>
@@ -256,6 +258,7 @@ onMounted(() => {
   border-radius: 4px;
   overflow: hidden;
   margin: 0 auto;
+  cursor: pointer;
 }
 
 .preview-image {
@@ -280,5 +283,13 @@ onMounted(() => {
 :deep(.el-image) {
   width: 100%;
   height: 100%;
+}
+
+:deep(.el-image-viewer__wrapper) {
+  z-index: 2100;
+}
+
+:deep(.el-image-viewer__mask) {
+  z-index: 2099;
 }
 </style>
