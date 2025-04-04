@@ -54,11 +54,6 @@
       />
     </div>
 
-    <div class="actions" v-if="route.path === '/design'">
-      <button class="action-btn" @click="handleScreenshot">截 图</button>
-      <button class="action-btn" @click="handleUpload">上 传</button>
-    </div>
-
     <div class="user-menu" @click="toggleDropdown" v-if="authStore.isAuthenticated">
       <div class="user-avatar">
         <div class="avatar-circle" :style="{ backgroundColor: avatarColor }">
@@ -163,14 +158,6 @@ const truncatedUsername = computed(() => {
   return `${username.slice(0, maxLength)}...`
 })
 
-// 方法
-const deactivateObject = () => {
-  if (baseStore.canvas.getActiveObjects().length > 0) {
-    for (const object of baseStore.canvas.getActiveObjects()) {
-      baseStore.canvas.discardActiveObject()
-    }
-  }
-}
 
 const showDesignerConfirm = () => {
   designerDialogVisible.value = true
@@ -202,41 +189,6 @@ const toggleDropdown = () => {
 const handleLogout = () => {
   authStore.logout()
   router.push('/login')
-}
-
-const handleScreenshot = async () => {
-  deactivateObject()
-  try {
-    const dataURL = await baseStore.captureScreenshot()
-    if (!dataURL) {
-      throw new Error('截图数据为空')
-    }
-    const link = document.createElement('a')
-    const filename = watchFaceName.value ? `${watchFaceName.value}.png` : 'watch-face.png'
-    link.href = dataURL
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    messageStore.success('截图已保存')
-  } catch (error) {
-    console.error('截图保存失败:', error)
-    messageStore.error('截图保存失败')
-  }
-}
-
-const handleUpload = async () => {
-  deactivateObject()
-  try {
-    await exportStore.uploadApp()
-    // 上传成功后跳转到设计列表
-    router.push({
-      path: '/designs'
-    })
-  } catch (error) {
-    console.error('上传失败:', error)
-    messageStore.error('上传失败: ' + (error.message || '未知错误'))
-  }
 }
 
 // 生命周期钩子

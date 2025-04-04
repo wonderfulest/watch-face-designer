@@ -76,6 +76,7 @@ const getCategoryLabel = (category) => {
 }
 
 const addElement = async (category, type, config) => {
+  console.log('Add Element:', category, type, config)
   try {
     // 加载字体
     await fontStore.loadFont(config.fontFamily)

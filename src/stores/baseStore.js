@@ -27,6 +27,15 @@ export const useBaseStore = defineStore('baseStore', {
 
   // actions
   actions: {
+    // 取消所有选中对象
+    deactivateObject() {
+      if (this.canvas.getActiveObjects().length > 0) {
+        for (const object of this.canvas.getActiveObjects()) {
+          this.canvas.discardActiveObject()
+        }
+      }
+    },
+
     // 设置标签长度类型并更新所有标签元素
     setLabelLengthType(value) {
       console.log('设置标签长度类型:', value)
@@ -521,3 +530,5 @@ export const useBaseStore = defineStore('baseStore', {
     }
   }
 })
+
+
