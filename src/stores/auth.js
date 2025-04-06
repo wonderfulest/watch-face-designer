@@ -17,7 +17,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await login(username, password)
 
-        const { jwt, user } = response.data
+        const { jwt, user } = response.data.data
         this.token = jwt
         this.user = user
 
