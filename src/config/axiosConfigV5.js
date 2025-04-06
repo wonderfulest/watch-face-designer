@@ -4,8 +4,7 @@ import { useMessageStore } from '@/stores/message'
 import router from '@/router'
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:1338/api',
-  // baseURL: 'https://api.garminface.com/api',
+  baseURL: 'https://api.garminface.com/api',
   timeout: 60000,
   headers: {
     Accept: 'application/json, text/plain, */*',
