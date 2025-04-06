@@ -12,21 +12,21 @@
           </div>
         </div>
       </div>
-      
+
       <div class="progress-container">
         <el-progress :percentage="currentProgress" :format="progressFormat" :stroke-width="20" />
         <div class="progress-details">
           <div class="current-progress">
-            <span class="progress-label">当前进度:</span> 
+            <span class="progress-label">当前进度:</span>
             <span class="progress-value">{{ currentProgress }}%</span>
           </div>
           <div class="upload-status">
-            <span class="status-label">状态:</span> 
+            <span class="status-label">状态:</span>
             <span class="status-value">{{ currentStatus }}</span>
           </div>
         </div>
       </div>
-      
+
       <div v-if="isUploadTimeout" class="timeout-warning">
         上传时间超过1分钟，可能存在网络问题
         <el-button size="small" type="danger" @click="cancelUpload">取消上传</el-button>
@@ -68,16 +68,16 @@
  * configuration object, exporting the configuration to a JSON file, uploading the
  * configuration to the server, and copying the configuration to the clipboard.
  */
-import axiosInstance from '@/config/axiosConfigV5'
+import { createOrUpdateDesign, updateDesign } from '@/api/design'
 import { uploadBase64Image, uploadImageFile } from '@/utils/image'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import _ from 'lodash'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 import { ElMessage, ElProgress, ElLoading, ElTag } from 'element-plus'
 import { useMessageStore } from '@/stores/message'
 import { getMetricBySymbol } from '@/config/settings'
-
+import { useAuthStore } from '@/stores/auth'
 import { useBaseStore } from '@/stores/baseStore'
 import { useTimeStore } from '@/stores/elements/timeElement'
 import { useDateStore } from '@/stores/elements/dateElement'
@@ -114,6 +114,8 @@ const router = useRouter()
 const disturbStore = useDisturbStore()
 const alarmsStore = useAlarmsStore()
 const notificationStore = useNotificationStore()
+const authStore = useAuthStore()
+const user = computed(() => authStore.user)
 // 定义属性
 const props = defineProps({
   isDialogVisible: {
@@ -129,7 +131,7 @@ const baseStore = useBaseStore()
 const closeDialog = () => {
   // 使用 emit 通知父组件更新 isDialogVisible
   emit('update:isDialogVisible', false)
-  
+
   // 清除上传相关状态
   clearTimeout(uploadTimeoutTimer)
   if (loadingInstance) {
@@ -178,10 +180,10 @@ const getEncodeConfig = (element) => {
     console.error('无效的元素对象')
     return null
   }
-  
+
   console.log('element', element.eleType)
   let encodeConfig = null
-  
+
   try {
     if (element.eleType === 'global') {
       encodeConfig = baseStore.encodeConfig(element)
@@ -222,7 +224,7 @@ const getEncodeConfig = (element) => {
     console.error('编码配置时出错:', error)
     return null
   }
-  
+
   return encodeConfig
 }
 
@@ -253,10 +255,10 @@ const generateConfig = () => {
   }
   // 背景色在颜色数组中的下标，用于配置
   config.backgroundColorId = baseStore.themeColors[0].findIndex((color) => color.hex === baseStore.themeBackgroundColors[0])
-  
+
   // 背景图片数组
   config.themeBackgroundImages = baseStore.themeBackgroundImages
-  
+
   const objects = baseStore.canvas.getObjects()
   // 元素在同类中的下标，用于配置
   let dataId = 0,
@@ -358,84 +360,67 @@ const dowloadConfig = async () => {
   URL.revokeObjectURL(url)
 }
 
-// 创建或更新表盘设计
-const createOrUpdateFaceDesign = async () => {
-  const app = {
-    kpayId: baseStore.kpayId,
-    name: baseStore.watchFaceName,
-    description: baseStore.watchFaceName,
-    documentId: baseStore.id
-  }
+const uploadScreenshot = async () => {
   try {
-    if (!app.id) {
-        // 不存在 kpay
-      const res = await axiosInstance.post(`/designs`, {
-        data: {
-          name: app.name,
-          kpayId: app.kpayId,
-          description: app.description
+    // 先捕获最新的画布截图
+    const screenshot = await baseStore.captureScreenshot()
+    if (screenshot) {
+      const screenshotUpload = await uploadBase64Image(screenshot)
+      console.log('screenshotUpload res:', screenshotUpload)
+      if (screenshotUpload && screenshotUpload.url) {
+        return {
+          id: screenshotUpload.id,
+          url: screenshotUpload.url
         }
-      })
-      // 更新 baseStore.id
-      app.id = res.data.data.id
-      baseStore.id = app.id
-    } else {
-      // 更新
-      const design = {
-        name: app.name,
-        kpayId: app.kpayId,
-        description: app.description
       }
-      await axiosInstance.put(`/designs/${app.id}`, { data: design }, {})
     }
-    const res = await axiosInstance.get(`/designs/${app.id}`)
-    let body = res.data.data
-    return { ...body.attributes, id: body.id }
-  } catch (err) {
-    messageStore.error(err.message)
+  } catch (screenshotError) {
+    console.error('上传表盘截图失败:', screenshotError)
+    // 截图上传失败不影响整体上传过程
   }
-  return null
+  return {}
 }
 
-// 定时保存配置
+// 添加一个互斥锁
+const isOperationLocked = ref(false)
+
+// 定时轮训保存配置，只需要保存 name, kpayId, configJson 即可
 const saveConfig = async () => {
-  const config = generateConfig()
-  if (!config) return
-  const userStr = localStorage.getItem('user')
-  const user = JSON.parse(userStr)
-  // 使用 baseStore 中的值
-  const appData = {
-    app_name: baseStore.watchFaceName,
-    kpay: baseStore.kpayId,
-    description: baseStore.watchFaceName
+  console.log('saveConfig', router.currentRoute.value.path)
+  if (router.currentRoute.value.path !== '/design') {
+    messageStore.error('不是设计页面')
+    return
   }
-  if (!appData.app_name || !appData.kpay) {
+  if (!baseStore.watchFaceName || !baseStore.kpayId) {
     messageStore.error('请先设置应用名称和kpayId')
     return
   }
-  
-  const designDo = {
-    id: baseStore.id,
-    name: appData.app_name,
-    kpayId: appData.kpay,
-    description: appData.description,
-    configJson: JSON.stringify(config)
-  }
+
   try {
-    const designId = await updateFaceDesign(designDo)
-    console.log('自动保存成功', designId)
+    const data = {
+      name: baseStore.watchFaceName,
+      kpayId: baseStore.kpayId,
+      configJson: JSON.stringify(generateConfig()),
+      userId: user.value.id
+    }
+    if (baseStore.id) {
+      // 如果 id 存在，则更新; 否则创建
+      data.documentId = baseStore.id
+    }
+    const designRes = await createOrUpdateDesign(data)
+    console.log('自动保存成功', designRes)
     // 如果 query 中 id 为空，则更新 query 中的 id
     if (!router.currentRoute.value.query.id) {
       router.push({
         path: '/design',
-        query: { id: designId }
+        query: { id: designRes.data.documentId }
       })
     }
-    return designId
+    return designRes.data.documentId
   } catch (error) {
     console.error('自动保存失败', error)
+    return ''
   }
-  return -1
 }
 
 // 上传配置到服务器
@@ -455,14 +440,14 @@ const uploadApp = async () => {
   currentProgress = 0
   currentStatus = '准备上传...'
   isUploadTimeout.value = false
-  
+
   // 创建全屏遮罩
   loadingInstance = ElLoading.service({
     lock: true,
     text: `${currentStatus} (${currentProgress}%)`,
     background: 'rgba(0, 0, 0, 0.7)'
   })
-  
+
   // 设置超时定时器，1分钟后显示超时提示
   uploadTimeoutTimer = setTimeout(() => {
     isUploadTimeout.value = true
@@ -475,12 +460,6 @@ const uploadApp = async () => {
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
-    let designDo = await createOrUpdateFaceDesign()
-
-    if (!designDo) {
-      messageStore.error('创建设计失败')
-      return
-    }
 
     // 上传背景图片
     currentStatus = '上传背景图片...'
@@ -492,67 +471,46 @@ const uploadApp = async () => {
 
     // 上传表盘截图 - 对画布进行实时截图
     currentStatus = '上传表盘截图...'
+    const screenshotRes = await uploadScreenshot()
     currentProgress = 60
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
-    try {
-      // 先捕获最新的画布截图
-      const screenshot = await baseStore.captureScreenshot()
-      if (screenshot) {
-        const screenshotUpload = await uploadBase64Image(screenshot)
-        if (screenshotUpload && screenshotUpload.url) {
-          // 确保 designDo 存在
-          if (!designDo) {
-            designDo = {}
-          }
-          designDo.screenshot = screenshotUpload.id
-        }
-      }
-    } catch (screenshotError) {
-      console.error('上传表盘截图失败:', screenshotError)
-      // 截图上传失败不影响整体上传过程
-    }
+
     // 配置更新
     currentStatus = '更新配置信息...'
     currentProgress = 80
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
-    const userStr = localStorage.getItem('user')
-    const user = JSON.parse(userStr)
-    // 使用 baseStore 中的值
-    const appData = {
-      app_name: baseStore.watchFaceName,
-      kpay: baseStore.kpayId,
-      description: baseStore.watchFaceName
-    }
-    
-    // 确保 designDo 存在
-    if (!designDo) {
-      designDo = {}
-    }
-    
-    designDo['name'] = appData.app_name
-    designDo['kpay_appid'] = appData.kpay
-    designDo['description'] = appData.description
-    if (!designDo['user_id']) {
-      designDo['user_id'] = user.id
-    }
-    designDo['config_json'] = JSON.stringify(config)
-    await updateFaceDesign(designDo)
+
+    // 创建或更新表盘设计
+    const res = await createOrUpdateDesign({
+      documentId: baseStore.id,
+      name: baseStore.watchFaceName,
+      kpayId: baseStore.kpayId,
+      description: baseStore.watchFaceName,
+      designStatus: 'draft',
+      userId: user.value.id,
+      configJson: JSON.stringify(generateConfig()),
+      screenshot: screenshotRes.id,
+      screenshotUrl: screenshotRes.url
+    })
+    // 更新 baseStore.id
+    console.log('createOrUpdateDesign res:', res)
+    baseStore.id = res.documentId
     currentStatus = '上传完成！'
     currentProgress = 100
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
-    
+
     // 延迟关闭进度条，让用户看到完成状态
     setTimeout(() => {
       uploading.value = false
       messageStore.success('配置上传成功')
       closeDialog()
-      
+
       // 清除超时定时器和遮罩
       clearTimeout(uploadTimeoutTimer)
       if (loadingInstance) {
@@ -560,7 +518,7 @@ const uploadApp = async () => {
         loadingInstance = null
       }
     }, 1000)
-    
+
     return true
   } catch (error) {
     console.error('配置上传失败:', error)
@@ -569,12 +527,12 @@ const uploadApp = async () => {
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
-    
+
     // 延迟关闭进度条，让用户看到错误信息
     setTimeout(() => {
       uploading.value = false
       messageStore.error(error.message || '配置上传失败，请稍后重试')
-      
+
       // 清除超时定时器和遮罩
       clearTimeout(uploadTimeoutTimer)
       if (loadingInstance) {
@@ -586,46 +544,17 @@ const uploadApp = async () => {
   }
 }
 
-// 更新表盘设计
-const updateFaceDesign = async (design) => {
-  try {
-    console.log('updateFaceDesign', design)
-    // 如果没有ID，则创建新设计
-    const documentId = design.id
-    if (!documentId) {
-      const response = await axiosInstance.post('/designs', { data: design }, {})
-      // 更新设计对象的ID
-      if (response && response.data && response.data.data) {
-        // 更新 baseStore 中的 ID
-        baseStore.id = design.documentId
-      }
-      return design.documentId
-    } else {
-      // 更新现有设计
-      await axiosInstance.put(`/designs/${documentId}`, { data: {
-        name: design.name,
-        kpayId: design.kpayId,
-        configJson: design.configJson
-      } }, {})
-      return documentId
-    }
-  } catch (err) {
-    console.error('更新设计失败:', err)
-    return -1
-  }
-}
-
 // 取消上传
 const cancelUpload = () => {
   currentStatus = '已取消上传'
   currentProgress = 0
-  
+
   // 关闭遮罩
   if (loadingInstance) {
     loadingInstance.close()
     loadingInstance = null
   }
-  
+
   // 延迟关闭上传进度条
   setTimeout(() => {
     uploading.value = false
@@ -781,7 +710,7 @@ defineExpose({
   background-color: #ecf5ff;
   padding: 2px 8px;
   border-radius: 3px;
-  border-left: 3px solid #409EFF;
+  border-left: 3px solid #409eff;
 }
 
 .current-progress {
@@ -798,18 +727,18 @@ defineExpose({
 .progress-value {
   font-size: 15px;
   font-weight: bold;
-  color: #409EFF;
+  color: #409eff;
   background-color: #ecf5ff;
   padding: 2px 8px;
   border-radius: 3px;
-  border-left: 3px solid #409EFF;
+  border-left: 3px solid #409eff;
 }
 
 .timeout-warning {
   margin-top: 20px;
   padding: 10px;
-  background-color: #FEF0F0;
-  color: #F56C6C;
+  background-color: #fef0f0;
+  color: #f56c6c;
   border-radius: 4px;
   display: flex;
   flex-direction: column;

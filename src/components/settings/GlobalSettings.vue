@@ -93,7 +93,6 @@ import { useBaseStore } from '@/stores/baseStore'
 import ColorPicker from '@/components/color-picker/index.vue'
 import emitter from '@/utils/eventBus'
 import { ElSelect, ElOption, ElMessage, ElLoading } from 'element-plus'
-import axiosInstance from '@/config/axiosConfig'
 import { uploadBase64Image, uploadImageFile } from '@/utils/image'
 import { getMetricBySymbol } from '@/config/settings'
 const baseStore = useBaseStore()

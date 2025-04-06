@@ -244,7 +244,7 @@ const handleScreenshot = async () => {
 
 // 保存
 const handleSave =async () => {
-  console.log('Save')
+  console.log('Handle Save')
   baseStore.deactivateObject()
   try {
     await exportStore.uploadApp()

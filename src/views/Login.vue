@@ -36,13 +36,13 @@
             :class="['tab-btn', { active: activeTab === 'login' }]" 
             @click="switchTab('login')"
           >
-            登录
+            登 录
           </button>
           <button 
             :class="['tab-btn', { active: activeTab === 'register' }]" 
             @click="switchTab('register')"
           >
-            注册
+            注 册
           </button>
         </div>
 
@@ -83,7 +83,7 @@
             :loading="isLoading"
             class="submit-btn"
           >
-            {{ isLoading ? '登录中...' : '登录' }}
+            {{ isLoading ? '登 录 中...' : '登 录' }}
           </el-button>
         </form>
 
@@ -166,7 +166,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
 import { Message, Lock, User } from '@element-plus/icons-vue'
-import axios from '@/config/axiosConfig'
+import { register } from '@/api/auth'
 import Typed from 'typed.js'
 
 const router = useRouter()
@@ -289,7 +289,8 @@ const handleLogin = async () => {
 
   isLoading.value = true
   try {
-    await authStore.login(loginForm.email, loginForm.password)
+    const res = await authStore.login(loginForm.email, loginForm.password)
+    console.log('login res', res)
     messageStore.success('登录成功')
     const redirect = router.currentRoute.value.query.redirect || '/'
     router.push(redirect)
@@ -316,11 +317,7 @@ const handleRegister = async () => {
 
   isRegistering.value = true
   try {
-    const response = await axios.post('/auth/local/register', {
-      username: registerForm.username,
-      email: registerForm.email,
-      password: registerForm.password
-    })
+    const response = await register(registerForm.username, registerForm.email, registerForm.password)
 
     messageStore.success('注册成功，请登录')
     activeTab.value = 'login'

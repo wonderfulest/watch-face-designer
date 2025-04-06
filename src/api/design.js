@@ -1,6 +1,37 @@
 import axiosInstance from '@/config/axiosConfigV5'
 
 /**
+ * 创建或更新设计
+ * @param {Object} data - 设计数据
+ * @returns {Promise} 设计数据
+ */
+export const createOrUpdateDesign = async (data) => {
+  console.log('createOrUpdateDesign', data)
+  const response = await axiosInstance.post('/designs/createOrUpdate', { data })
+  return response.data
+}
+
+/**
+ * 获取设计详情
+ * @param {string} id - 设计ID
+ * @returns {Promise} 设计详情数据
+ */
+export const getDesign = async (id) => {
+  const response = await axiosInstance.get(`/designs/${id}`)
+  return response.data
+}
+
+/**
+ * 
+ */
+export const updateDesign = async (id, data) => {
+  const response = await axiosInstance.put(`/designs/${id}`, {
+    data
+  })
+  return response.data
+}
+
+/**
  * 获取设计列表
  * @param {Object} params - 查询参数
  * @param {number} params.page - 当前页码
@@ -48,19 +79,6 @@ export const getDesignsByProductIds = async (productIds) => {
   return response.data
 }
 
-/**
- * 获取设计详情
- * @param {string} id - 设计ID
- * @returns {Promise} 设计详情数据
- */
-export const getDesignDetail = async (id) => {
-  const response = await axiosInstance.get(`/designs/${id}`, {
-    params: {
-      populate: '*'
-    }
-  })
-  return response.data
-}
 
 /**
  * 更新设计状态
@@ -77,12 +95,6 @@ export const updateDesignStatus = async (id, status) => {
   return response.data
 }
 
-export const updateDesign = async (id, data) => {
-  const response = await axiosInstance.put(`/designs/${id}`, {
-    data
-  })
-  return response.data
-}
 
 /**
  * 删除设计

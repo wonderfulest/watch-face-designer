@@ -98,7 +98,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="deleteDialogVisible = false">取消</el-button>
-          <el-button type="danger" @click="deleteDesign">确认删除</el-button>
+          <el-button type="danger" @click="confirmDeleteDesign">确认删除</el-button>
         </span>
       </template>
     </el-dialog>
@@ -139,14 +139,13 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getDesigns, getDesignDetail, updateDesignStatus, updateDesign, deleteDesign as apiDeleteDesign } from '@/api/design'
+import { getDesigns, getDesign, updateDesignStatus, updateDesign, deleteDesign } from '@/api/design'
 import { useMessageStore } from '@/stores/message'
 import { useBaseStore } from '@/stores/baseStore'
 import { useAuthStore } from '@/stores/auth'
-import axiosInstance from '@/config/axiosConfigV5'
 import dayjs from 'dayjs'
 import { getUsers } from '@/api/users'
-
+import { createOrUpdateDesign } from '@/api/design'
 const router = useRouter()
 const messageStore = useMessageStore()
 const baseStore = useBaseStore()
@@ -184,12 +183,7 @@ const total = ref(0)
 // 获取用户列表
 const fetchUsers = async () => {
   try {
-    const response = await axiosInstance.get('/users', {
-      params: {
-        'pagination[pageSize]': 100,
-        'populate': '*'
-      }
-    })
+    const response = await getUsers()
     usersList.value = response.data
   } catch (error) {
     console.error('获取用户列表失败:', error)
@@ -229,7 +223,7 @@ const fetchDesigns = async () => {
       const usersData = await getUsers(uniqueUserIds)
       // 转换为ID映射
       users.value = usersData.reduce((acc, user) => {
-        acc[user.id] = user
+        acc[user.id] = user.value
         return acc
       }, {})
     }
@@ -298,7 +292,7 @@ const createNew = () => {
 // 打开画布编辑器
 const openCanvas = async (design) => {
   try {
-    const response = await getDesignDetail(design.documentId)
+    const response = await getDesign(design.documentId)
     console.log('response', response)
     const designData = response.data
 
@@ -322,7 +316,7 @@ const openCanvas = async (design) => {
 // 编辑基本信息
 const editDesign = async (design) => {
   try {
-    const response = await getDesignDetail(design.id)
+    const response = await getDesign(design.documentId)
     const designData = response.data
 
     // 设置编辑表单数据
@@ -361,11 +355,11 @@ const submitDesign = async (design) => {
 }
 
 // 删除设计
-const deleteDesign = async () => {
+const confirmDeleteDesign = async () => {
   if (!designToDelete.value) return
 
   try {
-    await apiDeleteDesign(designToDelete.value.documentId)
+    await deleteDesign(designToDelete.value.documentId)
     messageStore.success('删除成功')
     deleteDialogVisible.value = false
     await fetchDesigns() // 刷新列表
@@ -424,9 +418,7 @@ const copyDesign = async (design) => {
         userId: design.userId
       }
     }
-
-    // 调用 API 创建新表盘
-    const response = await axiosInstance.post('/designs', newDesignData)
+    const response = await createOrUpdateDesign(newDesignData)
 
     if (response.data) {
       messageStore.success('复制成功')

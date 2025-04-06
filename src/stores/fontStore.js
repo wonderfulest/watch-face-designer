@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import axiosInstance from '@/config/axiosConfig'
 import { getFonts } from '@/api/fonts'
 
 // 将所有字体数组定义在 store 外部
@@ -553,15 +552,7 @@ export const useFontStore = defineStore('fontStore', {
     async fetchFonts() {
       try {
         this.loading = true
-        const response = await axiosInstance.get('/fonts', {
-          params: {
-            populate: 'woff2',
-            // 'filters[type][$eq]': 'text',
-            'sort[0]': 'name:asc',
-            'pagination[page]': 1,
-            'pagination[pageSize]': 100
-          }
-        })
+        const response = await getFonts()
         this.fonts = response.data.data
         this.error = null
       } catch (err) {

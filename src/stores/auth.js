@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { login } from '@/api/auth'
 import axiosInstance from '@/config/axiosConfigV5'
 
 export const useAuthStore = defineStore('auth', {
@@ -14,10 +15,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(username, password) {
       try {
-        const response = await axiosInstance.post('/auth/local', {
-          identifier: username,
-          password: password
-        })
+        const response = await login(username, password)
 
         const { jwt, user } = response.data
         this.token = jwt

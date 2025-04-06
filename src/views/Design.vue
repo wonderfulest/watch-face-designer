@@ -40,7 +40,7 @@ import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
 import { useMessageStore } from '@/stores/message'
 import { useFontStore } from '@/stores/fontStore'
 import { useExportStore } from '@/stores/exportStore'
-import axiosInstance from '@/config/axiosConfigV5'
+import { getDesign } from '@/api/design'
 import { useTimeStore } from '@/stores/elements/timeElement'
 import { useDateStore } from '@/stores/elements/dateElement'
 import { useImageElementStore } from '@/stores/elements/imageElement'
@@ -95,13 +95,10 @@ useKeyboardShortcuts()
 // 加载设计配置
 const loadDesign = async (id) => {
   try {
-    const response = await axiosInstance.get(`/designs/${id}`, {
-      params: {
-        populate: '*'
-      }
-    })
-
-    const designData = response.data.data
+    const response = await getDesign(id)
+    console.log('loadDesign', response)
+    const designData = response.data
+    console.log('loadDesign', designData)
     const config = designData.configJson
 
     // 设置基础信息

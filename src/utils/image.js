@@ -1,4 +1,4 @@
-import axiosInstance from '@/config/axiosConfig'
+import { uploadImage } from '@/api/upload'
 
 // 上传图片文件
 export const uploadImageFile = async (blobUrl) => {
@@ -12,11 +12,7 @@ export const uploadImageFile = async (blobUrl) => {
     formData.append('files', blob, 'background.png')
 
     // 上传文件
-    const res = await axiosInstance.post('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
+    const res = await uploadImage(formData)
 
     return res.data[0]
   } catch (error) {
@@ -54,13 +50,9 @@ export const uploadBase64Image = async (base64Data) => {
     formData.append('files', blob, 'background.png')
 
     // Upload file
-    const res = await axiosInstance.post('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    return res.data[0]
+    const res = await uploadImage(formData)
+    console.log('uploadBase64Image', res)
+    return res[0]
   } catch (error) {
     console.error('Failed to upload base64 image:', error)
     throw error

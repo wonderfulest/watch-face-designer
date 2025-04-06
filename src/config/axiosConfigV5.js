@@ -3,8 +3,15 @@ import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
 import router from '@/router'
 
+
+
+// 根据环境设置 baseURL
+const baseURL = import.meta.env.PROD 
+  ? 'https://api.garminface.com/api'
+  : 'http://localhost:1338/api'
+
 const axiosInstance = axios.create({
-  baseURL: 'https://api.garminface.com/api',
+  baseURL,
   timeout: 60000,
   headers: {
     Accept: 'application/json, text/plain, */*',
@@ -29,11 +36,16 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器
 axiosInstance.interceptors.response.use(
   (response) => {
+    console.log('http response', response)
+    if (response.data.meta && response.data.meta.code && response.data.meta.code != 0) {
+      const messageStore = useMessageStore()
+      messageStore.error(response.data.meta.message)
+      return Promise.reject(response.data.meta.message)
+    }
     return response
   },
   (error) => {
     const messageStore = useMessageStore()
-
     if (error.response) {
       switch (error.response.status) {
         case 401:
