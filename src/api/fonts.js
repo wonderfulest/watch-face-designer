@@ -1,4 +1,4 @@
-import axiosInstance from '@/config/axiosConfig'
+import axiosInstance from '@/config/axiosConfigV5'
 
 /**
  * 获取字体列表

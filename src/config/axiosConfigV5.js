@@ -4,7 +4,8 @@ import { useMessageStore } from '@/stores/message'
 import router from '@/router'
 
 const axiosInstance = axios.create({
-  baseURL: 'https://api.garminface.com/api',
+  baseURL: 'http://localhost:1338/api',
+  // baseURL: 'https://api.garminface.com/api',
   timeout: 60000,
   headers: {
     Accept: 'application/json, text/plain, */*',
@@ -15,8 +16,7 @@ const axiosInstance = axios.create({
 // 请求拦截器
 axiosInstance.interceptors.request.use(
   (config) => {
-    // const token = localStorage.getItem('token')
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NSwiaWF0IjoxNzQzNTc2Nzk1LCJleHAiOjE3NDYxNjg3OTV9.FumIaj9F6QKfbFQl3P0nZvdWg_IxsKdwpLKWwUP9Obo"
+    const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }

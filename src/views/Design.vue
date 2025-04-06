@@ -40,7 +40,7 @@ import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
 import { useMessageStore } from '@/stores/message'
 import { useFontStore } from '@/stores/fontStore'
 import { useExportStore } from '@/stores/exportStore'
-import axiosInstance from '@/config/axiosConfig'
+import axiosInstance from '@/config/axiosConfigV5'
 import { useTimeStore } from '@/stores/elements/timeElement'
 import { useDateStore } from '@/stores/elements/dateElement'
 import { useImageElementStore } from '@/stores/elements/imageElement'
@@ -102,12 +102,12 @@ const loadDesign = async (id) => {
     })
 
     const designData = response.data.data
-    const config = JSON.parse(designData.attributes.config_json)
+    const config = designData.configJson
 
     // 设置基础信息
     baseStore.id = id
-    baseStore.watchFaceName = designData.attributes.name
-    baseStore.kpayId = designData.attributes.kpay_appid
+    baseStore.watchFaceName = designData.name
+    baseStore.kpayId = designData.kpayId
     // 设置主题颜色
     baseStore.themeColors = config.themeColors
     // 设置主题背景图片

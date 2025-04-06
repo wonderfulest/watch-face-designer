@@ -5,26 +5,16 @@
         <h2>我的设计</h2>
       </div>
       <div class="header-right">
-        <el-input v-model="searchName" placeholder="搜索名称" class="name-filter" clearable @keyup.enter="handleSearch" />
-         <!-- 替换原来的用户输入框为下拉选择框 -->
-      <el-select 
-        v-model="selectedUserId" 
-        placeholder="选择用户" 
-        clearable 
-        class="user-filter"
-        @change="handleUserChange"
-        v-if="user.id == 5"
-      >
-        <el-option
-          v-for="user in usersList"
-          :key="user.id"
-          :label="user.username"
-          :value="user.id"
-        >
-          <span>{{ user.username }}</span>
-          <span class="user-email">({{ user.email }})</span>
-        </el-option>
-      </el-select>        <el-select v-model="selectedStatus" placeholder="选择状态" @change="handleStatusChange" class="status-filter">
+        <el-input v-model="searchName" placeholder="搜索名称" class="name-filter" clearable
+          @keyup.enter="handleSearch" /><!-- 替换原来的用户输入框为下拉选择框 -->
+        <el-select v-model="selectedUserId" placeholder="选择用户" clearable class="user-filter" @change="handleUserChange"
+          v-if="user.id == 5">
+          <el-option v-for="user in usersList" :key="user.id" :label="user.username" :value="user.id">
+            <span>{{ user.username }}</span>
+            <span class="user-email">({{ user.email }})</span>
+          </el-option>
+        </el-select> <el-select v-model="selectedStatus" placeholder="选择状态" @change="handleStatusChange"
+          class="status-filter">
           <el-option label="全部" value="" />
           <el-option label="草稿" value="draft" />
           <el-option label="已提交" value="submitted" />
@@ -50,9 +40,9 @@
           <template #header>
             <div class="card-header">
               <div class="header-left">
-                <span class="title">{{ design.attributes.name }}</span>
-                <div class="status-tag" :class="design.attributes.status">
-                  {{ getStatusText(design.attributes.status) }}
+                <span class="title">{{ design.name }}</span>
+                <div class="status-tag" :class="design.designStatus">
+                  {{ getStatusText(design.designStatus) }}
                 </div>
               </div>
               <div class="actions">
@@ -68,28 +58,29 @@
             </div>
           </template>
           <div class="design-info">
-            <div class="design-background" v-if="design.attributes.screenshot?.data">
-              <img :src="design.attributes.screenshot.data?.attributes?.url" :alt="design.attributes.name" class="background-image" />
+            <div class="design-background" v-if="design.screenshotUrl">
+              <img :src="design.screenshotUrl" :alt="design.name" class="background-image" />
               <div class="creator-badge" v-if="user.id == 5">
                 <span>作者：{{ getCreatorName(design) }}</span>
               </div>
             </div>
-            <div class="design-background" v-else-if="design.attributes.background?.data">
-              <img :src="design.attributes.background.data?.attributes?.url" :alt="design.attributes.name" class="background-image" />
+            <div class="design-background" v-else-if="design.backgroundUrl">
+              <img :src="design.backgroundUrl" :alt="design.name" class="background-image" />
               <div class="creator-badge" v-if="user.id == 5">
                 <span>作者：{{ getCreatorName(design) }}</span>
               </div>
             </div>
             <!-- <p class="description">{{ design.attributes.description || '暂无描述' }}</p> -->
             <div class="meta">
-              <span>ID: {{ design.id }}</span>
-              <span>KPay ID: {{ design.attributes.kpay_appid }}</span>
-              <span>更新时间: {{ formatDate(design.attributes.updatedAt) }}</span>
+              <!-- <span>ID: {{ design.id }}</span> -->
+              <span>KPay ID: {{ design.kpayId }}</span>
+              <span>更新时间: {{ formatDate(design.updatedAt) }}</span>
             </div>
             <div class="actions">
-              <el-button type="primary" size="small" @click="openCanvas(design)">编辑</el-button>
-              <el-button type="warning" size="small" @click="copyDesign(design)">复制</el-button>
-              <el-button v-if="design.attributes.status === 'draft'" type="success" size="small" @click="submitDesign(design)">提交</el-button>
+              <el-button type="primary" size="small" @click="openCanvas(design)">编 辑</el-button>
+              <el-button type="warning" size="small" @click="copyDesign(design)">复 制</el-button>
+              <el-button v-if="design.designStatus === 'draft'" type="success" size="small"
+                @click="submitDesign(design)">提 交</el-button>
             </div>
           </div>
         </el-card>
@@ -98,13 +89,8 @@
 
     <!-- 在设计列表后面添加 -->
     <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[12, 24, 36, 48]"
-        :total="total"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
+      <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[12, 24, 36, 48]"
+        :total="total" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
         @current-change="handleCurrentChange" />
     </div>
     <el-dialog v-model="deleteDialogVisible" title="确认删除" width="30%">
@@ -157,7 +143,7 @@ import { getDesigns, getDesignDetail, updateDesignStatus, updateDesign, deleteDe
 import { useMessageStore } from '@/stores/message'
 import { useBaseStore } from '@/stores/baseStore'
 import { useAuthStore } from '@/stores/auth'
-import axiosInstance from '@/config/axiosConfig'
+import axiosInstance from '@/config/axiosConfigV5'
 import dayjs from 'dayjs'
 import { getUsers } from '@/api/users'
 
@@ -169,22 +155,17 @@ const designs = ref([])
 const deleteDialogVisible = ref(false)
 const editDialogVisible = ref(false)
 const designToDelete = ref(null)
-const selectedStatus = ref('draft') // 默认显示草稿状态
+const selectedStatus = ref('') // 默认显示草稿状态
 const searchName = ref('') // 搜索名称
-const searchUsername = ref('')
 const sortField = ref('updatedAt')
 const sortOrder = ref('desc')
 const users = ref({}) // 用于存储用户信息的映射
 
-
 const user = computed(() => authStore.user)
-
 
 // 添加用户列表状态
 const usersList = ref([])
 const selectedUserId = ref(null)
-
-
 
 // 编辑表单数据
 const editForm = ref({
@@ -228,21 +209,21 @@ const fetchDesigns = async () => {
       userId: selectedUserId.value || user.value.id,
       status: selectedStatus.value,
       name: searchName.value,
-      username: searchUsername.value,
       sort: sortParam
     })
 
+    // 修改这里：直接从 response 中获取数据和分页信息
     designs.value = response.data
     total.value = response.meta.pagination.total
 
     // 提取所有设计的用户ID并去重
     const userIdSet = new Set(
       designs.value
-        .map(design => design.attributes.user_id || design.attributes.user?.data?.id)
+        .map(design => design.userId)
         .filter(id => id) // 过滤掉空值
     )
     const uniqueUserIds = Array.from(userIdSet)
-    
+
     // 加载用户信息
     if (uniqueUserIds.length > 0) {
       const usersData = await getUsers(uniqueUserIds)
@@ -317,20 +298,21 @@ const createNew = () => {
 // 打开画布编辑器
 const openCanvas = async (design) => {
   try {
-    const response = await getDesignDetail(design.id)
+    const response = await getDesignDetail(design.documentId)
+    console.log('response', response)
     const designData = response.data
 
     // 设置基础信息
-    baseStore.watchFaceName = designData.attributes.name
-    baseStore.kpayId = designData.attributes.kpay_appid
+    baseStore.watchFaceName = designData.name
+    baseStore.kpayId = designData.kpayId
 
     // 解析并设置元素配置
-    if (designData.attributes.config_json) {
-      baseStore.elements = JSON.parse(designData.attributes.config_json)
+    if (designData.configJson) {
+      baseStore.elements = designData.configJson
     }
 
     // 导航到设计页面
-    router.push('/design?id=' + designData.id)
+    router.push('/design?id=' + designData.documentId)
   } catch (error) {
     console.error('加载设计失败:', error)
     messageStore.error('加载设计失败')
@@ -383,7 +365,7 @@ const deleteDesign = async () => {
   if (!designToDelete.value) return
 
   try {
-    await apiDeleteDesign(designToDelete.value.id)
+    await apiDeleteDesign(designToDelete.value.documentId)
     messageStore.success('删除成功')
     deleteDialogVisible.value = false
     await fetchDesigns() // 刷新列表
@@ -424,31 +406,28 @@ const submitEdit = async () => {
 // 复制表盘设计
 const copyDesign = async (design) => {
   try {
-    // 验证并解析 JSON
-    const configJson = JSON.parse(design.attributes.config_json)
-    
+    console.log('copyDesign', design)
     // 生成新的表盘名称，添加"复制"后缀
-    const newName = `${design.attributes.name}——copy`
-    
+    const newName = `${design.name}——copy`
+
     // 生成新的 kpay ID，确保其唯一性
-    const timestamp = new Date().getTime()
-    const newKpayId = `mock_${timestamp}`
-    
+    const newKpayId = new Date().getTime()
+
     // 创建新表盘数据
     const newDesignData = {
       data: {
         name: newName,
-        kpay_appid: newKpayId,
-        status: 'draft', // 复制的表盘默认为草稿状态
-        description: design.attributes.description,
-        config_json: JSON.stringify(configJson), // 保存时压缩 JSON
-        user_id: design.attributes.user_id
+        kpayId: newKpayId,
+        designStatus: 'draft', // 复制的表盘默认为草稿状态
+        description: design.description,
+        configJson: design.configJson, // 保存时压缩 JSON
+        userId: design.userId
       }
     }
-    
+
     // 调用 API 创建新表盘
     const response = await axiosInstance.post('/designs', newDesignData)
-    
+
     if (response.data) {
       messageStore.success('复制成功')
       await fetchDesigns() // 刷新列表
@@ -465,12 +444,12 @@ const copyDesign = async (design) => {
 
 // 获取创作者名称
 const getCreatorName = (design) => {
-  const userId = design.attributes.user_id || design.attributes.user?.data?.id
+  const userId = design.userId
   if (!userId) return '未知用户'
-  
+
   const user = users.value[userId]
   if (!user) return '未知用户'
-  
+
   return user.username || user.nickname || user.email?.split('@')[0] || '未知用户'
 }
 
@@ -490,9 +469,11 @@ onMounted(() => {
   color: #909399;
   font-size: 12px;
 }
+
 .design-list {
   padding: 0 32px;
-  height: calc(100vh - 60px); /* 减去顶部导航栏的高度 */
+  height: calc(100vh - 60px);
+  /* 减去顶部导航栏的高度 */
   overflow-y: auto;
 }
 
@@ -595,7 +576,8 @@ onMounted(() => {
 .design-background {
   position: relative;
   width: 100%;
-  padding-bottom: 100%; /* 创建一个正方形容器 */
+  padding-bottom: 100%;
+  /* 创建一个正方形容器 */
   overflow: hidden;
   border-radius: 8px 8px 0 0;
 }
@@ -606,7 +588,8 @@ onMounted(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* 保持图片比例并填充整个容器 */
+  object-fit: cover;
+  /* 保持图片比例并填充整个容器 */
 }
 
 .pagination-container {

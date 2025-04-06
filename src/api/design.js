@@ -1,4 +1,4 @@
-import axiosInstance from '@/config/axiosConfig'
+import axiosInstance from '@/config/axiosConfigV5'
 
 /**
  * 获取设计列表
@@ -8,31 +8,27 @@ import axiosInstance from '@/config/axiosConfig'
  * @param {string} params.userId - 用户ID
  * @param {string} params.status - 状态筛选
  * @param {string} params.name - 名称筛选
- * @param {string} params.username - 用户名筛选
  * @param {string} params.sort - 排序参数
  * @returns {Promise} 设计列表数据
  */
-export const getDesigns = async ({ page, pageSize, userId, status, name, username, sort }) => {
+export const getDesigns = async ({ page, pageSize, userId, status, name, sort }) => {
+  console.log('getDesigns')
   const params = {
     'pagination[page]': page,
     'pagination[pageSize]': pageSize,
-    'filters[user_id][$eq]': userId,
-    populate: 'background,screenshot,user',
+    'filters[userId][$eq]': userId,
+    populate: '*',
     'sort': sort
   }
   if (userId == 5) { // 超级权限用户可以查看所有用户的设计
-    delete params['filters[user_id][$eq]']
+    delete params['filters[userId][$eq]']
   }
   if (status) {
-    params['filters[status][$eq]'] = status
+    params['filters[designStatus][$eq]'] = status
   }
   if (name) {
     params['filters[name][$contains]'] = name
   }
-  if (username) {
-    params['filters[user][username][$contains]'] = username
-  }
-
   const response = await axiosInstance.get('/designs', { params })
   return response.data
 }

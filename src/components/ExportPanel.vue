@@ -68,7 +68,7 @@
  * configuration object, exporting the configuration to a JSON file, uploading the
  * configuration to the server, and copying the configuration to the clipboard.
  */
-import axiosInstance from '@/config/axiosConfig'
+import axiosInstance from '@/config/axiosConfigV5'
 import { uploadBase64Image, uploadImageFile } from '@/utils/image'
 import { ref } from 'vue'
 import _ from 'lodash'
@@ -361,18 +361,18 @@ const dowloadConfig = async () => {
 // 创建或更新表盘设计
 const createOrUpdateFaceDesign = async () => {
   const app = {
-    kpay: baseStore.kpayId,
-    app_name: baseStore.watchFaceName,
+    kpayId: baseStore.kpayId,
+    name: baseStore.watchFaceName,
     description: baseStore.watchFaceName,
-    id: baseStore.id
+    documentId: baseStore.id
   }
   try {
     if (!app.id) {
         // 不存在 kpay
       const res = await axiosInstance.post(`/designs`, {
         data: {
-          name: app.app_name,
-          kpay_appid: app.kpay,
+          name: app.name,
+          kpayId: app.kpayId,
           description: app.description
         }
       })
@@ -382,8 +382,8 @@ const createOrUpdateFaceDesign = async () => {
     } else {
       // 更新
       const design = {
-        name: app.app_name,
-        kpay_appid: app.kpay,
+        name: app.name,
+        kpayId: app.kpayId,
         description: app.description
       }
       await axiosInstance.put(`/designs/${app.id}`, { data: design }, {})
@@ -417,9 +417,9 @@ const saveConfig = async () => {
   const designDo = {
     id: baseStore.id,
     name: appData.app_name,
-    kpay_appid: appData.kpay,
+    kpayId: appData.kpay,
     description: appData.description,
-    config_json: JSON.stringify(config)
+    configJson: JSON.stringify(config)
   }
   try {
     const designId = await updateFaceDesign(designDo)
@@ -589,20 +589,25 @@ const uploadApp = async () => {
 // 更新表盘设计
 const updateFaceDesign = async (design) => {
   try {
+    console.log('updateFaceDesign', design)
     // 如果没有ID，则创建新设计
-    if (!design.id) {
+    const documentId = design.id
+    if (!documentId) {
       const response = await axiosInstance.post('/designs', { data: design }, {})
       // 更新设计对象的ID
       if (response && response.data && response.data.data) {
-        design.id = response.data.data.id
         // 更新 baseStore 中的 ID
-        baseStore.id = design.id
+        baseStore.id = design.documentId
       }
-      return design.id 
+      return design.documentId
     } else {
       // 更新现有设计
-      await axiosInstance.put(`/designs/${design.id}`, { data: design }, {})
-      return design.id 
+      await axiosInstance.put(`/designs/${documentId}`, { data: {
+        name: design.name,
+        kpayId: design.kpayId,
+        configJson: design.configJson
+      } }, {})
+      return documentId
     }
   } catch (err) {
     console.error('更新设计失败:', err)

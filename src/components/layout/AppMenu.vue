@@ -53,60 +53,78 @@
             <el-icon><Timer /></el-icon>
             <span>Time</span>
           </template>
-
-          <!-- 时间显示格式 -->
-          <el-menu-item index="time/hour-minute" @click="handleAddElement('time', 'hh:mm')">
-            <span>hour:minute</span>
-          </el-menu-item>
-          <el-menu-item index="time/second">
-            <span>second</span>
-          </el-menu-item>
-          <el-menu-item index="time/hour-minute-ampm">
-            <span>hour:minute am/pm</span>
-          </el-menu-item>
           
-          <!-- 分隔线 -->
-          <el-divider direction="horizontal" class="menu-sub-divider" />
+          <!-- Time 分组 -->
+          <div class="menu-group">
+            <div class="menu-group-title">Time</div>
+            <el-menu-item index="time/hour-minute" @click="handleAddElement('time', 'hh:mm')">
+              <el-icon><Clock /></el-icon>
+              <span>hour:minute</span>
+            </el-menu-item>
+            <el-menu-item index="time/second">
+              <el-icon><Clock /></el-icon>
+              <span>second</span>
+            </el-menu-item>
+            <el-menu-item index="time/hour-minute-ampm">
+              <el-icon><Clock /></el-icon>
+              <span>hour:minute am/pm</span>
+            </el-menu-item>
+          </div>
           
-          <!-- 日期显示格式 -->
-          <el-menu-item index="time/weekday-month-day">
-            <span>weekday month day</span>
-          </el-menu-item>
-          <el-menu-item index="time/month-day">
-            <span>month day</span>
-          </el-menu-item>
-          <el-menu-item index="time/month-slash-day">
-            <span>month/day</span>
-          </el-menu-item>
-          <el-menu-item index="time/iso-week">
-            <span>ISO week number</span>
-          </el-menu-item>
-
-          <!-- 分隔线 -->
-          <el-divider direction="horizontal" class="menu-sub-divider" />
+          <!-- Date 分组 -->
           
-          <!-- 模拟时钟显示 -->
-          <el-menu-item index="time/analog-hands">
-            <span>hour/minute/second hands</span>
-          </el-menu-item>
-          <el-menu-item index="time/image-hour">
-            <span>image 12-hour hand</span>
-          </el-menu-item>
-          <el-menu-item index="time/image-minute">
-            <span>image minute hand</span>
-          </el-menu-item>
-          <el-menu-item index="time/image-second">
-            <span>image second hand</span>
-          </el-menu-item>
-          <el-menu-item index="time/svg-hour">
-            <span>svg hour hand</span>
-          </el-menu-item>
-          <el-menu-item index="time/svg-minute">
-            <span>svg minute hand</span>
-          </el-menu-item>
-          <el-menu-item index="time/svg-second">
-            <span>svg second hand</span>
-          </el-menu-item>
+          <div class="menu-group">
+            <div class="menu-group-title">Date</div>
+            <el-menu-item index="time/weekday-month-day">
+              <el-icon><Calendar /></el-icon>
+              <span>weekday month day</span>
+            </el-menu-item>
+            <el-menu-item index="time/month-day">
+              <el-icon><Calendar /></el-icon>
+              <span>month day</span>
+            </el-menu-item>
+            <el-menu-item index="time/month-slash-day">
+              <el-icon><Calendar /></el-icon>
+              <span>month/day</span>
+            </el-menu-item>
+            <el-menu-item index="time/iso-week">
+              <el-icon><Calendar /></el-icon>
+              <span>ISO week number</span>
+            </el-menu-item>
+          </div>
+          
+          <!-- Analog 分组 -->
+          <div class="menu-group">
+            <div class="menu-group-title">Analog</div>
+            <el-menu-item index="time/analog-hands">
+              <el-icon><Watch /></el-icon>
+              <span>hour/minute/second hands</span>
+            </el-menu-item>
+            <el-menu-item index="time/image-hour">
+              <el-icon><Watch /></el-icon>
+              <span>image 12-hour hand</span>
+            </el-menu-item>
+            <el-menu-item index="time/image-minute">
+              <el-icon><Watch /></el-icon>
+              <span>image minute hand</span>
+            </el-menu-item>
+            <el-menu-item index="time/image-second">
+              <el-icon><Watch /></el-icon>
+              <span>image second hand</span>
+            </el-menu-item>
+            <el-menu-item index="time/svg-hour">
+              <el-icon><Watch /></el-icon>
+              <span>svg hour hand</span>
+            </el-menu-item>
+            <el-menu-item index="time/svg-minute">
+              <el-icon><Watch /></el-icon>
+              <span>svg minute hand</span>
+            </el-menu-item>
+            <el-menu-item index="time/svg-second">
+              <el-icon><Watch /></el-icon>
+              <span>svg second hand</span>
+            </el-menu-item>
+          </div>
         </el-sub-menu>
 
         <el-menu-item index="datafield">
@@ -158,7 +176,10 @@ import {
   QuestionFilled,
   Box,
   Upload,
-  Setting
+  Setting,
+  Clock,
+  Calendar,
+  Watch
 } from '@element-plus/icons-vue'
 import { elementConfigs } from '@/config/elements'
 const route = useRoute()
@@ -311,5 +332,29 @@ const handleSave =async () => {
 :deep(.el-divider--vertical) {
   display: inline-flex;
   align-self: center;
+}
+
+/* 添加新的分组样式 */
+:deep(.menu-group) {
+  background-color: var(--el-fill-color-lighter);
+  margin: 4px 0;
+  padding: 8px 0;
+}
+
+:deep(.menu-group-title) {
+  padding: 8px 16px;
+  font-size: 14px;
+  color: var(--el-text-color-secondary);
+  font-weight: 500;
+}
+
+:deep(.el-sub-menu .el-menu-item) {
+  height: 36px;
+  line-height: 36px;
+  padding: 0 16px;
+}
+
+:deep(.el-menu-item .el-icon) {
+  margin-right: 8px;
 }
 </style> 
