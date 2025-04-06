@@ -402,21 +402,20 @@ const copyDesign = async (design) => {
   try {
     console.log('copyDesign', design)
     // 生成新的表盘名称，添加"复制"后缀
-    const newName = `${design.name}——copy`
+    const newName = `${design.name}—copy`
 
     // 生成新的 kpay ID，确保其唯一性
     const newKpayId = new Date().getTime()
 
     // 创建新表盘数据
     const newDesignData = {
-      data: {
-        name: newName,
-        kpayId: newKpayId,
-        designStatus: 'draft', // 复制的表盘默认为草稿状态
-        description: design.description,
-        configJson: design.configJson, // 保存时压缩 JSON
-        userId: design.userId
-      }
+      name: newName,
+      kpayId: newKpayId,
+      designStatus: 'draft',
+      description: design.description,
+      screenshotUrl: design.screenshotUrl,
+      configJson: design.configJson,
+      userId: design.userId
     }
     const response = await createOrUpdateDesign(newDesignData)
 
