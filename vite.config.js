@@ -2,6 +2,9 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
+// 获取环境变量
+const env = process.env.NODE_ENV
+console.log('env', env)
 export default defineConfig({
   plugins: [vue()],
   base: '/', // Ensure base URL is set to root
