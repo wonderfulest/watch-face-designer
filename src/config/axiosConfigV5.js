@@ -3,12 +3,11 @@ import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
 import router from '@/router'
 
+// 使用 VITE_API_BASE_URL 环境变量
+const baseURL = import.meta.env.VITE_API_BASE_URL
 
-
-// 根据环境设置 baseURL
-const baseURL = import.meta.env.PROD 
-  ? 'https://api.garminface.com/api'
-  : 'http://localhost:1338/api'
+console.log('Current API baseURL:', baseURL)
+console.log('Current ENV:', import.meta.env)
 
 const axiosInstance = axios.create({
   baseURL,
