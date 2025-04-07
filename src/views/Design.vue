@@ -1,5 +1,6 @@
 <template>
   <div class="design-layout">
+    <ChangelogDialog ref="changelogDialog" />
     <!-- 左侧面板 -->
     <div class="left-panel">
       <SidePanel />
@@ -24,10 +25,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, defineProps, watch } from 'vue'
-
-const props = defineProps({
-  key: String
-})
+import ChangelogDialog from '@/components/dialogs/ChangelogDialog.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { nanoid } from 'nanoid'
 import Canvas from '@/components/Canvas.vue'
@@ -82,6 +80,11 @@ const alarmsStore = useAlarmsStore()
 const notificationStore = useNotificationStore()
 let saveTimer = null
 
+const changelogDialog = ref(null)
+
+const props = defineProps({
+  key: String
+})
 // 监听 exportPanelRef 变化，注册到 store 中
 watch(exportPanelRef, (newValue) => {
   if (newValue) {
@@ -258,6 +261,7 @@ const setupAutoSave = () => {
 }
 
 onMounted(() => {
+  changelogDialog.value?.checkShowChangelog()
   // 检查URL参数中是否有设计ID
   const designId = route.query.id
   if (designId) {
