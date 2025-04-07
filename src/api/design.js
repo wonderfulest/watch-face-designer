@@ -51,9 +51,9 @@ export const getDesigns = async ({ page, pageSize, userId, status, name, sort })
     populate: '*',
     'sort': sort
   }
-  if (userId == 5) { // 超级权限用户可以查看所有用户的设计
-    delete params['filters[userId][$eq]']
-  }
+  // if (userId == 5) { // 超级权限用户可以查看所有用户的设计
+  //   delete params['filters[userId][$eq]']
+  // }
   if (status) {
     params['filters[designStatus][$eq]'] = status
   }

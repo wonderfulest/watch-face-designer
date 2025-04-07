@@ -7,8 +7,7 @@
       <div class="header-right">
         <el-input v-model="searchName" placeholder="搜索名称" class="name-filter" clearable
           @keyup.enter="handleSearch" /><!-- 替换原来的用户输入框为下拉选择框 -->
-        <el-select v-model="selectedUserId" placeholder="选择用户" clearable class="user-filter" @change="handleUserChange"
-          v-if="user.id == 5">
+        <el-select v-model="selectedUserId" placeholder="选择用户" clearable class="user-filter" @change="handleUserChange">
           <el-option v-for="user in usersList" :key="user.id" :label="user.username" :value="user.id">
             <span>{{ user.username }}</span>
             <span class="user-email">({{ user.email }})</span>
@@ -60,13 +59,13 @@
           <div class="design-info">
             <div class="design-background" v-if="design.screenshotUrl">
               <img :src="design.screenshotUrl" :alt="design.name" class="background-image" />
-              <div class="creator-badge" v-if="user.id == 5">
+              <div class="creator-badge" >
                 <span>作者：{{ getCreatorName(design) }}</span>
               </div>
             </div>
             <div class="design-background" v-else-if="design.backgroundUrl">
               <img :src="design.backgroundUrl" :alt="design.name" class="background-image" />
-              <div class="creator-badge" v-if="user.id == 5">
+              <div class="creator-badge" >
                 <span>作者：{{ getCreatorName(design) }}</span>
               </div>
             </div>
