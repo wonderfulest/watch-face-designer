@@ -36,6 +36,7 @@ export const elementAttribute = {
   iconFontFamily: 'Yoghurt-One',
   startAngle: 120, // 进度环开始角度
   endAngle: 60, // 进度环结束角度
+  counterClockwise: false, // 进度环方向: 顺时针: false, 逆时针: true
   radius: 50, // 进度环半径
   strokeWidth: 10, // 进度环宽度
   formatter: 0, // 时间格式 // HH:mm:ss

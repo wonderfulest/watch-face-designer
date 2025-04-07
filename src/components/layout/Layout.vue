@@ -43,6 +43,5 @@ const showMenu = computed(() => {
 .app-content {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
 }
 </style> 

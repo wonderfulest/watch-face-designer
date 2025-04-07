@@ -17,6 +17,7 @@ export const useProgressRingStore = defineStore('progressRingElement', {
 
   actions: {
     addElement(config) {
+      console.log('add process config', config)
       const id = nanoid()
       const startAngle = config.startAngle
       const endAngle = config.endAngle
@@ -24,7 +25,11 @@ export const useProgressRingStore = defineStore('progressRingElement', {
       const strokeWidth = config.strokeWidth // 描边的宽度，它会平均分布在圆的边缘内外两侧。也就是说，描边会向内和向外各扩展一半。
       const color = config.color
       const bgColor = config.bgColor
-
+      const counterClockwise = config.counterClockwise
+      const middleAngle = this.getMiddleAngle(startAngle, endAngle, counterClockwise, 0.333)
+      console.log('startAngle', startAngle)
+      console.log('endAngle', endAngle)
+      console.log('middleAngle', middleAngle)
       // Create the main progress ring
       const mainRing = new Circle({
         radius: radius,
@@ -32,10 +37,11 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         stroke: color,
         strokeWidth: strokeWidth,
         startAngle: startAngle,
-        endAngle: this.getMiddleAngle(startAngle, endAngle),
+        endAngle: middleAngle,
         id: id + '_main',
         originX: 'center',
-        originY: 'center'
+        originY: 'center',
+        counterClockwise: counterClockwise
       })
 
       // Create the background ring
@@ -44,11 +50,12 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         fill: 'transparent',
         stroke: bgColor,
         strokeWidth: strokeWidth,
-        startAngle: this.getMiddleAngle(startAngle, endAngle),
+        startAngle: middleAngle,
         endAngle: endAngle,
         id: id + '_bg',
         originX: 'center',
-        originY: 'center'
+        originY: 'center',
+        counterClockwise: counterClockwise
       })
 
       // 计算组的初始尺寸
@@ -90,42 +97,81 @@ export const useProgressRingStore = defineStore('progressRingElement', {
       this.baseStore.canvas.discardActiveObject()
       this.baseStore.canvas.setActiveObject(group)
     },
-    getMiddleAngle(startAngle, endAngle) {
+    /**
+     * 计算两个角度之间的中间角度
+     * @param {*} startAngle 起始角度
+     * @param {*} endAngle 结束角度
+     * @param {*} counterClockwise 是否逆时针
+     * @param {*} progress 进度
+     * @returns 中间角度
+     */
+    getMiddleAngle(startAngle, endAngle, counterClockwise = false, progress = 0.333) {
       // 确保角度在0-360范围内
       startAngle = ((startAngle % 360) + 360) % 360
       endAngle = ((endAngle % 360) + 360) % 360
 
-      // 如果结束角度小于起始角度，加360度
-      if (endAngle < startAngle) {
-        endAngle += 360
+      // 顺时针和逆时针的处理不同
+      if (counterClockwise === false) { // 顺时针
+        // 如果结束角度小于起始角度，加360度
+        if (endAngle < startAngle) {
+          endAngle += 360
+        }
+        // 计算完成 1/3 的角度
+        let middleAngle = startAngle + (endAngle - startAngle) * progress
+        // 确保结果在0-360范围内
+        return ((middleAngle % 360) + 360) % 360
+      } else { // 逆时针
+        // 如果结束角度大于起始角度，减360度
+        if (endAngle > startAngle) {
+          endAngle -= 360
+        }
+        // 计算完成 1/3 的角度（反向）
+        let middleAngle = startAngle + (endAngle - startAngle) * progress
+        // 确保结果在0-360范围内
+        return ((middleAngle % 360) + 360) % 360
       }
-
-      // 计算完成 1/2 的角度
-      let middleAngle = startAngle + (endAngle - startAngle) / 3.0
-
-      // 确保结果在0-360范围内
-      return ((middleAngle % 360) + 360) % 360
     },
-    getFullAngle(startAngle, endAngle) {
+    /**
+     * 计算两个角度之间的差值
+     * @param {*} startAngle 起始角度
+     * @param {*} endAngle 结束角度
+     * @param {*} counterClockwise 是否逆时针
+     * @returns 角度差值
+     */
+    getFullAngle(startAngle, endAngle, counterClockwise) {
+      if (counterClockwise == null) {
+        throw new Error('counterClockwise is null')
+      }
       // 确保角度在0-360范围内
       startAngle = ((startAngle % 360) + 360) % 360
       endAngle = ((endAngle % 360) + 360) % 360
 
-      // 计算角度差
-      let angleDiff = endAngle - startAngle
-
-      // 如果角度差为负，加360度
-      if (angleDiff < 0) {
-        angleDiff += 360
+      if (counterClockwise === false) { // 顺时针
+        // 计算角度差
+        let angleDiff = endAngle - startAngle
+        // 如果角度差为负，加360度
+        if (angleDiff < 0) {
+          angleDiff += 360
+        }
+        return angleDiff
+      } else { // 逆时针
+        // 计算角度差
+        let angleDiff = startAngle - endAngle
+        // 如果角度差为负，加360度
+        if (angleDiff < 0) {
+          angleDiff += 360
+        }
+        return angleDiff
       }
-
-      return angleDiff
     },
+    /**
+     * 更新进度
+     * @param {*} element 元素
+     * @param {*} progress 进度
+     */
     updateProgress(element, progress) {
-      const { baseStore } = this.baseElementStore
-      if (!baseStore.canvas) return
-
-      const group = baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
+      if (!this.baseStore.canvas) return
+      const group = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!group || !group.getObjects) return
 
       const objects = group.getObjects()
@@ -136,7 +182,7 @@ export const useProgressRingStore = defineStore('progressRingElement', {
 
       const startAngle = mainRing.startAngle
       const endAngle = bgRing.endAngle
-      const middleAngle = this.getMiddleAngle(startAngle, endAngle)
+      const middleAngle = this.getMiddleAngle(startAngle, endAngle, mainRing.counterClockwise, progress)
 
       mainRing.set('endAngle', middleAngle)
       bgRing.set('startAngle', middleAngle)
@@ -164,10 +210,11 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         bgColor: bgRing.stroke,
         metricGroup: element.metricGroup,
         metricSymbol: element.metricSymbol,
-        fullAngle: this.getFullAngle(mainRing.startAngle, bgRing.endAngle), // 不需要反序列化
+        fullAngle: this.getFullAngle(mainRing.startAngle, bgRing.endAngle, mainRing.counterClockwise), // 不需要反序列化
         varName: element.varName,
         colorVarName: this.baseStore.getColorVarName(mainRing.stroke),
-        bgColorVarName: this.baseStore.getColorVarName(bgRing.stroke)
+        bgColorVarName: this.baseStore.getColorVarName(bgRing.stroke),
+        counterClockwise: mainRing.counterClockwise
       }
     },
     decodeConfig(config) {
@@ -184,7 +231,8 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         metricSymbol: config.metricSymbol,
         varName: config.varName,
         colorVarName: config.colorVarName,
-        bgColorVarName: config.bgColorVarName
+        bgColorVarName: config.bgColorVarName,
+        counterClockwise: config.counterClockwise
       }
       return decodedConfig
     }

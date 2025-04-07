@@ -30,7 +30,7 @@
     </div>
     <!-- 基础属性 -->
     <div class="setting-item">
-      <label>角度范围</label>
+      <label>环形配置</label>
       <div class="angle-inputs">
         <div class="input-group">
           <label>开始</label>
@@ -40,6 +40,14 @@
           <label>结束</label>
           <input type="number" v-model.number="endAngle" @input="updateElement" />
         </div>
+      </div>
+      <!-- 添加方向选择 -->
+      <div class="direction-group">
+        <label>方向</label>
+        <el-radio-group v-model="counterClockwise" @change="updateElement">
+          <el-radio :label="false">顺时针</el-radio> <!-- ARC_CLOCKWISE -->
+          <el-radio :label="true">逆时针</el-radio> <!-- ARC_COUNTER_CLOCKWISE -->
+        </el-radio-group>
       </div>
     </div>
 
@@ -102,7 +110,10 @@ const baseStore = useBaseStore()
 const progressRingStore = useProgressRingStore()
 
 // 获取主圆环和背景圆环
-const mainRing = computed(() => props.element.getObjects().find((obj) => obj.id.endsWith('_main')))
+const mainRing = computed(() => props.element.getObjects().find((obj) => {
+  console.log('obj', obj)
+  return obj.id.endsWith('_main')
+}))
 const bgRing = computed(() => props.element.getObjects().find((obj) => obj.id.endsWith('_bg')))
 
 // 状态
@@ -114,15 +125,19 @@ const radius = ref(50)
 const strokeWidth = ref(10)
 const color = ref('#2cc8ce')
 const bgColor = ref('#165759')
-const progress = ref(50)
+const progress = ref(33.3)
 const metricSymbol = ref(':FIELD_TYPE_HEART_RATE')
 const varName = ref('')
+const counterClockwise = ref(false) // 1: 顺时针, -1: 逆时针
+
 
 // 监听元素变化，同步状态
 watch(
   () => props.element,
   () => {
     if (!mainRing.value || !bgRing.value) return
+    console.log('mainRing.value', mainRing.value)
+    console.log('bgRing.value', bgRing.value)
     positionX.value = props.element.left
     positionY.value = props.element.top
     startAngle.value = mainRing.value.startAngle
@@ -132,6 +147,8 @@ watch(
     color.value = mainRing.value.stroke
     bgColor.value = bgRing.value.stroke
     metricSymbol.value = props.element.metricSymbol
+    counterClockwise.value = mainRing.value.counterClockwise
+    console.log('counterClockwise.value', counterClockwise.value)
   },
   { immediate: true }
 )
@@ -143,8 +160,12 @@ const updateElement = () => {
   // 获取组的当前位置
   const groupLeft = props.element.left
   const groupTop = props.element.top
-  const middleAngle = progressRingStore.getMiddleAngle(startAngle.value, endAngle.value)
+  // const middleAngle = endAngle.value
+  const middleAngle = progressRingStore.getMiddleAngle(startAngle.value, endAngle.value, counterClockwise.value, progress.value * 1.0 / 100.0)
 
+  console.log('updateElement startAngle', startAngle.value)
+  console.log('updateElement endAngle', endAngle.value)
+  console.log('updateElement middleAngle', middleAngle)
   // 更新主圆环
   mainRing.value.set({
     radius: radius.value,
@@ -153,7 +174,8 @@ const updateElement = () => {
     startAngle: startAngle.value,
     endAngle: middleAngle,
     originX: 'center',
-    originY: 'center'
+    originY: 'center',
+    counterClockwise: counterClockwise.value
   })
 
   // 更新背景圆环
@@ -164,7 +186,8 @@ const updateElement = () => {
     startAngle: middleAngle,
     endAngle: endAngle.value,
     originX: 'center',
-    originY: 'center'
+    originY: 'center',
+    counterClockwise: counterClockwise.value
   })
 
   // 计算组的新尺寸（考虑线宽）
@@ -180,11 +203,12 @@ const updateElement = () => {
     height: size,
     colorVarName: baseStore.getColorVarName(color.value),
     bgColorVarName: baseStore.getColorVarName(bgColor.value),
-    varName: varName.value
+    varName: varName.value,
+    counterClockwise: counterClockwise.value
   })
 
   // 强制组重新计算边界
-  // props.element._calcBounds(true)
+  // props.element.calcBounds(true)
   props.element.setCoords()
 
   // 更新所有坐标
@@ -214,7 +238,7 @@ const updatePosition = () => {
 
 // 更新进度
 const updateProgress = () => {
-  progressRingStore.updateProgress(props.element, progress.value / 100)
+  progressRingStore.updateProgress(props.element, progress.value * 1.0 / 100.0)
 }
 </script>
 

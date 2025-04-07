@@ -73,7 +73,7 @@
                     <span v-if="row.design?.user ">
                         {{ row.design.user.username }}
                     </span>
-                    <span v-if="row.kpay_app?.kpay_developer">
+                    <span v-else-if="row.kpay_app?.kpay_developer">
                         {{ row.kpay_app.kpay_developer.name }}
                     </span>
                     <span v-else>-</span>

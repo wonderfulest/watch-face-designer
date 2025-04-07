@@ -110,10 +110,10 @@
           <el-input v-model="editForm.name" />
         </el-form-item>
         <el-form-item label="KPay ID">
-          <el-input v-model="editForm.kpay_appid" />
+          <el-input v-model="editForm.kpayId" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-select v-model="editForm.status">
+          <el-select v-model="editForm.designStatus">
             <el-option label="草稿" value="draft" />
             <el-option label="已提交" value="submitted" />
           </el-select>
@@ -122,7 +122,7 @@
           <el-input v-model="editForm.description" type="textarea" :rows="4" />
         </el-form-item>
         <el-form-item label="配置">
-          <el-input v-model="editForm.config_json" type="textarea" :rows="32" />
+          <el-input v-model="editForm.configJsonString" type="textarea" :rows="32" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -170,10 +170,11 @@ const selectedUserId = ref(null)
 const editForm = ref({
   id: null,
   name: '',
-  kpay_appid: '',
-  status: '',
+  kpayId: '',
+  designStatus: '',
   description: '',
-  config_json: ''
+  configJson: {},
+  configJsonString: ''
 })
 // 分页相关
 const currentPage = ref(1)
@@ -318,17 +319,17 @@ const editDesign = async (design) => {
   try {
     const response = await getDesign(design.documentId)
     const designData = response.data
-
+    console.log('designData', designData)
     // 设置编辑表单数据
-    editForm.value = {
-      id: designData.id,
-      name: designData.attributes.name,
-      kpay_appid: designData.attributes.kpay_appid,
-      status: designData.attributes.status,
-      description: designData.attributes.description,
-      config_json: JSON.stringify(JSON.parse(designData.attributes.config_json), null, 2)
-    }
+    editForm.value.id = designData.id
+    editForm.value.name = designData.name
+    editForm.value.kpayId = designData.kpayId
+    editForm.value.designStatus = designData.designStatus
+    editForm.value.description = designData.description
+    editForm.value.configJson = designData.configJson
+    editForm.value.configJsonString = JSON.stringify(designData.configJson, null, 2)
 
+    console.log('editForm', editForm.value)
     editDialogVisible.value = true
   } catch (error) {
     console.error('加载设计失败:', error)
@@ -373,16 +374,13 @@ const confirmDeleteDesign = async () => {
 const submitEdit = async () => {
   try {
     // 验证并解析 JSON
-    const configJson = JSON.parse(editForm.value.config_json)
-
     const data = {
       name: editForm.value.name,
-      kpay_appid: editForm.value.kpay_appid,
-      status: editForm.value.status,
+      kpayId: editForm.value.kpayId,
+      designStatus: editForm.value.designStatus,
       description: editForm.value.description,
-      config_json: JSON.stringify(configJson) // 保存时压缩 JSON
+      configJson: JSON.parse(editForm.value.configJsonString) // 保存时压缩 JSON
     }
-
     await updateDesign(editForm.value.id, data)
     messageStore.success('保存成功')
     editDialogVisible.value = false
