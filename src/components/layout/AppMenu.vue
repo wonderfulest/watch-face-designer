@@ -147,13 +147,24 @@
           <el-icon><Picture /></el-icon>
           <span>Image</span>
         </el-menu-item>
-        <el-menu-item index="help">
-          <el-icon><QuestionFilled /></el-icon>
-          <span>Help</span>
-        </el-menu-item>
+        <el-sub-menu index="help">
+          <template #title>
+            <el-icon><QuestionFilled /></el-icon>
+            <span>Help</span>
+          </template>
+          <el-menu-item index="help/shortcuts" @click="shortcutsDialogVisible = true">
+            <template #title>
+              <Icon icon="material-symbols:keyboard" />
+              <span>Keyboard/Mouse Usage</span> <!-- 快捷键 -->
+            </template>
+          </el-menu-item>
+        </el-sub-menu>
       </el-menu>
     </div>
   </nav>
+
+  <!-- 使用新的快捷键组件 -->
+  <ShortcutsDialog v-model="shortcutsDialogVisible" />
 </template>
 
 <script setup>
@@ -182,6 +193,8 @@ import {
   Watch
 } from '@element-plus/icons-vue'
 import { elementConfigs } from '@/config/elements'
+import ShortcutsDialog from '@/components/dialogs/ShortcutsDialog.vue'
+
 const route = useRoute()
 const router = useRouter()
 const baseStore = useBaseStore()
@@ -196,6 +209,9 @@ const watchFaceName = computed(() => {
   return baseStore.watchFaceName
 })
 
+// 控制快捷键弹框显示
+const shortcutsDialogVisible = ref(false)
+
 // 添加元素
 const handleAddElement = (category, type) => {
   console.log('Add Element:', category, type)
@@ -209,6 +225,9 @@ const handleAddElement = (category, type) => {
 const handleSelect = (key) => {
   // 这里可以根据需要处理菜单项的点击事件
   console.log('Selected:', key)
+  if (key === 'help/shortcuts') {
+    shortcutsDialogVisible.value = true
+  }
 }
 
 // 构建
@@ -356,5 +375,49 @@ const handleSave =async () => {
 
 :deep(.el-menu-item .el-icon) {
   margin-right: 8px;
+}
+
+.shortcuts-content {
+  padding: 20px;
+}
+
+.shortcuts-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shortcuts-table th,
+.shortcuts-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+
+.shortcuts-table th {
+  font-weight: 600;
+  background-color: var(--el-fill-color-light);
+}
+
+kbd {
+  display: inline-block;
+  padding: 3px 6px;
+  margin: 0 4px;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--el-text-color-primary);
+  background-color: var(--el-fill-color-lighter);
+  border: 1px solid var(--el-border-color);
+  border-radius: 4px;
+  box-shadow: 0 2px 0 var(--el-border-color);
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  kbd {
+    background-color: var(--el-fill-color-dark);
+    border-color: var(--el-border-color-darker);
+    box-shadow: 0 2px 0 var(--el-border-color-darker);
+  }
 }
 </style> 
