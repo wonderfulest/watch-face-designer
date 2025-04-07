@@ -1,18 +1,14 @@
-import axiosInstance from '@/config/axiosKpayConfig'
+import axiosInstance from '@/config/axiosConfigV5'
 
-export const getSalesHistory = async (params = {}) => {
-  try {
-    const response = await axiosInstance.get('/merchant/history', {
-      params: {
-        sort: params.sort || 'desc',
-        start: params.start || 0,
-        amount: params.amount || 100,
-        successOnly: params.successOnly ?? false
-      }
-    })
-    return response.data
-  } catch (error) {
-    console.error('获取销售记录失败:', error)
-    throw error
+export const getSalesHistory =async ({ page, pageSize }) => {
+  const params = {
+    'pagination[page]': page,
+    'pagination[pageSize]': pageSize,
+    'sort[0]': 'updatedAt:desc',
+    'populate': '*' // 获取关联的文件信息
   }
+  const response = await axiosInstance.get('/kpay-sales/with-designer', {
+    params
+  })
+  return response.data
 }

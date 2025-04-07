@@ -4,11 +4,11 @@
             <h2>销售记录</h2>
             <div class="header-actions">
                 <el-switch
-        v-model="successOnly"
-        class="mr-4"
-        active-text="仅显示成功"
-        @change="handleSuccessOnlyChange"
-      />
+                    v-model="successOnly"
+                    class="mr-4"
+                    active-text="仅显示成功"
+                    @change="handleSuccessOnlyChange"
+                />
                 <el-button type="primary" @click="refreshData">
                     <Icon icon="material-symbols:refresh" />
                     刷新
@@ -42,8 +42,8 @@
             <el-table-column prop="paymentType" label="支付方式" width="120" />
             <el-table-column prop="status" label="状态" width="100">
                 <template #default="{ row }">
-                    <el-tag :type="row.status === 'Success' ? 'success' : 'danger'">
-                        {{ row.status }}
+                    <el-tag :type="row.payStatus === 'Success' ? 'success' : 'danger'">
+                        {{ row.payStatus }}
                     </el-tag>
                 </template>
             </el-table-column>
@@ -51,10 +51,10 @@
             <el-table-column prop="productId" label="产品ID" width="100" />
             <el-table-column label="设计预览" width="120">
                 <template #default="{ row }">
-                    <div class="design-preview" v-if="designInfo[row.productId]?.screenshot">
+                    <div class="design-preview" v-if="row.design?.screenshot">
                         <el-image
-                            :src="designInfo[row.productId].screenshot"
-                            :preview-src-list="[designInfo[row.productId].screenshot]"
+                            :src="row.design.screenshot"
+                            :preview-src-list="[row.design.screenshot]"
                             fit="cover"
                             class="preview-image"
                             :preview-teleported="true"
@@ -70,8 +70,11 @@
             </el-table-column>
             <el-table-column label="设计作者" width="150">
                 <template #default="{ row }">
-                    <span v-if="designInfo[row.productId]">
-                        ID: {{ designInfo[row.productId].user_id }}
+                    <span v-if="row.design?.user ">
+                        {{ row.design.user.username }}
+                    </span>
+                    <span v-if="row.kpay_app?.kpay_developer">
+                        {{ row.kpay_app.kpay_developer.name }}
                     </span>
                     <span v-else>-</span>
                 </template>
@@ -92,7 +95,6 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { getSalesHistory } from '@/api/sales'
-import { getDesignsByProductIds } from '@/api/design'
 import { ElMessage } from 'element-plus'
 
 const loading = ref(false)
@@ -105,10 +107,6 @@ const pageSize = ref(20)
 
 const successOnly = ref(true)
 
-// 添加设计信息的响应式引用
-const designInfo = ref({}) // 用于存储产品ID到设计信息的映射
-
-// 添加时间格式化函数
 const formatDateTime = (dateStr) => {
   if (!dateStr) return ''
   
@@ -130,49 +128,22 @@ const formatDateTime = (dateStr) => {
   }).replace(/\//g, '-')
 }
 
-// 获取设计信息
-const fetchDesignInfo = async (purchases) => {
-  try {
-    const productIds = purchases
-      .map(purchase => purchase.productId)
-      .filter(id => id)
-
-    if (productIds.length === 0) return
-
-    const response = await getDesignsByProductIds(productIds)
-    
-    const newDesignInfo = {}
-    response.data.forEach(design => {
-      if (design.attributes.kpay_product_id) {
-        newDesignInfo[design.attributes.kpay_product_id] = {
-          user_id: design.attributes.user_id || design.attributes.user?.data?.id,
-          name: design.attributes.name,
-          screenshot: design.attributes.screenshot?.data?.attributes?.url || null
-        }
-      }
-    })
-    
-    designInfo.value = newDesignInfo
-  } catch (error) {
-    console.error('获取设计信息失败:', error)
-    ElMessage.error('获取设计信息失败')
-  }
-}
-
 const fetchData = async () => {
     loading.value = true
     try {
         const start = (currentPage.value - 1) * pageSize.value
-        const data = await getSalesHistory({
+        const response = await getSalesHistory({
             start,
             amount: pageSize.value,
             sort: 'desc',
             successOnly: successOnly.value
         })
-        salesData.value = data
         
-        // 获取设计信息
-        await fetchDesignInfo(data.purchases)
+        // 直接使用返回的数据
+        salesData.value = {
+            total: response.meta.pagination.total,
+            purchases: response.data
+        }
     } catch (error) {
         ElMessage.error('获取销售记录失败')
     } finally {

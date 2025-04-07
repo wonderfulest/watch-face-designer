@@ -23,7 +23,7 @@
           <Icon icon="material-symbols:list" />
           我的设计
         </a>
-        <router-link to="/sales" class="nav-link" v-if="user.id == 5 || user.id == 17" >
+        <router-link to="/sales" class="nav-link" >
           <Icon icon="material-symbols:list" />
           销售数据
         </router-link>
