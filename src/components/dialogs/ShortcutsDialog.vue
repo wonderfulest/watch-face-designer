@@ -1,7 +1,7 @@
 <template>
     <el-dialog v-model="dialogVisible" title="Keyboard/Mouse Usage" width="1024px" :show-close="true" destroy-on-close
         @close="handleClose">
-        <div class="shortcuts-content">
+        <div class="dialog-content">
             <div class="shortcuts-section">
                 <div class="section-icon">
                     <el-icon size="24">
@@ -91,6 +91,7 @@ const keyboardShortcuts = [
 </script>
 
 <style scoped>
+@import '@/assets/styles/dialog.scss';
 .shortcuts-content {
     padding: 0px 20px; 
 }

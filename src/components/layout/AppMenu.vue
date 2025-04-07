@@ -154,8 +154,15 @@
           </template>
           <el-menu-item index="help/shortcuts" @click="shortcutsDialogVisible = true">
             <template #title>
-              <Icon icon="material-symbols:keyboard" />
-              <span>Keyboard/Mouse Usage</span> <!-- 快捷键 -->
+              <!-- <Icon icon="material-symbols:keyboard" /> -->
+              <el-icon><Mouse /></el-icon>
+              <span>Keyboard/Mouse Usage</span>
+            </template>
+          </el-menu-item>
+          <el-menu-item index="help/feedback" @click="showFeedbackDialog">
+            <template #title>
+              <el-icon><ChatLineSquare /></el-icon>
+              <span>提交建议</span>
             </template>
           </el-menu-item>
         </el-sub-menu>
@@ -165,6 +172,7 @@
 
   <!-- 使用新的快捷键组件 -->
   <ShortcutsDialog v-model="shortcutsDialogVisible" />
+  <FeedbackDialog ref="feedbackDialog" />
 </template>
 
 <script setup>
@@ -190,10 +198,13 @@ import {
   Setting,
   Clock,
   Calendar,
-  Watch
+  Watch,
+  Mouse,
+  ChatLineSquare
 } from '@element-plus/icons-vue'
 import { elementConfigs } from '@/config/elements'
 import ShortcutsDialog from '@/components/dialogs/ShortcutsDialog.vue'
+import FeedbackDialog from '@/components/dialogs/FeedbackDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -211,6 +222,7 @@ const watchFaceName = computed(() => {
 
 // 控制快捷键弹框显示
 const shortcutsDialogVisible = ref(false)
+const feedbackDialog = ref(null)
 
 // 添加元素
 const handleAddElement = (category, type) => {
@@ -275,6 +287,10 @@ const handleSave =async () => {
     console.error('上传失败:', error)
     messageStore.error('上传失败: ' + (error.message || '未知错误'))
   }
+}
+
+const showFeedbackDialog = () => {
+  feedbackDialog.value?.showDialog()
 }
 </script>
 

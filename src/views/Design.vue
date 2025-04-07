@@ -1,5 +1,6 @@
 <template>
   <div class="design-layout">
+    <!-- 编辑器更新日志 -->
     <ChangelogDialog ref="changelogDialog" />
     <!-- 左侧面板 -->
     <div class="left-panel">

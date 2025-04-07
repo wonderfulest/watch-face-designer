@@ -5,8 +5,9 @@
     width="1024px"
     :show-close="true"
     destroy-on-close
+    class="changelog-dialog"
   >
-    <div class="changelog-content">
+    <div class="dialog-content">
       <div class="version-section" v-for="version in config.changelog.versions" :key="version.version">
         <h3 class="version-title">
           v{{ version.version }}
@@ -22,7 +23,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-checkbox v-model="dontShowAgain">不再显示此版本更新提醒</el-checkbox>
-        <el-button type="primary" @click="handleClose">
+        <el-button type="primary" @click="handleClose" class="dialog-btn">
           确定
         </el-button>
       </div>
@@ -102,11 +103,7 @@ defineExpose({
 </script>
 
 <style scoped>
-.changelog-content {
-  max-height: 400px;
-  overflow-y: auto;
-  padding: 0 16px;
-}
+@import '@/assets/styles/dialog.scss';
 
 .version-section {
   margin-bottom: 24px;
