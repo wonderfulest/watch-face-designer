@@ -4,7 +4,7 @@ export const getSalesHistory =async ({ page, pageSize }) => {
   const params = {
     'pagination[page]': page,
     'pagination[pageSize]': pageSize,
-    'sort[0]': 'updatedAt:desc',
+    'sort[0]': 'createdAt:desc',
     'populate': '*' // 获取关联的文件信息
   }
   const response = await axiosInstance.get('/kpay-sales/with-designer', {

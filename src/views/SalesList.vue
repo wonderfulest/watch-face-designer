@@ -131,15 +131,12 @@ const formatDateTime = (dateStr) => {
 const fetchData = async () => {
     loading.value = true
     try {
-        const start = (currentPage.value - 1) * pageSize.value
         const response = await getSalesHistory({
-            start,
-            amount: pageSize.value,
-            sort: 'desc',
-            successOnly: successOnly.value
+            page: currentPage.value,
+            pageSize: pageSize.value
         })
         
-        // 直接使用返回的数据
+        // 使用返回的数据
         salesData.value = {
             total: response.meta.pagination.total,
             purchases: response.data
@@ -153,7 +150,7 @@ const fetchData = async () => {
 
 const handleSizeChange = (val) => {
     pageSize.value = val
-    currentPage.value = 1
+    currentPage.value = 1  // 切换每页数量时重置到第一页
     fetchData()
 }
 
