@@ -112,10 +112,6 @@ const formatDateTime = (dateStr) => {
   
   // 解析原始时间字符串
   const date = new Date(dateStr.replace(' ', 'T'))
-  
-  // 添加8小时
-  date.setHours(date.getHours() + 8)
-  
   // 格式化为本地时间字符串
   return date.toLocaleString('zh-CN', {
     year: 'numeric',
