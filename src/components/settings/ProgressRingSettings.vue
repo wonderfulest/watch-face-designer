@@ -30,7 +30,18 @@
     </div>
     <!-- 基础属性 -->
     <div class="setting-item">
-      <label>环形配置</label>
+      <div class="setting-header">
+        <label>环形配置</label>
+        <el-tooltip
+          :content="tooltipContent"
+          placement="top"
+          effect="light"
+          :show-after="0"
+          raw-content
+        >
+          <el-icon class="help-icon"><Warning /></el-icon>
+        </el-tooltip>
+      </div>
       <div class="angle-inputs">
         <div class="input-group">
           <label>开始</label>
@@ -98,6 +109,8 @@ import { useProgressRingStore } from '@/stores/elements/progressRingElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 import { DataTypeOptions } from '@/config/settings'
 import { bg } from 'element-plus/es/locales.mjs'
+import { ElTooltip } from 'element-plus'
+import { Warning } from '@element-plus/icons-vue'
 
 const props = defineProps({
   element: {
@@ -130,6 +143,15 @@ const metricSymbol = ref(':FIELD_TYPE_HEART_RATE')
 const varName = ref('')
 const counterClockwise = ref(false) // 1: 顺时针, -1: 逆时针
 
+// 定义提示内容，使用 HTML 格式
+const tooltipContent = `
+  <div class="tooltip-content">
+    <p>1. 3点钟为0度，6点钟为90度，9点钟为180度，12点钟为270度</p>
+    <p>2. 顺时针方向增加角度</p>
+    <p>3. 角度范围0到359</p>
+    <p>4. 开始和结束的角度不应该相同</p>
+  </div>
+`
 
 // 监听元素变化，同步状态
 watch(
@@ -244,4 +266,54 @@ const updateProgress = () => {
 
 <style scoped>
 @import '@/assets/styles/settings.css';
+
+.setting-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.setting-header label {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+
+.help-icon {
+  color: #909399;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.3s;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.help-icon:hover {
+  color: #409EFF;
+}
+
+/* 调整提示框样式 */
+:deep(.el-tooltip__trigger) {
+  display: flex;
+  align-items: center;
+}
+
+:deep(.el-tooltip__popper) {
+  max-width: 300px;
+}
+
+:deep(.tooltip-content) {
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+:deep(.tooltip-content p) {
+  margin: 0;
+  padding: 2px 0;
+}
+
+:deep(.tooltip-content p:not(:last-child)) {
+  margin-bottom: 4px;
+}
 </style>
