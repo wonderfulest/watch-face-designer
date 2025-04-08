@@ -152,7 +152,7 @@ const authStore = useAuthStore()
 
 const designs = ref([])
 const currentPage = ref(1)
-const pageSize = ref(2)
+const pageSize = ref(36)
 const total = ref(0)
 const deleteDialogVisible = ref(false)
 const editDialogVisible = ref(false)
