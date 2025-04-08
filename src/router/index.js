@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import Layout from '@/components/layout/Layout.vue'
+import DesignList from '@/views/DesignList.vue'
 
 const routes = [
   {
@@ -19,9 +20,24 @@ const routes = [
       },
       {
         path: 'designs',
-        name: 'DesignList',
         component: () => import('@/views/DesignList.vue'),
-        meta: { requiresAuth: true }
+        children: [
+          {
+            path: '',
+            name: 'my-designs',
+            component: () => import('@/views/designs/MyDesigns.vue')
+          },
+          {
+            path: 'templates',
+            name: 'design-templates',
+            component: () => import('@/views/designs/TemplateList.vue')
+          },
+          {
+            path: 'favorites',
+            name: 'favorite-designs',
+            component: () => import('@/views/designs/FavoriteList.vue')
+          }
+        ]
       },
       {
         path: 'fonts',

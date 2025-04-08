@@ -19,13 +19,22 @@ export default {
   },
 
   // 更新日志数据
-  changelog: {
+   changelog: {
     // 是否启用更新日志
     enabled: true,
     // 存储在 localStorage 中的键名
     storageKey: 'last-viewed-changelog-version',
     // 更新日志数据
     versions: [
+      // {
+      // 获取设计列表时，需要得到 设计的收藏状态，是否被当前用户收藏
+      // 用户反馈评分功能 在底部自动弹出 1-10 个星星 让用户评分，可以选择输入用户建议后提交
+      // },
+      {
+        version: '1.0.2',
+        date: '2025-04-08',
+        updates: ['新增系统推荐模板功能', '新增用户邮件反馈功能', '增加用户退出、重新登录，清空本地存储机制']
+      },
       {
         version: '1.0.1',
         date: '2025-04-07',

@@ -2,142 +2,82 @@
   <div class="design-list">
     <div class="header">
       <div class="header-left">
-        <h2>我的设计</h2>
+        <div class="icon-buttons">
+          <el-tooltip content="系统推荐模板" placement="bottom">
+            <el-button 
+              class="icon-btn"
+              :class="{ 'is-active': isTemplatesRoute }"
+              @click="navigateTo('design-templates')"
+            >
+              <el-icon><Star /></el-icon>
+            </el-button>
+          </el-tooltip>
+          
+          <el-tooltip content="我的收藏" placement="bottom">
+            <el-button 
+              class="icon-btn"
+              :class="{ 'is-active': isFavoritesRoute }"
+              @click="navigateTo('favorite-designs')"
+            >
+              <el-icon><Collection /></el-icon>
+            </el-button>
+          </el-tooltip>
+        </div>
+        <h2 
+          :class="{ 'active': isMyDesignsRoute }" 
+          @click="navigateTo('my-designs')"
+        >
+          我的设计
+        </h2>
       </div>
+      
+      <!-- 根据路由显示不同的操作栏 -->
       <div class="header-right">
-        <el-input v-model="searchName" placeholder="搜索名称" class="name-filter" clearable
-          @keyup.enter="handleSearch" /><!-- 替换原来的用户输入框为下拉选择框 -->
-        <el-select v-model="selectedUserId" placeholder="选择用户" clearable class="user-filter" @change="handleUserChange">
-          <el-option v-for="user in usersList" :key="user.id" :label="user.username" :value="user.id">
-            <span>{{ user.username }}</span>
-            <span class="user-email">({{ user.email }})</span>
-          </el-option>
-        </el-select> <el-select v-model="selectedStatus" placeholder="选择状态" @change="handleStatusChange"
-          class="status-filter">
-          <el-option label="全部" value="" />
-          <el-option label="草稿" value="draft" />
-          <el-option label="已提交" value="submitted" />
-        </el-select>
-        <el-select v-model="sortField" placeholder="排序字段" @change="handleSortChange" class="sort-field-filter">
-          <el-option label="创建时间" value="createdAt" />
-          <el-option label="更新时间" value="updatedAt" />
-        </el-select>
-        <el-select v-model="sortOrder" placeholder="排序方式" @change="handleSortChange" class="sort-order-filter">
-          <el-option label="升序" value="asc" />
-          <el-option label="降序" value="desc" />
-        </el-select>
-        <el-button type="primary" @click="handleSearch">
-          <Icon icon="material-symbols:search" />
-          搜索
-        </el-button>
-      </div>
-    </div>
-
-    <el-row :gutter="20" class="design-grid">
-      <el-col :span="4" v-for="design in designs" :key="design.id">
-        <el-card class="design-card" shadow="hover">
-          <template #header>
-            <div class="card-header">
-              <div class="header-left">
-                <span class="title">{{ design.name }}</span>
-                <div class="status-tag" :class="design.designStatus">
-                  {{ getStatusText(design.designStatus) }}
-                </div>
-              </div>
-              <div class="actions">
-                <el-button-group>
-                  <el-button type="primary" size="small" link @click="editDesign(design)">
-                    <Icon icon="material-symbols:edit" />
-                  </el-button>
-                  <el-button type="danger" size="small" link @click="confirmDelete(design)">
-                    <Icon icon="material-symbols:delete" />
-                  </el-button>
-                </el-button-group>
-              </div>
-            </div>
-          </template>
-          <div class="design-info">
-            <div class="design-background" v-if="design.screenshotUrl">
-              <img :src="design.screenshotUrl" :alt="design.name" class="background-image" />
-              <div class="creator-badge" >
-                <span>作者：{{ getCreatorName(design) }}</span>
-              </div>
-            </div>
-            <div class="design-background" v-else-if="design.backgroundUrl">
-              <img :src="design.backgroundUrl" :alt="design.name" class="background-image" />
-              <div class="creator-badge" >
-                <span>作者：{{ getCreatorName(design) }}</span>
-              </div>
-            </div>
-            <!-- <p class="description">{{ design.attributes.description || '暂无描述' }}</p> -->
-            <div class="meta">
-              <!-- <span>ID: {{ design.id }}</span> -->
-              <span>KPay ID: {{ design.kpayId }}</span>
-              <span>更新时间: {{ formatDate(design.updatedAt) }}</span>
-            </div>
-            <div class="actions">
-              <el-button type="primary" size="small" @click="openCanvas(design)">编 辑</el-button>
-              <el-button type="warning" size="small" @click="copyDesign(design)">复 制</el-button>
-              <el-button v-if="design.designStatus === 'draft'" type="success" size="small"
-                @click="submitDesign(design)">提 交</el-button>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
-
-    <!-- 在设计列表后面添加 -->
-    <div class="pagination-container">
-      <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[12, 24, 36, 48]"
-        :total="total" layout="total, sizes, prev, pager, next, jumper" @size-change="handleSizeChange"
-        @current-change="handleCurrentChange" />
-    </div>
-    <el-dialog v-model="deleteDialogVisible" title="确认删除" width="30%">
-      <span>确定要删除这个表盘设计吗？此操作不可恢复。</span>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="deleteDialogVisible = false">取消</el-button>
-          <el-button type="danger" @click="confirmDeleteDesign">确认删除</el-button>
-        </span>
-      </template>
-    </el-dialog>
-
-    <!-- 编辑对话框 -->
-    <el-dialog v-model="editDialogVisible" title="编辑设计" width="60%" :top="'5vh'">
-      <el-form :model="editForm" label-width="120px">
-        <el-form-item label="名称">
-          <el-input v-model="editForm.name" />
-        </el-form-item>
-        <el-form-item label="KPay ID">
-          <el-input v-model="editForm.kpayId" />
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="editForm.designStatus">
+        <template v-if="isMyDesignsRoute">
+          <!-- 我的设计的搜索和筛选组件 -->
+          <el-input v-model="searchName" placeholder="搜索名称" class="name-filter" clearable
+            @keyup.enter="handleSearch" />
+          <el-select v-model="selectedStatus" placeholder="选择状态" class="status-filter">
+            <el-option label="全部" value="" />
             <el-option label="草稿" value="draft" />
             <el-option label="已提交" value="submitted" />
           </el-select>
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input v-model="editForm.description" type="textarea" :rows="4" />
-        </el-form-item>
-        <el-form-item label="配置">
-          <el-input v-model="editForm.configJsonString" type="textarea" :rows="32" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取消</el-button>
+          <el-select v-model="selectedUserId" placeholder="选择用户" clearable class="user-filter" @change="handleUserChange">
+            <el-option v-for="user in usersList" :key="user.id" :label="user.username" :value="user.id">
+              <span>{{ user.username }}</span>
+              <span class="user-email">({{ user.email }})</span>
+            </el-option>
+          </el-select>
+          <el-select v-model="sortField" placeholder="排序字段" @change="handleSortChange" class="sort-field-filter">
+            <el-option label="创建时间" value="createdAt" />
+            <el-option label="更新时间" value="updatedAt" />
+          </el-select>
+          <el-select v-model="sortOrder" placeholder="排序方式" @change="handleSortChange" class="sort-order-filter">
+            <el-option label="升序" value="asc" />
+            <el-option label="降序" value="desc" />
+          </el-select>
+          <el-button type="primary" @click="handleSearch">
+            <Icon icon="material-symbols:search" />
+            搜索
+          </el-button>
+        </template>
+      </div>
+    </div>
 
-          <el-button type="primary" @click="submitEdit">保存</el-button>
-        </span>
-      </template>
-    </el-dialog>
+    <!-- 使用 keep-alive 包裹 router-view -->
+    <keep-alive>
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </keep-alive>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { getDesigns, getDesign, updateDesignStatus, updateDesign, deleteDesign } from '@/api/design'
 import { useMessageStore } from '@/stores/message'
 import { useBaseStore } from '@/stores/baseStore'
@@ -145,7 +85,10 @@ import { useAuthStore } from '@/stores/auth'
 import dayjs from 'dayjs'
 import { getUsers } from '@/api/users'
 import { createOrUpdateDesign } from '@/api/design'
+import { Star, Collection } from '@element-plus/icons-vue'
+
 const router = useRouter()
+const route = useRoute()
 const messageStore = useMessageStore()
 const baseStore = useBaseStore()
 const authStore = useAuthStore()
@@ -179,6 +122,11 @@ const editForm = ref({
 const currentPage = ref(1)
 const pageSize = ref(36)
 const total = ref(0)
+
+// 计算当前路由状态
+const isMyDesignsRoute = computed(() => route.name === 'my-designs')
+const isTemplatesRoute = computed(() => route.name === 'design-templates')
+const isFavoritesRoute = computed(() => route.name === 'favorite-designs')
 
 // 获取用户列表
 const fetchUsers = async () => {
@@ -262,7 +210,6 @@ const handleUserChange = () => {
   currentPage.value = 1 // 重置到第一页
   fetchDesigns()
 }
-
 
 // 处理排序变化
 const handleSortChange = () => {
@@ -440,6 +387,31 @@ const getCreatorName = (design) => {
 
   return user.username || user.nickname || user.email?.split('@')[0] || '未知用户'
 }
+
+// 导航方法
+const navigateTo = async (routeName) => {
+  try {
+    await router.push({ 
+      name: routeName,
+      replace: true
+    })
+  } catch (error) {
+    console.error('导航失败:', error)
+    messageStore.error('页面切换失败')
+  }
+}
+
+// 监听路由变化并触发刷新
+router.afterEach((to) => {
+  // 通过事件总线触发刷新
+  window.dispatchEvent(new CustomEvent('refresh-list', { 
+    detail: { route: to.name }
+  }))
+})
+
+// 异步导入组件
+const MyDesigns = defineAsyncComponent(() => import('./designs/MyDesigns.vue'))
+const TemplateList = defineAsyncComponent(() => import('./designs/TemplateList.vue'))
 
 onMounted(() => {
   fetchUsers()
@@ -621,5 +593,72 @@ onMounted(() => {
   .creator-badge {
     background-color: rgba(255, 255, 255, 0.2);
   }
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.icon-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 8px;
+  
+  &:hover {
+    background-color: var(--el-fill-color-light);
+  }
+  
+  .el-icon {
+    font-size: 20px;
+  }
+}
+
+h2 {
+  margin: 0;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--el-text-color-regular);
+  transition: color 0.3s;
+  
+  &:hover {
+    color: var(--el-text-color-primary);
+  }
+  
+  &.active {
+    color: var(--el-text-color-primary);
+    font-weight: 600;
+  }
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .icon-btn:hover {
+    background-color: var(--el-fill-color-dark);
+  }
+}
+
+/* 添加路由过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* 激活状态样式 */
+.icon-btn.is-active {
+  color: var(--el-color-primary);
+  background-color: var(--el-color-primary-light-9);
 }
 </style>
