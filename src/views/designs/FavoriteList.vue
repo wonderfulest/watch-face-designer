@@ -36,10 +36,10 @@
           <div class="favorite-actions">
             <el-button 
               type="primary" 
-              @click="openDesign(favorite.design)"
+              @click="copyDesign(favorite.design)"
               :loading="loading === favorite.id"
             >
-              查看设计
+              复制设计
             </el-button>
             <el-button 
               type="danger" 
@@ -87,8 +87,9 @@ import { Picture, Loading } from '@element-plus/icons-vue'
 import { useMessageStore } from '@/stores/message'
 import { useAuthStore } from '@/stores/auth'
 import moment from 'moment'
-import { getFavorites, deleteFavorite, addFavorite } from '@/api/favorites'
+import { getFavorites, toggleFavorite } from '@/api/favorites'
 import { ElMessageBox } from 'element-plus'
+import { createOrUpdateDesign } from '@/api/design'
 
 const router = useRouter()
 const messageStore = useMessageStore()
@@ -173,7 +174,7 @@ const removeFavorite = async (favorite) => {
     )
 
     loading.value = favorite.id
-    await deleteFavorite(favorite.documentId)
+    await toggleFavorite(favorite.name, favorite.design.id, authStore.user.id, false)
     messageStore.success('取消收藏成功')
     
     // 如果当前页只有一条数据，且不是第一页，则跳转到上一页
@@ -193,18 +194,6 @@ const removeFavorite = async (favorite) => {
   }
 }
 
-// 添加收藏方法
-const addToFavorite = async (designId) => {
-  try {
-    await addFavorite(designId, authStore.user.id)
-    messageStore.success('收藏成功')
-    await fetchFavorites() // 刷新列表
-  } catch (error) {
-    console.error('收藏失败:', error)
-    messageStore.error('收藏失败')
-  }
-}
-
 // 处理页码改变
 const handleCurrentChange = (page) => {
   currentPage.value = page
@@ -216,6 +205,42 @@ const handleSizeChange = (size) => {
   pageSize.value = size
   currentPage.value = 1
   fetchFavorites()
+}
+
+// 添加复制设计方法
+const copyDesign = async (design) => {
+  try {
+    loading.value = true
+    
+    // 生成新的表盘名称，添加"复制"后缀
+    const newName = `${design.name}—copy`
+
+    // 生成新的 kpay ID，确保其唯一性
+    const newKpayId = new Date().getTime()
+
+    // 创建新表盘数据
+    const newDesignData = {
+      name: newName,
+      kpayId: +newKpayId,
+      designStatus: 'draft',
+      description: design.description,
+      screenshotUrl: design.screenshotUrl,
+      configJson: design.configJson,
+      userId: +authStore.user.id  // 使用当前用户的ID
+    }
+    const response = await createOrUpdateDesign(newDesignData)
+
+    if (response.data) {
+      messageStore.success('复制成功')
+      // 可以选择是否跳转到我的设计页面
+      router.push('/designs')
+    }
+  } catch (error) {
+    console.error('复制失败:', error)
+    messageStore.error('复制失败')
+  } finally {
+    loading.value = false
+  }
 }
 
 // 首次挂载时加载数据

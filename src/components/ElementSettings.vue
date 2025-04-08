@@ -69,8 +69,6 @@ onUnmounted(() => {
 
 // 考虑删除，改为主动触发；因为变化太频繁了
 watch(activeElements, (newValue, oldValue) => {
-  // console.log('activeElements changed:', newValue, oldValue);
-  // 在这里添加你的逻辑，比如响应 `activeElements` 的变化
   debouncedUpdateElements()
 })
 

@@ -6,7 +6,6 @@ import axiosInstance from '@/config/axiosConfigV5'
  * @returns {Promise} 设计数据
  */
 export const createOrUpdateDesign = async (data) => {
-  console.log('createOrUpdateDesign', data)
   const response = await axiosInstance.post('/designs/createOrUpdate', { data })
   return response.data
 }
@@ -22,12 +21,13 @@ export const getDesign = async (id) => {
 }
 
 /**
- * 
+ * 更新设计
+ * @param {string} id - 设计ID
+ * @param {Object} data - 设计数据
+ * @returns {Promise} 更新结果
  */
 export const updateDesign = async (id, data) => {
-  const response = await axiosInstance.put(`/designs/${id}`, {
-    data
-  })
+  const response = await axiosInstance.put(`/designs/${id}`, { data })
   return response.data
 }
 
@@ -43,7 +43,6 @@ export const updateDesign = async (id, data) => {
  * @returns {Promise} 设计列表数据
  */
 export const getDesigns = async ({ page, pageSize, userId, status, name, sort }) => {
-  console.log('getDesigns')
   const params = {
     'pagination[page]': page,
     'pagination[pageSize]': pageSize,
@@ -51,9 +50,9 @@ export const getDesigns = async ({ page, pageSize, userId, status, name, sort })
     populate: '*',
     'sort': sort
   }
-  // if (userId == 5) { // 超级权限用户可以查看所有用户的设计
-  //   delete params['filters[userId][$eq]']
-  // }
+  if (userId == 1) { // 超级权限用户可以查看所有用户的设计
+    delete params['filters[userId][$eq]']
+  }
   if (status) {
     params['filters[designStatus][$eq]'] = status
   }
@@ -79,7 +78,6 @@ export const getDesignsByProductIds = async (productIds) => {
   return response.data
 }
 
-
 /**
  * 更新设计状态
  * @param {string} id - 设计ID
@@ -94,7 +92,6 @@ export const updateDesignStatus = async (id, status) => {
   })
   return response.data
 }
-
 
 /**
  * 删除设计

@@ -689,7 +689,6 @@ export const useFontStore = defineStore('fontStore', {
 
     // 添加最近使用的字体
     addRecentFont(font) {
-      console.log('addRecentFont', font)
       if (!font || !font.value) return
 
       // 从现有列表中移除这个字体（如果存在）
@@ -705,7 +704,6 @@ export const useFontStore = defineStore('fontStore', {
       if (this.recentFonts.length > 5) {
         this.recentFonts.pop()
       }
-      console.log('add recent font', this.recentFonts)
     },
 
     // 添加自定义字体

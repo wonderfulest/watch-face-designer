@@ -65,18 +65,28 @@
     </div>
 
     <!-- 使用 keep-alive 包裹 router-view -->
-    <keep-alive>
-      <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
-    </keep-alive>
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <keep-alive>
+          <component 
+            :is="Component" 
+            :key="$route.fullPath"
+            :search-params="{
+              userId: selectedUserId || user.id,
+              status: selectedStatus,
+              name: searchName,
+              sortField: sortField,
+              sortOrder: sortOrder
+            }"
+          />
+        </keep-alive>
+      </transition>
+    </router-view>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
+import { ref, onMounted, computed, defineAsyncComponent, onActivated } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getDesigns, getDesign, updateDesignStatus, updateDesign, deleteDesign } from '@/api/design'
 import { useMessageStore } from '@/stores/message'
@@ -141,20 +151,15 @@ const fetchUsers = async () => {
 // 获取设计列表
 const fetchDesigns = async () => {
   try {
-    // 处理排序字段
-    const sortFieldValue = sortField.value === 'createdAt' ? 'createdAt' : 'updatedAt'
-    const sortParam = `${sortFieldValue}:${sortOrder.value}`
-
     const response = await getDesigns({
       page: currentPage.value,
       pageSize: pageSize.value,
       userId: selectedUserId.value || user.value.id,
       status: selectedStatus.value,
       name: searchName.value,
-      sort: sortParam
+      sort: `${sortField.value}:${sortOrder.value}`
     })
-
-    // 修改这里：直接从 response 中获取数据和分页信息
+    
     designs.value = response.data
     total.value = response.meta.pagination.total
 
@@ -176,7 +181,7 @@ const fetchDesigns = async () => {
       }, {})
     }
   } catch (error) {
-    console.error('获取设计列表失败:', error)
+    console.error('[DesignList] fetchDesigns error:', error)
     messageStore.error('获取设计列表失败')
   }
 }
@@ -240,7 +245,6 @@ const createNew = () => {
 const openCanvas = async (design) => {
   try {
     const response = await getDesign(design.documentId)
-    console.log('response', response)
     const designData = response.data
 
     // 设置基础信息
@@ -265,7 +269,6 @@ const editDesign = async (design) => {
   try {
     const response = await getDesign(design.documentId)
     const designData = response.data
-    console.log('designData', designData)
     // 设置编辑表单数据
     editForm.value.id = designData.id
     editForm.value.name = designData.name
@@ -275,7 +278,6 @@ const editDesign = async (design) => {
     editForm.value.configJson = designData.configJson
     editForm.value.configJsonString = JSON.stringify(designData.configJson, null, 2)
 
-    console.log('editForm', editForm.value)
     editDialogVisible.value = true
   } catch (error) {
     console.error('加载设计失败:', error)
@@ -344,7 +346,6 @@ const submitEdit = async () => {
 // 复制表盘设计
 const copyDesign = async (design) => {
   try {
-    console.log('copyDesign', design)
     // 生成新的表盘名称，添加"复制"后缀
     const newName = `${design.name}—copy`
 
@@ -361,19 +362,16 @@ const copyDesign = async (design) => {
       configJson: design.configJson,
       userId: design.userId
     }
+    
     const response = await createOrUpdateDesign(newDesignData)
 
     if (response.data) {
       messageStore.success('复制成功')
-      await fetchDesigns() // 刷新列表
+      // 如果需要刷新列表，可以在这里调用刷新方法
     }
   } catch (error) {
-    if (error instanceof SyntaxError) {
-      messageStore.error('JSON 格式错误，请检查配置')
-    } else {
-      console.error('复制失败:', error)
-      messageStore.error('复制失败')
-    }
+    console.error('复制失败:', error)
+    messageStore.error('复制失败')
   }
 }
 
@@ -396,17 +394,16 @@ const navigateTo = async (routeName) => {
       replace: true
     })
   } catch (error) {
-    console.error('导航失败:', error)
+    console.error('[DesignList] navigation error:', error)
     messageStore.error('页面切换失败')
   }
 }
 
-// 监听路由变化并触发刷新
-router.afterEach((to) => {
-  // 通过事件总线触发刷新
-  window.dispatchEvent(new CustomEvent('refresh-list', { 
-    detail: { route: to.name }
-  }))
+// 路由监听
+router.afterEach((to, from) => {
+  if (to.name === 'my-designs' && from.name !== 'my-designs') {
+    fetchDesigns()
+  }
 })
 
 // 异步导入组件
@@ -415,7 +412,9 @@ const TemplateList = defineAsyncComponent(() => import('./designs/TemplateList.v
 
 onMounted(() => {
   fetchUsers()
-  fetchDesigns()
+})
+
+onActivated(() => {
 })
 </script>
 

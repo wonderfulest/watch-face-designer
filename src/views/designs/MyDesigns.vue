@@ -1,133 +1,135 @@
 <template>
-  <el-row :gutter="20" class="design-grid">
-    <el-col :span="4" v-for="design in designs" :key="design.id">
-      <el-card class="design-card" shadow="hover">
-        <template #header>
-          <div class="card-header">
-            <div class="header-left">
-              <span class="title">{{ design.name }}</span>
-              <div class="status-tag" :class="design.designStatus">
-                {{ getStatusText(design.designStatus) }}
+  <div class="my-designs">
+    <el-row :gutter="20" class="design-grid">
+      <el-col :span="4" v-for="design in designs" :key="design.id">
+        <el-card class="design-card" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <div class="header-left">
+                <span class="title">{{ design.name }}</span>
+                <div class="status-tag" :class="design.designStatus">
+                  {{ getStatusText(design.designStatus) }}
+                </div>
+              </div>
+              <div class="actions">
+                <el-button-group>
+                  <el-button 
+                    type="primary" 
+                    size="small" 
+                    link 
+                    @click.stop="handleFavorite(design)"
+                    :title="'收藏'"
+                  >
+                    <el-icon><Star /></el-icon>
+                  </el-button>
+                  <el-button 
+                    type="primary" 
+                    size="small" 
+                    link 
+                    @click="editDesign(design)"
+                  >
+                    <el-icon><Edit /></el-icon>
+                  </el-button>
+                  <el-button 
+                    type="danger" 
+                    size="small" 
+                    link 
+                    @click="confirmDelete(design)"
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                </el-button-group>
               </div>
             </div>
+          </template>
+          <div class="design-info">
+            <div class="design-background" v-if="design.screenshotUrl">
+              <img :src="design.screenshotUrl" :alt="design.name" class="background-image" />
+              <div class="creator-badge">
+                <span>作者：{{ getCreatorName(design) }}</span>
+              </div>
+            </div>
+            <div class="design-background" v-else-if="design.backgroundUrl">
+              <img :src="design.backgroundUrl" :alt="design.name" class="background-image" />
+              <div class="creator-badge">
+                <span>作者：{{ getCreatorName(design) }}</span>
+              </div>
+            </div>
+            <div class="meta">
+              <span>KPay ID: {{ design.kpayId }}</span>
+              <span>更新时间: {{ formatDate(design.updatedAt) }}</span>
+            </div>
             <div class="actions">
-              <el-button-group>
-                <el-button 
-                  type="primary" 
-                  size="small" 
-                  link 
-                  @click.stop="handleFavorite(design)"
-                  :title="'收藏'"
-                >
-                  <el-icon><Star /></el-icon>
-                </el-button>
-                <el-button 
-                  type="primary" 
-                  size="small" 
-                  link 
-                  @click="editDesign(design)"
-                >
-                  <el-icon><Edit /></el-icon>
-                </el-button>
-                <el-button 
-                  type="danger" 
-                  size="small" 
-                  link 
-                  @click="confirmDelete(design)"
-                >
-                  <el-icon><Delete /></el-icon>
-                </el-button>
-              </el-button-group>
+              <el-button type="primary" size="small" @click="openCanvas(design)">编 辑</el-button>
+              <el-button type="warning" size="small" @click="copyDesign(design)">复 制</el-button>
+              <el-button 
+                v-if="design.designStatus === 'draft'" 
+                type="success" 
+                size="small"
+                @click="submitDesign(design)"
+              >
+                提 交
+              </el-button>
             </div>
           </div>
-        </template>
-        <div class="design-info">
-          <div class="design-background" v-if="design.screenshotUrl">
-            <img :src="design.screenshotUrl" :alt="design.name" class="background-image" />
-            <div class="creator-badge">
-              <span>作者：{{ getCreatorName(design) }}</span>
-            </div>
-          </div>
-          <div class="design-background" v-else-if="design.backgroundUrl">
-            <img :src="design.backgroundUrl" :alt="design.name" class="background-image" />
-            <div class="creator-badge">
-              <span>作者：{{ getCreatorName(design) }}</span>
-            </div>
-          </div>
-          <div class="meta">
-            <span>KPay ID: {{ design.kpayId }}</span>
-            <span>更新时间: {{ formatDate(design.updatedAt) }}</span>
-          </div>
-          <div class="actions">
-            <el-button type="primary" size="small" @click="openCanvas(design)">编 辑</el-button>
-            <el-button type="warning" size="small" @click="copyDesign(design)">复 制</el-button>
-            <el-button 
-              v-if="design.designStatus === 'draft'" 
-              type="success" 
-              size="small"
-              @click="submitDesign(design)"
-            >
-              提 交
-            </el-button>
-          </div>
-        </div>
-      </el-card>
-    </el-col>
-  </el-row>
+        </el-card>
+      </el-col>
+    </el-row>
 
-  <!-- 分页组件 -->
-  <div class="pagination-container">
-    <el-pagination
-      v-model:current-page="currentPage"
-      v-model:page-size="pageSize"
-      :page-sizes="[12, 24, 36, 48]"
-      :total="total"
-      layout="total, sizes, prev, pager, next, jumper"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    <!-- 分页组件 -->
+    <div class="pagination-container">
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :page-sizes="[12, 24, 36, 48]"
+        :total="total"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
+
+    <!-- 删除确认对话框 -->
+    <el-dialog v-model="deleteDialogVisible" title="确认删除" width="30%">
+      <span>确定要删除这个表盘设计吗？此操作不可恢复。</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="deleteDialogVisible = false">取消</el-button>
+          <el-button type="danger" @click="confirmDeleteDesign">确认删除</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 编辑对话框 -->
+    <el-dialog v-model="editDialogVisible" title="编辑设计" width="60%" :top="'5vh'">
+      <el-form :model="editForm" label-width="120px">
+        <el-form-item label="名称">
+          <el-input v-model="editForm.name" />
+        </el-form-item>
+        <el-form-item label="KPay ID">
+          <el-input v-model="editForm.kpayId" />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="editForm.designStatus">
+            <el-option label="草稿" value="draft" />
+            <el-option label="已提交" value="submitted" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="editForm.description" type="textarea" :rows="4" />
+        </el-form-item>
+        <el-form-item label="配置">
+          <el-input v-model="editForm.configJsonString" type="textarea" :rows="32" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitEdit">保存</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
-
-  <!-- 删除确认对话框 -->
-  <el-dialog v-model="deleteDialogVisible" title="确认删除" width="30%">
-    <span>确定要删除这个表盘设计吗？此操作不可恢复。</span>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="deleteDialogVisible = false">取消</el-button>
-        <el-button type="danger" @click="confirmDeleteDesign">确认删除</el-button>
-      </span>
-    </template>
-  </el-dialog>
-
-  <!-- 编辑对话框 -->
-  <el-dialog v-model="editDialogVisible" title="编辑设计" width="60%" :top="'5vh'">
-    <el-form :model="editForm" label-width="120px">
-      <el-form-item label="名称">
-        <el-input v-model="editForm.name" />
-      </el-form-item>
-      <el-form-item label="KPay ID">
-        <el-input v-model="editForm.kpayId" />
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-select v-model="editForm.designStatus">
-          <el-option label="草稿" value="draft" />
-          <el-option label="已提交" value="submitted" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="描述">
-        <el-input v-model="editForm.description" type="textarea" :rows="4" />
-      </el-form-item>
-      <el-form-item label="配置">
-        <el-input v-model="editForm.configJsonString" type="textarea" :rows="32" />
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="editDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitEdit">保存</el-button>
-      </span>
-    </template>
-  </el-dialog>
 </template>
 
 <script setup>
@@ -139,7 +141,7 @@ import { useBaseStore } from '@/stores/baseStore'
 import { createOrUpdateDesign } from '@/api/design'
 import dayjs from 'dayjs'
 import { Star, StarFilled, Edit, Delete } from '@element-plus/icons-vue'
-import { addFavorite } from '@/api/favorites'
+import { toggleFavorite } from '@/api/favorites'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
@@ -150,7 +152,7 @@ const authStore = useAuthStore()
 
 const designs = ref([])
 const currentPage = ref(1)
-const pageSize = ref(36)
+const pageSize = ref(2)
 const total = ref(0)
 const deleteDialogVisible = ref(false)
 const editDialogVisible = ref(false)
@@ -165,6 +167,21 @@ const editForm = ref({
   description: '',
   configJson: {},
   configJsonString: ''
+})
+
+// 从父组件接收搜索条件
+const props = defineProps({
+  searchParams: {
+    type: Object,
+    required: true,
+    default: () => ({
+      userId: '',
+      status: '',
+      name: '',
+      sortField: 'updatedAt',
+      sortOrder: 'desc'
+    })
+  }
 })
 
 // 获取状态文本
@@ -191,12 +208,16 @@ const fetchDesigns = async () => {
   try {
     const response = await getDesigns({
       page: currentPage.value,
-      pageSize: pageSize.value
+      pageSize: pageSize.value,
+      userId: props.searchParams.userId,  // 必填
+      status: props.searchParams.status,
+      name: props.searchParams.name,
+      sort: `${props.searchParams.sortField}:${props.searchParams.sortOrder}`  // 必填
     })
     designs.value = response.data
     total.value = response.meta.pagination.total
   } catch (error) {
-    console.error('获取设计列表失败:', error)
+    console.error('[MyDesigns] fetchDesigns error:', error)
     messageStore.error('获取设计列表失败')
   }
 }
@@ -363,7 +384,7 @@ onUnmounted(() => {
 // 处理收藏
 const handleFavorite = async (design) => {
   try {
-    await addFavorite(design.id, authStore.user.id)
+    await toggleFavorite(design.name, design.id, authStore.user.id, true)
     messageStore.success('收藏成功')
   } catch (error) {
     console.error('收藏失败:', error)

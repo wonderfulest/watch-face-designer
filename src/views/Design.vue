@@ -84,7 +84,10 @@ let saveTimer = null
 const changelogDialog = ref(null)
 
 const props = defineProps({
-  key: String
+  designKey: {
+    type: [String, Number],
+    default: null
+  }
 })
 // 监听 exportPanelRef 变化，注册到 store 中
 watch(exportPanelRef, (newValue) => {
@@ -100,9 +103,7 @@ useKeyboardShortcuts()
 const loadDesign = async (id) => {
   try {
     const response = await getDesign(id)
-    console.log('loadDesign', response)
     const designData = response.data
-    console.log('loadDesign', designData)
     const config = designData.configJson
 
     // 设置基础信息

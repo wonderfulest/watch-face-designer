@@ -15,7 +15,7 @@ const routes = [
         path: 'design',
         name: 'Design',
         component: () => import('@/views/Design.vue'),
-        props: (route) => ({ key: route.query.new }),
+        props: (route) => ({ designKey: route.query.new }),
         meta: { requiresAuth: true }
       },
       {

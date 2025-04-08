@@ -234,13 +234,11 @@ const showUnit = computed({
 
 // 更新文本大小写设置
 const updateTextCase = (value) => {
-  console.log('全局设置 - 更新文本大小写设置:', value)
 
   baseStore.setTextCase(value)
   
   // 打印当前画布上的所有元素类型，以便调试
   if (baseStore.canvas) {
-    console.log('当前画布上的元素类型:')
     const objects = baseStore.canvas.getObjects()
     const elementTypes = {}
     
@@ -257,7 +255,6 @@ const updateTextCase = (value) => {
 
 // 更新是否显示数据项单位
 const updateShowUnit = (value) => {
-  console.log('全局设置 - 更新是否显示数据项单位:', value)
   baseStore.showUnit = value
   // 更新画布上的数据项单位
   if (baseStore.canvas) {
@@ -278,13 +275,9 @@ const updateShowUnit = (value) => {
 
 // 更新标签长度类型设置
 const updateLabelLengthType = (value) => {
-  console.log('全局设置 - 更新标签长度类型:', value)
-
   baseStore.setLabelLengthType(value)
-  
   // 打印当前画布上的标签元素数量，以便调试
   if (baseStore.canvas) {
-    console.log('当前画布上的标签元素:')
     const objects = baseStore.canvas.getObjects()
     let labelCount = 0
     
@@ -294,7 +287,6 @@ const updateLabelLengthType = (value) => {
       }
     })
     
-    console.log('标签元素数量:', labelCount)
   }
 }
 

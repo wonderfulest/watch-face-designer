@@ -290,7 +290,6 @@ const handleLogin = async () => {
   isLoading.value = true
   try {
     const res = await authStore.login(loginForm.email, loginForm.password)
-    console.log('login res', res)
     messageStore.success('登录成功')
     const redirect = router.currentRoute.value.query.redirect || '/'
     router.push(redirect)

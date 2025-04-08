@@ -38,7 +38,6 @@ export const useBaseStore = defineStore('baseStore', {
 
     // 设置标签长度类型并更新所有标签元素
     setLabelLengthType(value) {
-      console.log('设置标签长度类型:', value)
       
       // 如果没有画布，直接返回
       if (!this.canvas) {
@@ -48,8 +47,6 @@ export const useBaseStore = defineStore('baseStore', {
       
       // 获取所有对象
       const objects = this.canvas.getObjects()
-      console.log('更新标签长度类型: 找到', objects.length, '个对象')
-      
       // 遇到标签元素时需要重新加载
       let labelCount = 0
       
@@ -103,12 +100,10 @@ export const useBaseStore = defineStore('baseStore', {
         // 强制重新渲染画布
         this.canvas.renderAll()
         
-        console.log('标签长度类型更新完成 - 标签元素:', labelCount)
       }, 10)
     },
     // 设置文本大小写并更新所有文本元素
     setTextCase(value) {
-      console.log('设置文本大小写:', value)
       
       // 如果没有画布，直接返回
       if (!this.canvas) {
@@ -118,7 +113,6 @@ export const useBaseStore = defineStore('baseStore', {
       
       // 获取所有对象
       const objects = this.canvas.getObjects()
-      console.log('更新文本大小写: 找到', objects.length, '个对象')
       
       // 遍历并更新所有元素
       let dateCount = 0

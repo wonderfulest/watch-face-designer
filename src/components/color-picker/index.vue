@@ -229,7 +229,6 @@ const togglePicker = (event) => {
 
 // 选择颜色
 const selectColor = (color) => {
-  console.log('select color', color)
   hexColor.value = color.hex
   varName.value = color.name
   updateColor()

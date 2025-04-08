@@ -48,13 +48,11 @@ export const getFontDetail = async (id) => {
  * @returns {Promise} 字体详情数据
  */
 export const getFontBySlug = async (slug) => {
-
   const response = await axiosInstance.get(`/super-fonts?filters[slug][$eq]=${slug}`, {
     params: {
       populate: '*'
     }
   })
-  console.log('slug , response', slug, response.data)
   return response.data[0]
 }
 
@@ -66,10 +64,6 @@ export const getFontBySlug = async (slug) => {
 export const uploadFontFile = async (file) => {
   const formData = new FormData()
   formData.append('files', file, file.name)
-
-  console.log('Uploading file:', file)
-  console.log('FormData entries:', Array.from(formData.entries()))
-
   const response = await axiosInstance.post('/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'

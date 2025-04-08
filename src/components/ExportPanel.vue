@@ -181,7 +181,6 @@ const getEncodeConfig = (element) => {
     return null
   }
 
-  console.log('element', element.eleType)
   let encodeConfig = null
 
   try {
@@ -386,7 +385,6 @@ const isOperationLocked = ref(false)
 
 // 定时轮训保存配置，只需要保存 name, kpayId, configJson 即可
 const saveConfig = async () => {
-  console.log('saveConfig', router.currentRoute.value.path)
   if (router.currentRoute.value.path !== '/design') {
     messageStore.error('不是设计页面')
     return
@@ -497,7 +495,6 @@ const uploadApp = async () => {
       screenshotUrl: screenshotRes.url
     })
     // 更新 baseStore.id
-    console.log('createOrUpdateDesign res:', res)
     baseStore.id = res.documentId
     currentStatus = '上传完成！'
     currentProgress = 100
