@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import App from './App.vue'
 import router from './router'
 import '@iconify/iconify'
@@ -14,10 +15,13 @@ import '@/assets/styles/element-variables.scss'
 import emitter from '@/utils/eventBus'
 import { useAuthStore } from '@/stores/auth'
 
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+
 const app = createApp(App)
 
 app.use(ElementPlus)
-app.use(createPinia())
+app.use(pinia)
 
 // 初始化认证状态
 const authStore = useAuthStore()

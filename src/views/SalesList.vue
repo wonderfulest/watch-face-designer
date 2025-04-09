@@ -1,7 +1,26 @@
 <template>
     <div class="sales-list">
         <div class="header">
-            <h2>销售记录</h2>
+            <div class="header-left">
+                <h2>销售记录</h2>
+                <el-button 
+                    type="primary" 
+                    @click="handleSync"
+                    :loading="syncing"
+                    :disabled="syncDisabled"
+                >
+                    <Icon icon="material-symbols:sync" />
+                    同步数据
+                    <el-tooltip
+                        v-if="syncDisabled"
+                        effect="dark"
+                        :content="`${syncCountdown}秒后可同步`"
+                        placement="top"
+                    >
+                        <span class="countdown-badge">{{ syncCountdown }}</span>
+                    </el-tooltip>
+                </el-button>
+            </div>
             <div class="header-actions">
                 <el-switch
                     v-model="successOnly"
@@ -93,10 +112,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import { getSalesHistory } from '@/api/sales'
+import { ref, onMounted, watch, onUnmounted } from 'vue'
+import { getSalesHistory, syncSalesHistory } from '@/api/sales'
 import { ElMessage } from 'element-plus'
+import { useSalesStore } from '@/stores/sales'
 
+const salesStore = useSalesStore()
 const loading = ref(false)
 const salesData = ref({
     total: 0,
@@ -106,6 +127,12 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 
 const successOnly = ref(true)
+
+// 同步相关的状态
+const syncing = ref(false)
+const syncDisabled = ref(false)
+const syncCountdown = ref(0)
+const SYNC_COOLDOWN = 300 // 5分钟 = 300秒
 
 const formatDateTime = (dateStr) => {
   if (!dateStr) return ''
@@ -163,12 +190,68 @@ const handleSuccessOnlyChange = () => {
   fetchData()
 }
 
+// 更新倒计时
+const updateSyncCountdown = () => {
+  syncDisabled.value = !salesStore.canSync
+  syncCountdown.value = salesStore.remainingTime
+}
+
+// 同步处理函数
+const handleSync = async () => {
+  if (!salesStore.canSync) {
+    ElMessage.warning(`请等待 ${salesStore.remainingTime} 秒后再试`)
+    return
+  }
+  
+  try {
+    syncing.value = true
+    const response = await syncSalesHistory()
+    ElMessage.success('同步成功')
+    
+    // 更新同步时间
+    salesStore.updateLastSyncTime()
+    updateSyncCountdown()
+    
+    // 刷新数据
+    await fetchData()
+  } catch (error) {
+    console.error('同步失败:', error)
+    ElMessage.error('同步失败')
+  } finally {
+    syncing.value = false
+  }
+}
+
 onMounted(() => {
-    fetchData()
+  fetchData()
+  // 初始化时检查同步状态
+  updateSyncCountdown()
+})
+
+onUnmounted(() => {
+  // 不需要清除计时器，因为 Pinia 会自动处理
 })
 </script>
 
 <style scoped>
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-left h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
 
 .header-actions {
   display: flex;
@@ -181,13 +264,6 @@ onMounted(() => {
 }
 .sales-list {
     padding: 20px;
-}
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
 }
 
 .header h2 {
@@ -255,5 +331,20 @@ onMounted(() => {
 
 :deep(.el-image-viewer__mask) {
   z-index: 2099;
+}
+
+/* 禁用状态的按钮样式 */
+:deep(.el-button.is-disabled) {
+  cursor: not-allowed;
+}
+
+.countdown-badge {
+  display: inline-block;
+  background-color: var(--el-color-danger);
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
 }
 </style>

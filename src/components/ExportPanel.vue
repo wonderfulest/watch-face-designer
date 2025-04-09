@@ -482,9 +482,7 @@ const uploadApp = async () => {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
 
-    // 创建或更新表盘设计
-    const res = await createOrUpdateDesign({
-      documentId: baseStore.id,
+    const data = {
       name: baseStore.watchFaceName,
       kpayId: baseStore.kpayId,
       description: baseStore.watchFaceName,
@@ -493,7 +491,12 @@ const uploadApp = async () => {
       configJson: JSON.stringify(generateConfig()),
       screenshot: screenshotRes.id,
       screenshotUrl: screenshotRes.url
-    })
+    }
+    if (baseStore.id) {
+      data.documentId = baseStore.id
+    }
+    // 创建或更新表盘设计
+    const res = await createOrUpdateDesign(data)
     // 更新 baseStore.id
     baseStore.id = res.documentId
     currentStatus = '上传完成！'

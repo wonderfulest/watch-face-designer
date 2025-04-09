@@ -12,3 +12,10 @@ export const getSalesHistory =async ({ page, pageSize }) => {
   })
   return response.data
 }
+
+// 添加同步销售记录接口
+export const syncSalesHistory = async () => {
+  const response = await axiosInstance.post('/kpay-sales/sync')
+  return response.data
+}
+
