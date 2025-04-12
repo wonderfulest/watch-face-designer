@@ -70,10 +70,10 @@
             <el-table-column prop="productId" label="产品ID" width="100" />
             <el-table-column label="设计预览" width="120">
                 <template #default="{ row }">
-                    <div class="design-preview" v-if="row.design?.screenshot">
+                    <div class="design-preview" v-if="row.kpay_app?.image || row.design?.screenshot">
                         <el-image
-                            :src="row.design.screenshot"
-                            :preview-src-list="[row.design.screenshot]"
+                            :src="row.kpay_app?.image || row.design?.screenshot"
+                            :preview-src-list="[row.kpay_app?.image || row.design?.screenshot]"
                             fit="cover"
                             class="preview-image"
                             :preview-teleported="true"
@@ -130,6 +130,7 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 
 const successOnly = ref(true)
+
 
 // 同步相关的状态
 const syncing = ref(false)
