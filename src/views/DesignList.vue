@@ -375,16 +375,6 @@ const copyDesign = async (design) => {
   }
 }
 
-// 获取创作者名称
-const getCreatorName = (design) => {
-  const userId = design.userId
-  if (!userId) return '未知用户'
-
-  const user = users.value[userId]
-  if (!user) return '未知用户'
-
-  return user.username || user.nickname || user.email?.split('@')[0] || '未知用户'
-}
 
 // 导航方法
 const navigateTo = async (routeName) => {

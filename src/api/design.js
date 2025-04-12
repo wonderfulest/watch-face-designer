@@ -59,7 +59,7 @@ export const getDesigns = async ({ page, pageSize, userId, status, name, sort })
   if (name) {
     params['filters[name][$contains]'] = name
   }
-  const response = await axiosInstance.get('/designs', { params })
+  const response = await axiosInstance.get('/designs/getDesigns', { params })
   return response.data
 }
 

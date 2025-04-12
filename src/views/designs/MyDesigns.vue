@@ -200,7 +200,7 @@ const formatDate = (date) => {
 
 // 获取创作者名称
 const getCreatorName = (design) => {
-  return design.creator?.username || '未知用户'
+  return design.creator.username || '未知用户'
 }
 
 // 获取设计列表
