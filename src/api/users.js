@@ -9,7 +9,6 @@ export const getUsers = async (userIds) => {
   // 创建查询参数对象
   const params = {
     'pagination[pageSize]': 100,
-    'populate': '*'
   }
 
   // 如果有用户ID，使用正确的格式添加过滤条件
@@ -20,5 +19,5 @@ export const getUsers = async (userIds) => {
   }
   
   const response = await axiosInstance.get('/users', { params })
-  return response.data || []
+  return response || []
 }

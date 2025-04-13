@@ -2,10 +2,12 @@
 <template>
   <router-view></router-view>
   <Message />
+  <CookieConsent />
 </template>
 
 <script setup>
 import Message from '@/components/Message.vue'
+import CookieConsent from '@/components/CookieConsent.vue'
 </script>
 
 <style>

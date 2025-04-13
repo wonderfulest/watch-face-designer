@@ -1,7 +1,35 @@
 <template>
   <div class="my-designs">
+    <div class="search-bar">
+      <el-input v-model="searchName" placeholder="搜索名称" class="name-filter" clearable
+        @keyup.enter="handleSearch" />
+      <el-select v-model="selectedStatus" placeholder="选择状态" class="status-filter" @change="handleStatusChange">
+        <el-option label="全部" value="" />
+        <el-option label="草稿" value="draft" />
+        <el-option label="已提交" value="submitted" />
+      </el-select>
+      <el-select v-model="selectedUserId" placeholder="选择用户" clearable class="user-filter" @change="handleUserChange">
+        <el-option v-for="user in usersList" :key="user.id" :label="user.username" :value="user.id">
+          <span>{{ user.username }}</span>
+          <span class="user-email">({{ user.email }})</span>
+        </el-option>
+      </el-select>
+      <el-select v-model="sortField" placeholder="排序字段" @change="handleSortChange" class="sort-field-filter">
+        <el-option label="创建时间" value="createdAt" />
+        <el-option label="更新时间" value="updatedAt" />
+      </el-select>
+      <el-select v-model="sortOrder" placeholder="排序方式" @change="handleSortChange" class="sort-order-filter">
+        <el-option label="升序" value="asc" />
+        <el-option label="降序" value="desc" />
+      </el-select>
+      <el-button type="primary" @click="handleSearch">
+        <Icon icon="material-symbols:search" />
+        搜索
+      </el-button>
+    </div>
+
     <el-row :gutter="20" class="design-grid">
-      <el-col :span="4" v-for="design in designs" :key="design.id">
+      <el-col :xs="24" :sm="8" :md="6" :lg="4" :xl="3" v-for="design in designs" :key="design.id">
         <el-card class="design-card" shadow="hover">
           <template #header>
             <div class="card-header">
@@ -81,7 +109,7 @@
       <el-pagination
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
-        :page-sizes="[12, 24, 36, 48]"
+        :page-sizes="[24, 48, 72, 96]"
         :total="total"
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
@@ -143,6 +171,7 @@ import dayjs from 'dayjs'
 import { Star, StarFilled, Edit, Delete } from '@element-plus/icons-vue'
 import { toggleFavorite } from '@/api/favorites'
 import { useAuthStore } from '@/stores/auth'
+import { getUsers } from '@/api/users'
 
 const router = useRouter()
 const route = useRoute()
@@ -152,7 +181,7 @@ const authStore = useAuthStore()
 
 const designs = ref([])
 const currentPage = ref(1)
-const pageSize = ref(36)
+const pageSize = ref(24)
 const total = ref(0)
 const deleteDialogVisible = ref(false)
 const editDialogVisible = ref(false)
@@ -169,20 +198,48 @@ const editForm = ref({
   configJsonString: ''
 })
 
-// 从父组件接收搜索条件
-const props = defineProps({
-  searchParams: {
-    type: Object,
-    required: true,
-    default: () => ({
-      userId: '',
-      status: '',
-      name: '',
-      sortField: 'updatedAt',
-      sortOrder: 'desc'
-    })
+// 搜索相关状态
+const searchName = ref('')
+const selectedStatus = ref('')
+const selectedUserId = ref(null)
+const sortField = ref('updatedAt')
+const sortOrder = ref('desc')
+const usersList = ref([])
+
+// 获取用户列表
+const fetchUsers = async () => {
+  try {
+    const response = await getUsers()
+    usersList.value = response.data
+  } catch (error) {
+    console.error('获取用户列表失败:', error)
+    messageStore.error('获取用户列表失败')
   }
-})
+}
+
+// 处理搜索
+const handleSearch = () => {
+  currentPage.value = 1
+  fetchDesigns()
+}
+
+// 处理状态变化
+const handleStatusChange = () => {
+  currentPage.value = 1
+  fetchDesigns()
+}
+
+// 处理用户选择变化
+const handleUserChange = () => {
+  currentPage.value = 1
+  fetchDesigns()
+}
+
+// 处理排序变化
+const handleSortChange = () => {
+  currentPage.value = 1
+  fetchDesigns()
+}
 
 // 获取状态文本
 const getStatusText = (status) => {
@@ -209,10 +266,10 @@ const fetchDesigns = async () => {
     const response = await getDesigns({
       page: currentPage.value,
       pageSize: pageSize.value,
-      userId: props.searchParams.userId,  // 必填
-      status: props.searchParams.status,
-      name: props.searchParams.name,
-      sort: `${props.searchParams.sortField}:${props.searchParams.sortOrder}`  // 必填
+      userId: selectedUserId.value || authStore.user.id,
+      status: selectedStatus.value,
+      name: searchName.value,
+      sort: `${sortField.value}:${sortOrder.value}`
     })
     designs.value = response.data
     total.value = response.meta.pagination.total
@@ -368,6 +425,7 @@ const handleRefresh = (event) => {
 
 // 首次挂载时加载数据
 onMounted(() => {
+  fetchUsers()
   fetchDesigns()
 })
 
@@ -396,11 +454,13 @@ const handleFavorite = async (design) => {
 <style scoped>
 .design-grid {
   margin-bottom: 24px;
+  margin-top: 20px;
 }
 
 .design-card {
   margin-bottom: 20px;
   transition: all 0.3s;
+  height: 100%;
 }
 
 .card-header {
@@ -490,6 +550,8 @@ const handleFavorite = async (design) => {
   display: flex;
   justify-content: center;
   margin-top: 24px;
+  margin-bottom: 40px;
+  padding: 20px 0;
 }
 
 /* 深色模式适配 */
@@ -512,5 +574,72 @@ const handleFavorite = async (design) => {
 /* 已收藏状态的星星样式 */
 .actions .el-button.is-active {
   color: var(--el-color-warning) !important;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.name-filter {
+  width: 200px;
+}
+
+.user-filter {
+  width: 200px;
+}
+
+.user-email {
+  margin-left: 8px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.status-filter {
+  width: 120px;
+}
+
+.sort-field-filter {
+  width: 120px;
+}
+
+.sort-order-filter {
+  width: 100px;
+}
+
+/* 响应式布局调整 */
+@media screen and (max-width: 768px) {
+  .design-grid {
+    margin: 20px -10px 24px;
+  }
+  
+  .el-col {
+    padding: 0 10px;
+    margin-bottom: 20px;
+  }
+}
+
+@media screen and (min-width: 769px) and (max-width: 992px) {
+  .design-grid {
+    margin: 20px -15px 24px;
+  }
+  
+  .el-col {
+    padding: 0 15px;
+    margin-bottom: 20px;
+  }
+}
+
+@media screen and (min-width: 993px) {
+  .design-grid {
+    margin: 20px -20px 24px;
+  }
+  
+  .el-col {
+    padding: 0 20px;
+    margin-bottom: 20px;
+  }
 }
 </style>

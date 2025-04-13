@@ -71,18 +71,32 @@
             <el-table-column label="设计预览" width="120">
                 <template #default="{ row }">
                     <div class="design-preview" v-if="row.kpay_app?.image || row.design?.screenshot">
-                        <el-image
-                            :src="row.kpay_app?.image || row.design?.screenshot"
-                            :preview-src-list="[row.kpay_app?.image || row.design?.screenshot]"
-                            fit="cover"
-                            class="preview-image"
-                            :preview-teleported="true"
-                            :initial-index="0"
+                        <el-tooltip
+                            effect="dark"
+                            placement="right"
+                            :show-after="300"
                         >
-                            <template #error>
-                                <div class="image-placeholder">暂无预览</div>
+                            <template #content>
+                                <el-image
+                                    :src="row.kpay_app?.image || row.design?.screenshot"
+                                    fit="contain"
+                                    style="max-width: 300px; max-height: 300px;"
+                                >
+                                    <template #error>
+                                        <div class="image-placeholder">暂无预览</div>
+                                    </template>
+                                </el-image>
                             </template>
-                        </el-image>
+                            <el-image
+                                :src="row.kpay_app?.image || row.design?.screenshot"
+                                fit="cover"
+                                class="preview-image"
+                            >
+                                <template #error>
+                                    <div class="image-placeholder">暂无预览</div>
+                                </template>
+                            </el-image>
+                        </el-tooltip>
                     </div>
                     <div class="image-placeholder" v-else>暂无预览</div>
                 </template>
