@@ -53,9 +53,6 @@ export const useIconStore = defineStore('iconElement', {
         // 添加到画布
         this.baseStore.canvas.add(element)
 
-        // 添加颜色
-        this.baseStore.addColor(element.fill, iconOptions.colorVarName)
-
         // 添加到图层
         this.layerStore.addLayer(element)
 

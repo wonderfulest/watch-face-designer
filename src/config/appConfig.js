@@ -34,8 +34,9 @@ export default {
         version: '1.0.5',
         date: '2025-04-12',
         updates: [
-          'Bug修复：颜色选择混乱',
-          '我的设计里支持设计师、设计状态筛选'
+          '增加App Properties 配置, 快捷键 Command + , 打开配置面板',
+          '颜色选择使用 App Properties 配置',
+          '我的设计页面支持设计师、设计状态筛选'
         ]
       },
       {

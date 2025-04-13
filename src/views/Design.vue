@@ -35,7 +35,8 @@ import SidePanel from '@/components/SidePanel.vue'
 import ExportPanel from '@/components/ExportPanel.vue'
 import appConfig from '@/config/appConfig'
 import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
-
+import emitter from '@/utils/eventBus'
+import { usePropertiesStore } from '@/stores/properties'
 import { useMessageStore } from '@/stores/message'
 import { useFontStore } from '@/stores/fontStore'
 import { useExportStore } from '@/stores/exportStore'
@@ -56,6 +57,7 @@ import { useDisturbStore } from '@/stores/elements/disturbElement'
 import { useAlarmsStore } from '@/stores/elements/alarmsElement'
 import { useNotificationStore } from '@/stores/elements/notificationElement'
 
+const propertiesStore = usePropertiesStore()
 const imageStore = useImageElementStore()
 const route = useRoute()
 const router = useRouter()
@@ -106,18 +108,17 @@ const loadDesign = async (id) => {
     const designData = response.data
     const config = designData.configJson
 
+    // 加载属性
+    propertiesStore.loadProperties(config.properties)
+    
     // 设置基础信息
     baseStore.id = id
     baseStore.watchFaceName = designData.name
     baseStore.kpayId = designData.kpayId
-    // 设置主题颜色
-    baseStore.themeColors = config.themeColors
+
     // 设置主题背景图片
     baseStore.themeBackgroundImages = config.themeBackgroundImages
-    // 设置主题背景颜色
-    if (config.backgroundColorId !== -1 && config.backgroundColorId < baseStore.themeColors[0].length){
-      baseStore.themeBackgroundColors[0] = baseStore.themeColors[0][config.backgroundColorId].hex
-    }
+
     // 设置文本大小写
     if (config.textCase !== undefined) {
       baseStore.textCase = config.textCase
@@ -242,7 +243,6 @@ const initNewDesign = async () => {
   // 设置默认值
   baseStore.watchFaceName = ''
   baseStore.kpayId = ''
-  baseStore.themeColors = []
   baseStore.themeBackgroundImages = []
   baseStore.currentThemeIndex = 0
   baseStore.canvas.requestRenderAll()
@@ -274,6 +274,14 @@ onMounted(() => {
   
   // 设置自动保存
   setupAutoSave()
+
+  // 添加 App Properties 快捷键
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+      e.preventDefault()
+      emitter.emit('open-app-properties')
+    }
+  })
 })
 
 onUnmounted(() => {
@@ -281,6 +289,13 @@ onUnmounted(() => {
   if (saveTimer) {
     clearInterval(saveTimer)
   }
+  // 移除快捷键事件监听
+  document.removeEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+      e.preventDefault()
+      emitter.emit('open-app-properties')
+    }
+  })
 })
 
 // 向外部暴露方法

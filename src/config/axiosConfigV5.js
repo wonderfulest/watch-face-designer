@@ -6,8 +6,6 @@ import router from '@/router'
 // 使用 VITE_API_BASE_URL 环境变量
 const baseURL = import.meta.env.VITE_API_BASE_URL
 
-console.log('Current API baseURL:', baseURL)
-console.log('Current ENV:', import.meta.env)
 
 const axiosInstance = axios.create({
   baseURL,
@@ -35,7 +33,6 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log('http response', response)
     if (response.data.meta && response.data.meta.code && response.data.meta.code != 0) {
       const messageStore = useMessageStore()
       messageStore.error(response.data.meta.message)

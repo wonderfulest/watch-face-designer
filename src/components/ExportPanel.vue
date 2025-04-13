@@ -96,6 +96,7 @@ import { useRouter } from 'vue-router'
 import { useDisturbStore } from '@/stores/elements/disturbElement'
 import { useAlarmsStore } from '@/stores/elements/alarmsElement'
 import { useNotificationStore } from '@/stores/elements/notificationElement'
+import { usePropertiesStore } from '@/stores/properties'
 const timeStore = useTimeStore()
 const dateStore = useDateStore()
 const metricStore = useMetricStore()
@@ -116,6 +117,7 @@ const alarmsStore = useAlarmsStore()
 const notificationStore = useNotificationStore()
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
+const propertiesStore = usePropertiesStore()
 // 定义属性
 const props = defineProps({
   isDialogVisible: {
@@ -163,7 +165,7 @@ const updateProgress = (status, progress) => {
 }
 
 const openDialog = () => {
-  jsonConfig.value = generateConfig()
+  jsonConfig.value = baseStore.generateConfig()
   uploading.value = false
   currentProgress = 0
   currentStatus = ''
@@ -175,175 +177,13 @@ const openDialog = () => {
   }
 }
 
-const getEncodeConfig = (element) => {
-  if (!element) {
-    console.error('无效的元素对象')
-    return null
-  }
-
-  let encodeConfig = null
-
-  try {
-    if (element.eleType === 'global') {
-      encodeConfig = baseStore.encodeConfig(element)
-    } else if (element.eleType === 'badge') {
-      encodeConfig = badgeStore.encodeConfig(element)
-    } else if (element.eleType === 'time') {
-      encodeConfig = timeStore.encodeConfig(element)
-    } else if (element.eleType === 'date') {
-      encodeConfig = dateStore.encodeConfig(element)
-    } else if (element.eleType === 'metric') {
-      encodeConfig = metricStore.encodeConfig(element)
-    } else if (element.eleType === 'text') {
-      encodeConfig = textStore.encodeConfig(element)
-    } else if (element.eleType === 'icon') {
-      encodeConfig = iconStore.encodeConfig(element)
-    } else if (element.eleType === 'data') {
-      encodeConfig = dataStore.encodeConfig(element)
-    } else if (element.eleType === 'label') {
-      encodeConfig = labelStore.encodeConfig(element)
-    } else if (element.eleType === 'progressRing') {
-      encodeConfig = progressRingStore.encodeConfig(element)
-    } else if (element.eleType === 'rect') {
-      encodeConfig = rectStore.encodeConfig(element)
-    } else if (element.eleType === 'image') {
-      encodeConfig = imageStore.encodeConfig(element)
-    } else if (element.eleType === 'circle') {
-      encodeConfig = circleStore.encodeConfig(element)
-    } else if (element.eleType === 'bluetooth') {
-      encodeConfig = bluetoothStore.encodeConfig(element)
-    } else if (element.eleType === 'disturb') {
-      encodeConfig = disturbStore.encodeConfig(element)
-    } else if (element.eleType === 'alarms') {
-      encodeConfig = alarmsStore.encodeConfig(element)
-    } else if (element.eleType === 'notification') {
-      encodeConfig = notificationStore.encodeConfig(element)
-    }
-  } catch (error) {
-    console.error('编码配置时出错:', error)
-    return null
-  }
-
-  return encodeConfig
-}
-
-const encodeColor = (color, eleType) => {
-  let id = baseStore.themeColors[0].findIndex((c) => c.hex == color)
-  if (id == -1) {
-    ElMessage.error('未找到颜色变量' + eleType)
-  }
-  return id
-}
-
-// 生成配置对象
-const generateConfig = () => {
-  if (!baseStore.canvas.getObjects().length) {
-    messageStore.warning('没有元素')
-    return null
-  }
-  const config = {
-    version: '1.0',
-    name: baseStore.watchFaceName,
-    kpayId: baseStore.kpayId,
-    themeColors: baseStore.themeColors,
-    textCase: baseStore.textCase, // 添加文本大小写设置
-    labelLengthType: baseStore.labelLengthType, // 添加标签长度类型设置
-    showUnit: baseStore.showUnit, // 添加是否显示数据项单位设置
-    metricTypes: [],
-    elements: []
-  }
-  // 背景色在颜色数组中的下标，用于配置
-  config.backgroundColorId = baseStore.themeColors[0].findIndex((color) => color.hex === baseStore.themeBackgroundColors[0])
-
-  // 背景图片数组
-  config.themeBackgroundImages = baseStore.themeBackgroundImages
-
-  const objects = baseStore.canvas.getObjects()
-  // 元素在同类中的下标，用于配置
-  let dataId = 0,
-    imageId = 0,
-    timeId = 0,
-    dateId = 0
-  let metricMap = {}
-
-  // 遍历每个元素
-  for (const element of objects) {
-    if (element.eleType === 'background-image') continue
-    let encodeConfig = getEncodeConfig(element)
-    // 获取data
-    if (encodeConfig.metricSymbol) {
-      const metric = getMetricBySymbol(encodeConfig.metricSymbol)
-      if (metric) {
-        encodeConfig.metricValue = metric.value // metricValue 作为数据项配置的默认值
-      }
-    }
-    // 根据color获取colorId: 为color数组的索引
-    if (encodeConfig.color) {
-      encodeConfig.colorId = encodeColor(encodeConfig.color, element.eleType)
-    }
-    if (encodeConfig.bgColor) {
-      encodeConfig.bgColorId = encodeColor(encodeConfig.bgColor, element.eleType)
-    }
-    if (encodeConfig.stroke) {
-      encodeConfig.strokeId = encodeColor(encodeConfig.stroke, element.eleType)
-    }
-
-    // 获取imageId
-    if (encodeConfig.type == 'image') {
-      encodeConfig.imageId = imageId // imageId 用于标识图片配置
-      imageId++
-    }
-    // 获取timeId
-    if (encodeConfig.type == 'time') {
-      encodeConfig.timeId = timeId // timeId 用于标识时间配置
-      timeId++
-    }
-    // 获取dateId
-    if (encodeConfig.type == 'date') {
-      encodeConfig.dateId = dateId // dateId 用于标识日期配置
-      dateId++
-    }
-    // 获取dataId
-    if ((encodeConfig.type == 'icon' || encodeConfig.type == 'data' || encodeConfig.type == 'label' || encodeConfig.type.indexOf('progress') != -1) && !_.isEmpty(encodeConfig.varName)) {
-      if (encodeConfig.metricGroup) {
-        // 一组数据
-        if (!metricMap.hasOwnProperty(encodeConfig.metricGroup) || metricMap[encodeConfig.metricGroup] == undefined) {
-          // metricMap 用于标识数据项配置
-          metricMap[encodeConfig.metricGroup] = dataId
-          config.metricTypes.push({
-            id: dataId,
-            value: encodeConfig.metricValue,
-            varName: encodeConfig.varName
-          })
-          dataId++
-        }
-        encodeConfig.metricId = metricMap[encodeConfig.metricGroup] // metricId 用于标识数据项配置
-      } else {
-        // 单独数据
-        encodeConfig.metricId = dataId // metricId 用于标识数据项配置
-        config.metricTypes.push({
-          id: dataId,
-          value: encodeConfig.metricValue,
-          varName: encodeConfig.varName
-        })
-        dataId++
-      }
-    }
-
-    config.elements.push(encodeConfig)
-  }
-
-  return config
-}
-
 // 导出配置
 const dowloadConfig = async () => {
-  console.log('dowloadConfig', baseStore.watchFaceName, baseStore.kpayId)
   if (!baseStore.watchFaceName || !baseStore.kpayId) {
     messageStore.error('请设置应用名称和kpayId')
     return null
   }
-  const config = generateConfig()
+  const config = baseStore.generateConfig()
   if (!config) return
 
   const blob = new Blob([JSON.stringify(config)], {
@@ -365,7 +205,6 @@ const uploadScreenshot = async () => {
     const screenshot = await baseStore.captureScreenshot()
     if (screenshot) {
       const screenshotUpload = await uploadBase64Image(screenshot)
-      console.log('screenshotUpload res:', screenshotUpload)
       if (screenshotUpload && screenshotUpload.url) {
         return {
           id: screenshotUpload.id,
@@ -398,7 +237,7 @@ const saveConfig = async () => {
     const data = {
       name: baseStore.watchFaceName,
       kpayId: baseStore.kpayId,
-      configJson: JSON.stringify(generateConfig()),
+      configJson: JSON.stringify(baseStore.generateConfig()),
       userId: user.value.id
     }
     if (baseStore.id) {
@@ -423,7 +262,7 @@ const saveConfig = async () => {
 
 // 上传配置到服务器
 const uploadApp = async () => {
-  const config = generateConfig()
+  const config = baseStore.generateConfig()
   if (!config) {
     messageStore.warning('没有可上传的配置')
     return
@@ -488,7 +327,7 @@ const uploadApp = async () => {
       description: baseStore.watchFaceName,
       designStatus: 'draft',
       userId: user.value.id,
-      configJson: JSON.stringify(generateConfig()),
+      configJson: baseStore.generateConfig(),
       screenshot: screenshotRes.id,
       screenshotUrl: screenshotRes.url
     }
@@ -565,7 +404,7 @@ const cancelUpload = () => {
 
 // 复制配置到剪贴板
 const copyConfig = () => {
-  const config = generateConfig()
+  const config = baseStore.generateConfig()
   if (!config) return
 
   const configStr = JSON.stringify(config, null, 2)

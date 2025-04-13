@@ -13,24 +13,33 @@
             <el-icon><Operation /></el-icon>
             <span>Actions</span>
           </template>
+          <!-- View Json Config -->
+          <el-menu-item index="actions/viewJsonConfig">
+            <el-icon><View /></el-icon>
+            <span>View</span>
+            <span class="shortcut-hint">⌘ + .</span>
+          </el-menu-item>
+          <!-- 构建 -->
           <el-menu-item index="actions/build" @click="handleBuild">
             <el-icon><Box /></el-icon>
             <span>Build</span>
           </el-menu-item>
+          <!-- 保存 -->
           <el-menu-item index="actions/save" @click="handleSave">
             <el-icon><Upload /></el-icon>
             <span>Save</span>
           </el-menu-item>
-          <el-menu-item index="actions/screenshot" @click="handleScreenshot">
+          <!-- <el-menu-item index="actions/screenshot" @click="handleScreenshot">
             <el-icon><Picture /></el-icon>
             <span>Screenshot</span>
-          </el-menu-item>
+          </el-menu-item> -->
           <!-- 加个分隔线 -->
           <el-divider direction="horizontal" class="menu-sub-divider" />
           <!-- 属性 -->
           <el-menu-item index="actions/properties">
             <el-icon><Setting /></el-icon>
             <span>App Properties</span>
+            <span class="shortcut-hint">⌘ + ,</span>
           </el-menu-item>
         </el-sub-menu>
 
@@ -173,6 +182,8 @@
   <!-- 使用新的快捷键组件 -->
   <ShortcutsDialog v-model="shortcutsDialogVisible" />
   <FeedbackDialog ref="feedbackDialog" />
+  <PropertiesPanel ref="propertiesPanel" />
+  <EditDesignDialog ref="editDesignDialog" @success="handleEditSuccess" />
 </template>
 
 <script setup>
@@ -205,6 +216,8 @@ import {
 import { elementConfigs } from '@/config/elements'
 import ShortcutsDialog from '@/components/dialogs/ShortcutsDialog.vue'
 import FeedbackDialog from '@/components/dialogs/FeedbackDialog.vue'
+import PropertiesPanel from '@/components/properties/PropertiesPanel.vue'
+import EditDesignDialog from '@/components/dialogs/EditDesignDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -223,6 +236,8 @@ const watchFaceName = computed(() => {
 // 控制快捷键弹框显示
 const shortcutsDialogVisible = ref(false)
 const feedbackDialog = ref(null)
+const propertiesPanel = ref(null)
+const editDesignDialog = ref(null)
 
 // 添加元素
 const handleAddElement = (category, type) => {
@@ -235,16 +250,23 @@ const handleAddElement = (category, type) => {
 
 // 选择菜单
 const handleSelect = (key) => {
-  // 这里可以根据需要处理菜单项的点击事件
-  console.log('Selected:', key)
   if (key === 'help/shortcuts') {
     shortcutsDialogVisible.value = true
+  } else if (key === 'actions/properties') {
+    propertiesPanel.value?.show()
+  } else if (key === 'actions/viewJsonConfig') {
+    // 获取当前设计ID并打开编辑对话框
+    const designId = route.query.id
+    if (designId) {
+      editDesignDialog.value?.show(designId)
+    } else {
+      messageStore.warning('请先保存设计')
+    }
   }
 }
 
 // 构建
 const handleBuild = async () => {
-  console.log('Build')
   messageStore.warning('暂不支持！')
 }
 
@@ -275,7 +297,6 @@ const handleScreenshot = async () => {
 
 // 保存
 const handleSave =async () => {
-  console.log('Handle Save')
   baseStore.deactivateObject()
   try {
     await exportStore.uploadApp()
@@ -291,6 +312,12 @@ const handleSave =async () => {
 
 const showFeedbackDialog = () => {
   feedbackDialog.value?.showDialog()
+}
+
+// 添加编辑成功处理方法
+const handleEditSuccess = () => {
+  // 可以在这里添加需要的处理逻辑，比如刷新数据等
+  messageStore.success('设计更新成功')
 }
 </script>
 
@@ -435,5 +462,11 @@ kbd {
     border-color: var(--el-border-color-darker);
     box-shadow: 0 2px 0 var(--el-border-color-darker);
   }
+}
+
+.shortcut-hint {
+  margin-left: auto;
+  color: var(--el-text-color-secondary);
+  font-size: 12px;
 }
 </style> 

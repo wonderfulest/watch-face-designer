@@ -105,10 +105,10 @@ const updateFontSize = () => {
 }
 
 const updateTextColor = () => {
+  console.log('更新字体颜色', textColor.value)
   if (!props.element || !baseStore.canvas) return
   props.element.set({
     fill: textColor.value,
-    colorVarName: baseStore.getColorVarName(textColor.value)
   })
   baseStore.canvas.renderAll()
 }

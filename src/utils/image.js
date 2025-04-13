@@ -51,7 +51,6 @@ export const uploadBase64Image = async (base64Data) => {
 
     // Upload file
     const res = await uploadImage(formData)
-    console.log('uploadBase64Image', res)
     return res[0]
   } catch (error) {
     console.error('Failed to upload base64 image:', error)

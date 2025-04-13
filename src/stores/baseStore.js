@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
 import { Circle, FabricImage } from 'fabric'
 import { getMetricBySymbol } from '@/config/settings'
+import _ from 'lodash'
+import { usePropertiesStore } from '@/stores/properties'
+import { encodeElement } from '@/utils/elementEncoders'
+import { compareColor } from '@/utils/colorUtils'
+
 export const useBaseStore = defineStore('baseStore', {
   // state
   state: () => ({
@@ -9,7 +14,6 @@ export const useBaseStore = defineStore('baseStore', {
     watchFaceName: '',
     kpayId: '',
     WATCH_SIZE: 454,
-    themeColors: [],
     themeBackgroundColors: ['#000000'],
     themeBackgroundImages: [],
     currentThemeIndex: 0,
@@ -20,9 +24,7 @@ export const useBaseStore = defineStore('baseStore', {
   }),
 
   getters: {
-    currentThemeColors() {
-      return this.themeColors[this.currentThemeIndex] || []
-    }
+
   },
 
   // actions
@@ -35,7 +37,6 @@ export const useBaseStore = defineStore('baseStore', {
         }
       }
     },
-
     // 设置标签长度类型并更新所有标签元素
     setLabelLengthType(value) {
       
@@ -164,8 +165,6 @@ export const useBaseStore = defineStore('baseStore', {
         
         // 强制重新渲染画布
         this.canvas.renderAll()
-        
-        console.log('文本大小写更新完成 - 日期元素:', dateCount, '标签元素:', labelCount, '步数元素:', stepsCount)
       }, 10)
     },
     // 捕获并保存表盘截图
@@ -195,7 +194,6 @@ export const useBaseStore = defineStore('baseStore', {
         return this.getFallbackScreenshot()
       }
     },
-    
     // 获取备用截图
     getFallbackScreenshot() {
       // 使用本地图片作为备用
@@ -233,16 +231,15 @@ export const useBaseStore = defineStore('baseStore', {
         };
       });
     },
-    
     // 获取当前截图
     getScreenshot() {
       return this.screenshot
     },
-    
     // 清除截图
     clearScreenshot() {
       this.screenshot = null
     },
+    // 设置画布
     setCanvas(fabricCanvas) {
       this.canvas = fabricCanvas
       // 禁用自动渲染，手动控制渲染时机
@@ -250,7 +247,6 @@ export const useBaseStore = defineStore('baseStore', {
       this.addBackground()
     },
     addBackground() {
-      console.log('addBackground')
       // 创建表盘背景圆
       const watchFace = new Circle({
         eleType: 'global',
@@ -288,163 +284,33 @@ export const useBaseStore = defineStore('baseStore', {
       this.canvas.add(watchFace)
       this.canvas.moveObjectTo(watchFace, 0)
     },
-
+    // 加载全局元素
     loadGlobalElement() {
       // 全局元素加载
     },
+    // 设置表盘名称
     setWatchFaceName(name) {
       this.watchFaceName = name
     },
+    // 设置表盘ID
     setKpayId(id) {
       this.kpayId = id
     },
-    // RGB 转 HEX
-    rgbToHex(r, g, b) {
-      const toHex = (n) => {
-        const hex = n.toString(16)
-        return hex.length === 1 ? '0' + hex : hex
-      }
-      return '#' + toHex(r) + toHex(g) + toHex(b)
-    },
-
-    // 添加颜色
-    addColor(color, name) {
-      if (!color || color === 'transparent') return
-
-      // 如果是 rgba 格式，转换为 hex
-      if (color.startsWith('rgba')) {
-        const rgba = color.match(/\d+/g)
-        if (rgba && rgba.length >= 3) {
-          color = this.rgbToHex(parseInt(rgba[0]), parseInt(rgba[1]), parseInt(rgba[2]))
-        }
-      }
-
-      // 如果是 rgb 格式，转换为 hex
-      if (color.startsWith('rgb')) {
-        const rgb = color.match(/\d+/g)
-        if (rgb && rgb.length >= 3) {
-          color = this.rgbToHex(parseInt(rgb[0]), parseInt(rgb[1]), parseInt(rgb[2]))
-        }
-      }
-
-      // 如果已经存在相同颜色值对应的颜色 hex
-      let existingColor = this.themeColors[this.currentThemeIndex].find((c) => c.hex === color)
-      if (existingColor) {
-        return
-      }
-
-      // 生成默认变量名
-      if (!name) {
-        const baseVarName = 'color'
-        let index = this.themeColors[this.currentThemeIndex].length + 1
-        name = `${baseVarName}${index}`
-        while (this.themeColors[this.currentThemeIndex].find((c) => c.name === name)) {
-          index++
-          name = `${baseVarName}${index}`
-        }
-      }
-
-      // 检查是否已存在相同名称的颜色
-      const existingIndex = this.themeColors[this.currentThemeIndex].findIndex((c) => c.name === name)
-      if (existingIndex !== -1) {
-        // 更新现有颜色
-        this.themeColors[this.currentThemeIndex][existingIndex].hex = color
-      } else {
-        // 添加新颜色
-        this.themeColors[this.currentThemeIndex].push({
-          name,
-          hex: color
-        })
-      }
-
-      return name
-    },
-
-    // 获取所有颜色
-    getAllColors() {
-      return this.themeColors[this.currentThemeIndex] || []
-    },
-
-    // 更新颜色变量名称
-    updateColorName(oldName, newName) {
-      if (!newName || oldName === newName) return false
-
-      // 检查新名称是否已存在
-      const exists = this.themeColors[this.currentThemeIndex].some((c) => c.name === newName)
-      if (exists) return false
-
-      // 查找并更新颜色变量名称
-      const colorIndex = this.themeColors[this.currentThemeIndex].findIndex((c) => c.name === oldName)
-      if (colorIndex !== -1) {
-        this.themeColors[this.currentThemeIndex][colorIndex].name = newName
-        return true
-      }
-      return false
-    },
-
-    // 获取颜色变量名称
-    getColorVarName(hex) {
-      return this.themeColors[this.currentThemeIndex].find((c) => c.hex === hex)?.name || ''
-    },
-
-    encodeConfig(element) {
-      return {
-        type: 'global',
-        width: element.width,
-        height: element.height,
-        radius: element.radius
-      }
-    },
+    // 获取所有对象
     getObjects() {
       return this.canvas ? this.canvas.getObjects() : []
     },
+    // 获取选中对象
     getActiveObjects() {
       return this.canvas ? this.canvas.getActiveObjects() : []
     },
     // 切换主题
     toggleTheme() {
-      // 更新颜色变量
-      this.toggleThemeColors()
       // 更新背景颜色
       this.toggleThemeBackground()
       this.canvas.renderAll()
     },
-    toggleThemeColors() {
-      if (this.currentThemeIndex === -1) return
-      const colors = this.themeColors[this.currentThemeIndex]
-      console.log('toggleTheme', colors)
-      if (!this.canvas) return
-
-      // 更新颜色变量
-      const colorMap = {}
-      for (const color of colors) {
-        colorMap[color.name] = color.hex
-      }
-
-      const fabricObjects = this.canvas.getObjects()
-
-      for (const fabricObject of fabricObjects) {
-        if (fabricObject.eleType === 'progressRing') {
-          fabricObject
-            .getObjects()
-            .find((obj) => obj.id.endsWith('_main'))
-            .set('stroke', colorMap[fabricObject.colorVarName])
-          fabricObject
-            .getObjects()
-            .find((obj) => obj.id.endsWith('_bg'))
-            .set('stroke', colorMap[fabricObject.bgColorVarName])
-        } else {
-          // 普通元素颜色
-          if (fabricObject.colorVarName) {
-            fabricObject.set('fill', colorMap[fabricObject.colorVarName])
-          }
-          // 普通元素背景颜色
-          if (fabricObject.bgColorVarName) {
-            fabricObject.set('fill', colorMap[fabricObject.bgColorVarName])
-          }
-        }
-      }
-    },
+    // 切换主题背景
     toggleThemeBackground() {
       if (!this.canvas) {
         console.warn('画布不存在')
@@ -458,7 +324,6 @@ export const useBaseStore = defineStore('baseStore', {
 
       // 更新背景颜色
       if (watchFace) {
-        console.log('set fill watchFace', watchFace, this.themeBackgroundColors[this.currentThemeIndex])
         watchFace.set('fill', this.themeBackgroundColors[this.currentThemeIndex])
       }
 
@@ -520,7 +385,126 @@ export const useBaseStore = defineStore('baseStore', {
       }
 
       this.canvas.renderAll()
-      console.log('背景更新完成')
+    },
+    // 生成配置
+    generateConfig() {
+      if (!this.canvas.getObjects().length) {
+        console.warn('没有元素')
+        return null
+      }
+      const propertiesStore = usePropertiesStore()
+      const config = {
+        version: '1.0',
+        properties: propertiesStore.allProperties,
+        name: this.watchFaceName,
+        kpayId: this.kpayId,
+        textCase: this.textCase,
+        labelLengthType: this.labelLengthType,
+        showUnit: this.showUnit,
+        metricTypes: [],
+        elements: [],
+      }
+
+
+      // 背景图片数组
+      config.themeBackgroundImages = this.themeBackgroundImages
+
+      const objects = this.canvas.getObjects()
+      // 元素在同类中的下标，用于配置
+      let dataId = 0,
+        imageId = 0,
+        timeId = 0,
+        dateId = 0
+      let metricMap = {}
+
+      // 遍历每个元素
+      for (const element of objects) {
+        if (element.eleType === 'background-image') continue
+        
+        // 使用编码器系统编码元素
+        let encodeConfig = encodeElement(element)
+        if (!encodeConfig) continue
+
+        // 处理颜色
+        if (encodeConfig.color) {
+          // 查找颜色属性
+          const matchingProperty = Object.entries(propertiesStore.allProperties)
+            .find(([key, p]) => compareColor(p.value, encodeConfig.color))
+          if (matchingProperty) {
+            encodeConfig.colorProperty = matchingProperty[0] // 返回 key 值
+          }
+        }
+        if (encodeConfig.bgColor) {
+          // 查找颜色属性
+          const matchingProperty = Object.entries(propertiesStore.allProperties)
+            .find(([key, p]) => compareColor(p.value, encodeConfig.bgColor))
+          if (matchingProperty) {
+            encodeConfig.bgColorProperty = matchingProperty[0] // 返回 key 值
+          }
+        }
+        if (encodeConfig.stroke) {
+          // 查找颜色属性
+          const matchingProperty = Object.entries(propertiesStore.allProperties)
+            .find(([key, p]) => compareColor(p.value, encodeConfig.stroke))
+          if (matchingProperty) {
+            encodeConfig.strokeColorProperty = matchingProperty[0] // 返回 key 值
+          }
+        }
+        
+        // 获取data
+        if (encodeConfig.metricSymbol) {
+          const metric = getMetricBySymbol(encodeConfig.metricSymbol)
+          if (metric) {
+            encodeConfig.metricValue = metric.value // metricValue 作为数据项配置的默认值
+          }
+        }
+
+        // 获取imageId
+        if (encodeConfig.type == 'image') {
+          encodeConfig.imageId = imageId // imageId 用于标识图片配置
+          imageId++
+        }
+        // 获取timeId
+        if (encodeConfig.type == 'time') {
+          encodeConfig.timeId = timeId // timeId 用于标识时间配置
+          timeId++
+        }
+        // 获取dateId
+        if (encodeConfig.type == 'date') {
+          encodeConfig.dateId = dateId // dateId 用于标识日期配置
+          dateId++
+        }
+        // 获取dataId
+        if ((encodeConfig.type == 'icon' || encodeConfig.type == 'data' || encodeConfig.type == 'label' || encodeConfig.type.indexOf('progress') != -1) && !_.isEmpty(encodeConfig.varName)) {
+          if (encodeConfig.metricGroup) {
+            // 一组数据
+            if (!metricMap.hasOwnProperty(encodeConfig.metricGroup) || metricMap[encodeConfig.metricGroup] == undefined) {
+              // metricMap 用于标识数据项配置
+              metricMap[encodeConfig.metricGroup] = dataId
+              config.metricTypes.push({
+                id: dataId,
+                value: encodeConfig.metricValue,
+                varName: encodeConfig.varName
+              })
+              dataId++
+            }
+            encodeConfig.metricId = metricMap[encodeConfig.metricGroup] // metricId 用于标识数据项配置
+          } else {
+            // 单独数据
+            encodeConfig.metricId = dataId // metricId 用于标识数据项配置
+            config.metricTypes.push({
+              id: dataId,
+              value: encodeConfig.metricValue,
+              varName: encodeConfig.varName
+            })
+            dataId++
+          }
+        }
+
+        config.elements.push(encodeConfig)
+      }
+
+      return config
     }
   }
 })

@@ -129,34 +129,7 @@
     </el-dialog>
 
     <!-- 编辑对话框 -->
-    <el-dialog v-model="editDialogVisible" title="编辑设计" width="60%" :top="'5vh'">
-      <el-form :model="editForm" label-width="120px">
-        <el-form-item label="名称">
-          <el-input v-model="editForm.name" />
-        </el-form-item>
-        <el-form-item label="KPay ID">
-          <el-input v-model="editForm.kpayId" />
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="editForm.designStatus">
-            <el-option label="草稿" value="draft" />
-            <el-option label="已提交" value="submitted" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input v-model="editForm.description" type="textarea" :rows="4" />
-        </el-form-item>
-        <el-form-item label="配置">
-          <el-input v-model="editForm.configJsonString" type="textarea" :rows="32" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="editDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitEdit">保存</el-button>
-        </span>
-      </template>
-    </el-dialog>
+    <EditDesignDialog ref="editDesignDialog" @success="handleEditSuccess" />
   </div>
 </template>
 
@@ -172,7 +145,8 @@ import { Star, StarFilled, Edit, Delete } from '@element-plus/icons-vue'
 import { toggleFavorite } from '@/api/favorites'
 import { useAuthStore } from '@/stores/auth'
 import { getUsers } from '@/api/users'
-
+import EditDesignDialog from '@/components/dialogs/EditDesignDialog.vue'
+const editDesignDialog = ref(null)
 const router = useRouter()
 const route = useRoute()
 const messageStore = useMessageStore()
@@ -184,19 +158,7 @@ const currentPage = ref(1)
 const pageSize = ref(24)
 const total = ref(0)
 const deleteDialogVisible = ref(false)
-const editDialogVisible = ref(false)
 const designToDelete = ref(null)
-
-// 编辑表单数据
-const editForm = ref({
-  id: null,
-  name: '',
-  kpayId: '',
-  designStatus: '',
-  description: '',
-  configJson: {},
-  configJsonString: ''
-})
 
 // 搜索相关状态
 const searchName = ref('')
@@ -313,50 +275,8 @@ const openCanvas = async (design) => {
 }
 
 // 编辑设计信息
-const editDesign = async (design) => {
-  try {
-    const response = await getDesign(design.documentId)
-    const designData = response.data
-    
-    editForm.value = {
-      id: designData.id,
-      name: designData.name,
-      kpayId: designData.kpayId,
-      designStatus: designData.designStatus,
-      description: designData.description,
-      configJson: designData.configJson,
-      configJsonString: JSON.stringify(designData.configJson, null, 2)
-    }
-    
-    editDialogVisible.value = true
-  } catch (error) {
-    console.error('加载设计失败:', error)
-    messageStore.error('加载设计失败')
-  }
-}
-
-// 提交编辑
-const submitEdit = async () => {
-  try {
-    const data = {
-      name: editForm.value.name,
-      kpayId: editForm.value.kpayId,
-      designStatus: editForm.value.designStatus,
-      description: editForm.value.description,
-      configJson: JSON.parse(editForm.value.configJsonString)
-    }
-    await updateDesign(editForm.value.id, data)
-    messageStore.success('保存成功')
-    editDialogVisible.value = false
-    await fetchDesigns()
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      messageStore.error('JSON 格式错误，请检查配置')
-    } else {
-      console.error('保存失败:', error)
-      messageStore.error('保存失败')
-    }
-  }
+const editDesign = (design) => {
+  editDesignDialog.value?.show(design.documentId)
 }
 
 // 复制设计
@@ -448,6 +368,11 @@ const handleFavorite = async (design) => {
     console.error('收藏失败:', error)
     messageStore.error('收藏失败')
   }
+}
+
+// 添加编辑成功处理方法
+const handleEditSuccess = () => {
+  fetchDesigns() // 刷新设计列表
 }
 </script>
 

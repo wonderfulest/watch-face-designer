@@ -49,7 +49,6 @@ export const useAlarmsStore = defineStore('alarmsElement', {
         console.error('闹钟元素对象无效')
         return null
       }
-      
       try {
         return {
           type: 'alarms',

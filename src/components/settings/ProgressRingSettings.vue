@@ -124,7 +124,6 @@ const progressRingStore = useProgressRingStore()
 
 // 获取主圆环和背景圆环
 const mainRing = computed(() => props.element.getObjects().find((obj) => {
-  console.log('obj', obj)
   return obj.id.endsWith('_main')
 }))
 const bgRing = computed(() => props.element.getObjects().find((obj) => obj.id.endsWith('_bg')))
@@ -158,8 +157,6 @@ watch(
   () => props.element,
   () => {
     if (!mainRing.value || !bgRing.value) return
-    console.log('mainRing.value', mainRing.value)
-    console.log('bgRing.value', bgRing.value)
     positionX.value = props.element.left
     positionY.value = props.element.top
     startAngle.value = mainRing.value.startAngle
@@ -170,7 +167,6 @@ watch(
     bgColor.value = bgRing.value.stroke
     metricSymbol.value = props.element.metricSymbol
     counterClockwise.value = mainRing.value.counterClockwise
-    console.log('counterClockwise.value', counterClockwise.value)
   },
   { immediate: true }
 )
@@ -184,10 +180,6 @@ const updateElement = () => {
   const groupTop = props.element.top
   // const middleAngle = endAngle.value
   const middleAngle = progressRingStore.getMiddleAngle(startAngle.value, endAngle.value, counterClockwise.value, progress.value * 1.0 / 100.0)
-
-  console.log('updateElement startAngle', startAngle.value)
-  console.log('updateElement endAngle', endAngle.value)
-  console.log('updateElement middleAngle', middleAngle)
   // 更新主圆环
   mainRing.value.set({
     radius: radius.value,

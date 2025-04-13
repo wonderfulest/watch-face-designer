@@ -32,7 +32,7 @@
         <option v-for="size in fontSizes" :key="size" :value="size">{{ size }}px</option>
       </select>
     </div>
-    <div class="setting-item" v-if="isSameTypeLayer">
+    <div class="setting-item" v-if="isUpdateColor">
       <label>字体颜色</label>
       <color-picker v-model="textColor" @change="updateTextColor" />
     </div>
@@ -123,6 +123,14 @@ const mayMetricGroup = computed(() => {
   return true
 })
 
+const isUpdateColor = computed(() => {
+  if (!['time', 'date', 'icon', 'data', 'bluetooth', 'disturb'].includes(props.elements[0].eleType)) {
+    return false
+  }
+  return true
+})
+
+
 const isSameTypeLayer = computed(() => {
   if (props.elements.length <= 1) {
     return true
@@ -191,7 +199,6 @@ const changeMetricGroup = (isMetricGroup) => {
 }
 
 const updateMetricVal = () => {
-  console.log('updateMetricVal', varName.value)
   for (const element of props.elements) {
     element.set({ varName: varName.value })
   }

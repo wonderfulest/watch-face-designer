@@ -102,7 +102,6 @@ export const useDateStore = defineStore('dateElement', {
           hasControls: true,
           hasBorders: true
         }
-        console.log(111, attr)
         // 创建文本对象
         const element = new FabricText(text, attr)
 

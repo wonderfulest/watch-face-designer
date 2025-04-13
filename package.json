@@ -34,7 +34,7 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@vitejs/plugin-vue": "^4.0.0",
-    "@vue/cli-plugin-typescript": "^5.0.8",
+    "@vue/cli-plugin-typescript": "^4.5.17",
     "@vue/runtime-dom": "^3.5.13",
     "less": "^4.2.1",
     "prettier": "^3.5.3",

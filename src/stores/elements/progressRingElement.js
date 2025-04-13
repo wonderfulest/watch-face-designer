@@ -17,7 +17,6 @@ export const useProgressRingStore = defineStore('progressRingElement', {
 
   actions: {
     addElement(config) {
-      console.log('add process config', config)
       const id = nanoid()
       const startAngle = config.startAngle
       const endAngle = config.endAngle
@@ -27,9 +26,6 @@ export const useProgressRingStore = defineStore('progressRingElement', {
       const bgColor = config.bgColor
       const counterClockwise = config.counterClockwise
       const middleAngle = this.getMiddleAngle(startAngle, endAngle, counterClockwise, 0.333)
-      console.log('startAngle', startAngle)
-      console.log('endAngle', endAngle)
-      console.log('middleAngle', middleAngle)
       // Create the main progress ring
       const mainRing = new Circle({
         radius: radius,

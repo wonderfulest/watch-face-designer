@@ -13,55 +13,28 @@
       <div class="tabs">
         <div class="tab" :class="{ active: true }">纯色</div>
       </div>
-
+      <!-- 颜色矩阵 -->
       <div class="color-matrix">
-        <div v-for="color in colorMatrix" :key="color" class="color-cell" :style="{ backgroundColor: color }" @click="selectColor({ hex: color, name: varName })"></div>
-      </div>
-
-      <div class="color-info">
-        <div class="color-preview" :style="{ backgroundColor: hexColor }"></div>
-        <div class="color-inputs">
-          <input v-model="hexColor" class="hex-input" maxlength="7" @input="updateFromHex" placeholder="#000000" />
-          <input v-model="varName" class="var-name-input" placeholder="变量名" @keyup.enter="confirmSaveVariable" />
-        </div>
-        <button class="save-variable-btn confirm" @click="confirmSaveVariable">确定</button>
+        <div v-for="color in colorMatrix" :key="color" class="color-cell" :style="{ backgroundColor: color }" @click="selectColor({hex: color, value: color})"></div>
       </div>
 
       <!-- 当前使用的颜色 -->
-      <div v-if="colorVariables.length > 0" class="recent-colors">
+      <div v-if="colorProperties.length > 0" class="recent-colors">
         <div class="recent-colors-header">
-          <div class="recent-colors-title">当前使用的颜色</div>
+          <div class="recent-colors-title">当前设置的颜色</div>
           <button class="toggle-list-btn" @click="toggleColorList">
             {{ showColorList ? '收起' : '展开' }}
           </button>
         </div>
         <div v-if="!showColorList" class="recent-colors-grid">
-          <div v-for="color in colorVariables" :key="color.name" class="recent-color" :style="{ backgroundColor: color.hex }" @click="selectColor(color)"></div>
+          <div v-for="colorProperty in colorProperties" :key="colorProperty.name" class="recent-color" :style="{ backgroundColor: colorProperty.hex }" @click="selectColor(colorProperty)"></div>
         </div>
         <div v-else class="color-variables-list">
-          <div v-for="color in colorVariables" :key="color.name" class="color-variable-item">
-            <div class="color-preview-small" :style="{ backgroundColor: color.hex }" @click.stop="selectColor(color)"></div>
+          <div v-for="colorProperty in colorProperties" :key="colorProperty.name" class="color-variable-item">
+            <div class="color-preview-small" :style="{ backgroundColor: colorProperty.hex }" @click.stop="selectColor(colorProperty)"></div>
             <div class="color-variable-info">
-              <div class="color-hex">{{ color.hex }}</div>
-              <div class="color-name" :class="{ editing: editingName === color.name }" @click.stop="startEdit(color.name)">
-                <span v-if="editingName !== color.name">{{ color.name }}</span>
-                <input
-                  v-else
-                  v-model="newName"
-                  :ref="
-                    (el) => {
-                      if (el) nameInputs[color.name] = el
-                    }
-                  "
-                  class="name-input"
-                  @keyup.enter="confirmEdit"
-                  @keyup.esc="cancelEdit"
-                  @blur="confirmEdit"
-                  @click.stop />
-              </div>
-              <button class="delete-btn" @click.stop="deleteColor(color)" title="删除颜色">
-                <i class="el-icon-delete">×</i>
-              </button>
+              <div class="color-hex">{{ colorProperty.hex }}</div>
+              <div class="color-name">{{ colorProperty.name }}</div>
             </div>
           </div>
         </div>
@@ -73,79 +46,21 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useBaseStore } from '@/stores/baseStore'
+import { usePropertiesStore } from '@/stores/properties'
 
 const props = defineProps({
   modelValue: {
     type: String,
-    required: true
+    default: '#000000'
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update:modelValue'])
 
-// 状态
-const isOpen = ref(false)
-const hexColor = ref(props.modelValue === 'transparent' ? '#000000' : props.modelValue)
-const varName = ref('')
-
-// 颜色store
 const baseStore = useBaseStore()
+const propertiesStore = usePropertiesStore()
 
-// 获取当前使用的颜色
-const colorVariables = computed(() => baseStore.getAllColors())
-const showColorList = ref(false)
-const editingName = ref(null)
-const newName = ref('')
-
-// 删除颜色
-const deleteColor = (color) => {
-  if (confirm(`确定要删除颜色 ${color.name} 吗？`)) {
-    const index = baseStore.themeColors[baseStore.currentThemeIndex].findIndex((c) => c.name === color.name)
-    if (index !== -1) {
-      baseStore.themeColors[baseStore.currentThemeIndex].splice(index, 1)
-    }
-  }
-}
-
-// 切换颜色列表展开/收起
-const toggleColorList = () => {
-  showColorList.value = !showColorList.value
-  editingName.value = null
-}
-
-// 开始编辑颜色变量名
-const startEdit = (name) => {
-  editingName.value = name
-  newName.value = name
-  nextTick(() => {
-    const input = nameInputs.value[name]
-    if (input) {
-      input.focus()
-      input.select()
-    }
-  })
-}
-
-// 确认编辑
-const confirmEdit = () => {
-  if (editingName.value && newName.value) {
-    const success = baseStore.updateColorName(editingName.value, newName.value)
-    if (!success) {
-      newName.value = editingName.value // 还原为原始名称
-    }
-  }
-  editingName.value = null
-}
-
-// 取消编辑
-const cancelEdit = () => {
-  editingName.value = null
-}
-
-// 获取输入框引用
-const nameInputs = ref({})
-
-// 生成颜色矩阵
+// 颜色矩阵
 const colorMatrix = [
   '#000000',
   '#000055',
@@ -214,82 +129,57 @@ const colorMatrix = [
   'transparent'
 ]
 
-// 计算属性
-const previewColor = computed(() => hexColor.value)
+// 状态
+const isOpen = ref(false)
+const hexColor = ref(props.modelValue)
 
-// 切换颜色选择器
-const togglePicker = (event) => {
-  event.stopPropagation()
-  if (isOpen.value && !varName.value) {
-    ElMessage.error('切换颜色选择器时，请输入变量名')
-    return
-  }
-  isOpen.value = !isOpen.value
+// 获取当前使用的颜色
+const colorVariables = computed(() => baseStore.getAllColors())
+const showColorList = ref(false)
+
+// 计算属性：获取所有颜色属性
+const colorProperties = computed(() => {
+  return Object.entries(propertiesStore.properties)
+    .filter(([_, prop]) => prop.type === 'color')
+    .map(([key, prop]) => ({
+      name: prop.title,
+      hex: `#${prop.value.replace('0x', '')}`,
+      value: prop.value,
+      propertyKey: key
+    }))
+})
+
+
+// 切换颜色列表展开/收起
+const toggleColorList = () => {
+  showColorList.value = !showColorList.value
 }
 
 // 选择颜色
 const selectColor = (color) => {
+  console.log('选择颜色', color)
   hexColor.value = color.hex
-  varName.value = color.name
   updateColor()
-  // 添加颜色
-  if (color.name) {
-    baseStore.addColor(color.hex, color.name)
-  }
-  // 更新颜色变量
-  baseStore.toggleThemeColors()
 }
 
 // 更新颜色
 const updateColor = () => {
   emit('update:modelValue', hexColor.value)
-  emit('change', hexColor.value)
+  emit('change', hexColor.value) // <-- 这行是关键
 }
 
 // 从十六进制更新
 const updateFromHex = () => {
-  if (isValidHex(hexColor.value)) {
-    updateColor()
+  if (hexColor.value.startsWith('#')) {
+    emit('update:modelValue', `0x${hexColor.value.slice(1)}`)
   }
 }
 
 // 工具函数
 const isValidHex = (hex) => /^#[0-9A-F]{6}$/i.test(hex)
-
-import { ElMessage } from 'element-plus'
-import emitter from '@/utils/eventBus'
-
-// 确认保存颜色变量
-const confirmSaveVariable = () => {
-  if (!varName.value) {
-    ElMessage.error('保存颜色变量时，请输入变量名')
-    return
-  }
-  if (hexColor.value !== 'transparent') {
-    // 检查当前主题中是否已存在相同的颜色
-    const existingIndex = baseStore.themeColors[baseStore.currentThemeIndex].findIndex((c) => c.hex.toLowerCase() === hexColor.value.toLowerCase())
-    // 如果已经存在相同颜色，更新颜色名称
-    if (existingIndex !== -1) {
-      baseStore.themeColors[baseStore.currentThemeIndex][existingIndex].name = varName.value
-      // 如果存在多个相同颜色，删除除第一个外的其他颜色
-      for (let i = existingIndex + 1; i < baseStore.themeColors[baseStore.currentThemeIndex].length; i++) {
-        if (baseStore.themeColors[baseStore.currentThemeIndex][i].hex.toLowerCase() === hexColor.value.toLowerCase()) {
-          console.log('删除颜色', baseStore.themeColors[baseStore.currentThemeIndex][i])
-          baseStore.themeColors[baseStore.currentThemeIndex].splice(i, 1)
-        }
-      }
-    }
-    baseStore.addColor(hexColor.value, varName.value)
-    ElMessage.success('颜色变量已保存')
-  }
-}
-
+  
 // 监听点击外部关闭
 const handleOutsideClick = (event) => {
-  if (isOpen.value && !varName.value) {
-    ElMessage.error('关闭颜色选择器时，请输入变量名')
-    return
-  }
   if (!event.target.closest('.color-picker-wrapper')) {
     isOpen.value = false
   }
@@ -298,7 +188,6 @@ const handleOutsideClick = (event) => {
 // 添加和移除事件监听
 onMounted(() => {
   document.addEventListener('click', handleOutsideClick)
-  varName.value = baseStore.getColorVarName(props.modelValue)
 })
 
 onUnmounted(() => {
@@ -314,6 +203,10 @@ watch(
     }
   }
 )
+
+const togglePicker = () => {
+  isOpen.value = true
+}
 </script>
 
 <style scoped>
@@ -456,18 +349,6 @@ watch(
   flex: 1;
   display: flex;
   align-items: center;
-}
-
-.hex-input,
-.var-name-input {
-  padding: 4px 6px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 12px;
-}
-
-.hex-input {
-  width: 80px;
 }
 
 .var-name-input {

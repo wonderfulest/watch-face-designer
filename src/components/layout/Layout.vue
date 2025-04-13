@@ -22,7 +22,6 @@ const route = useRoute()
 
 // 添加一个计算属性来控制菜单的显示
 const showMenu = computed(() => {
-  console.log(route.path)
   return route.path === '/design'
 })
 </script>

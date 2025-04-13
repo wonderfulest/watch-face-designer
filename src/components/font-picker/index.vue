@@ -323,7 +323,6 @@ const confirmUpload = async () => {
   try {
     const fontName = fontForm.value.name
     const slug = fontName.toLowerCase().replace(/\s+/g, '-')
-    console.log('fontName:', fontName, 'slug:', slug) // 添加调试日志
 
     // 如果字体库中已经存在该字体，则直接返回
     const fontInStore = fontStore.fonts.find(font => font.name === fontName)

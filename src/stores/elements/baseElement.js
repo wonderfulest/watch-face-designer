@@ -98,7 +98,6 @@ export const useBaseElementStore = defineStore('baseElement', {
         top: clonedObj.top + 20,
         evented: true
       })
-      console.log('clonedObj', clonedObj._objects)
       const newMetricGroup = nanoid()
       for (const obj of clonedObj._objects) {
         const changed = {

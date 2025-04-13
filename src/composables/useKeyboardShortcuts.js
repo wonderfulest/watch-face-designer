@@ -1,6 +1,7 @@
 import Mousetrap from 'mousetrap'
 import { onMounted, onUnmounted } from 'vue'
 import { useBaseElementStore } from '../stores/elements/baseElement'
+import emitter from '@/utils/eventBus'
 
 export function useKeyboardShortcuts() {
   const baseStore = useBaseElementStore()
@@ -32,10 +33,27 @@ export function useKeyboardShortcuts() {
       baseStore.pasteElements()
       return false // 阻止默认行为
     })
+
+    // 绑定 App Properties 快捷键
+    Mousetrap.bind(['command+,', 'ctrl+,'], () => {
+      emitter.emit('open-app-properties')
+      return false // 阻止默认行为
+    })
+    // 绑定 快捷键 Command + . 打开 View 配置面板
+    Mousetrap.bind(['command+.', 'ctrl+.'], () => {
+      emitter.emit('open-view-properties')
+      return false // 阻止默认行为
+    })
   })
 
   onUnmounted(() => {
     // 清理绑定
-    Mousetrap.unbind(['left', 'right', 'up', 'down', 'shift+left', 'shift+right', 'shift+up', 'shift+down', 'shift+=', 'shift+-', 'command+c', 'ctrl+c', 'command+v', 'ctrl+v'])
+    Mousetrap.unbind([
+      'left', 'right', 'up', 'down',
+      'shift+left', 'shift+right', 'shift+up', 'shift+down',
+      'shift+=', 'shift+-',
+      'command+c', 'ctrl+c', 'command+v', 'ctrl+v',
+      'command+,', 'ctrl+,'
+    ])
   })
 }
