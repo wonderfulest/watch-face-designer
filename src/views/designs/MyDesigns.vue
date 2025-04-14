@@ -288,7 +288,8 @@ const copyDesign = async (design) => {
       designStatus: 'draft',
       description: design.description,
       screenshotUrl: design.screenshotUrl,
-      configJson: design.configJson
+      configJson: design.configJson,
+      userId: authStore.user.id
     }
     
     const response = await createOrUpdateDesign(newDesignData)
