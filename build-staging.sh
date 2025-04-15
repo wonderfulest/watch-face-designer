@@ -2,6 +2,7 @@
 
 rm -rf dist
 
+
 npm run build
 
 # 压缩 dist 目录
@@ -10,7 +11,7 @@ tar -czf dist.tar.gz dist
 
 # 上传压缩文件到服务器
 echo "Uploading dist.tar.gz to server..."
-scp -i ~/Documents/us-east-1.pem dist.tar.gz my-ec2:/home/ec2-user/
+scp -i ~/Documents/us-east-1.pem dist.tar.gz ec2-user@ec2-3-236-120-5.compute-1.amazonaws.com:/home/ec2-user/
 
 # 清理本地压缩文件
 echo "Cleaning up..."
@@ -22,9 +23,5 @@ echo "Upload completed!"
 # 解压文件
 # echo "Uncompressing dist.tar.gz..."
 # tar -xzf dist.tar.gz
-
+# rm -rf /app/studio-garmin-face-designer-staging/dist
 # mv dist /app/studio-garmin-face-designer-staging/dist
-
-# # 清理本地压缩文件
-# echo "Cleaning up..."
-# rm dist.tar.gz
