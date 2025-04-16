@@ -3,12 +3,8 @@ import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
 import router from '@/router'
 
-// 使用 VITE_API_BASE_URL 环境变量
-const baseURL = import.meta.env.VITE_API_BASE_URL
-
-
 const axiosInstance = axios.create({
-  baseURL,
+  baseURL: '/api',
   timeout: 60000,
   headers: {
     Accept: 'application/json, text/plain, */*',

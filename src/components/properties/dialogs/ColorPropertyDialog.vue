@@ -66,17 +66,17 @@
         </div>
         <el-form-item 
           label="Default Value"
-          prop="defaultValue"
+          prop="value"
         >
           <el-select 
-            v-model="formData.defaultValue" 
-            placeholder="Select default value"
+            v-model="formData.value" 
+            placeholder="Select color value"
             style="width: 100%"
           >
             <el-option
               v-for="option in formData.options"
               :key="option.value"
-              :label="option.label"
+              :label="option.label + ' (' + option.value + ')'"
               :value="option.value"
             >
               <div class="color-option">
@@ -89,7 +89,7 @@
                 >
                   <div v-if="option.value === '-1'" class="transparent-pattern"></div>
                 </div>
-                <span class="color-label">{{ option.label }}</span>
+                <span class="color-label">{{ option.label }} ({{ option.value }})</span>
               </div>
             </el-option>
           </el-select>
@@ -207,7 +207,7 @@ const formData = reactive({
   propertyKey: '',
   type: 'number',
   options: [],
-  defaultValue: '0xffffff',
+  value: '0xffffff',
   prompt: '',
   errorMessage: ''
 })
@@ -236,7 +236,7 @@ const initFormData = (data = null) => {
       propertyKey: data.propertyKey,
       type: data.type,
       options: JSON.parse(JSON.stringify(data.options)),
-      defaultValue: data.defaultValue || data.options[0]?.value || '0xffffff',
+      value: data.value || data.options[0]?.value || '0xffffff',
       prompt: data.prompt,
       errorMessage: data.errorMessage
     })
@@ -246,7 +246,7 @@ const initFormData = (data = null) => {
       propertyKey: 'color_1',
       type: 'color',
       options: JSON.parse(JSON.stringify(propertiesStore.getDefaultColorOptions)),
-      defaultValue: '0xffffff',
+      value: '0xffffff',
       prompt: '',
       errorMessage: ''
     })
@@ -288,7 +288,7 @@ const handleConfirm = async () => {
       key: formData.propertyKey,
       title: formData.title,
       options: formData.options,
-      defaultValue: formData.defaultValue,
+      value: formData.value,
       prompt: formData.prompt,
       errorMessage: formData.errorMessage
     })

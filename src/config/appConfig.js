@@ -31,10 +31,20 @@ export default {
       // 用户反馈评分功能 在底部自动弹出 1-10 个星星 让用户评分，可以选择输入用户建议后提交
       // },
       {
-        version: '1.0.5',
-        date: '2025-04-12',
+        version: '1.0.6',
+        date: '2025-04-16',
         updates: [
-          '增加App Properties 配置, 快捷键 Command + , 打开配置面板',
+          `关于颜色: 
+          1. 可以在颜色面板中选择颜色；
+          2. 如果希望在设置中进行颜色修改，需要在 App Properties 中增加对应的颜色配置
+          3. 同样的颜色，会视为同一个 App Property，在设置中改变颜色时，会同时改变所有同样的颜色`,
+        ]
+      },
+      {
+        version: '1.0.5',
+        date: '2025-04-14',
+        updates: [
+          '增加 App Properties 配置, 快捷键 Command + , 打开配置面板',
           '颜色选择使用 App Properties 配置',
           '我的设计页面支持设计师、设计状态筛选'
         ]

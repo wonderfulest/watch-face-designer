@@ -2,7 +2,6 @@
 
 rm -rf dist
 
-
 npm run build
 
 # 压缩 dist 目录

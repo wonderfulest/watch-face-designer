@@ -14,7 +14,7 @@
           <span class="version-date">{{ version.date }}</span>
         </h3>
         <ul class="update-list">
-          <li v-for="(update, index) in version.updates" :key="index">
+          <li v-for="(update, index) in version.updates" :key="index" class="update-item">
             {{ update }}
           </li>
         </ul>
@@ -137,6 +137,7 @@ defineExpose({
   margin-bottom: 8px;
   color: var(--el-text-color-regular);
   line-height: 1.5;
+  white-space: pre-line;
 }
 
 .update-list li:last-child {
