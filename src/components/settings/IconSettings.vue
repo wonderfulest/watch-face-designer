@@ -93,7 +93,6 @@ const updateTextColor = () => {
   if (!props.element || !baseStore.canvas) return
   props.element.set({
     fill: textColor.value,
-    colorVarName: baseStore.getColorVarName(textColor.value)
   })
   baseStore.canvas.renderAll()
 }

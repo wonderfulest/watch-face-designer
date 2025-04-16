@@ -36,7 +36,6 @@ export const useTextStore = defineStore('textElement', {
           hasBorders: true,
           originX: options.originX || 'center',
           originY: options.originY || 'center',
-          colorVarName: options.colorVarName || ''
         })
 
         // 添加到画布

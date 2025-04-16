@@ -44,7 +44,6 @@ export const useTimeStore = defineStore('timeStore', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          colorVarName: options.colorVarName
         }
 
         const element = new FabricText(text, timeOptions)
@@ -76,7 +75,6 @@ export const useTimeStore = defineStore('timeStore', {
         size: element.fontSize,
         color: element.fill,
         formatter: element.formatter,
-        colorVarName: this.baseStore.getColorVarName(element.fill)
       }
     },
     decodeConfig(config) {
@@ -89,7 +87,6 @@ export const useTimeStore = defineStore('timeStore', {
         formatter: config.formatter,
         originX: config.originX,
         originY: config.originY,
-        colorVarName: config.colorVarName
       }
 
       return decodedConfig

@@ -288,7 +288,7 @@ const handleConfirm = async () => {
       key: formData.propertyKey,
       title: formData.title,
       options: formData.options,
-      value: formData.value,
+      defaultValue: formData.value,
       prompt: formData.prompt,
       errorMessage: formData.errorMessage
     })

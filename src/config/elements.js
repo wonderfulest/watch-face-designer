@@ -42,7 +42,6 @@ export const elementAttribute = {
   formatter: 0, // 时间格式 // HH:mm:ss
   dateFormatter: 8, // 日期格式 // Monday, Sep 5
   varName: '', // 数据变量名字
-  colorVarName: '' // 填充颜色变量名字
 }
 
 const indicatorAttribute = assign({}, elementAttribute, {

@@ -73,7 +73,7 @@ export const usePropertiesStore = defineStore('properties', {
   }),
 
   getters: {
-    allProperties: (state) => state.properties,
+    allProperties: (state) => state.properties || {},
     
     getPropertyValue: (state) => (key) => state.properties[key]?.value,
     
@@ -108,7 +108,7 @@ export const usePropertiesStore = defineStore('properties', {
 
   actions: {
     loadProperties(properties) {
-      this.properties = properties
+      this.properties = properties || {}
     },
 
     addProperty(propertyData) {

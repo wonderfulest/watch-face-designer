@@ -139,7 +139,7 @@ const showColorList = ref(false)
 
 // 计算属性：获取所有颜色属性
 const colorProperties = computed(() => {
-  return Object.entries(propertiesStore.properties)
+  return Object.entries(propertiesStore.properties || {})
     .filter(([_, prop]) => prop.type === 'color')
     .map(([key, prop]) => ({
       name: prop.title,
@@ -148,6 +148,8 @@ const colorProperties = computed(() => {
       propertyKey: key
     }))
 })
+
+console.log('colorProperties', colorProperties.value)
 
 
 // 切换颜色列表展开/收起

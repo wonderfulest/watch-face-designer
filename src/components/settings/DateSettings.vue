@@ -152,7 +152,6 @@ const updateFontSize = () => {
 const updateTextColor = () => {
   if (!props.element || !baseStore.canvas) return
   props.element.set('fill', textColor.value)
-  props.element.set('colorVarName', baseStore.getColorVarName(textColor.value))
   props.element.setCoords()
   baseStore.canvas.renderAll()
 }

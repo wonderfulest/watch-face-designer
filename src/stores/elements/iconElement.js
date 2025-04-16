@@ -44,7 +44,6 @@ export const useIconStore = defineStore('iconElement', {
           metricGroup: options.metricGroup,
           metricSymbol: metric.metricSymbol,
           varName: options.varName,
-          colorVarName: options.colorVarName
         }
 
         // 创建文本对象
@@ -89,7 +88,6 @@ export const useIconStore = defineStore('iconElement', {
         metricGroup: element.metricGroup,
         metricSymbol: element.metricSymbol,
         varName: element.varName,
-        colorVarName: this.baseStore.getColorVarName(element.fill)
       }
     },
     decodeConfig(config) {
@@ -105,7 +103,6 @@ export const useIconStore = defineStore('iconElement', {
         metricGroup: config.metricGroup,
         metricSymbol: config.metricSymbol,
         varName: config.varName,
-        colorVarName: config.colorVarName
       }
       return decodedConfig
     }

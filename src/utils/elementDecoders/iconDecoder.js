@@ -13,7 +13,6 @@ const iconDecoder = (element) => {
     metricGroup: element.metricGroup,
     metricSymbol: element.metricSymbol,
     varName: element.varName,
-    colorVarName: element.colorVarName
   }
 }
 

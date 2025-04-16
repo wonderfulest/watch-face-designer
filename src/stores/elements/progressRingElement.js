@@ -73,8 +73,6 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         metricGroup: config.metricGroup,
         metricSymbol: config.metricSymbol,
         varName: config.varName,
-        colorVarName: config.colorVarName,
-        bgColorVarName: config.bgColorVarName
       })
 
       // 强制组重新计算边界
@@ -208,8 +206,6 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         metricSymbol: element.metricSymbol,
         fullAngle: this.getFullAngle(mainRing.startAngle, bgRing.endAngle, mainRing.counterClockwise), // 不需要反序列化
         varName: element.varName,
-        colorVarName: this.baseStore.getColorVarName(mainRing.stroke),
-        bgColorVarName: this.baseStore.getColorVarName(bgRing.stroke),
         counterClockwise: mainRing.counterClockwise
       }
     },
@@ -226,8 +222,6 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         metricGroup: config.metricGroup,
         metricSymbol: config.metricSymbol,
         varName: config.varName,
-        colorVarName: config.colorVarName,
-        bgColorVarName: config.bgColorVarName,
         counterClockwise: config.counterClockwise
       }
       return decodedConfig

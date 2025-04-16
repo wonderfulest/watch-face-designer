@@ -215,8 +215,6 @@ const updateElement = () => {
     originY: 'center',
     width: size,
     height: size,
-    colorVarName: baseStore.getColorVarName(color.value),
-    bgColorVarName: baseStore.getColorVarName(bgColor.value),
     varName: varName.value,
     counterClockwise: counterClockwise.value
   })

@@ -174,7 +174,6 @@ const updateColor = () => {
 
   props.element.set({
     fill: color.value,
-    colorVarName: baseStore.getColorVarName(color.value)
   })
 
   baseStore.canvas.renderAll()

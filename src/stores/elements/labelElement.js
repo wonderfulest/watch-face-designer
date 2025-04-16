@@ -85,7 +85,6 @@ export const useLabelStore = defineStore('labelElement', {
           text: formattedText,
           originalText: originalText, // 保存原始文本，以便在大小写设置变化时可以重新格式化
           varName: options.varName,
-          colorVarName: options.colorVarName
         }
         console.log('创建标签元素', labelOptions)
 
@@ -152,7 +151,6 @@ export const useLabelStore = defineStore('labelElement', {
         metricSymbol: element.metricSymbol,
         text: element.originalText || element.text, // 使用原始文本而不是格式化后的文本
         varName: element.varName,
-        colorVarName: this.baseStore.getColorVarName(element.fill)
       }
     },
 
@@ -174,7 +172,6 @@ export const useLabelStore = defineStore('labelElement', {
         text: formattedText,
         originalText: config.text, // 保存原始文本
         varName: config.varName,
-        colorVarName: config.colorVarName
       }
       return decodedConfig
     }

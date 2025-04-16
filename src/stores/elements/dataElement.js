@@ -44,7 +44,6 @@ export const useDataStore = defineStore('dataStore', {
           metricGroup: options.metricGroup,
           metricSymbol: metric.metricSymbol,
           varName: options.varName, // 数据变量名字
-          colorVarName: options.colorVarName // 填充变量名
         }
         // 创建文本对象
         const element = new FabricText(metric.defaultValue, dataOptions)
@@ -87,7 +86,6 @@ export const useDataStore = defineStore('dataStore', {
         size: element.fontSize,
         color: element.fill,
         varName: element.varName,
-        colorVarName: this.baseStore.getColorVarName(element.fill)
       }
     },
     decodeConfig(config) {
@@ -105,7 +103,6 @@ export const useDataStore = defineStore('dataStore', {
         metricGroup: config.metricGroup,
         metricSymbol: config.metricSymbol,
         varName: config.varName,
-        colorVarName: config.colorVarName
       }
       return decodedConfig
     }
