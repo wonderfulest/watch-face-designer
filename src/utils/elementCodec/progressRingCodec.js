@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
 import { useProgressRingStore } from '@/stores/elements/progressRingElement'
 
 // 进度环编码器
@@ -47,7 +47,13 @@ const decodeProgressRing = (encoded) => {
   }
 }
 
+const addElement = (config) => {
+  const progressRingStore = useProgressRingStore()
+  progressRingStore.addElement(config)
+}
+
 export default () => {
   registerEncoder('progressRing', encodeProgressRing)
   registerDecoder('progressRing', decodeProgressRing)
+  registerAddElement('progressRing', addElement)
 }

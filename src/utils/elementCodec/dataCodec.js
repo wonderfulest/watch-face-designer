@@ -1,5 +1,6 @@
 import { ref } from 'vue'
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
+import { useDataStore } from '@/stores/elements/dataElement'
 
 // 数据编码器
 const dataEncoder = (element) => {
@@ -36,8 +37,14 @@ const dataDecoder = (element) => {
   }
 }
 
+const addElement = (config) => {
+  const dataStore = useDataStore()
+  dataStore.addElement(config)
+}
+
 // 默认导出函数，用于自动注册
 export default () => {
   registerEncoder('data', dataEncoder)
   registerDecoder('data', dataDecoder)
+  registerAddElement('data', addElement)
 }

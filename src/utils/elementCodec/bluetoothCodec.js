@@ -1,5 +1,6 @@
 import { ref } from 'vue'
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
+import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
 
 // 蓝牙编码器
 const encodeBluetooth = (element) => {
@@ -27,7 +28,13 @@ const decodeBluetooth = (encoded) => {
   return element
 }
 
+const addElement = (config) => {
+  const bluetoothStore = useBluetoothStore()
+  bluetoothStore.addElement(config)
+}
+
 export default () => {
   registerEncoder('bluetooth', encodeBluetooth)
   registerDecoder('bluetooth', decodeBluetooth)
+  registerAddElement('bluetooth', addElement)
 } 

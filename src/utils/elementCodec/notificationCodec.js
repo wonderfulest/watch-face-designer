@@ -1,5 +1,6 @@
 import { ref } from 'vue'
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
+import { useNotificationStore } from '@/stores/elements/notificationElement'
 
 // 通知编码器
 const encodeNotification = (element) => {
@@ -27,7 +28,13 @@ const decodeNotification = (encoded) => {
   return element
 }
 
+const addElement = (config) => {
+  const notificationStore = useNotificationStore()
+  notificationStore.addElement(config)
+}
+
 export default () => {
   registerEncoder('notification', encodeNotification)
   registerDecoder('notification', decodeNotification)
+  registerAddElement('notification', addElement)
 } 

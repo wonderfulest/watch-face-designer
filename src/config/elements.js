@@ -79,6 +79,19 @@ export const elementConfigs = {
     alarms: { metricSymbol: ':INDICATOR_TYPE_ALARMS', icon: 'material-symbols:alarm-outline', label: '闹钟', ...indicatorAttribute },
     notification: { metricSymbol: ':INDICATOR_TYPE_NOTIFICATIONS', icon: 'hugeicons:notification-01', label: '手机通知', ...indicatorAttribute },
   },
+  status: {
+    battery: {
+      label: '电池',
+      icon: 'Battery',  // 使用适当的图标
+      type: 'battery',
+      defaultConfig: {
+        width: 120,
+        height: 60,
+        color: '#333',
+        level: 0.5
+      }
+    }
+  },
   // 图形
   // shape: {
   //   rect: { icon: 'mdi:rectangle', label: '矩形', ...elementAttribute },
@@ -93,5 +106,6 @@ export const elementConfigs = {
       label: '进度环',
       ...elementAttribute
     }
-  }
+  },
+  
 }

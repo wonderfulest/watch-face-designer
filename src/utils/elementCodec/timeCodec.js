@@ -1,5 +1,5 @@
-import { ref } from 'vue'
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
+import { useTimeStore } from '@/stores/elements/timeElement'
 
 // 时间编码器
 const timeEncoder = (element) => {
@@ -33,7 +33,13 @@ const timeDecoder = (element) => {
   }
 }
 
+const addElement = (config) => {
+  const timeStore = useTimeStore()
+  timeStore.addElement(config)
+}
+
 export default () => {
   registerEncoder('time', timeEncoder)
   registerDecoder('time', timeDecoder)
+  registerAddElement('time', addElement)
 } 

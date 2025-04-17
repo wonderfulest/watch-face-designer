@@ -1,5 +1,5 @@
-import { ref } from 'vue'
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
+import { useIconStore } from '@/stores/elements/iconElement'
 
 // 图标编码器
 const iconEncoder = (element) => {
@@ -33,9 +33,15 @@ const iconDecoder = (element) => {
     metricSymbol: element.metricSymbol,
     varName: element.varName,
   }
-} 
+}
+
+const addElement = (config) => {
+  const iconStore = useIconStore()
+  iconStore.addElement(config)
+}
 
 export default () => {
   registerEncoder('icon', iconEncoder)
   registerDecoder('icon', iconDecoder)
+  registerAddElement('icon', addElement)
 }

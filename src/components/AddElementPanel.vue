@@ -38,6 +38,7 @@ import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
 import { useDisturbStore } from '@/stores/elements/disturbElement'
 import { useAlarmsStore } from '@/stores/elements/alarmsElement'
 import { useNotificationStore } from '@/stores/elements/notificationElement'
+import { useBatteryStore } from '@/stores/elements/batteryElement'
 import emitter from '@/utils/eventBus'
 
 const fontStore = useFontStore()
@@ -57,6 +58,7 @@ const layerStore = useLayerStore()
 const disturbStore = useDisturbStore()
 const alarmsStore = useAlarmsStore()
 const notificationStore = useNotificationStore()
+const batteryStore = useBatteryStore()
 const isCollapsed = ref(false)
 
 const { proxy } = getCurrentInstance()

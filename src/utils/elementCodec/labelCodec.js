@@ -1,4 +1,10 @@
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
+import { useLabelStore } from '@/stores/elements/labelElement'
+
+const addElement = (config) => {
+  const labelStore = useLabelStore()
+  labelStore.addElement(config)
+}
 
 // 标签编码器
 const labelEncoder = (element) => {
@@ -40,4 +46,5 @@ const labelDecoder = (element) => {
 export default () => {
   registerEncoder('label', labelEncoder)
   registerDecoder('label', labelDecoder)
+  registerAddElement('label', addElement)
 } 

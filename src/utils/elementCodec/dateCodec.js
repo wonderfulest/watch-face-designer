@@ -1,5 +1,6 @@
 import { ref } from 'vue'
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
+import { useDateStore } from '@/stores/elements/dateElement'
 
 // 日期编码器
 const dateEncoder = (element) => {
@@ -32,7 +33,13 @@ const dateDecoder = (element) => {
   }
 }
 
+const addElement = (config) => {
+  const dateStore = useDateStore()
+  dateStore.addElement(config)
+}
+
 export default () => {
   registerEncoder('date', dateEncoder)
   registerDecoder('date', dateDecoder)
+  registerAddElement('date', addElement)
 } 

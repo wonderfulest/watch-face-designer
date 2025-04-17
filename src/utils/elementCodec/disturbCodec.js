@@ -1,5 +1,6 @@
 import { ref } from 'vue'
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
+import { useDisturbStore } from '@/stores/elements/disturbElement'
 
 // 勿扰编码器
 const encodeDisturb = (element) => {
@@ -27,7 +28,13 @@ const decodeDisturb = (encoded) => {
   return element
 }
 
+const addElement = (config) => {
+  const disturbStore = useDisturbStore()
+  disturbStore.addElement(config)
+}
+
 export default () => {
   registerEncoder('disturb', encodeDisturb)
   registerDecoder('disturb', decodeDisturb)
+  registerAddElement('disturb', addElement)
 } 
