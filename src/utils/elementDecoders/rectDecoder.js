@@ -1,4 +1,4 @@
-import { registerDecoder } from './elementDecoder'
+import { registerDecoder } from '../elementDecoder'
 
 const rectDecoder = (element) => {
   return {

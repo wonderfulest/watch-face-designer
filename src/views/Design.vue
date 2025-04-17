@@ -56,6 +56,7 @@ import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
 import { useDisturbStore } from '@/stores/elements/disturbElement'
 import { useAlarmsStore } from '@/stores/elements/alarmsElement'
 import { useNotificationStore } from '@/stores/elements/notificationElement'
+import { decodeElement } from '@/utils/elementDecoders'
 
 const propertiesStore = usePropertiesStore()
 const imageStore = useImageElementStore()
@@ -163,53 +164,63 @@ const loadDesign = async (id) => {
     if (config && config.elements) {
       for (const element of config.elements) {
         try {
-          if (element.type === 'global') {
-            baseStore.loadGlobalElement(element)
-          } else if (element.type === 'time') {
-            const options = timeStore.decodeConfig(element)
-            await timeStore.addElement(options)
-          } else if (element.type === 'date') {
-            const options = dateStore.decodeConfig(element)
-            await dateStore.addElement(options)
-          } else if (element.type === 'image') {
-            const options = imageStore.decodeConfig(element)
-            await imageStore.addElement(options)
-          } else if (element.type === 'badge') {
-            const options = badgeStore.decodeConfig(element)
-            await badgeStore.addElement(options)
-          } else if (element.type === 'icon') {
-            const options = iconStore.decodeConfig(element)
-            await iconStore.addElement(options)
-          } else if (element.type === 'data') {
-            const options = await dataStore.decodeConfig(element)
-            await dataStore.addElement(options)
-          } else if (element.type === 'label') {
-            const options = await labelStore.decodeConfig(element)
-            await labelStore.addElement(options)
-          } else if (element.type === 'progressRing') {
-            const options = await progressRingStore.decodeConfig(element)
-            await progressRingStore.addElement(options)
-          } else if (element.type === 'circle') {
-            const options = await circleStore.decodeConfig(element)
-            await circleStore.addElement(options)
-          } else if (element.type === 'rect') {
-            const options = await rectStore.decodeConfig(element)
-            await rectStore.addElement(options)
-          } else if (element.type == 'bluetooth') {
-            const options = await bluetoothStore.decodeConfig(element)
-            await bluetoothStore.addElement(options)
-          } else if (element.type == 'disturb') {
-            const options = await disturbStore.decodeConfig(element)
-            await disturbStore.addElement(options)
-          } else if (element.type == 'alarms') {
-            const options = await alarmsStore.decodeConfig(element)
-            await alarmsStore.addElement(options)
-          } else if (element.type == 'notification') {
-            const options = await notificationStore.decodeConfig(element)
-            await notificationStore.addElement(options)
-          } else {
-            console.warn(`Unknown element type: ${element.type}`)
-            messageStore.warning(`未知的元素类型:${element.type}`)
+          // 使用解码器解码元素
+          const decodedElement = decodeElement(element)
+          if (!decodedElement) {
+            console.warn(`Failed to decode element of type: ${element.type}`)
+            continue
+          }
+
+          // 根据元素类型调用对应的 store 添加元素
+          switch (element.type) {
+            case 'global':
+              baseStore.loadGlobalElement(decodedElement)
+              break
+            case 'time':
+              await timeStore.addElement(decodedElement)
+              break
+            case 'date':
+              await dateStore.addElement(decodedElement)
+              break
+            case 'image':
+              await imageStore.addElement(decodedElement)
+              break
+            case 'badge':
+              await badgeStore.addElement(decodedElement)
+              break
+            case 'icon':
+              await iconStore.addElement(decodedElement)
+              break
+            case 'data':
+              await dataStore.addElement(decodedElement)
+              break
+            case 'label':
+              await labelStore.addElement(decodedElement)
+              break
+            case 'progressRing':
+              await progressRingStore.addElement(decodedElement)
+              break
+            case 'circle':
+              await circleStore.addElement(decodedElement)
+              break
+            case 'rect':
+              await rectStore.addElement(decodedElement)
+              break
+            case 'bluetooth':
+              await bluetoothStore.addElement(decodedElement)
+              break
+            case 'disturb':
+              await disturbStore.addElement(decodedElement)
+              break
+            case 'alarms':
+              await alarmsStore.addElement(decodedElement)
+              break
+            case 'notification':
+              await notificationStore.addElement(decodedElement)
+              break
+            default:
+              console.warn(`Unknown element type: ${element.type}`)
+              messageStore.warning(`未知的元素类型:${element.type}`)
           }
         } catch (err) {
           console.error(`Error loading element of type ${element.type}:`, err)

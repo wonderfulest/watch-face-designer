@@ -3,7 +3,6 @@ import { useBaseStore } from '../baseStore'
 import { useLayerStore } from '../layerStore'
 import { nanoid } from 'nanoid'
 import moment from 'moment'
-import { ref } from 'vue'
 import { FabricText } from 'fabric'
 import { TimeFormatOptions } from '@/config/settings'
 
@@ -29,6 +28,7 @@ export const useTimeStore = defineStore('timeStore', {
       }
 
       try {
+        console.log('add Time Element', options)
         let text = this.formatTime(new Date(), TimeFormatOptions.find((option) => option.value === options.formatter).label)
         const timeOptions = {
           eleType: 'time',
@@ -45,51 +45,16 @@ export const useTimeStore = defineStore('timeStore', {
           hasControls: true,
           hasBorders: true,
         }
-
         const element = new FabricText(text, timeOptions)
-
         this.baseStore.canvas.add(element)
-
         this.layerStore.addLayer(element)
-
         this.baseStore.canvas.setActiveObject(element)
         this.baseStore.canvas.renderAll()
-
         return element
       } catch (error) {
         console.error('创建时间元素失败:', error)
         throw error
       }
-    },
-    encodeConfig(element) {
-      if (!element) {
-        throw new Error('无效的元素')
-      }
-      return {
-        type: 'time',
-        x: Math.round(element.left),
-        y: Math.round(element.top),
-        originX: element.originX,
-        originY: element.originY,
-        font: element.fontFamily,
-        size: element.fontSize,
-        color: element.fill,
-        formatter: element.formatter,
-      }
-    },
-    decodeConfig(config) {
-      const decodedConfig = {
-        left: config.x,
-        top: config.y,
-        fill: config.color,
-        fontFamily: config.font,
-        size: config.size,
-        formatter: config.formatter,
-        originX: config.originX,
-        originY: config.originY,
-      }
-
-      return decodedConfig
     },
     updateTimeDisplay() {
       const now = new Date()

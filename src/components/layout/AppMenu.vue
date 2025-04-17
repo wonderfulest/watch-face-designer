@@ -299,11 +299,13 @@ const handleScreenshot = async () => {
 const handleSave =async () => {
   baseStore.deactivateObject()
   try {
-    await exportStore.uploadApp()
-    // 上传成功后跳转到设计列表
-    router.push({
-      path: '/designs'
-    })
+    const result = await exportStore.uploadApp()
+    if (result === 0) {
+      // 上传成功后跳转到设计列表
+      router.push({
+        path: '/designs'
+      })
+    }
   } catch (error) {
     console.error('上传失败:', error)
     messageStore.error('上传失败: ' + (error.message || '未知错误'))

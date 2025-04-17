@@ -265,11 +265,11 @@ const uploadApp = async () => {
   const config = baseStore.generateConfig()
   if (!config) {
     messageStore.warning('没有可上传的配置')
-    return
+    return -1
   }
   if (!baseStore.watchFaceName || !baseStore.kpayId) {
     messageStore.error('请设置应用名称和kpayId')
-    return
+    return -1
   }
 
   // 开始上传，显示进度条
@@ -358,7 +358,7 @@ const uploadApp = async () => {
       }
     }, 1000)
 
-    return true
+    return 0
   } catch (error) {
     console.error('配置上传失败:', error)
     currentStatus = '上传失败: ' + (error.message || '未知错误')
@@ -379,7 +379,7 @@ const uploadApp = async () => {
         loadingInstance = null
       }
     }, 2000)
-    return false
+    return -1
   }
 }
 

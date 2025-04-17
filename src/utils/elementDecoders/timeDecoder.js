@@ -1,20 +1,17 @@
-import { registerDecoder } from './elementDecoder'
+import { registerDecoder } from '../elementDecoder'
 
 const timeDecoder = (element) => {
   return {
     type: 'time',
     left: element.x,
     top: element.y,
-    width: element.width,
-    height: element.height,
-    format: element.format,
-    fontSize: element.fontSize,
-    fontFamily: element.fontFamily,
-    color: element.color,
-    alignment: element.alignment,
-    showSeconds: element.showSeconds,
-    showAmPm: element.showAmPm,
-    // 其他时间元素特有的属性
+    fontSize: element.size,
+    fontFamily: element.font,
+    fill: element.color,
+    originX: element.originX,
+    originY: element.originY,
+    // 时间元素特有属性
+    formatter: element.formatter,
   }
 }
 
