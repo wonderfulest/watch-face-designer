@@ -13,8 +13,7 @@ export const useBluetoothStore = defineStore('bluetoothElement', {
       const baseStore = useBaseStore()
       if (!baseStore.canvas) return
 
-      // 创建蓝牙图标
-      const bluetoothIcon = new FabricText('\u0022', {
+      const options = {
         eleType: 'bluetooth',
         left: config.left,
         top: config.top,
@@ -25,7 +24,10 @@ export const useBluetoothStore = defineStore('bluetoothElement', {
         evented: true,
         originX: 'center',
         originY: 'center'
-      })
+      }
+      console.log('bluetooth options', options)
+      // 创建蓝牙图标
+      const bluetoothIcon = new FabricText('\u0022', options)
 
       // 设置蓝牙图标
       bluetoothIcon.set('text', '\u0022')

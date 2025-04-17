@@ -17,15 +17,14 @@ const encodeBluetooth = (element) => {
 
 // 蓝牙解码器
 const decodeBluetooth = (encoded) => {
-  const element = ref({
+  return {
     type: 'bluetooth',
     x: encoded.x,
     y: encoded.y,
     size: encoded.size,
     font: encoded.font,
     fill: encoded.color,
-  })
-  return element
+  }
 }
 
 const addElement = (config) => {
