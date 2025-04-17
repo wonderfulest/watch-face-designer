@@ -94,7 +94,7 @@ export const useDateStore = defineStore('dateElement', {
           top: options.top,
           originX: options.originX,
           originY: options.originY,
-          fontSize: options.size,
+          fontSize: Number(options.fontSize),
           fill: options.color,
           fontFamily: options.fontFamily,
           formatter: options.dateFormatter,
@@ -102,6 +102,7 @@ export const useDateStore = defineStore('dateElement', {
           hasControls: true,
           hasBorders: true
         }
+        console.log('add date element', attr)
         // 创建文本对象
         const element = new FabricText(text, attr)
 
@@ -141,35 +142,5 @@ export const useDateStore = defineStore('dateElement', {
         throw error
       }
     },
-
-    encodeConfig(element) {
-      if (!element) {
-        throw new Error('无效的元素')
-      }
-      return {
-        type: 'date',
-        x: Math.round(element.left),
-        y: Math.round(element.top),
-        originX: element.originX,
-        originY: element.originY,
-        font: element.fontFamily,
-        size: element.fontSize,
-        color: element.fill,
-        formatter: element.formatter
-      }
-    },
-    decodeConfig(config) {
-      const decodedConfig = {
-        left: config.x,
-        top: config.y,
-        color: config.color,
-        fontFamily: config.font,
-        size: config.size,
-        dateFormatter: config.formatter,
-        originX: config.originX,
-        originY: config.originY
-      }
-      return decodedConfig
-    }
   }
 })

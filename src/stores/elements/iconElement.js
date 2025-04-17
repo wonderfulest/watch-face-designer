@@ -67,44 +67,6 @@ export const useIconStore = defineStore('iconElement', {
         console.error('创建文本元素失败:', error)
         throw error
       }
-    },
-    encodeConfig(element) {
-      if (!element) {
-        throw new Error('无效的元素')
-      }
-      const metric = getMetricBySymbol(element.metricSymbol)
-      if (!metric) {
-        throw new Error('未找到指标配置')
-      }
-      return {
-        type: element.eleType,
-        x: Math.round(element.left),
-        y: Math.round(element.top),
-        originX: element.originX,
-        originY: element.originY,
-        font: element.fontFamily,
-        size: element.fontSize,
-        color: element.fill,
-        metricGroup: element.metricGroup,
-        metricSymbol: element.metricSymbol,
-        varName: element.varName,
-      }
-    },
-    decodeConfig(config) {
-      const decodedConfig = {
-        ...config,
-        left: config.x,
-        top: config.y,
-        fill: config.color,
-        iconFontFamily: config.font,
-        fontSize: config.size,
-        originX: config.originX,
-        originY: config.originY,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        varName: config.varName,
-      }
-      return decodedConfig
     }
   }
 })

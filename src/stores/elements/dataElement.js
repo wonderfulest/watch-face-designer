@@ -24,6 +24,7 @@ export const useDataStore = defineStore('dataStore', {
         throw new Error('画布未初始化，无法添加文本元素')
       }
       try {
+        console.log('add data element', options)
         const metric = getMetricBySymbol(options.metricSymbol)
         if (!metric) {
           throw new Error('data未找到指标配置')
@@ -45,6 +46,7 @@ export const useDataStore = defineStore('dataStore', {
           metricSymbol: metric.metricSymbol,
           varName: options.varName, // 数据变量名字
         }
+        console.log('dataOptions', dataOptions, metric)
         // 创建文本对象
         const element = new FabricText(metric.defaultValue, dataOptions)
 

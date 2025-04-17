@@ -37,7 +37,7 @@ export const useTimeStore = defineStore('timeStore', {
           top: options.top,
           originX: options.originX,
           originY: options.originY,
-          fontSize: Number(options.size),
+          fontSize: Number(options.fontSize),
           fill: options.fill,
           fontFamily: options.fontFamily,
           formatter: options.formatter,

@@ -3,7 +3,7 @@ import { Circle, FabricImage } from 'fabric'
 import { getMetricBySymbol } from '@/config/settings'
 import _ from 'lodash'
 import { usePropertiesStore } from '@/stores/properties'
-import { encodeElement } from '@/utils/elementEncoders'
+import { encodeElement } from '@/utils/elementCodec'
 import { compareColor } from '@/utils/colorUtils'
 
 export const useBaseStore = defineStore('baseStore', {

@@ -19,13 +19,25 @@
       <el-form-item label="配置">
         <div class="json-editor" style="width: 100%; min-width: 800px;">
           <div class="json-toolbar">
-            <el-button size="small" @click="copyConfig">
-              <el-icon><DocumentCopy /></el-icon>
-              复制
-            </el-button>
+            <el-button-group>
+              <el-button size="small" @click="copyConfig">
+                <el-icon><DocumentCopy /></el-icon>
+                复制
+              </el-button>
+              <el-button 
+                size="small" 
+                type="primary" 
+                @click="toggleEditMode"
+              >
+                <el-icon><Edit /></el-icon>
+                {{ isEditing ? '预览' : '编辑' }}
+              </el-button>
+            </el-button-group>
           </div>
           <div class="json-content">
+            <!-- JSON 预览模式 -->
             <vue-json-pretty
+              v-if="!isEditing"
               :data="form.configJson"
               :deep="3"
               :showLength="true" 
@@ -36,6 +48,20 @@
               :collapsedOnClickBrackets="true"
               style="min-width: 100%;"
             />
+            <!-- JSON 编辑模式 -->
+            <el-input
+              v-else
+              v-model="jsonEditText"
+              type="textarea"
+              :rows="20"
+              :status="jsonEditStatus"
+              @input="validateJson"
+              style="font-family: monospace; font-size: 14px;"
+            />
+          </div>
+          <!-- JSON 验证错误提示 -->
+          <div v-if="jsonEditError" class="json-error">
+            {{ jsonEditError }}
           </div>
         </div>
       </el-form-item>
@@ -43,7 +69,13 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="handleCancel">取消</el-button>
-        <el-button type="primary" @click="handleConfirm">保存</el-button>
+        <el-button 
+          type="primary" 
+          @click="handleConfirm"
+          :disabled="!!jsonEditError"
+        >
+          保存
+        </el-button>
       </span>
     </template>
   </el-dialog>
@@ -61,9 +93,9 @@ import { createOrUpdateDesign } from '@/api/design'
 import { useAuthStore } from '@/stores/auth'
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
-import { DocumentCopy } from '@element-plus/icons-vue'
+import { DocumentCopy, Edit } from '@element-plus/icons-vue'
 import emitter from '@/utils/eventBus'
-
+const designId = ref(null)
 const dialogVisible = ref(false)
 const route = useRoute()
 const form = reactive({
@@ -82,6 +114,11 @@ const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 
 const emit = defineEmits(['success', 'cancel'])
+
+const isEditing = ref(false)
+const jsonEditText = ref('')
+const jsonEditError = ref('')
+const jsonEditStatus = ref('')
 
 // 加载设计数据
 const loadDesign = async (documentId) => {
@@ -113,31 +150,58 @@ const loadDesign = async (documentId) => {
   }
 }
 
-// 保存设计
+// 切换编辑模式
+const toggleEditMode = () => {
+  if (!isEditing.value) {
+    // 切换到编辑模式
+    jsonEditText.value = JSON.stringify(form.configJson, null, 2)
+    isEditing.value = true
+  } else {
+    // 切换到预览模式前验证 JSON
+    try {
+      const parsed = JSON.parse(jsonEditText.value)
+      form.configJson = parsed
+      isEditing.value = false
+      jsonEditError.value = ''
+      jsonEditStatus.value = ''
+    } catch (error) {
+      ElMessage.error('JSON 格式无效，请修正后再切换到预览模式')
+    }
+  }
+}
+
+// 验证 JSON
+const validateJson = (value) => {
+  try {
+    JSON.parse(value)
+    jsonEditError.value = ''
+    jsonEditStatus.value = 'success'
+  } catch (error) {
+    jsonEditError.value = `JSON 格式错误: ${error.message}`
+    jsonEditStatus.value = 'error'
+  }
+}
+
+// 修改保存逻辑
 const handleConfirm = async () => {
   try {
-    const config = baseStore.generateConfig()
-    if (!config) {
-      messageStore.error('生成配置失败')
-      return
-    }
-
     const data = {
+      documentId: designId.value,
       name: form.name,
       kpayId: form.kpayId,
       designStatus: form.designStatus,
       description: form.description,
-      configJson: JSON.stringify(config),
+      configJson: JSON.parse(jsonEditText.value),
       userId: user.value.id
     }
 
-    if (form.id) {
-      data.documentId = form.id
-    }
-
     const res = await createOrUpdateDesign(data)
+    
     emit('success', res.data)
     dialogVisible.value = false
+
+    // 重新打开设计
+    console.log('重新打开设计', res.data)
   } catch (error) {
     console.error('更新设计失败:', error)
     messageStore.error(error.message || '更新设计失败')
@@ -164,6 +228,7 @@ const copyConfig = () => {
 
 // 定义 show 方法
 const show = async (documentId) => {
+  designId.value = documentId
   await loadDesign(documentId)
   dialogVisible.value = true
 }
@@ -193,51 +258,42 @@ defineExpose({
 
 <style scoped>
 .json-editor {
-  border: 1px solid #dcdfe6;
+  border: 1px solid var(--el-border-color);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .json-toolbar {
   padding: 8px;
-  background-color: #f5f7fa;
-  border-bottom: 1px solid #dcdfe6;
+  background-color: var(--el-fill-color-light);
+  border-bottom: 1px solid var(--el-border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .json-content {
-  width: 100%;
-  max-height: 600px;
-  overflow: auto;
-  padding: 8px;
+  padding: 16px;
+  background-color: var(--el-bg-color);
+  min-height: 200px;
 }
 
-:deep(.vjs-value__string) {
-  color: #42b983;
+.json-error {
+  padding: 8px 16px;
+  color: var(--el-color-danger);
+  font-size: 14px;
+  border-top: 1px solid var(--el-border-color);
+  background-color: var(--el-color-danger-light-9);
 }
 
-:deep(.vjs-value__number) {
-  color: #f08d49;
+:deep(.el-textarea__inner) {
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 12px;
 }
 
-:deep(.vjs-value__boolean) {
-  color: #cc99cd;
-}
-
-:deep(.vjs-key) {
-  color: #7f8c8d;
-}
-
-:deep(.vjs-tree) {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-:deep(.vjs-tree__brackets) {
-  cursor: pointer;
-}
-
-:deep(.vjs-tree__brackets:hover) {
-  color: #409eff;
+:deep(.el-input.is-status-error .el-textarea__inner) {
+  border-color: var(--el-color-danger);
 }
 </style> 

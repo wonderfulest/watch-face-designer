@@ -56,7 +56,7 @@ import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
 import { useDisturbStore } from '@/stores/elements/disturbElement'
 import { useAlarmsStore } from '@/stores/elements/alarmsElement'
 import { useNotificationStore } from '@/stores/elements/notificationElement'
-import { decodeElement } from '@/utils/elementDecoders'
+import { decodeElement } from '@/utils/elementCodec'
 
 const propertiesStore = usePropertiesStore()
 const imageStore = useImageElementStore()

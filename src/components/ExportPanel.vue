@@ -79,42 +79,10 @@ import { useMessageStore } from '@/stores/message'
 import { getMetricBySymbol } from '@/config/settings'
 import { useAuthStore } from '@/stores/auth'
 import { useBaseStore } from '@/stores/baseStore'
-import { useTimeStore } from '@/stores/elements/timeElement'
-import { useDateStore } from '@/stores/elements/dateElement'
-import { useMetricStore } from '@/stores/elements/metricElement'
-import { useTextStore } from '@/stores/elements/textElement'
-import { useIconStore } from '@/stores/elements/iconElement'
-import { useDataStore } from '@/stores/elements/dataElement'
-import { useImageElementStore } from '@/stores/elements/imageElement'
-import { useBadgeStore } from '@/stores/elements/badgeElement'
-import { useLabelStore } from '@/stores/elements/labelElement'
-import { useCircleStore } from '@/stores/elements/circleElement'
-import { useProgressRingStore } from '@/stores/elements/progressRingElement'
-import { useRectStore } from '@/stores/elements/rectElement'
-import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
 import { useRouter } from 'vue-router'
-import { useDisturbStore } from '@/stores/elements/disturbElement'
-import { useAlarmsStore } from '@/stores/elements/alarmsElement'
-import { useNotificationStore } from '@/stores/elements/notificationElement'
 import { usePropertiesStore } from '@/stores/properties'
-const timeStore = useTimeStore()
-const dateStore = useDateStore()
-const metricStore = useMetricStore()
-const textStore = useTextStore()
 const messageStore = useMessageStore()
-const iconStore = useIconStore()
-const dataStore = useDataStore()
-const imageStore = useImageElementStore()
-const badgeStore = useBadgeStore()
-const labelStore = useLabelStore()
-const progressRingStore = useProgressRingStore()
-const circleStore = useCircleStore()
-const rectStore = useRectStore()
-const bluetoothStore = useBluetoothStore()
 const router = useRouter()
-const disturbStore = useDisturbStore()
-const alarmsStore = useAlarmsStore()
-const notificationStore = useNotificationStore()
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 const propertiesStore = usePropertiesStore()
@@ -379,7 +347,7 @@ const uploadApp = async () => {
         loadingInstance = null
       }
     }, 2000)
-    return -1
+    return 0
   }
 }
 
