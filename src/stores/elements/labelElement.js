@@ -135,5 +135,37 @@ export const useLabelStore = defineStore('labelElement', {
         throw error
       }
     },
+    encodeConfig(element) {
+      return {
+        type: 'label',
+        x: Math.round(element.left),
+        y: Math.round(element.top),
+        originX: element.originX,
+        originY: element.originY,
+        font: element.fontFamily,
+        size: element.fontSize,
+        color: element.fill,
+        varName: element.varName,
+        metricGroup: element.metricGroup,
+        metricSymbol: element.metricSymbol,
+        text: element.text,
+      }
+    },
+    decodeConfig(config) {
+      return {
+        eleType: 'label',
+        left: config.x,
+        top: config.y,
+        originX: config.originX,
+        originY: config.originY,
+        font: config.font,
+        size: config.size,
+        fill: config.color,
+        varName: config.varName,
+        metricGroup: config.metricGroup,
+        metricSymbol: config.metricSymbol,
+        text: config.text,
+      }
+    }
   }
 })

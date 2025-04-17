@@ -4,27 +4,14 @@ import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
 
 // 蓝牙编码器
 const encodeBluetooth = (element) => {
-  const encoded = {
-    type: 'bluetooth',
-    x: element.x,
-    y: element.y,
-    size: element.size,
-    font: element.font,
-    fill: element.color,
-  }
-  return encoded
+  const bluetoothStore = useBluetoothStore()
+  return bluetoothStore.encodeConfig(element)
 }
 
 // 蓝牙解码器
 const decodeBluetooth = (encoded) => {
-  return {
-    type: 'bluetooth',
-    x: encoded.x,
-    y: encoded.y,
-    size: encoded.size,
-    font: encoded.font,
-    fill: encoded.color,
-  }
+  const bluetoothStore = useBluetoothStore()
+  return bluetoothStore.decodeConfig(encoded)
 }
 
 const addElement = (config) => {

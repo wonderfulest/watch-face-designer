@@ -291,7 +291,6 @@ const copyDesign = async (design) => {
       configJson: design.configJson,
       userId: authStore.user.id
     }
-    console.log('newDesignData', newDesignData)
     const response = await createOrUpdateDesign(newDesignData)
     if (response.data) {
       messageStore.success('复制成功')

@@ -19,13 +19,13 @@ export const useBluetoothStore = defineStore('bluetoothElement', {
         top: config.top,
         fontSize: config.fontSize,
         fontFamily: config.fontFamily,
-        fill: config.color,
+        fill: config.fill,
         selectable: true,
         evented: true,
         originX: 'center',
         originY: 'center'
       }
-      console.log('bluetooth options', options)
+
       // 创建蓝牙图标
       const bluetoothIcon = new FabricText('\u0022', options)
 
@@ -56,5 +56,27 @@ export const useBluetoothStore = defineStore('bluetoothElement', {
         }
       })
     },
+
+    encodeConfig(element) {
+      return {
+        type: 'bluetooth',
+        x: element.left,
+        y: element.top,
+        fontSize: element.fontSize,
+        fontFamily: element.fontFamily,
+        fill: element.color,
+      }
+    },
+
+    decodeConfig(config) {
+      return {
+        eleType: 'bluetooth',
+        left: config.x,
+        top: config.y,
+        fontSize: config.size,
+        fontFamily: config.font,
+        fill: config.color,
+      }
+    }
   }
 })

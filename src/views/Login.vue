@@ -271,7 +271,6 @@ watch(activeTab, (newTab) => {
 
 // 组件挂载时初始化
 onMounted(() => {
-  console.log('Component mounted')
   // 确保 DOM 已渲染
   nextTick(() => {
     initTypedEffect('login')

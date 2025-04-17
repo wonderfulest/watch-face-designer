@@ -4,28 +4,14 @@ import { useAlarmsStore } from '@/stores/elements/alarmsElement'
 
 // 闹钟编码器
 const encodeAlarms = (element) => {
-  const encoded = {
-    type: 'alarms',
-    x: element.x,
-    y: element.y,
-    size: element.size,
-    font: element.font,
-    color: element.fill,
-  }
-  return encoded
+  const alarmsStore = useAlarmsStore()
+  return alarmsStore.encodeConfig(element)
 }
 
 // 闹钟解码器
 const decodeAlarms = (encoded) => {
-  const element = ref({
-    eleType: 'alarms',
-    x: encoded.x,
-    y: encoded.y,
-    size: encoded.size,
-    font: encoded.font,
-    fill: encoded.color,
-  })
-  return element
+  const alarmsStore = useAlarmsStore()
+  return alarmsStore.decodeConfig(encoded)
 }
 
 const addElement = (config) => {

@@ -4,28 +4,14 @@ import { useDisturbStore } from '@/stores/elements/disturbElement'
 
 // 勿扰编码器
 const encodeDisturb = (element) => {
-  const encoded = {
-    type: 'disturb',
-    x: element.x,
-    y: element.y,
-    size: element.size,
-    font: element.font,
-    color: element.fill,
-  }
-  return encoded
+  const disturbStore = useDisturbStore()
+  return disturbStore.encodeConfig(element)
 }
 
 // 勿扰解码器
 const decodeDisturb = (encoded) => {
-  const element = ref({
-    eleType: 'disturb',
-    x: encoded.x,
-    y: encoded.y,
-    size: encoded.size,
-    font: encoded.font,
-    fill: encoded.color,
-  })
-  return element
+  const disturbStore = useDisturbStore()
+  return disturbStore.decodeConfig(encoded)
 }
 
 const addElement = (config) => {

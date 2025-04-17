@@ -185,8 +185,13 @@ const setupAutoSave = () => {
 const loadElements = async (elements) => {
   try {
     for (const element of elements) {
+
       const decodedElement = await decodeElement(element)
-      if (!decodedElement) continue
+      if (!decodedElement) {
+        console.warn(`Unknown element type: ${element.type}`)
+        messageStore.warning(`未知的元素类型:${element.type}`)
+        continue
+      }
 
       if (element.type === 'global') {
         baseStore.loadGlobalElement(decodedElement)

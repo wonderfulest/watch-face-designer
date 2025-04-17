@@ -24,7 +24,6 @@ export const useDataStore = defineStore('dataStore', {
         throw new Error('画布未初始化，无法添加文本元素')
       }
       try {
-        console.log('add data element', options)
         const metric = getMetricBySymbol(options.metricSymbol)
         if (!metric) {
           throw new Error('data未找到指标配置')
@@ -46,7 +45,6 @@ export const useDataStore = defineStore('dataStore', {
           metricSymbol: metric.metricSymbol,
           varName: options.varName, // 数据变量名字
         }
-        console.log('dataOptions', dataOptions, metric)
         // 创建文本对象
         const element = new FabricText(metric.defaultValue, dataOptions)
 
@@ -78,35 +76,34 @@ export const useDataStore = defineStore('dataStore', {
       }
       return {
         type: 'data',
-        x: Math.round(element.left), // 四舍五入
-        y: Math.round(element.top), // 四舍五入
-        metricGroup: element.metricGroup,
-        metricSymbol: metric.metricSymbol,
+        x: element.left,
+        y: element.top,
         originX: element.originX,
         originY: element.originY,
         font: element.fontFamily,
         size: element.fontSize,
         color: element.fill,
+        // 其他图标元素特有的属性
         varName: element.varName,
+        metricGroup: element.metricGroup,
+        metricSymbol: element.metricSymbol
       }
     },
     decodeConfig(config) {
-      const decodedConfig = {
-        ...config,
-        type: 'data',
+      return {
+        eleType: 'data',
         left: config.x,
         top: config.y,
-        fill: config.color,
-        fontFamily: config.font,
-        fontSize: config.size,
         originX: config.originX,
         originY: config.originY,
-        size: config.size,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
+        fontFamily: config.font,
+        fontSize: config.size,
+        fill: config.color,
         varName: config.varName,
+        metricGroup: config.metricGroup,
+        metricSymbol: config.metricSymbol
       }
-      return decodedConfig
     }
   }
 })
+

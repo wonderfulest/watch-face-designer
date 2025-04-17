@@ -28,7 +28,6 @@ export const useTimeStore = defineStore('timeStore', {
       }
 
       try {
-        console.log('add Time Element', options)
         let text = this.formatTime(new Date(), TimeFormatOptions.find((option) => option.value === options.formatter).label)
         const timeOptions = {
           eleType: 'time',

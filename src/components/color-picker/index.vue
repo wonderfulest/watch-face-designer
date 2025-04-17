@@ -149,9 +149,6 @@ const colorProperties = computed(() => {
     }))
 })
 
-console.log('colorProperties', colorProperties.value)
-
-
 // 切换颜色列表展开/收起
 const toggleColorList = () => {
   showColorList.value = !showColorList.value
@@ -159,7 +156,6 @@ const toggleColorList = () => {
 
 // 选择颜色
 const selectColor = (color) => {
-  console.log('选择颜色', color)
   hexColor.value = color.hex
   updateColor()
 }

@@ -1,40 +1,16 @@
-import { ref } from 'vue'
 import { registerEncoder, registerDecoder, registerAddElement } from './registry'
 import { useDataStore } from '@/stores/elements/dataElement'
 
 // 数据编码器
 const dataEncoder = (element) => {
-  return {
-    type: 'data',
-    x: element.left,
-    y: element.top,
-    originX: element.originX,
-    originY: element.originY,
-    font: element.fontFamily,
-    size: element.fontSize,
-    fill: element.fill,
-    // 其他图标元素特有的属性
-    varName: element.varName,
-    metricGroup: element.metricGroup,
-    metricSymbol: element.metricSymbol
-  }
+  const dataStore = useDataStore()
+  return dataStore.encodeConfig(element)
 }
 
 // 数据解码器
 const dataDecoder = (element) => {
-  return {
-    type: 'data',
-    left: element.x,
-    top: element.y,
-    originX: element.originX,
-    originY: element.originY,
-    fontFamily: element.font,
-    fontSize: element.size,
-    fill: element.fill,
-    varName: element.varName,
-    metricGroup: element.metricGroup,
-    metricSymbol: element.metricSymbol
-  }
+  const dataStore = useDataStore()
+  return dataStore.decodeConfig(element)
 }
 
 const addElement = (config) => {

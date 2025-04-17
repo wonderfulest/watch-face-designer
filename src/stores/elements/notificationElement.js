@@ -43,6 +43,26 @@ export const useNotificationStore = defineStore('notificationElement', {
         }
       })
     },
+    encodeConfig(element) {
+      return {
+        type: 'bluetooth',
+        x: element.left,
+        y: element.top,
+        fontSize: element.fontSize,
+        fontFamily: element.fontFamily,
+        fill: element.color,
+      }
+    },
 
+    decodeConfig(config) {
+      return {
+        eleType: 'bluetooth',
+        left: config.x,
+        top: config.y,
+        fontSize: config.size,
+        fontFamily: config.font,
+        fill: config.color,
+      }
+    }
   }
 }) 

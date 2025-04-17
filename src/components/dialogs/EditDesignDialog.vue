@@ -256,7 +256,6 @@ const show = async (documentId) => {
 // 添加事件监听
 const handleOpenViewProperties = () => {
   const designId = route.query.id
-  console.log('open-view-properties', designId)
   if (designId) {
     show(designId)
   }

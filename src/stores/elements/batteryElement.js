@@ -16,7 +16,6 @@ export const useBatteryStore = defineStore('batteryElement', {
 
   actions: {
     addElement(config) {
-      console.log('addElement', config)
       const id = nanoid()
       
       // 基础尺寸配置
