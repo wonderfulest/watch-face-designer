@@ -44,29 +44,5 @@ export const useNotificationStore = defineStore('notificationElement', {
       })
     },
 
-    encodeConfig(element) {
-      if (!element) {
-        console.error('通知元素对象无效')
-        return null
-      }
-      return {
-        type: 'notification',
-        x: element.left,
-        y: element.top,
-        size: element.fontSize,
-        font: element.fontFamily,
-        color: element.fill
-      }
-    },
-
-    decodeConfig(config) {
-      return {
-        left: config.x,
-        top: config.y,
-        fontSize: config.size,
-        fontFamily: config.font,
-        color: config.color
-      }
-    }
   }
 }) 

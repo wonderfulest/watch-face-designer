@@ -3,10 +3,6 @@ import { registerEncoder, registerDecoder } from './registry'
 
 // 图标编码器
 const iconEncoder = (element) => {
-  const metric = getMetricBySymbol(element.metricSymbol)
-  if (!metric) {
-    throw new Error('未找到指标配置')
-  }
   return {
     type: element.eleType,
     x: Math.round(element.left),

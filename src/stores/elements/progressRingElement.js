@@ -183,48 +183,5 @@ export const useProgressRingStore = defineStore('progressRingElement', {
 
       this.baseStore.canvas.renderAll()
     },
-    encodeConfig(element) {
-      if (!element) {
-        throw new Error('无效的元素')
-      }
-      const mainRing = element.getObjects().find((obj) => obj.id.endsWith('_main'))
-      const bgRing = element.getObjects().find((obj) => obj.id.endsWith('_bg'))
-      if (!mainRing || !bgRing) {
-        throw new Error('无效的元素')
-      }
-      return {
-        type: 'progressRing',
-        x: Math.round(element.left),
-        y: Math.round(element.top),
-        startAngle: mainRing.startAngle,
-        endAngle: bgRing.endAngle,
-        radius: mainRing.radius,
-        strokeWidth: mainRing.strokeWidth,
-        color: mainRing.stroke,
-        bgColor: bgRing.stroke,
-        metricGroup: element.metricGroup,
-        metricSymbol: element.metricSymbol,
-        fullAngle: this.getFullAngle(mainRing.startAngle, bgRing.endAngle, mainRing.counterClockwise), // 不需要反序列化
-        varName: element.varName,
-        counterClockwise: mainRing.counterClockwise
-      }
-    },
-    decodeConfig(config) {
-      const decodedConfig = {
-        left: config.x,
-        top: config.y,
-        startAngle: config.startAngle,
-        endAngle: config.endAngle,
-        radius: config.radius,
-        strokeWidth: config.strokeWidth,
-        color: config.color,
-        bgColor: config.bgColor,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        varName: config.varName,
-        counterClockwise: config.counterClockwise
-      }
-      return decodedConfig
-    }
   }
 })

@@ -178,7 +178,7 @@ const updateMetricType = () => {
   }
   iconElement.value && iconElement.value.set('text', metric.icon)
   dataElement.value && dataElement.value.set('text', metric.defaultValue)
-  labelElement.value && labelElement.value.set('text', metric.enLabel)
+  labelElement.value && labelElement.value.set('text', metric.enLabel?.short)
   progressRingElement.value && progressRingElement.value.set('text', metric.defaultValue)
 
   baseStore.canvas.renderAll()

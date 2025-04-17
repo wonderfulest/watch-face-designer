@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import { registerEncoder, registerDecoder } from './registry'
 
 // 标签编码器
@@ -21,9 +20,8 @@ const labelEncoder = (element) => {
 
 // 标签解码器
 const labelDecoder = (element) => {
-  
   return {
-    type: 'label',
+    eleType: 'label',
     left: element.x,
     top: element.y,
     originX: element.originX,

@@ -54,33 +54,5 @@ export const useBluetoothStore = defineStore('bluetoothElement', {
         }
       })
     },
-
-    // 编码配置
-    encodeConfig(element) {
-      if (!element) {
-        console.error('蓝牙元素对象无效')
-        return null
-      }
-      return {
-        type: 'bluetooth',
-        x: element.left,
-        y: element.top,
-        size: element.fontSize,
-        font: element.fontFamily,
-        color: element.fill
-      }
-     
-    },
-
-    // 解码配置
-    decodeConfig(config) {
-      return {
-        left: config.x,
-        top: config.y,
-        fontSize: config.size,
-        fontFamily: config.font,
-        color: config.color
-      }
-    }
   }
 })

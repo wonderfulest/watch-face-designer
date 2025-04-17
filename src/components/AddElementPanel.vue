@@ -25,7 +25,6 @@ import { useTextStore } from '@/stores/elements/textElement'
 import { useImageElementStore } from '@/stores/elements/imageElement'
 import { useTimeStore } from '@/stores/elements/timeElement'
 import { useDateStore } from '@/stores/elements/dateElement'
-import { useMetricStore } from '@/stores/elements/metricElement'
 import { useIconStore } from '@/stores/elements/iconElement'
 import { useDataStore } from '@/stores/elements/dataElement'
 import { useLayerStore } from '@/stores/layerStore'
@@ -46,7 +45,6 @@ const textStore = useTextStore()
 const imageStore = useImageElementStore()
 const timeElement = useTimeStore()
 const dateStore = useDateStore()
-const metricStore = useMetricStore()
 const iconStore = useIconStore()
 const dataStore = useDataStore()
 const badgeStore = useBadgeStore()

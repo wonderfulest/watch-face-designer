@@ -2,9 +2,9 @@ import { getEncoder, getDecoder } from './registry'
 
 // 编码元素
 export const encodeElement = (element) => {
-  const encoder = getEncoder(element.type)
+  const encoder = getEncoder(element.eleType)
   if (!encoder) {
-    console.warn(`No encoder found for element type: ${element.type}`)
+    console.warn(`No encoder found for element type: ${element.eleType}`)
     return null
   }
   return encoder(element)

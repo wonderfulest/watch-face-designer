@@ -14,11 +14,11 @@ export const useAlarmsStore = defineStore('alarmsElement', {
 
       const alarmsIcon = new FabricText('\u0024', {
         eleType: 'alarms',
-        left: config.left || 100,
-        top: config.top || 100,
-        fontSize: config.fontSize || 24,
-        fontFamily: config.fontFamily || 'Yoghurt-One',
-        fill: config.color || '#ffffff',
+        left: config.left,
+        top: config.top,
+        fontSize: config.fontSize,
+        fontFamily: config.fontFamily,
+        fill: config.fill,
         selectable: true,
         evented: true,
         originX: 'center',
@@ -43,35 +43,5 @@ export const useAlarmsStore = defineStore('alarmsElement', {
         }
       })
     },
-
-    encodeConfig(element) {
-      if (!element) {
-        console.error('闹钟元素对象无效')
-        return null
-      }
-      try {
-        return {
-          type: 'alarms',
-          x: element.left,
-          y: element.top,
-          size: element.fontSize,
-          font: element.fontFamily,
-          color: element.fill
-        }
-      } catch (error) {
-        console.error('编码闹钟元素配置时出错:', error)
-        return null
-      }
-    },
-
-    decodeConfig(config) {
-      return {
-        left: config.x,
-        top: config.y,
-        fontSize: config.size,
-        fontFamily: config.font,
-        color: config.color
-      }
-    }
   }
 }) 

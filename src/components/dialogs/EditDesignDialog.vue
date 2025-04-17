@@ -1,6 +1,12 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="编辑设计" width="60%" :top="'5vh'">
-    <el-form :model="form" label-width="120px">
+  <el-dialog 
+    v-model="dialogVisible" 
+    title="编辑设计" 
+    width="60%" 
+    :top="'5vh'"
+    class="edit-design-dialog"
+  >
+    <el-form :model="form" label-width="120px" class="edit-form">
       <el-form-item label="名称">
         <el-input v-model="form.name" />
       </el-form-item>
@@ -16,8 +22,8 @@
       <el-form-item label="描述">
         <el-input v-model="form.description" type="textarea" :rows="2" />
       </el-form-item>
-      <el-form-item label="配置">
-        <div class="json-editor" style="width: 100%; min-width: 800px;">
+      <el-form-item label="配置" class="config-form-item">
+        <div class="json-editor">
           <div class="json-toolbar">
             <el-button-group>
               <el-button size="small" @click="copyConfig">
@@ -143,6 +149,9 @@ const loadDesign = async (documentId) => {
       form.configJson = config
       form.configJsonString = JSON.stringify(config, null, 2)
     }
+
+    // 初始化编辑文本
+    jsonEditText.value = JSON.stringify(form.configJson, null, 2)
   } catch (error) {
     console.error('加载设计失败:', error)
     ElMessage.error('加载设计失败')
@@ -185,13 +194,18 @@ const validateJson = (value) => {
 // 修改保存逻辑
 const handleConfirm = async () => {
   try {
+    // 获取正确的配置 JSON
+    const configJson = isEditing.value 
+      ? JSON.parse(jsonEditText.value)  // 如果在编辑模式，使用编辑框的内容
+      : form.configJson                 // 如果在预览模式，使用 form 中的配置
+
     const data = {
       documentId: designId.value,
       name: form.name,
       kpayId: form.kpayId,
       designStatus: form.designStatus,
       description: form.description,
-      configJson: JSON.parse(jsonEditText.value),
+      configJson: configJson,
       userId: user.value.id
     }
 
@@ -228,6 +242,12 @@ const copyConfig = () => {
 
 // 定义 show 方法
 const show = async (documentId) => {
+  // 重置状态
+  isEditing.value = false
+  jsonEditText.value = ''
+  jsonEditError.value = ''
+  jsonEditStatus.value = ''
+  
   designId.value = documentId
   await loadDesign(documentId)
   dialogVisible.value = true
@@ -257,10 +277,83 @@ defineExpose({
 </script>
 
 <style scoped>
+/* 对话框样式 */
+:deep(.edit-design-dialog .el-dialog) {
+  margin-top: 5vh !important;
+  margin-bottom: 5vh !important;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.edit-design-dialog .el-dialog__body) {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* 表单样式 */
+.edit-form {
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* 配置表单项样式 */
+.config-form-item {
+  width: 100%;
+}
+
+:deep(.config-form-item .el-form-item__content) {
+  flex: 1;
+  overflow-x: hidden; /* 防止水平溢出 */
+  min-width: 0; /* 允许内容收缩 */
+}
+
+/* JSON 编辑器样式 */
 .json-editor {
   border: 1px solid var(--el-border-color);
   border-radius: 4px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 300px;
+  max-height: calc(90vh - 400px);
+  width: 100%; /* 设置宽度为100% */
+  min-width: 0; /* 允许内容收缩 */
+}
+
+.json-content {
+  padding: 16px;
+  background-color: var(--el-bg-color);
+  flex: 1;
+  overflow: auto; /* 同时允许水平和垂直滚动 */
+  min-height: 200px;
+  width: 100%;
+}
+
+/* JSON 预览模式的样式 */
+:deep(.vjs-tree) {
+  width: 100%;
+  overflow-x: auto; /* 允许水平滚动 */
+  white-space: pre-wrap; /* 允许文本换行 */
+  word-break: break-all; /* 允许在任意字符间断行 */
+}
+
+/* JSON 编辑模式的样式 */
+:deep(.el-textarea__inner) {
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  width: 100%;
+  resize: none; /* 禁用手动调整大小 */
+}
+
+/* 移除之前的 min-width: 800px 设置 */
+:deep(.json-editor), 
+:deep(.json-content),
+:deep(.el-textarea__inner) {
+  min-width: unset;
 }
 
 .json-toolbar {
@@ -270,12 +363,7 @@ defineExpose({
   display: flex;
   justify-content: flex-end;
   gap: 8px;
-}
-
-.json-content {
-  padding: 16px;
-  background-color: var(--el-bg-color);
-  min-height: 200px;
+  flex-shrink: 0;
 }
 
 .json-error {
@@ -284,16 +372,6 @@ defineExpose({
   font-size: 14px;
   border-top: 1px solid var(--el-border-color);
   background-color: var(--el-color-danger-light-9);
-}
-
-:deep(.el-textarea__inner) {
-  font-family: monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  padding: 12px;
-}
-
-:deep(.el-input.is-status-error .el-textarea__inner) {
-  border-color: var(--el-color-danger);
+  flex-shrink: 0;
 }
 </style> 

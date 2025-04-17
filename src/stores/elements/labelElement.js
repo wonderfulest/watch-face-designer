@@ -135,45 +135,5 @@ export const useLabelStore = defineStore('labelElement', {
         throw error
       }
     },
-
-    encodeConfig(element) {
-      return {
-        id: element.id,
-        type: element.eleType,
-        x: Math.round(element.left),
-        y: Math.round(element.top),
-        size: element.fontSize,
-        color: element.fill,
-        font: element.fontFamily,
-        originX: element.originX,
-        originY: element.originY,
-        metricGroup: element.metricGroup,
-        metricSymbol: element.metricSymbol,
-        text: element.originalText || element.text, // 使用原始文本而不是格式化后的文本
-        varName: element.varName,
-      }
-    },
-
-    decodeConfig(config) {
-      // 应用当前的文本大小写设置
-      const formattedText = this.applyTextCase(config.text)
-      
-      const decodedConfig = {
-        ...config,
-        left: config.x,
-        top: config.y,
-        fill: config.color,
-        fontFamily: config.font,
-        fontSize: config.size,
-        originX: config.originX,
-        originY: config.originY,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        text: formattedText,
-        originalText: config.text, // 保存原始文本
-        varName: config.varName,
-      }
-      return decodedConfig
-    }
   }
 })
