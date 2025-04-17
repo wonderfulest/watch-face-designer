@@ -16,23 +16,37 @@ export const useBatteryStore = defineStore('batteryElement', {
 
   actions: {
     addElement(config) {
+      console.log('addElement', config)
       const id = nanoid()
+      
+      // 基础尺寸配置
       const width = config.width || 120
       const height = config.height || 60
-      const headWidth = width * 0.08 // 电池头部宽度为总宽度的8%
-      const headHeight = height * 0.5 // 电池头部高度为总高度的50%
-      const padding = 5 // 电量条和外壳的间距
-      const level = config.level || 0.5 // 默认50%电量
+      const headWidth = config.headWidth || width * 0.08
+      const headHeight = config.headHeight || height * 0.5
+      const padding = config.padding || 5
+      const level = config.level || 0.5
+
+      // 样式配置
+      const bodyStrokeWidth = config.bodyStrokeWidth || 2
+      const bodyStroke = config.bodyStroke || '#333'
+      const bodyFill = config.bodyFill || 'transparent'
+      const bodyRx = config.bodyRx || height * 0.1
+      const bodyRy = config.bodyRy || height * 0.1
+      
+      const headFill = config.headFill || bodyFill
+      const headRx = config.headRx || headWidth * 0.2
+      const headRy = config.headRy || headWidth * 0.2
 
       // 电池外壳
       const batteryBody = new Rect({
-        width: width,
-        height: height,
-        fill: 'transparent',
-        stroke: config.color || '#333',
-        strokeWidth: 2,
-        rx: height * 0.1, // 圆角
-        ry: height * 0.1,
+        width,
+        height,
+        fill: bodyFill,
+        stroke: bodyStroke,
+        strokeWidth: bodyStrokeWidth,
+        rx: bodyRx,
+        ry: bodyRy,
         id: id + '_body',
         originX: 'center',
         originY: 'center'
@@ -42,9 +56,9 @@ export const useBatteryStore = defineStore('batteryElement', {
       const batteryHead = new Rect({
         width: headWidth,
         height: headHeight,
-        fill: config.color || '#333',
-        rx: headWidth * 0.2,
-        ry: headWidth * 0.2,
+        fill: headFill,
+        rx: headRx,
+        ry: headRy,
         id: id + '_head',
         originX: 'center',
         originY: 'center',
@@ -55,7 +69,7 @@ export const useBatteryStore = defineStore('batteryElement', {
       const batteryLevel = new Rect({
         width: (width - padding * 2) * level,
         height: height - padding * 2,
-        fill: this.getLevelColor(level),
+        fill: config.levelColor || this.getLevelColor(level),
         id: id + '_level',
         originX: 'left',
         originY: 'center',
@@ -66,16 +80,13 @@ export const useBatteryStore = defineStore('batteryElement', {
       const group = new Group([batteryBody, batteryHead, batteryLevel], {
         left: config.left,
         top: config.top,
-        id: id,
+        id,
         eleType: 'battery',
         selectable: true,
         hasControls: true,
         hasBorders: true,
         originX: 'center',
         originY: 'center',
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        varName: config.varName,
       })
 
       // 强制组重新计算边界
@@ -133,14 +144,14 @@ export const useBatteryStore = defineStore('batteryElement', {
       }
       const objects = element.getObjects()
       const batteryBody = objects.find((obj) => obj.id.endsWith('_body'))
+      const batteryHead = objects.find((obj) => obj.id.endsWith('_head'))
       const batteryLevel = objects.find((obj) => obj.id.endsWith('_level'))
       
-      if (!batteryBody || !batteryLevel) {
+      if (!batteryBody || !batteryHead || !batteryLevel) {
         throw new Error('无效的元素')
       }
 
-      const padding = 5
-      const level = (batteryLevel.width + padding * 2) / batteryBody.width
+      const padding = batteryLevel.left + batteryBody.width / 2
 
       return {
         type: 'battery',
@@ -148,26 +159,43 @@ export const useBatteryStore = defineStore('batteryElement', {
         y: Math.round(element.top),
         width: batteryBody.width,
         height: batteryBody.height,
-        color: batteryBody.stroke,
-        level: level,
-        metricGroup: element.metricGroup,
-        metricSymbol: element.metricSymbol,
-        varName: element.varName
+        bodyStroke: batteryBody.stroke,
+        bodyFill: batteryBody.fill,
+        bodyStrokeWidth: batteryBody.strokeWidth,
+        bodyRx: batteryBody.rx,
+        bodyRy: batteryBody.ry,
+        headWidth: batteryHead.width,
+        headHeight: batteryHead.height,
+        headFill: batteryHead.fill,
+        headRx: batteryHead.rx,
+        headRy: batteryHead.ry,
+        padding: padding,
+        level: batteryLevel.width / (batteryBody.width - padding * 2),
+        levelColor: batteryLevel.fill
       }
     },
 
     // 解码配置
     decodeConfig(config) {
       return {
+        eleType: 'battery',
         left: config.x,
         top: config.y,
         width: config.width,
         height: config.height,
-        color: config.color,
+        bodyStroke: config.bodyStroke,
+        bodyFill: config.bodyFill,
+        bodyStrokeWidth: config.bodyStrokeWidth,
+        bodyRx: config.bodyRx,
+        bodyRy: config.bodyRy,
+        headWidth: config.headWidth,
+        headHeight: config.headHeight,
+        headFill: config.headFill,
+        headRx: config.headRx,
+        headRy: config.headRy,
+        padding: config.padding,
         level: config.level,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        varName: config.varName
+        levelColor: config.levelColor,
       }
     }
   }

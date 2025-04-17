@@ -55,6 +55,19 @@ const indicatorAttribute = assign({}, elementAttribute, {
 })
 
 export const elementConfigs = {
+  status: {
+    battery: {
+      label: '电池',
+      icon: 'Battery',  // 使用适当的图标
+      type: 'battery',
+      ...assign({}, elementAttribute, {
+        width: 40,
+        height: 20,
+        color: '#333',
+        level: 0.5
+      })
+    }
+  },
   // 基础元素
   // basic: {
   //   text: { icon: 'mdi:note-text', label: '文本', defaultText: '新文本', size: 36, ...elementAttribute },
@@ -79,19 +92,7 @@ export const elementConfigs = {
     alarms: { metricSymbol: ':INDICATOR_TYPE_ALARMS', icon: 'material-symbols:alarm-outline', label: '闹钟', ...indicatorAttribute },
     notification: { metricSymbol: ':INDICATOR_TYPE_NOTIFICATIONS', icon: 'hugeicons:notification-01', label: '手机通知', ...indicatorAttribute },
   },
-  status: {
-    battery: {
-      label: '电池',
-      icon: 'Battery',  // 使用适当的图标
-      type: 'battery',
-      defaultConfig: {
-        width: 120,
-        height: 60,
-        color: '#333',
-        level: 0.5
-      }
-    }
-  },
+
   // 图形
   // shape: {
   //   rect: { icon: 'mdi:rectangle', label: '矩形', ...elementAttribute },

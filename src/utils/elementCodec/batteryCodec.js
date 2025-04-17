@@ -1,4 +1,4 @@
-import { registerEncoder, registerDecoder } from './registry'
+import { registerEncoder, registerDecoder, registerAddElement } from './registry'
 import { useBatteryStore } from '@/stores/elements/batteryElement'
 
 const addElement = (config) => {

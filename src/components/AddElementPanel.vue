@@ -20,47 +20,11 @@
 <script setup>
 import { ref, getCurrentInstance } from 'vue'
 import { elementConfigs } from '@/config/elements'
-import { useBaseStore } from '@/stores/baseStore'
-import { useTextStore } from '@/stores/elements/textElement'
-import { useImageElementStore } from '@/stores/elements/imageElement'
-import { useTimeStore } from '@/stores/elements/timeElement'
-import { useDateStore } from '@/stores/elements/dateElement'
-import { useIconStore } from '@/stores/elements/iconElement'
-import { useDataStore } from '@/stores/elements/dataElement'
-import { useLayerStore } from '@/stores/layerStore'
-import { useBadgeStore } from '@/stores/elements/badgeElement'
-import { useRectStore } from '@/stores/elements/rectElement'
-import { useCircleStore } from '@/stores/elements/circleElement'
-import { useProgressRingStore } from '@/stores/elements/progressRingElement'
-import { useLabelStore } from '@/stores/elements/labelElement'
 import { useFontStore } from '@/stores/fontStore'
-import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
-import { useDisturbStore } from '@/stores/elements/disturbElement'
-import { useAlarmsStore } from '@/stores/elements/alarmsElement'
-import { useNotificationStore } from '@/stores/elements/notificationElement'
-import { useBatteryStore } from '@/stores/elements/batteryElement'
-import emitter from '@/utils/eventBus'
+import { getAddElement } from '@/utils/elementCodec/registry'
 
 const fontStore = useFontStore()
-const textStore = useTextStore()
-const imageStore = useImageElementStore()
-const timeElement = useTimeStore()
-const dateStore = useDateStore()
-const iconStore = useIconStore()
-const dataStore = useDataStore()
-const badgeStore = useBadgeStore()
-const labelStore = useLabelStore()
-const progressRingStore = useProgressRingStore()
-const bluetoothStore = useBluetoothStore()
-const rectStore = useRectStore()
-const circleStore = useCircleStore()
-const layerStore = useLayerStore()
-const disturbStore = useDisturbStore()
-const alarmsStore = useAlarmsStore()
-const notificationStore = useNotificationStore()
-const batteryStore = useBatteryStore()
 const isCollapsed = ref(false)
-
 const { proxy } = getCurrentInstance()
 
 const getCategoryLabel = (category) => {
@@ -75,65 +39,20 @@ const getCategoryLabel = (category) => {
   return labels[category] || category
 }
 
-const addElementByType = async (category, type, config) => {
-  console.log('Add Element:', category, type, config)
+const addElementByType = async (category, elementType, config) => {
+  console.log('Add Element:', category, elementType, config)
   try {
     // 加载字体
     await fontStore.loadFont(config.fontFamily)
-    // 添加元素
-    switch (category) {
-      case 'basic':
-        if (type === 'text') {
-          textStore.addElement(config)
-        } else if (type === 'image') {
-          imageStore.addElement(config)
-        } else if (type === 'badge') {
-          badgeStore.addElement(config)
-        }
-        break
-      case 'time':
-        if (type === 'time') {
-          timeElement.addElement(config)
-        } else if (type === 'date') {
-          dateStore.addElement(config)
-        }
-        break
-      case 'metric':
-        if (type === 'icon') {
-          iconStore.addElement({ ...config })
-        } else if (type === 'data') {
-          dataStore.addElement({ ...config })
-        } else if (type === 'label') {
-          labelStore.addElement({ ...config })
-        }
-        break
-      case 'indicator':
-        if (type === 'bluetooth') {
-          bluetoothStore.addElement(config)
-        } else if (type === 'disturb') {
-          disturbStore.addElement(config)
-        } else if (type === 'alarms') {
-          alarmsStore.addElement(config)
-        } else if (type === 'notification') {
-          notificationStore.addElement(config)
-        }
-        break
-      case 'shape':
-        if (type === 'rect') {
-          rectStore.addElement(config)
-        } else if (type === 'circle') {
-          circleStore.addElement(config)
-        } else if (type === 'triangle') {
-          // triangleStore.addElement(config);
-        }
-        break
-      case 'progress':
-        if (type === 'ring') {
-          progressRingStore.addElement(config)
-        }
-        break
-      default:
-        break
+    
+    // 使用注册器添加元素
+    if (elementType) {
+      const addElement = getAddElement(elementType)
+      if (addElement) {
+        addElement(config)
+      } else {
+        console.warn(`No add element handler registered for type: ${elementType}`)
+      }
     }
 
     // 添加元素后切换到图层面板

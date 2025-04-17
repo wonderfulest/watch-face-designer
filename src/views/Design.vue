@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, defineProps, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, defineProps, watch } from 'vue'
 import ChangelogDialog from '@/components/dialogs/ChangelogDialog.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { nanoid } from 'nanoid'
@@ -41,22 +41,10 @@ import { useMessageStore } from '@/stores/message'
 import { useFontStore } from '@/stores/fontStore'
 import { useExportStore } from '@/stores/exportStore'
 import { getDesign } from '@/api/design'
-import { useTimeStore } from '@/stores/elements/timeElement'
-import { useDateStore } from '@/stores/elements/dateElement'
 import { useImageElementStore } from '@/stores/elements/imageElement'
 import { useBaseStore } from '@/stores/baseStore'
-import { useBadgeStore } from '@/stores/elements/badgeElement'
-import { useIconStore } from '@/stores/elements/iconElement'
-import { useDataStore } from '@/stores/elements/dataElement'
-import { useLabelStore } from '@/stores/elements/labelElement'
-import { useProgressRingStore } from '@/stores/elements/progressRingElement'
-import { useCircleStore } from '@/stores/elements/circleElement'
-import { useRectStore } from '@/stores/elements/rectElement'
-import { useBluetoothStore } from '@/stores/elements/bluetoothElement'
-import { useDisturbStore } from '@/stores/elements/disturbElement'
-import { useAlarmsStore } from '@/stores/elements/alarmsElement'
-import { useNotificationStore } from '@/stores/elements/notificationElement'
 import { decodeElement } from '@/utils/elementCodec'
+import { getAddElement } from '@/utils/elementCodec/registry'
 
 const propertiesStore = usePropertiesStore()
 const imageStore = useImageElementStore()
@@ -69,19 +57,6 @@ const exportStore = useExportStore()
 const canvasRef = ref(null)
 const exportPanelRef = ref(null)
 const isDialogVisible = ref(false)
-const timeStore = useTimeStore()
-const dateStore = useDateStore()
-const badgeStore = useBadgeStore()
-const iconStore = useIconStore()
-const dataStore = useDataStore()
-const labelStore = useLabelStore()
-const progressRingStore = useProgressRingStore()
-const circleStore = useCircleStore()
-const rectStore = useRectStore()
-const bluetoothStore = useBluetoothStore()
-const disturbStore = useDisturbStore()
-const alarmsStore = useAlarmsStore()
-const notificationStore = useNotificationStore()
 let saveTimer = null
 
 const changelogDialog = ref(null)
@@ -162,74 +137,7 @@ const loadDesign = async (id) => {
     await fontStore.loadFontsForElements(config.elements)
     // 加载元素到画布
     if (config && config.elements) {
-      for (const element of config.elements) {
-        try {
-          // 使用解码器解码元素
-          const decodedElement = decodeElement(element)
-          if (!decodedElement) {
-            console.warn(`Failed to decode element of type: ${element.type}`)
-            continue
-          }
-
-          // 根据元素类型调用对应的 store 添加元素
-          switch (element.type) {
-            case 'global':
-              baseStore.loadGlobalElement(decodedElement)
-              break
-            case 'time':
-              await timeStore.addElement(decodedElement)
-              break
-            case 'date':
-              await dateStore.addElement(decodedElement)
-              break
-            case 'image':
-              await imageStore.addElement(decodedElement)
-              break
-            case 'badge':
-              await badgeStore.addElement(decodedElement)
-              break
-            case 'icon':
-              await iconStore.addElement(decodedElement)
-              break
-            case 'data':
-              await dataStore.addElement(decodedElement)
-              break
-            case 'label':
-              await labelStore.addElement(decodedElement)
-              break
-            case 'progressRing':
-              await progressRingStore.addElement(decodedElement)
-              break
-            case 'circle':
-              await circleStore.addElement(decodedElement)
-              break
-            case 'rect':
-              await rectStore.addElement(decodedElement)
-              break
-            case 'bluetooth':
-              await bluetoothStore.addElement(decodedElement)
-              break
-            case 'disturb':
-              await disturbStore.addElement(decodedElement)
-              break
-            case 'alarms':
-              await alarmsStore.addElement(decodedElement)
-              break
-            case 'notification':
-              await notificationStore.addElement(decodedElement)
-              break
-            default:
-              console.warn(`Unknown element type: ${element.type}`)
-              messageStore.warning(`未知的元素类型:${element.type}`)
-          }
-        } catch (err) {
-          console.error(`Error loading element of type ${element.type}:`, err)
-          messageStore.error(`加载${element.type}元素失败`)
-        }
-      }
-
-      // 确保所有元素都正确渲染
-      baseStore.canvas.requestRenderAll()
+      await loadElements(config.elements)
     }
   } catch (error) {
     console.error('加载设计失败:', error)
@@ -273,6 +181,32 @@ const setupAutoSave = () => {
   }
 }
 
+// 替换元素加载逻辑
+const loadElements = async (elements) => {
+  try {
+    for (const element of elements) {
+      const decodedElement = await decodeElement(element)
+      if (!decodedElement) continue
+
+      if (element.type === 'global') {
+        baseStore.loadGlobalElement(decodedElement)
+        continue
+      }
+
+      const addElement = getAddElement(element.type)
+      if (addElement) {
+        await addElement(decodedElement)
+      } else {
+        console.warn(`Unknown element type: ${element.type}`)
+        messageStore.warning(`未知的元素类型:${element.type}`)
+      }
+    }
+  } catch (error) {
+    console.error('加载元素失败:', error)
+    messageStore.error('加载元素失败: ' + error.message)
+  }
+}
+
 onMounted(() => {
   changelogDialog.value?.checkShowChangelog()
   // 检查URL参数中是否有设计ID
@@ -295,7 +229,7 @@ onMounted(() => {
   })
 })
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
   // 清除自动保存定时器
   if (saveTimer) {
     clearInterval(saveTimer)
