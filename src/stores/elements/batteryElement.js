@@ -26,6 +26,7 @@ export const useBatteryStore = defineStore('batteryElement', {
       const headHeight = config.headHeight || height * 0.5
       const padding = config.padding || 5
       const level = config.level || 0.5
+      const headGap = config.headGap || 2 // 默认间距为2
 
       // 样式配置
       const bodyStrokeWidth = config.bodyStrokeWidth || 2
@@ -34,7 +35,7 @@ export const useBatteryStore = defineStore('batteryElement', {
       const bodyRx = config.bodyRx || height * 0.1
       const bodyRy = config.bodyRy || height * 0.1
       
-      const headFill = config.headFill || bodyFill
+      const headFill = config.headFill || bodyStroke
       const headRx = config.headRx || headWidth * 0.2
       const headRy = config.headRy || headWidth * 0.2
 
@@ -48,8 +49,9 @@ export const useBatteryStore = defineStore('batteryElement', {
         rx: bodyRx,
         ry: bodyRy,
         id: id + '_body',
-        originX: 'center',
-        originY: 'center'
+        originX: 'left',
+        originY: 'center',
+        left: -width/2
       })
 
       // 电池正极（突出的头部）
@@ -60,9 +62,9 @@ export const useBatteryStore = defineStore('batteryElement', {
         rx: headRx,
         ry: headRy,
         id: id + '_head',
-        originX: 'center',
+        originX: 'left',
         originY: 'center',
-        left: width / 2 + headWidth / 2
+        left: width/2 + headGap // 加上间距
       })
 
       // 电池电量
@@ -73,7 +75,7 @@ export const useBatteryStore = defineStore('batteryElement', {
         id: id + '_level',
         originX: 'left',
         originY: 'center',
-        left: -width / 2 + padding
+        left: -width/2 + padding
       })
 
       // 创建组
@@ -152,6 +154,7 @@ export const useBatteryStore = defineStore('batteryElement', {
       }
 
       const padding = batteryLevel.left + batteryBody.width / 2
+      const headGap = batteryHead.left - (batteryBody.left + batteryBody.width)
 
       return {
         type: 'battery',
@@ -171,7 +174,8 @@ export const useBatteryStore = defineStore('batteryElement', {
         headRy: batteryHead.ry,
         padding: padding,
         level: batteryLevel.width / (batteryBody.width - padding * 2),
-        levelColor: batteryLevel.fill
+        levelColor: batteryLevel.fill,
+        headGap: headGap,
       }
     },
 
@@ -196,7 +200,67 @@ export const useBatteryStore = defineStore('batteryElement', {
         padding: config.padding,
         level: config.level,
         levelColor: config.levelColor,
+        headGap: config.headGap || 2,
       }
+    },
+
+    // 更新电池所有属性
+    updateElement(element, config) {
+      if (!this.baseStore.canvas) return
+      const group = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
+      if (!group || !group.getObjects) return
+
+      const objects = group.getObjects()
+      const batteryBody = objects.find((obj) => obj.id.endsWith('_body'))
+      const batteryHead = objects.find((obj) => obj.id.endsWith('_head'))
+      const batteryLevel = objects.find((obj) => obj.id.endsWith('_level'))
+
+      if (!batteryBody || !batteryHead || !batteryLevel) return
+
+      // 更新电池主体
+      batteryBody.set({
+        width: config.width,
+        height: config.height,
+        fill: config.bodyFill,
+        stroke: config.bodyStroke,
+        strokeWidth: config.bodyStrokeWidth,
+        rx: config.bodyRx,
+        ry: config.bodyRy,
+        originX: 'left',
+        originY: 'center',
+        left: -config.width/2
+      })
+
+      // 更新电池头部
+      batteryHead.set({
+        width: config.headWidth,
+        height: config.headHeight,
+        fill: config.headFill,
+        rx: config.headRx,
+        ry: config.headRy,
+        originX: 'left',
+        originY: 'center',
+        left: config.width/2 + (config.headGap || 2) // 加上间距
+      })
+
+      // 更新电量条
+      const padding = config.padding || 5
+      batteryLevel.set({
+        width: (config.width - padding * 2) * config.level,
+        height: config.height - padding * 2,
+        fill: config.levelColor || this.getLevelColor(config.level),
+        originX: 'left',
+        originY: 'center',
+        left: -config.width/2 + padding
+      })
+
+      // 更新组的位置
+      if (config.left !== undefined) group.set('left', config.left)
+      if (config.top !== undefined) group.set('top', config.top)
+
+      // 强制重新计算边界和渲染
+      group.setCoords()
+      this.baseStore.canvas.renderAll()
     }
   }
 }) 

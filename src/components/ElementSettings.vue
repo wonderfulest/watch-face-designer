@@ -43,6 +43,8 @@ import BluetoothSettings from './settings/BluetoothSettings.vue'
 import DisturbSettings from './settings/DisturbSettings.vue'
 import AlarmsSettings from './settings/AlarmsSettings.vue'
 import NotificationSettings from './settings/NotificationSettings.vue'
+import BatterySettings from './settings/BatterySettings.vue'
+
 const baseStore = useBaseStore()
 
 const elements = ref([])
@@ -111,7 +113,8 @@ const getSettingsComponent = (type) => {
     disturb: DisturbSettings,
     alarms: AlarmsSettings,
     notification: NotificationSettings,
-    default: BaseSettings
+    default: BaseSettings,
+    battery: BatterySettings
   }
   return componentMap[type] || componentMap.default
 }
