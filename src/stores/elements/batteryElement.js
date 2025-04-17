@@ -30,7 +30,7 @@ export const useBatteryStore = defineStore('batteryElement', {
 
       // 样式配置
       const bodyStrokeWidth = config.bodyStrokeWidth || 2
-      const bodyStroke = config.bodyStroke || '#333'
+      const bodyStroke = config.bodyStroke || '#ffffff'
       const bodyFill = config.bodyFill || 'transparent'
       const bodyRx = config.bodyRx || height * 0.1
       const bodyRy = config.bodyRy || height * 0.1
@@ -110,9 +110,9 @@ export const useBatteryStore = defineStore('batteryElement', {
 
     // 根据电量获取颜色
     getLevelColor(level) {
-      if (level <= 0.2) return '#ff3d00' // 红色，电量低
-      if (level <= 0.5) return '#ffd600' // 黄色，电量中等
-      return '#76ff03' // 绿色，电量充足
+      if (level <= 0.2) return '#ff0000' // 红色，电量低
+      if (level <= 0.5) return '#ffaa00' // 黄色，电量中等
+      return '#00ff00' // 绿色，电量充足
     },
 
     // 更新电池电量

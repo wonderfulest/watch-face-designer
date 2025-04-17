@@ -14,12 +14,7 @@
             <el-input-number v-model="element.padding" :min="0" :max="20" @change="updateElement" />
           </el-form-item>
           <el-form-item label="头部间距">
-            <el-input-number 
-              v-model="element.headGap" 
-              :min="0" 
-              :max="20" 
-              @change="updateElement" 
-            />
+            <el-input-number v-model="element.headGap" :min="0" :max="20" @change="updateElement" />
           </el-form-item>
         </el-form>
       </el-collapse-item>
@@ -80,7 +75,6 @@
           </el-form-item>
         </el-form>
       </el-collapse-item>
-
     </el-collapse>
   </div>
 </template>
@@ -120,13 +114,13 @@ const initElementProperties = () => {
   props.element.bodyStrokeWidth = batteryBody.strokeWidth
   props.element.bodyRx = batteryBody.rx
   props.element.bodyRy = batteryBody.ry
-  
+
   props.element.headWidth = batteryHead.width
   props.element.headHeight = batteryHead.height
   props.element.headFill = batteryHead.fill
   props.element.headRx = batteryHead.rx
   props.element.headRy = batteryHead.ry
-  
+
   props.element.padding = batteryLevel.left
   props.element.level = batteryLevel.width / (batteryBody.width - batteryLevel.left * 2)
   props.element.levelColor = batteryLevel.fill
@@ -199,6 +193,10 @@ const handleCustomColorChange = (val) => {
 </script>
 
 <style scoped>
+::v-deep(.el-collapse-item__wrap) {
+  overflow: visible;
+}
+
 .battery-properties {
   padding: 16px;
 }

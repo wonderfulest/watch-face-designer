@@ -26,24 +26,8 @@ import { elementConfigs } from '@/config/elements'
 import { useBaseStore } from '@/stores/baseStore'
 import GlobalSettings from './settings/GlobalSettings.vue'
 import BaseSettings from './settings/BaseSettings.vue'
-import MetricSettings from './settings/MetricSettings.vue'
-import TimeSettings from './settings/TimeSettings.vue'
-import DateSettings from './settings/DateSettings.vue'
-import IconSettings from './settings/IconSettings.vue'
-import DataSettings from './settings/DataSettings.vue'
 import GroupSettings from './settings/GroupSettings.vue'
-import ImageSettings from './settings/ImageSettings.vue'
-import BadgeSettings from './settings/BadgeSettings.vue'
-import TextSettings from './settings/TextSettings.vue'
-import ProgressRingSettings from './settings/ProgressRingSettings.vue'
-import LabelSettings from './settings/LabelSettings.vue'
-import CircleSettings from './settings/CircleSettings.vue'
-import RectSettings from './settings/RectSettings.vue'
-import BluetoothSettings from './settings/BluetoothSettings.vue'
-import DisturbSettings from './settings/DisturbSettings.vue'
-import AlarmsSettings from './settings/AlarmsSettings.vue'
-import NotificationSettings from './settings/NotificationSettings.vue'
-import BatterySettings from './settings/BatterySettings.vue'
+import { getSettingsComponent } from './settings'
 
 const baseStore = useBaseStore()
 
@@ -91,32 +75,6 @@ const getElementIcon = (type) => {
 const getElementTypeName = (layer) => {
   if (!layer) return ''
   return layer.eleType
-}
-
-// 根据元素类型返回对应的设置组件
-const getSettingsComponent = (type) => {
-  const componentMap = {
-    global: GlobalSettings,
-    text: TextSettings,
-    badge: BadgeSettings,
-    image: ImageSettings,
-    time: TimeSettings,
-    date: DateSettings,
-    icon: IconSettings,
-    data: DataSettings,
-    metric: MetricSettings,
-    progressRing: ProgressRingSettings,
-    label: LabelSettings,
-    circle: CircleSettings,
-    rect: RectSettings,
-    bluetooth: BluetoothSettings,
-    disturb: DisturbSettings,
-    alarms: AlarmsSettings,
-    notification: NotificationSettings,
-    default: BaseSettings,
-    battery: BatterySettings
-  }
-  return componentMap[type] || componentMap.default
 }
 
 const handleUpdate = () => {
