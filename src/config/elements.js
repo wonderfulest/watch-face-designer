@@ -58,7 +58,7 @@ export const elementConfigs = {
   status: {
     battery: {
       label: '电池',
-      icon: 'Battery',  // 使用适当的图标
+      icon: 'gg:battery',  // 使用适当的图标
       type: 'battery',
       ...assign({}, elementAttribute, {
         width: 40,

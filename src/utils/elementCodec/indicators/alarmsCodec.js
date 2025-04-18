@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import { registerEncoder, registerDecoder, registerAddElement } from './registry'
-import { useAlarmsStore } from '@/stores/elements/alarmsElement'
+import { registerEncoder, registerDecoder, registerAddElement } from '../registry'
+import { useAlarmsStore } from '@/stores/elements/indicators/alarmsElement'
 
 // 闹钟编码器
 const encodeAlarms = (element) => {

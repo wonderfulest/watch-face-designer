@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useBaseStore } from '@/stores/baseStore'
 import { FabricText } from 'fabric'
 
-export const useNotificationStore = defineStore('notificationElement', {
+export const useDisturbStore = defineStore('disturbElement', {
   state: () => ({
     elements: []
   }),
@@ -12,8 +12,8 @@ export const useNotificationStore = defineStore('notificationElement', {
       const baseStore = useBaseStore()
       if (!baseStore.canvas) return
 
-      const notificationIcon = new FabricText('\u0025', {
-        eleType: 'notification',
+      const disturbIcon = new FabricText('\u0021', {
+        eleType: 'disturb',
         left: config.left || 100,
         top: config.top || 100,
         fontSize: config.fontSize || 24,
@@ -25,38 +25,39 @@ export const useNotificationStore = defineStore('notificationElement', {
         originY: 'center'
       })
 
-      notificationIcon.set('text', '\u0025')
-      baseStore.canvas.add(notificationIcon)
-      baseStore.canvas.setActiveObject(notificationIcon)
-      this.elements.push(notificationIcon)
+      disturbIcon.set('text', '\u0021')
+      baseStore.canvas.add(disturbIcon)
+      baseStore.canvas.setActiveObject(disturbIcon)
+      this.elements.push(disturbIcon)
       baseStore.canvas.renderAll()
     },
 
-    updateNotificationStatus(status) {
+    updateDisturbStatus(status) {
       const baseStore = useBaseStore()
       if (!baseStore.canvas) return
 
       this.elements.forEach(element => {
-        if (element.eleType === 'notification') {
+        if (element.eleType === 'disturb') {
           element.set('fill', status ? '#ffffff' : '#666666')
           baseStore.canvas.renderAll()
         }
       })
     },
+
     encodeConfig(element) {
       return {
-        type: 'bluetooth',
+        type: 'disturb',
         x: element.left,
         y: element.top,
-        fontSize: element.fontSize,
-        fontFamily: element.fontFamily,
-        fill: element.color,
+        size: element.fontSize,
+        font: element.fontFamily,
+        color: element.fill,
       }
     },
 
     decodeConfig(config) {
       return {
-        eleType: 'bluetooth',
+        eleType: 'disturb',
         left: config.x,
         top: config.y,
         fontSize: config.size,

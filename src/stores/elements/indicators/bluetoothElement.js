@@ -62,9 +62,9 @@ export const useBluetoothStore = defineStore('bluetoothElement', {
         type: 'bluetooth',
         x: element.left,
         y: element.top,
-        fontSize: element.fontSize,
-        fontFamily: element.fontFamily,
-        fill: element.color,
+        size: element.fontSize,
+        font: element.fontFamily,
+        color: element.fill,
       }
     },
 

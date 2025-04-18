@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useBaseStore } from '@/stores/baseStore'
 import { FabricText } from 'fabric'
 
-export const useAlarmsStore = defineStore('alarmsElement', {
+export const useNotificationStore = defineStore('notificationElement', {
   state: () => ({
     elements: []
   }),
@@ -12,32 +12,32 @@ export const useAlarmsStore = defineStore('alarmsElement', {
       const baseStore = useBaseStore()
       if (!baseStore.canvas) return
 
-      const alarmsIcon = new FabricText('\u0024', {
-        eleType: 'alarms',
-        left: config.left,
-        top: config.top,
-        fontSize: config.fontSize,
-        fontFamily: config.fontFamily,
-        fill: config.fill,
+      const notificationIcon = new FabricText('\u0025', {
+        eleType: 'notification',
+        left: config.left || 100,
+        top: config.top || 100,
+        fontSize: config.fontSize || 24,
+        fontFamily: config.fontFamily || 'Yoghurt-One',
+        fill: config.color || '#ffffff',
         selectable: true,
         evented: true,
         originX: 'center',
         originY: 'center'
       })
 
-      alarmsIcon.set('text', '\u0024')
-      baseStore.canvas.add(alarmsIcon)
-      baseStore.canvas.setActiveObject(alarmsIcon)
-      this.elements.push(alarmsIcon)
+      notificationIcon.set('text', '\u0025')
+      baseStore.canvas.add(notificationIcon)
+      baseStore.canvas.setActiveObject(notificationIcon)
+      this.elements.push(notificationIcon)
       baseStore.canvas.renderAll()
     },
 
-    updateAlarmsStatus(status) {
+    updateNotificationStatus(status) {
       const baseStore = useBaseStore()
       if (!baseStore.canvas) return
 
       this.elements.forEach(element => {
-        if (element.eleType === 'alarms') {
+        if (element.eleType === 'notification') {
           element.set('fill', status ? '#ffffff' : '#666666')
           baseStore.canvas.renderAll()
         }
@@ -45,18 +45,18 @@ export const useAlarmsStore = defineStore('alarmsElement', {
     },
     encodeConfig(element) {
       return {
-        type: 'bluetooth',
+        type: 'notification',
         x: element.left,
         y: element.top,
-        fontSize: element.fontSize,
-        fontFamily: element.fontFamily,
-        fill: element.color,
+        size: element.fontSize,
+        font: element.fontFamily,
+        color: element.fill,
       }
     },
 
     decodeConfig(config) {
       return {
-        eleType: 'bluetooth',
+        eleType: 'notification',
         left: config.x,
         top: config.y,
         fontSize: config.size,
