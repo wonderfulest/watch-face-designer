@@ -94,11 +94,30 @@ export const elementConfigs = {
   },
 
   // 图形
-  // shape: {
-  //   rect: { icon: 'mdi:rectangle', label: '矩形', ...elementAttribute },
-  //   circle: { icon: 'mdi:circle', label: '圆形', ...elementAttribute },
-  //   triangle: { icon: 'mdi:triangle', label: '三角形', ...elementAttribute }
-  // },
+  shape: {
+    rectangle: { 
+      icon: 'mdi:rectangle',
+      label: '矩形',
+      ...elementAttribute,
+      width: 100,
+      height: 100,
+      fill: '#FFFFFF',
+      stroke: '#000000',
+      strokeWidth: 0,
+      opacity: 1,
+      borderRadius: 0
+    },
+    circle: { 
+      icon: 'mdi:circle',
+      label: '圆形',
+      ...elementAttribute,
+      radius: 50,
+      fill: '#FFFFFF',
+      stroke: '#000000',
+      strokeWidth: 0,
+      opacity: 1
+    }
+  },
   // 进度
   progress: {
     progressLine: { 

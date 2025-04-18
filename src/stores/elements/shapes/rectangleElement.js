@@ -3,9 +3,9 @@ import { useBaseStore } from '../../baseStore'
 import { useLayerStore } from '../../layerStore'
 import { useBaseElementStore } from '../baseElement'
 import { nanoid } from 'nanoid'
-import { Circle } from 'fabric'
+import { Rect } from 'fabric'
 
-export const useCircleStore = defineStore('circleElement', {
+export const useRectangleStore = defineStore('rectangleElement', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
@@ -21,27 +21,32 @@ export const useCircleStore = defineStore('circleElement', {
   actions: {
     async addElement(options = {}) {
       if (!this.baseStore.canvas) {
-        throw new Error('画布未初始化，无法添加圆形元素')
+        throw new Error('画布未初始化，无法添加矩形元素')
       }
 
       try {
         // 处理所有配置项，使用可选链操作符设置默认值
-        const radius = Number(options.radius ?? 50)
+        const width = Number(options.width ?? 100)
+        const height = Number(options.height ?? 100)
         const fill = options.fill || '#FFFFFF'
         const stroke = options.stroke || '#000000'
         const strokeWidth = Number(options.strokeWidth ?? 0)
         const opacity = Number(options.opacity ?? 1)
+        const borderRadius = Number(options.borderRadius ?? 0)
         
-        const circleOptions = {
+        const rectOptions = {
           id: nanoid(),
-          eleType: 'circle',
+          eleType: 'rectangle',
           left: Number(options.left) || 0,
           top: Number(options.top) || 0,
-          radius: radius,
+          width: width,
+          height: height,
           fill: fill,
           stroke: stroke,
           strokeWidth: strokeWidth,
           opacity: opacity,
+          rx: borderRadius,
+          ry: borderRadius,
           originX: 'center',
           originY: 'center',
           selectable: true,
@@ -50,25 +55,27 @@ export const useCircleStore = defineStore('circleElement', {
           lockScalingFlip: true,
           // 保存原始配置用于后续更新
           initialConfig: {
-            radius,
+            width,
+            height,
             fill,
             stroke,
             strokeWidth,
-            opacity
+            opacity,
+            borderRadius
           }
         }
 
-        const circle = new Circle(circleOptions)
+        const rectangle = new Rect(rectOptions)
 
         // 添加到画布
-        this.baseStore.canvas.add(circle)
-        this.layerStore.addLayer(circle)
+        this.baseStore.canvas.add(rectangle)
+        this.layerStore.addLayer(rectangle)
         this.baseStore.canvas.renderAll()
-        this.baseStore.canvas.setActiveObject(circle)
+        this.baseStore.canvas.setActiveObject(rectangle)
 
-        return circle
+        return rectangle
       } catch (error) {
-        console.error('创建圆形元素失败:', error)
+        console.error('创建矩形元素失败:', error)
         throw error
       }
     },
@@ -77,8 +84,12 @@ export const useCircleStore = defineStore('circleElement', {
       if (!element) return
 
       // 更新基本属性
-      if (options.radius !== undefined) {
-        element.set('radius', Number(options.radius))
+      if (options.width !== undefined) {
+        element.set('width', Number(options.width))
+      }
+
+      if (options.height !== undefined) {
+        element.set('height', Number(options.height))
       }
 
       if (options.fill !== undefined) {
@@ -97,6 +108,13 @@ export const useCircleStore = defineStore('circleElement', {
         element.set('opacity', Number(options.opacity))
       }
 
+      if (options.borderRadius !== undefined) {
+        element.set({
+          rx: Number(options.borderRadius),
+          ry: Number(options.borderRadius)
+        })
+      }
+
       // 更新位置
       if (options.left !== undefined) {
         element.set('left', Number(options.left))
@@ -108,11 +126,13 @@ export const useCircleStore = defineStore('circleElement', {
 
       // 保存更新后的配置
       element.initialConfig = {
-        radius: element.radius,
+        width: element.width,
+        height: element.height,
         fill: element.fill,
         stroke: element.stroke,
         strokeWidth: element.strokeWidth,
-        opacity: element.opacity
+        opacity: element.opacity,
+        borderRadius: element.rx
       }
 
       element.setCoords()
@@ -125,14 +145,16 @@ export const useCircleStore = defineStore('circleElement', {
       }
 
       return {
-        type: 'circle',
+        type: 'rectangle',
         x: Math.round(element.left),
         y: Math.round(element.top),
-        radius: element.radius,
+        width: element.width,
+        height: element.height,
         fill: element.fill,
         stroke: element.stroke,
         strokeWidth: element.strokeWidth,
         opacity: element.opacity,
+        borderRadius: element.rx,
         originX: element.originX,
         originY: element.originY
       }
@@ -140,14 +162,16 @@ export const useCircleStore = defineStore('circleElement', {
 
     decodeConfig(config) {
       return {
-        eleType: 'circle',
+        eleType: 'rectangle',
         left: config.x,
         top: config.y,
-        radius: config.radius,
+        width: config.width,
+        height: config.height,
         fill: config.fill,
         stroke: config.stroke,
         strokeWidth: config.strokeWidth,
         opacity: config.opacity,
+        borderRadius: config.borderRadius,
         originX: config.originX,
         originY: config.originY
       }

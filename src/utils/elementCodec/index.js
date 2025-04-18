@@ -37,7 +37,7 @@ export const defaultDecoder = (element) => {
 }
 
 // 自动加载所有编解码器文件
-const encoderModules = import.meta.glob(['./*Codec.js'], { eager: true })
+const encoderModules = import.meta.glob(['./**/*Codec.js'], { eager: true })
 Object.values(encoderModules).forEach(module => {
   if (module.default) {
     module.default()

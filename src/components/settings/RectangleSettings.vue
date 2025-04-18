@@ -1,11 +1,29 @@
 <template>
   <div class="settings-section">
     <el-form label-position="left" label-width="100px">
-      <el-form-item label="半径">
+      <el-form-item label="宽度">
         <el-input-number 
-          v-model="element.radius" 
+          v-model="element.width" 
           :min="10" 
-          :max="200" 
+          :max="500" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="高度">
+        <el-input-number 
+          v-model="element.height" 
+          :min="10" 
+          :max="500" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="圆角">
+        <el-input-number 
+          v-model="element.rx" 
+          :min="0" 
+          :max="100" 
           @change="updateElement" 
         />
       </el-form-item>
@@ -48,7 +66,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useCircleStore } from '@/stores/elements/shapes/circleElement'
+import { useRectangleStore } from '@/stores/elements/shapes/rectangleElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 
 const props = defineProps({
@@ -58,15 +76,17 @@ const props = defineProps({
   }
 })
 
-const circleStore = useCircleStore()
+const rectangleStore = useRectangleStore()
 
 const updateElement = () => {
-  circleStore.updateElement(props.element, {
-    radius: props.element.radius,
+  rectangleStore.updateElement(props.element, {
+    width: props.element.width,
+    height: props.element.height,
     fill: props.element.fill,
     stroke: props.element.stroke,
     strokeWidth: props.element.strokeWidth,
-    opacity: props.element.opacity
+    opacity: props.element.opacity,
+    borderRadius: props.element.rx
   })
 }
 </script>
