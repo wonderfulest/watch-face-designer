@@ -13,17 +13,15 @@
       <el-form-item label="填充颜色">
         <color-picker 
           v-model="element.fill" 
-          @change="updateElement" 
+          @update:modelValue="updateElement" 
         />
       </el-form-item>
-
       <el-form-item label="边框颜色">
         <color-picker 
           v-model="element.stroke" 
-          @change="updateElement" 
+          @update:modelValue="updateElement" 
         />
       </el-form-item>
-
       <el-form-item label="边框宽度">
         <el-input-number 
           v-model="element.strokeWidth" 
@@ -32,7 +30,6 @@
           @change="updateElement" 
         />
       </el-form-item>
-
       <el-form-item label="不透明度">
         <el-slider 
           v-model="element.opacity" 
@@ -47,7 +44,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useCircleStore } from '@/stores/elements/shapes/circleElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 
@@ -59,6 +56,15 @@ const props = defineProps({
 })
 
 const circleStore = useCircleStore()
+
+// 监听颜色变化
+watch(() => props.element.fill, (newValue) => {
+  updateElement()
+}, { deep: true })
+
+watch(() => props.element.stroke, (newValue) => {
+  updateElement()
+}, { deep: true })
 
 const updateElement = () => {
   circleStore.updateElement(props.element, {

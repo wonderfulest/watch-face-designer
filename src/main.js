@@ -15,9 +15,6 @@ import '@/assets/styles/element-variables.scss'
 import emitter from '@/utils/eventBus'
 import { useAuthStore } from '@/stores/auth'
 
-// 导入编解码器
-import dataCodec from '@/utils/elementCodec/dataCodec'
-
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 
@@ -29,9 +26,6 @@ app.use(pinia)
 // 初始化认证状态
 const authStore = useAuthStore()
 authStore.initAuth()
-
-// 初始化编解码器
-dataCodec()
 
 app.use(router)
 app.component('Icon', {
