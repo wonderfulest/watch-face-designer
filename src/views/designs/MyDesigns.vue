@@ -39,7 +39,7 @@
                   {{ getStatusText(design.designStatus) }}
                 </div>
               </div>
-              <div class="actions">
+              <div class="header-actions">
                 <el-button-group>
                   <el-button 
                     type="primary" 
@@ -386,12 +386,14 @@ const handleEditSuccess = () => {
   margin-bottom: 20px;
   transition: all 0.3s;
   height: 100%;
+  overflow: hidden;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 8px 12px;
 }
 
 .header-left {
@@ -426,6 +428,7 @@ const handleEditSuccess = () => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  padding: 12px;
 }
 
 .design-background {
@@ -468,7 +471,16 @@ const handleEditSuccess = () => {
 .actions {
   display: flex;
   gap: 8px;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding: 8px;
+}
+
+.actions .el-button {
+  font-size: 12px;
+  padding: 6px 12px;
+  margin: 0;
+  flex: 0 0 auto;
+  min-width: 60px;
 }
 
 .pagination-container {
@@ -486,19 +498,41 @@ const handleEditSuccess = () => {
   }
 }
 
-.actions .el-button-group {
+.header-actions {
   display: flex;
   gap: 4px;
 }
 
-/* 星星图标悬浮效果 */
-.actions .el-button:first-child:hover {
-  color: var(--el-color-warning) !important;
+.header-actions .el-button-group {
+  display: flex;
+  gap: 2px;
 }
 
-/* 已收藏状态的星星样式 */
-.actions .el-button.is-active {
-  color: var(--el-color-warning) !important;
+.header-actions .el-button {
+  padding: 4px 8px;
+  height: 28px;
+  font-size: 14px;
+}
+
+.header-actions .el-button:hover {
+  background-color: var(--el-fill-color-light);
+  border-radius: 4px;
+}
+
+.header-actions .el-button.el-button--primary.is-link {
+  color: var(--el-text-color-regular);
+}
+
+.header-actions .el-button.el-button--primary.is-link:hover {
+  color: var(--el-color-primary);
+}
+
+.header-actions .el-button.el-button--danger.is-link {
+  color: var(--el-text-color-regular);
+}
+
+.header-actions .el-button.el-button--danger.is-link:hover {
+  color: var(--el-color-danger);
 }
 
 .search-bar {
@@ -543,6 +577,18 @@ const handleEditSuccess = () => {
   .el-col {
     padding: 0 10px;
     margin-bottom: 20px;
+  }
+
+  .header-actions .el-button {
+    padding: 2px 6px;
+  }
+  
+  .design-info .actions {
+    justify-content: center;
+  }
+  
+  .design-info .actions .el-button {
+    padding: 4px 8px;
   }
 }
 

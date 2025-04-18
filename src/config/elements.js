@@ -101,7 +101,17 @@ export const elementConfigs = {
   // },
   // 进度
   progress: {
-    bar: { icon: 'pajamas:progress', label: '进度条', ...elementAttribute },
+    progressLine: { 
+      icon: 'pajamas:progress',
+      label: '进度条',
+      ...elementAttribute,
+      width: 200,
+      height: 10,
+      color: '#00FF00',
+      bgColor: '#333333',
+      borderRadius: 5,
+      progress: 0.5
+    },
     ring: {
       icon: 'material-symbols:data-usage-rounded',
       label: '进度环',

@@ -105,10 +105,9 @@
 import { ref, watch, computed } from 'vue'
 import { useBaseStore } from '@/stores/baseStore'
 
-import { useProgressRingStore } from '@/stores/elements/progressRingElement'
+import { useProgressRingStore } from '@/stores/elements/progress/progressRingElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 import { DataTypeOptions } from '@/config/settings'
-import { bg } from 'element-plus/es/locales.mjs'
 import { ElTooltip } from 'element-plus'
 import { Warning } from '@element-plus/icons-vue'
 

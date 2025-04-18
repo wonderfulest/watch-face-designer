@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { useBaseStore } from '../baseStore'
-import { useLayerStore } from '../layerStore'
-import { useBaseElementStore } from './baseElement'
+import { useBaseStore } from '../../baseStore'
+import { useLayerStore } from '../../layerStore'
+import { useBaseElementStore } from '../baseElement'
 import { nanoid } from 'nanoid'
 import { Rect } from 'fabric'
 
