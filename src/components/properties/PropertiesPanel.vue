@@ -107,7 +107,6 @@ onUnmounted(() => {
 
 // 添加属性
 const addProperty = (type) => {
-  console.log('addProperty', type)
   if (type === 'color') {
     colorPropertyDialog.value?.show()
   } else if (type === 'goal') {

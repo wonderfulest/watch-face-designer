@@ -199,6 +199,9 @@ const loadElements = async (elements) => {
       }
 
       const addElement = getAddElement(element.type)
+      if (element.type === 'goalBar') {
+        console.log('加载目标条元素:', decodedElement)
+      }
       if (addElement) {
         await addElement(decodedElement)
       } else {

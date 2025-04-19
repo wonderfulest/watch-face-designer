@@ -76,7 +76,8 @@ export const useGoalBarStore = defineStore('goalBarStore', {
           padding: padding,
           progressAlign: progressAlign,
           borderWidth: borderWidth,
-          borderColor: borderColor
+          borderColor: borderColor,
+          goalProperty: options.goalProperty || ''
         })
 
         // 添加到画布
@@ -197,7 +198,6 @@ export const useGoalBarStore = defineStore('goalBarStore', {
       // 更新目标属性
       if (options.goalProperty !== undefined) {
         element.goalProperty = options.goalProperty
-        console.log('element.goalProperty', element.goalProperty)
       }
 
       element.setCoords()

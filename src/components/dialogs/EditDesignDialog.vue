@@ -214,8 +214,6 @@ const handleConfirm = async () => {
     emit('success', res.data)
     dialogVisible.value = false
 
-    // 重新打开设计
-    console.log('重新打开设计', res.data)
   } catch (error) {
     console.error('更新设计失败:', error)
     messageStore.error(error.message || '更新设计失败')
