@@ -105,10 +105,11 @@ export const useGoalBarStore = defineStore('goalBarStore', {
         case 'left':
           return background.left - background.width / 2 + padding
         case 'right':
-          return background.left + background.width / 2 - padding - (background.width - padding * 2) * progress
-        case 'center':
+          // 从右边开始，向左增长
+          // 当progress为0时，进度条应该在右边界减去内边距的位置
+          const rightEdge = background.left + background.width
           const progressWidth = (background.width - padding * 2) * progress
-          return background.left - progressWidth / 2
+          return rightEdge - padding - progressWidth
         default:
           return background.left - background.width / 2 + padding
       }

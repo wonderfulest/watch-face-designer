@@ -42,8 +42,7 @@
           v-model="element.originX" 
           @change="updateElement"
         >
-          <el-option label="左对齐" value="left" />
-          <el-option label="右对齐" value="right" />
+          <el-option label="居中" value="center" />
         </el-select>
       </el-form-item>
 
@@ -98,7 +97,6 @@
           @change="updateElement"
         >
           <el-option label="左对齐" value="left" />
-          <el-option label="居中" value="center" />
           <el-option label="右对齐" value="right" />
         </el-select>
       </el-form-item>
