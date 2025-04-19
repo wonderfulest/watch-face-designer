@@ -70,9 +70,7 @@ export const useGoalArcStore = defineStore('goalArcElement', {
         hasBorders: true,
         originX: 'center',
         originY: 'center',
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        varName: config.varName,
+        goalProperty: config.goalProperty
       })
 
       // 强制组重新计算边界
@@ -180,7 +178,7 @@ export const useGoalArcStore = defineStore('goalArcElement', {
 
       mainRing.set('endAngle', middleAngle)
       bgRing.set('startAngle', middleAngle)
-
+      element.set('goalProperty', element.goalProperty)
       this.baseStore.canvas.renderAll()
     },
     encodeConfig(element) {
@@ -200,11 +198,9 @@ export const useGoalArcStore = defineStore('goalArcElement', {
         strokeWidth: mainRing.strokeWidth,
         color: mainRing.stroke,
         bgColor: bgRing.stroke,
-        metricGroup: element.metricGroup,
-        metricSymbol: element.metricSymbol,
         fullAngle: goalArcStore.getFullAngle(mainRing.startAngle, bgRing.endAngle, mainRing.counterClockwise), // 不需要反序列化
-        varName: element.varName,
-        counterClockwise: mainRing.counterClockwise
+        counterClockwise: mainRing.counterClockwise,
+        goalProperty: element.goalProperty
       }
     },
     decodeConfig(config) {
@@ -218,10 +214,8 @@ export const useGoalArcStore = defineStore('goalArcElement', {
         strokeWidth: config.strokeWidth,
         color: config.color,
         bgColor: config.bgColor,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        varName: config.varName,
-        counterClockwise: config.counterClockwise  
+        counterClockwise: config.counterClockwise,
+        goalProperty: config.goalProperty
       }
     }
   }

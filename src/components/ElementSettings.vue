@@ -103,9 +103,14 @@ const handleCanvasBlur = async (e) => {
 
 // 处理画布失焦事件
 const handleSelectionCleared = async (e) => {
-  console.log('选中状态已清除')
   // 立即更新 activeElements
   updateElements()
+  
+  // 触发关闭设置项事件
+  if (activeElements.value.length === 0) {
+    emitter.emit('close-settings')
+  }
+  
   // 等待下一个 tick 确保组件已更新
   await nextTick()
   const formRef = getCurrentFormRef()
@@ -130,9 +135,14 @@ const handleSelectionCleared = async (e) => {
 
 // 处理选中新对象事件
 const handleSelectionCreated = async (e) => {
-  console.log('选中了新对象:', e.target)
   // 立即更新 activeElements
   updateElements()
+  
+  // 触发打开设置项事件
+  if (activeElements.value.length === 1) {
+    emitter.emit('open-settings', activeElements.value[0])
+  }
+  
   // 如果当前有选中的对象，且是之前验证的对象
   const lastActiveObject = activeElements.value[0]
   if (lastActiveObject) {
@@ -159,19 +169,16 @@ const handleSelectionCreated = async (e) => {
 // 设置事件监听
 const setupEventListeners = () => {
   if (baseStore.canvas) {
-    console.log('设置事件监听')
     // 移除之前的事件监听
     baseStore.canvas.off('selection:cleared', handleSelectionCleared)
     baseStore.canvas.off('selection:created', handleSelectionCreated)
     // 添加新的事件监听
     baseStore.canvas.on('selection:cleared', handleSelectionCleared)
     baseStore.canvas.on('selection:created', handleSelectionCreated)
-    console.log('事件监听设置完成')
   }
 }
 
 onMounted(() => {
-  console.log('ElementSettings 组件挂载')
   debouncedUpdateElements()
   emitter.on('refresh-canvas', (data) => {
     debouncedUpdateElements()
@@ -183,7 +190,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  console.log('ElementSettings 组件卸载')
   emitter.off('refresh-canvas')
   emitter.off('close-settings')
   // 移除画布失焦事件监听
@@ -195,9 +201,7 @@ onUnmounted(() => {
 
 // 监听 activeElements 变化
 watch(activeElements, (newValue, oldValue) => {
-  console.log('activeElements 变化:', newValue)
   if (newValue.length === 1) {
-    console.log('有选中对象，设置事件监听')
     // 等待下一个 tick 确保组件已更新
     nextTick(() => {
       setupEventListeners()
