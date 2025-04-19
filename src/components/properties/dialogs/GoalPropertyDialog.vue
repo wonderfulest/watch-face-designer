@@ -39,7 +39,7 @@
         >
           <el-input 
             v-model="formData.propertyKey" 
-            placeholder="color_1" 
+            placeholder="goal_1" 
             :disabled="isEdit"
           />
           <div class="field-help">
@@ -48,7 +48,7 @@
         </el-form-item>
 
         <el-form-item label="Type">
-          <el-input v-model="formData.type" disabled placeholder="number" />
+          <el-input v-model="formData.type" disabled placeholder="goal" />
           <div class="field-help">
             The display type of the setting.
           </div>
@@ -58,11 +58,7 @@
       <!-- 选项部分 -->
       <div class="form-section">
         <div class="section-header">
-          <h3 class="section-title">Color Options</h3>
-          <el-button type="primary" plain @click="addOption">
-            <el-icon><Plus /></el-icon>
-            Add Option
-          </el-button>
+          <h3 class="section-title">Goal Options</h3>
         </div>
         <el-form-item 
           label="Default Value"
@@ -70,61 +66,37 @@
         >
           <el-select 
             v-model="formData.value" 
-            placeholder="Select color value"
+            placeholder="Select goal type"
             style="width: 100%"
           >
             <el-option
               v-for="option in formData.options"
               :key="option.value"
-              :label="option.label + ' (' + option.value + ')'"
+              :label="option.label + ' (' + option.metricSymbol + ')'"
               :value="option.value"
             >
-              <div class="color-option">
-                <div 
-                  class="color-preview" 
-                  :style="{ 
-                    backgroundColor: option.value === '-1' ? 'transparent' : `#${option.value.replace('0x', '')}`,
-                    border: option.value === '-1' ? '1px dashed var(--el-border-color)' : 'none'
-                  }"
-                >
-                  <div v-if="option.value === '-1'" class="transparent-pattern"></div>
-                </div>
-                <span class="color-label">{{ option.label }} ({{ option.value }})</span>
+              <div class="goal-option">
+                <span class="goal-icon">{{ option.icon }}</span>
+                <span class="goal-label">{{ option.label }} ({{ option.metricSymbol }})</span>
               </div>
             </el-option>
           </el-select>
         </el-form-item>
         <el-collapse v-model="activeOptions" class="options-collapse">
-          <el-collapse-item title="Color Options" name="options">
+          <el-collapse-item title="Goal Options" name="options">
             <el-form-item 
               prop="options"
               :rules="[
-                { required: true, message: 'At least one option is required', trigger: 'change' },
-                { validator: validateOptions, trigger: 'change' }
+                { required: true, message: 'At least one option is required', trigger: 'change' }
               ]"
             >
               <div class="options-list">
                 <div v-for="(option, index) in formData.options" :key="index" class="option-item">
                   <div class="option-content">
-                    <div class="option-inputs">
-                      <el-input v-model="option.label" placeholder="Option label">
-                        <template #prefix>
-                          <div 
-                            class="color-preview" 
-                            :style="{ 
-                              backgroundColor: option.value === '-1' ? 'transparent' : `#${option.value.replace('0x', '')}`,
-                              border: option.value === '-1' ? '1px dashed var(--el-border-color)' : 'none'
-                            }"
-                          >
-                            <div v-if="option.value === '-1'" class="transparent-pattern"></div>
-                          </div>
-                        </template>
-                      </el-input>
-                      <el-input 
-                        v-model="option.value" 
-                        placeholder="Color value (e.g. 0x00aa00)"
-                        :class="{ 'is-invalid': !isValidColorValue(option.value) }"
-                      />
+                    <div class="option-info">
+                      <span class="goal-icon">{{ option.icon }}</span>
+                      <span class="goal-label">{{ option.label }}</span>
+                      <span class="goal-metric">({{ option.metricSymbol }})</span>
                     </div>
                   </div>
                   <div class="option-actions">
@@ -196,38 +168,27 @@ import { ElMessage } from 'element-plus'
 import { usePropertiesStore } from '@/stores/properties'
 import { ElMessageBox } from 'element-plus'
 import '@/assets/styles/propertyDialog.css'
+import { DataTypeOptions } from '@/config/settings'
 
 const dialogVisible = ref(false)
 const formRef = ref(null)
-const activeOptions = ref([])
 const propertiesStore = usePropertiesStore()
 const isEdit = ref(false)
+const activeOptions = ref([])
+// 获取目标数据项作为选项
+const goalOptions = DataTypeOptions.filter(option => option.metricSymbol.startsWith(':GOAL_TYPE_'))
 
 const formData = reactive({
   title: '',
   propertyKey: '',
-  type: 'number',
-  options: [],
-  value: '0xffffff',
+  type: 'goal',
+  options: goalOptions,
+  value: goalOptions[0]?.metricSymbol || '',
   prompt: '',
   errorMessage: ''
 })
 
-// 表单验证规则
-const validateOptions = (rule, value, callback) => {
-  if (!value || value.length === 0) {
-    callback(new Error('At least one option is required'))
-  } else if (!value.every(option => option.label && propertiesStore.isValidColorValue(option.value))) {
-    callback(new Error('All options must have valid label and color value'))
-  } else {
-    callback()
-  }
-}
-
-const isValidColorValue = (value) => {
-  if (value === '-1') return true // 支持透明色
-  return /^0x[0-9A-Fa-f]{6}$/.test(value)
-}
+console.log('goalOptions', goalOptions)
 
 const initFormData = (data = null) => {
   isEdit.value = !!data
@@ -236,44 +197,21 @@ const initFormData = (data = null) => {
       title: data.title,
       propertyKey: data.propertyKey,
       type: data.type,
-      options: JSON.parse(JSON.stringify(data.options)),
-      value: data.value || data.options[0]?.value || '0xffffff',
+      options: goalOptions,
+      value: data.value || goalOptions[0]?.metricSymbol || '',
       prompt: data.prompt,
       errorMessage: data.errorMessage
     })
   } else {
     Object.assign(formData, {
-      title: 'Color 1',
-      propertyKey: 'color_1',
-      type: 'color',
-      options: JSON.parse(JSON.stringify(propertiesStore.getDefaultColorOptions)),
-      value: '0xffffff',
+      title: 'Goal 1',
+      propertyKey: 'goal_1',
+      type: 'goal',
+      options: goalOptions,
+      value: goalOptions[0]?.metricSymbol || '',
       prompt: '',
       errorMessage: ''
     })
-  }
-}
-
-const addOption = () => {
-  formData.options.push({
-    label: '',
-    value: '0x000000'
-  })
-}
-
-const deleteOption = (index) => {
-  formData.options.splice(index, 1)
-}
-
-const moveOption = (index, direction) => {
-  if (direction === 'up' && index > 0) {
-    const temp = formData.options[index]
-    formData.options[index] = formData.options[index - 1]
-    formData.options[index - 1] = temp
-  } else if (direction === 'down' && index < formData.options.length - 1) {
-    const temp = formData.options[index]
-    formData.options[index] = formData.options[index + 1]
-    formData.options[index + 1] = temp
   }
 }
 
@@ -285,7 +223,7 @@ const handleConfirm = async () => {
   try {
     await formRef.value.validate()
     emit('confirm', {
-      type: 'color',
+      type: 'goal',
       key: formData.propertyKey,
       title: formData.title,
       options: formData.options,
@@ -311,6 +249,22 @@ const handleClose = () => {
   ).then(() => {
     dialogVisible.value = false
   }).catch(() => {})
+}
+
+const deleteOption = (index) => {
+  formData.options.splice(index, 1)
+}
+
+const moveOption = (index, direction) => {
+  if (direction === 'up' && index > 0) {
+    const temp = formData.options[index]
+    formData.options[index] = formData.options[index - 1]
+    formData.options[index - 1] = temp
+  } else if (direction === 'down' && index < formData.options.length - 1) {
+    const temp = formData.options[index]
+    formData.options[index] = formData.options[index + 1]
+    formData.options[index + 1] = temp
+  }
 }
 
 defineExpose({

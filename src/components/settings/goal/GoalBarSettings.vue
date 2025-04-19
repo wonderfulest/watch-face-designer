@@ -70,23 +70,17 @@
         />
       </el-form-item>
 
-      <el-form-item label="数据变量">
-        <el-input 
-          v-model="element.varName" 
-          @change="updateElement" 
-        />
-      </el-form-item>
-
-      <el-form-item label="数据类型">
+      <el-form-item label="目标属性">
         <el-select 
-          v-model="element.metricSymbol" 
+          v-model="element.goalProperty" 
           @change="updateElement"
+          placeholder="选择目标属性"
         >
           <el-option 
-            v-for="option in metricOptions" 
-            :key="option.value" 
-            :label="option.label" 
-            :value="option.value" 
+            v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')" 
+            :key="key" 
+            :label="prop.title" 
+            :value="key" 
           />
         </el-select>
       </el-form-item>
@@ -125,6 +119,7 @@ import { ref, watch } from 'vue'
 import { useGoalBarStore } from '@/stores/elements/goal/goalBarElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 import { DataTypeOptions } from '@/config/settings'
+import { usePropertiesStore } from '@/stores/properties'
 
 const props = defineProps({
   element: {
@@ -135,6 +130,7 @@ const props = defineProps({
 
 const goalBarStore = useGoalBarStore()
 const metricOptions = DataTypeOptions
+const propertiesStore = usePropertiesStore()
 
 const updateElement = () => {
   goalBarStore.updateElement(props.element, {
@@ -146,8 +142,7 @@ const updateElement = () => {
     progress: props.element.progress,
     color: props.element.color,
     bgColor: props.element.bgColor,
-    varName: props.element.varName,
-    metricSymbol: props.element.metricSymbol,
+    goalProperty: props.element.goalProperty,
     borderWidth: props.element.borderWidth,
     borderColor: props.element.borderColor
   })

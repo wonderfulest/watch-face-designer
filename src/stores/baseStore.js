@@ -405,7 +405,6 @@ export const useBaseStore = defineStore('baseStore', {
         elements: [],
       }
 
-
       // 背景图片数组
       config.themeBackgroundImages = this.themeBackgroundImages
 
@@ -425,32 +424,35 @@ export const useBaseStore = defineStore('baseStore', {
         let encodeConfig = encodeElement(element)
         if (!encodeConfig) continue
 
-        // 处理颜色
-        if (encodeConfig.color) {
-          // 查找颜色属性
-          const matchingProperty = Object.entries(propertiesStore.allProperties)
-            .find(([key, p]) => compareColor(p.value, encodeConfig.color))
-          if (matchingProperty) {
-            encodeConfig.colorProperty = matchingProperty[0] // 返回 key 值
+        // 颜色属性映射配置
+        const colorMappings = [
+          { source: 'color', target: 'colorProperty' },
+          { source: 'bgColor', target: 'bgColorProperty' },
+          { source: 'stroke', target: 'strokeProperty' },
+          { source: 'borderColor', target: 'borderColorProperty' },
+          { source: 'bodyStroke', target: 'bodyStrokeProperty' },
+          { source: 'headFill', target: 'headFillProperty' },
+          { source: 'bodyFill', target: 'bodyFillProperty' }
+        ]
+
+        // 处理所有颜色属性映射
+        colorMappings.forEach(({ source, target }) => {
+          if (encodeConfig[source]) {
+            if (encodeConfig[source] == 'transparent') {
+              encodeConfig[source] = -1;
+              return;
+            }
+            const matchingProperty = Object.entries(propertiesStore.allProperties)
+              .find(([key, p]) => {
+                return p.type == 'color' && compareColor(p.value, encodeConfig[source])
+              })
+            if (matchingProperty) {
+              encodeConfig[target] = matchingProperty[0] // 返回 key 值
+            }
           }
-        }
-        if (encodeConfig.bgColor) {
-          // 查找颜色属性
-          const matchingProperty = Object.entries(propertiesStore.allProperties)
-            .find(([key, p]) => compareColor(p.value, encodeConfig.bgColor))
-          if (matchingProperty) {
-            encodeConfig.bgColorProperty = matchingProperty[0] // 返回 key 值
-          }
-        }
-        if (encodeConfig.stroke) {
-          // 查找颜色属性
-          const matchingProperty = Object.entries(propertiesStore.allProperties)
-            .find(([key, p]) => compareColor(p.value, encodeConfig.stroke))
-          if (matchingProperty) {
-            encodeConfig.strokeColorProperty = matchingProperty[0] // 返回 key 值
-          }
-        }
+        })
         
+
         // 获取data
         if (encodeConfig.metricSymbol) {
           const metric = getMetricBySymbol(encodeConfig.metricSymbol)

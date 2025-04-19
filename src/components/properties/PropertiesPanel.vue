@@ -19,6 +19,11 @@
                     </div>
                     <span class="color-value-text">{{ prop.value }}</span>
                   </div>
+                  <div v-else-if="prop.type === 'goal'" class="goal-value-preview">
+                    <!-- <span class="goal-icon">{{ getGoalOption(prop)?.icon }}</span> -->
+                    <!-- <span class="goal-label">{{ getGoalOption(prop)?.label }} ({{ getGoalOption(prop)?.metricSymbol }})</span> -->
+                    <span class="goal-label">{{ getGoalOption(prop)?.label }}</span>
+                  </div>
                   <div class="property-actions">
                     <el-button type="primary" link @click="editProperty(key, prop)">
                       <el-icon>
@@ -41,63 +46,17 @@
         <div class="add-property">
           <h3>Add property</h3>
           <el-button-group class="property-types" direction="vertical">
-            <el-button type="text" @click="addProperty('string')">
-              <el-icon>
-                <Document />
-              </el-icon>
-              string type
-            </el-button>
-            <el-button type="text" @click="addProperty('number')">
-              <el-icon>
-                <Histogram />
-              </el-icon>
-              number type
-            </el-button>
-            <el-button type="text" @click="addProperty('date')">
-              <el-icon>
-                <Calendar />
-              </el-icon>
-              date type
-            </el-button>
-            <el-button type="text" @click="addProperty('boolean')">
-              <el-icon>
-                <Check />
-              </el-icon>
-              boolean type
-            </el-button>
-            <el-button type="text" @click="addProperty('select')">
-              <el-icon><Select /></el-icon>
-              select type
-            </el-button>
             <el-button type="text" @click="addProperty('color')">
               <el-icon>
                 <Brush />
               </el-icon>
               color select
             </el-button>
-            <el-button type="text" @click="addProperty('complication')">
+            <el-button type="text" @click="addProperty('goal')">
               <el-icon>
-                <Watch />
+                <Histogram />
               </el-icon>
-              complication select
-            </el-button>
-            <el-button type="text" @click="addProperty('ownApiKey')">
-              <el-icon>
-                <Key />
-              </el-icon>
-              OWN API Key
-            </el-button>
-            <el-button type="text" @click="addProperty('wfbApiKey')">
-              <el-icon>
-                <Key />
-              </el-icon>
-              WFB API Key
-            </el-button>
-            <el-button type="text" @click="addProperty('username')">
-              <el-icon>
-                <User />
-              </el-icon>
-              Username for auth
+              goal select
             </el-button>
           </el-button-group>
         </div>
@@ -105,6 +64,7 @@
     </div>
     <!-- 添加对话框组件 -->
     <ColorPropertyDialog ref="colorPropertyDialog" @confirm="handlePropertyConfirm" />
+    <GoalPropertyDialog ref="goalPropertyDialog" @confirm="handlePropertyConfirm" />
   </el-drawer>
 </template>
 
@@ -125,11 +85,13 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import ColorPropertyDialog from '@/components/properties/dialogs/ColorPropertyDialog.vue'
+import GoalPropertyDialog from '@/components/properties/dialogs/GoalPropertyDialog.vue'
 import { usePropertiesStore } from '@/stores/properties'
 import emitter from '@/utils/eventBus'
 
 const visible = ref(false)
 const colorPropertyDialog = ref(null)
+const goalPropertyDialog = ref(null)
 const propertiesStore = usePropertiesStore()
 
 // 监听打开 App Properties 事件
@@ -145,16 +107,26 @@ onUnmounted(() => {
 
 // 添加属性
 const addProperty = (type) => {
+  console.log('addProperty', type)
   if (type === 'color') {
     colorPropertyDialog.value?.show()
+  } else if (type === 'goal') {
+    goalPropertyDialog.value?.show()
   }
 }
 // 编辑属性
 const editProperty = (key, prop) => {
-  colorPropertyDialog.value?.show({
-    ...prop,
-    propertyKey: key
-  })
+  if (prop.type === 'color') {
+    colorPropertyDialog.value?.show({
+      ...prop,
+      propertyKey: key
+    })
+  } else if (prop.type === 'goal') {
+    goalPropertyDialog.value?.show({
+      ...prop,
+      propertyKey: key
+    })
+  }
 }
 
 // 删除属性
@@ -183,6 +155,11 @@ const deleteProperty = async (key) => {
 // 处理属性确认
 const handlePropertyConfirm = (propertyData) => {
   propertiesStore.addProperty(propertyData)
+}
+
+// 获取目标选项
+const getGoalOption = (prop) => {
+  return prop.options?.find(option => option.value === prop.value)
 }
 
 // 暴露方法给父组件
@@ -335,5 +312,23 @@ defineExpose({
   font-family: monospace;
   font-size: 14px;
   color: var(--el-text-color-secondary);
+}
+
+.goal-value-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.goal-icon {
+  font-size: 16px;
+  width: 24px;
+  text-align: center;
+}
+
+.goal-label {
+  font-size: 14px;
+  color: var(--el-text-color-primary);
 }
 </style>

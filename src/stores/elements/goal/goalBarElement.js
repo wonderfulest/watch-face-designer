@@ -69,9 +69,6 @@ export const useGoalBarStore = defineStore('goalBarStore', {
           hasBorders: true,
           originX: 'center',
           originY: 'center',
-          metricGroup: options.metricGroup,
-          metricSymbol: options.metricSymbol,
-          varName: options.varName,
           progress: options.progress || 0,
           color: options.color || '#00FF00',
           bgColor: options.bgColor || '#333333',
@@ -197,10 +194,11 @@ export const useGoalBarStore = defineStore('goalBarStore', {
         })
       }
 
-      // 更新数据相关属性
-      if (options.metricGroup !== undefined) element.metricGroup = options.metricGroup
-      if (options.metricSymbol !== undefined) element.metricSymbol = options.metricSymbol
-      if (options.varName !== undefined) element.varName = options.varName
+      // 更新目标属性
+      if (options.goalProperty !== undefined) {
+        element.goalProperty = options.goalProperty
+        console.log('element.goalProperty', element.goalProperty)
+      }
 
       element.setCoords()
       this.baseStore.canvas.renderAll()
@@ -227,11 +225,9 @@ export const useGoalBarStore = defineStore('goalBarStore', {
         padding: element.padding,
         originX: element.originX,
         originY: background.originY,
-        metricGroup: element.metricGroup,
-        metricSymbol: element.metricSymbol,
-        varName: element.varName,
         borderWidth: element.borderWidth,
-        borderColor: element.borderColor
+        borderColor: element.borderColor,
+        goalProperty: element.goalProperty
       }
     },
 
@@ -249,11 +245,9 @@ export const useGoalBarStore = defineStore('goalBarStore', {
         padding: config.padding,
         originX: config.originX,
         originY: config.originY,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        varName: config.varName,
         borderWidth: config.borderWidth,
-        borderColor: config.borderColor
+        borderColor: config.borderColor,
+        goalProperty: config.goalProperty
       }
     }
   }
