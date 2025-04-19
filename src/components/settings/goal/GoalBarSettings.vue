@@ -1,6 +1,26 @@
 <template>
   <div class="settings-section">
-    <el-form label-position="left" label-width="100px">
+    <el-form 
+      ref="formRef"
+      :model="element" 
+      label-position="left" 
+      label-width="100px"
+      :rules="rules"
+    >
+      <el-form-item label="目标属性" prop="goalProperty" :rules="[{ required: true, message: '请选择目标属性', trigger: 'change' }]">
+        <el-select 
+          v-model="element.goalProperty" 
+          @change="updateElement"
+          placeholder="选择目标属性"
+        >
+          <el-option 
+            v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')" 
+            :key="key" 
+            :label="prop.title" 
+            :value="key" 
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="宽度">
         <el-input-number 
           v-model="element.width" 
@@ -70,20 +90,7 @@
         />
       </el-form-item>
 
-      <el-form-item label="目标属性">
-        <el-select 
-          v-model="element.goalProperty" 
-          @change="updateElement"
-          placeholder="选择目标属性"
-        >
-          <el-option 
-            v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')" 
-            :key="key" 
-            :label="prop.title" 
-            :value="key" 
-          />
-        </el-select>
-      </el-form-item>
+      
 
       <el-form-item label="前景对齐">
         <el-select 
@@ -115,11 +122,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, defineEmits } from 'vue'
 import { useGoalBarStore } from '@/stores/elements/goal/goalBarElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 import { DataTypeOptions } from '@/config/settings'
 import { usePropertiesStore } from '@/stores/properties'
+import { ElMessage } from 'element-plus'
+
+const emit = defineEmits(['close'])
 
 const props = defineProps({
   element: {
@@ -128,25 +138,52 @@ const props = defineProps({
   }
 })
 
+const formRef = ref(null)
 const goalBarStore = useGoalBarStore()
 const metricOptions = DataTypeOptions
 const propertiesStore = usePropertiesStore()
 
-const updateElement = () => {
-  goalBarStore.updateElement(props.element, {
-    width: props.element.width,
-    height: props.element.height,
-    borderRadius: props.element.borderRadius,
-    padding: props.element.padding,
-    progressAlign: props.element.progressAlign,
-    progress: props.element.progress,
-    color: props.element.color,
-    bgColor: props.element.bgColor,
-    goalProperty: props.element.goalProperty,
-    borderWidth: props.element.borderWidth,
-    borderColor: props.element.borderColor
-  })
+const rules = {
+  goalProperty: [
+    { required: true, message: '请选择目标属性', trigger: 'change' }
+  ]
 }
+
+const updateElement = async () => {
+  try {
+    await formRef.value.validate()
+    goalBarStore.updateElement(props.element, {
+      width: props.element.width,
+      height: props.element.height,
+      borderRadius: props.element.borderRadius,
+      padding: props.element.padding,
+      progressAlign: props.element.progressAlign,
+      progress: props.element.progress,
+      color: props.element.color,
+      bgColor: props.element.bgColor,
+      goalProperty: props.element.goalProperty,
+      borderWidth: props.element.borderWidth,
+      borderColor: props.element.borderColor
+    })
+  } catch (error) {
+    console.error('表单验证失败:', error)
+  }
+}
+
+// 添加关闭时的验证方法
+const handleClose = async () => {
+  try {
+    await formRef.value.validate()
+    emit('close')
+  } catch (error) {
+    ElMessage.warning('请先完成必填项设置')
+  }
+}
+
+// 暴露方法给父组件
+defineExpose({
+  handleClose
+})
 </script>
 
 <style scoped>

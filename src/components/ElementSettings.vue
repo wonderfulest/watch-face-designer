@@ -10,7 +10,12 @@
         <span class="type-name">{{ getElementTypeName(activeElements[0]) }}</span>
       </div>
     </div>
-    <component :is="getSettingsComponent(activeElements[0].eleType)" :element="activeElements[0]" @update="handleUpdate" />
+    <component 
+      :is="getSettingsComponent(activeElements[0].eleType)" 
+      :element="activeElements[0]" 
+      @update="handleUpdate"
+      ref="settingsComponent"
+    />
   </div>
   <!-- 没有选中任何元素，显示全局配置 -->
   <div class="settings-panel" v-if="activeElements.length == 0">
@@ -28,8 +33,10 @@ import GlobalSettings from './settings/GlobalSettings.vue'
 import BaseSettings from './settings/BaseSettings.vue'
 import GroupSettings from './settings/GroupSettings.vue'
 import { getSettingsComponent } from './settings'
+import { ElMessage } from 'element-plus'
 
 const baseStore = useBaseStore()
+const settingsComponent = ref(null)
 
 const elements = ref([])
 const activeElements = ref([])
@@ -47,10 +54,13 @@ onMounted(() => {
   emitter.on('refresh-canvas', (data) => {
     debouncedUpdateElements()
   })
+  // 监听关闭事件
+  emitter.on('close-settings', handleClose)
 })
 
 onUnmounted(() => {
   emitter.off('refresh-canvas')
+  emitter.off('close-settings')
 })
 
 // 考虑删除，改为主动触发；因为变化太频繁了
@@ -79,6 +89,25 @@ const getElementTypeName = (layer) => {
 
 const handleUpdate = () => {
   if (baseStore.canvas) {
+    baseStore.canvas.renderAll()
+  }
+}
+
+// 处理关闭事件
+const handleClose = async () => {
+  if (settingsComponent.value && settingsComponent.value.formRef) {
+    try {
+      await settingsComponent.value.formRef.validate()
+      // 验证通过，可以关闭
+      baseStore.canvas.discardActiveObject()
+      baseStore.canvas.renderAll()
+    } catch (error) {
+      // 验证失败，显示错误信息
+      ElMessage.warning('请完成必填项')
+    }
+  } else {
+    // 没有表单验证，直接关闭
+    baseStore.canvas.discardActiveObject()
     baseStore.canvas.renderAll()
   }
 }
