@@ -32,8 +32,8 @@ export const useGoalArcStore = defineStore('goalArcElement', {
         fill: 'transparent',
         stroke: bgColor,
         strokeWidth: bgStrokeWidth,
-        startAngle: 0,
-        endAngle: 360,
+        startAngle: startAngle,
+        endAngle: endAngle,
         id: id + '_bg',
         originX: 'center',
         originY: 'center',
@@ -133,6 +133,16 @@ export const useGoalArcStore = defineStore('goalArcElement', {
       const group = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!group || !group.getObjects) return
 
+      console.log('updateProgress 参数:', {
+        elementId: element.id,
+        progress,
+        element: {
+          startAngle: element.startAngle,
+          endAngle: element.endAngle,
+          counterClockwise: element.counterClockwise
+        }
+      })
+
       const objects = group.getObjects()
       const mainRing = objects.find((obj) => obj.id === element.id + '_main')
 
@@ -143,7 +153,16 @@ export const useGoalArcStore = defineStore('goalArcElement', {
       const counterClockwise = element.counterClockwise
       const progressAngle = this.getProgressAngle(startAngle, endAngle, counterClockwise, progress)
 
+      console.log('updateProgress 计算结果:', {
+        startAngle,
+        endAngle,
+        counterClockwise,
+        progress,
+        progressAngle
+      })
+
       mainRing.set('endAngle', progressAngle)
+      mainRing.set('counterClockwise', counterClockwise)
       this.baseStore.canvas.renderAll()
 
       this.progressMap.set(element.id, progress)
@@ -152,6 +171,11 @@ export const useGoalArcStore = defineStore('goalArcElement', {
     updateElement(element, options = {}) {
       if (!element || !element.getObjects) return
 
+      console.log('updateElement 参数:', {
+        elementId: element.id,
+        options
+      })
+
       const objects = element.getObjects()
       const mainRing = objects.find((obj) => obj.id === element.id + '_main')
       const bgRing = objects.find((obj) => obj.id === element.id + '_bg')
@@ -159,11 +183,16 @@ export const useGoalArcStore = defineStore('goalArcElement', {
       if (!mainRing || !bgRing) return
 
       // 更新背景圆环
-      bgRing.set({
+      const bgRingOptions = {
         radius: options.bgRadius || bgRing.radius,
         strokeWidth: options.bgStrokeWidth || bgRing.strokeWidth,
-        stroke: options.bgColor || bgRing.stroke
-      })
+        stroke: options.bgColor || bgRing.stroke,
+        startAngle: options.startAngle || bgRing.startAngle,
+        endAngle: options.endAngle || bgRing.endAngle,
+        counterClockwise: options.counterClockwise !== undefined ? options.counterClockwise : bgRing.counterClockwise
+      }
+      console.log('更新背景圆环:', bgRingOptions)
+      bgRing.set(bgRingOptions)
 
       // 更新前景色圆环
       const progress = options.progress !== undefined ? options.progress : this.progressMap.get(element.id)
@@ -174,24 +203,28 @@ export const useGoalArcStore = defineStore('goalArcElement', {
         progress
       )
 
-      mainRing.set({
+      const mainRingOptions = {
         radius: options.radius || mainRing.radius,
         strokeWidth: options.strokeWidth || mainRing.strokeWidth,
         stroke: options.color || mainRing.stroke,
         startAngle: options.startAngle || mainRing.startAngle,
         endAngle: progressAngle,
         counterClockwise: options.counterClockwise !== undefined ? options.counterClockwise : mainRing.counterClockwise
-      })
+      }
+      console.log('更新前景色圆环:', mainRingOptions)
+      mainRing.set(mainRingOptions)
 
       // 更新组的属性
-      element.set({
+      const groupOptions = {
         left: options.left !== undefined ? options.left : element.left,
         top: options.top !== undefined ? options.top : element.top,
         startAngle: options.startAngle !== undefined ? options.startAngle : element.startAngle,
         endAngle: options.endAngle !== undefined ? options.endAngle : element.endAngle,
         counterClockwise: options.counterClockwise !== undefined ? options.counterClockwise : element.counterClockwise,
         goalProperty: options.goalProperty !== undefined ? options.goalProperty : element.goalProperty
-      })
+      }
+      console.log('更新组属性:', groupOptions)
+      element.set(groupOptions)
 
       // 计算组的新尺寸
       const size = Math.max(
@@ -208,11 +241,41 @@ export const useGoalArcStore = defineStore('goalArcElement', {
       element.setCoords()
       mainRing.setCoords()
       bgRing.setCoords()
-      this.baseStore.canvas.renderAll()
+
+      // 强制重新渲染
+      this.baseStore.canvas.requestRenderAll()
 
       if (options.progress !== undefined) {
         this.progressMap.set(element.id, options.progress)
       }
+
+      console.log('更新后的状态:', {
+        element: {
+          left: element.left,
+          top: element.top,
+          startAngle: element.startAngle,
+          endAngle: element.endAngle,
+          counterClockwise: element.counterClockwise,
+          goalProperty: element.goalProperty
+        },
+        mainRing: {
+          radius: mainRing.radius,
+          strokeWidth: mainRing.strokeWidth,
+          stroke: mainRing.stroke,
+          startAngle: mainRing.startAngle,
+          endAngle: mainRing.endAngle,
+          counterClockwise: mainRing.counterClockwise
+        },
+        bgRing: {
+          radius: bgRing.radius,
+          strokeWidth: bgRing.strokeWidth,
+          stroke: bgRing.stroke,
+          startAngle: bgRing.startAngle,
+          endAngle: bgRing.endAngle,
+          counterClockwise: bgRing.counterClockwise
+        },
+        progress: this.progressMap.get(element.id)
+      })
     },
 
     encodeConfig(element) {

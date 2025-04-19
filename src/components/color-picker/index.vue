@@ -55,7 +55,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'change'])
 
 const baseStore = useBaseStore()
 const propertiesStore = usePropertiesStore()
@@ -157,13 +157,14 @@ const toggleColorList = () => {
 // 选择颜色
 const selectColor = (color) => {
   hexColor.value = color.hex
-  updateColor()
+  emit('update:modelValue', color.hex)
+  emit('change', color.hex)
 }
 
 // 更新颜色
 const updateColor = () => {
   emit('update:modelValue', hexColor.value)
-  emit('change', hexColor.value) // <-- 这行是关键
+  emit('change', hexColor.value)
 }
 
 // 从十六进制更新

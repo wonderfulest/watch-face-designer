@@ -87,7 +87,7 @@
         <!-- 添加方向选择 -->
         <div class="direction-group">
           <label>方向</label>
-          <el-radio-group :value="element.counterClockwise" @change="val => { element.counterClockwise = val; updateElement() }">
+          <el-radio-group v-model="element.counterClockwise" @change="updateElement">
             <el-radio :label="false">顺时针</el-radio>
             <el-radio :label="true">逆时针</el-radio>
           </el-radio-group>
@@ -100,11 +100,25 @@
         <div class="color-inputs">
           <div class="input-group">
             <label>前景色</label>
-            <ColorPicker :value="mainRing?.stroke" @change="val => { mainRing.stroke = val; updateElement() }" />
+            <ColorPicker 
+              :value="mainRing?.stroke" 
+              @change="val => {
+                console.log('更新前景色:', val);
+                mainRing.stroke = val;
+                updateElement();
+              }" 
+            />
           </div>
           <div class="input-group">
             <label>背景色</label>
-            <ColorPicker :value="bgRing?.stroke" @change="val => { bgRing.stroke = val; updateElement() }" />
+            <ColorPicker 
+              :value="bgRing?.stroke" 
+              @change="val => {
+                console.log('更新背景色:', val);
+                bgRing.stroke = val;
+                updateElement();
+              }" 
+            />
           </div>
         </div>
       </div>
@@ -173,18 +187,70 @@ const updateElement = async () => {
     await formRef.value.validate()
     if (!mainRing.value || !bgRing.value) return
 
+    console.log('更新元素前的状态:', {
+      element: {
+        left: props.element.left,
+        top: props.element.top,
+        startAngle: props.element.startAngle,
+        endAngle: props.element.endAngle,
+        counterClockwise: props.element.counterClockwise,
+        goalProperty: props.element.goalProperty
+      },
+      mainRing: {
+        radius: mainRing.value.radius,
+        strokeWidth: mainRing.value.strokeWidth,
+        stroke: mainRing.value.stroke,
+        startAngle: mainRing.value.startAngle,
+        endAngle: mainRing.value.endAngle,
+        counterClockwise: mainRing.value.counterClockwise
+      },
+      bgRing: {
+        radius: bgRing.value.radius,
+        strokeWidth: bgRing.value.strokeWidth,
+        stroke: bgRing.value.stroke
+      },
+      progress: goalArcStore.progressMap.get(props.element.id)
+    })
+
     // 使用store中的方法更新元素
     goalArcStore.updateElement(props.element, {
       left: props.element.left,
       top: props.element.top,
       radius: mainRing.value.radius,
+      bgRadius: bgRing.value.radius,
       strokeWidth: mainRing.value.strokeWidth,
+      bgStrokeWidth: bgRing.value.strokeWidth,
       color: mainRing.value.stroke,
       bgColor: bgRing.value.stroke,
       startAngle: props.element.startAngle,
       endAngle: props.element.endAngle,
       counterClockwise: props.element.counterClockwise,
       goalProperty: props.element.goalProperty,
+      progress: goalArcStore.progressMap.get(props.element.id)
+    })
+
+    console.log('更新元素后的状态:', {
+      element: {
+        left: props.element.left,
+        top: props.element.top,
+        startAngle: props.element.startAngle,
+        endAngle: props.element.endAngle,
+        counterClockwise: props.element.counterClockwise,
+        goalProperty: props.element.goalProperty
+      },
+      mainRing: {
+        radius: mainRing.value.radius,
+        strokeWidth: mainRing.value.strokeWidth,
+        stroke: mainRing.value.stroke,
+        startAngle: mainRing.value.startAngle,
+        endAngle: mainRing.value.endAngle,
+        counterClockwise: mainRing.value.counterClockwise
+      },
+      bgRing: {
+        radius: bgRing.value.radius,
+        strokeWidth: bgRing.value.strokeWidth,
+        stroke: bgRing.value.stroke
+      },
       progress: goalArcStore.progressMap.get(props.element.id)
     })
   } catch (error) {
@@ -210,7 +276,27 @@ const updatePosition = () => {
 
 // 更新进度
 const updateProgress = () => {
+  console.log('更新进度前的状态:', {
+    element: {
+      id: props.element.id,
+      startAngle: props.element.startAngle,
+      endAngle: props.element.endAngle,
+      counterClockwise: props.element.counterClockwise
+    },
+    progress: goalArcStore.progressMap.get(props.element.id)
+  })
+
   goalArcStore.updateProgress(props.element, goalArcStore.progressMap.get(props.element.id))
+
+  console.log('更新进度后的状态:', {
+    element: {
+      id: props.element.id,
+      startAngle: props.element.startAngle,
+      endAngle: props.element.endAngle,
+      counterClockwise: props.element.counterClockwise
+    },
+    progress: goalArcStore.progressMap.get(props.element.id)
+  })
 }
 
 // 添加关闭时的验证方法
