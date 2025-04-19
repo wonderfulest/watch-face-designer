@@ -124,7 +124,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { useProgressLineStore } from '@/stores/elements/progress/progressLineElement'
+import { useGoalBarStore } from '@/stores/elements/goal/goalBarElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 import { DataTypeOptions } from '@/config/settings'
 
@@ -135,11 +135,11 @@ const props = defineProps({
   }
 })
 
-const progressLineStore = useProgressLineStore()
+const goalBarStore = useGoalBarStore()
 const metricOptions = DataTypeOptions
 
 const updateElement = () => {
-  progressLineStore.updateElement(props.element, {
+  goalBarStore.updateElement(props.element, {
     width: props.element.width,
     height: props.element.height,
     borderRadius: props.element.borderRadius,

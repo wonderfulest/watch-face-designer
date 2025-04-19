@@ -11,15 +11,35 @@ Object.entries(modules).forEach(([path, module]) => {
   // 从文件路径中提取组件类型
   // 例如: 
   // './BatterySettings.vue' -> 'battery'
-  // './shapes/CircleSettings.vue' -> 'circle'
-  // './shapes/RectangleSettings.vue' -> 'rectangle'
-  const type = path.match(/\/(\w+)Settings\.vue$/)[1].toLowerCase()
-  componentMap[type] = module.default
+  // './goal/GoalArcSettings.vue' -> 'goalarc'
+  // './goal/GoalBarSettings.vue' -> 'goalbar'
+  const match = path.match(/\/(\w+)Settings\.vue$/)
+  if (match) {
+    const type = match[1].toLowerCase()
+    componentMap[type] = module.default
+  }
 })
 
 // 获取设置组件的函数
 export function getSettingsComponent(type) {
-  return componentMap[type]
+  // 尝试直接匹配
+  if (componentMap[type]) {
+    return componentMap[type]
+  }
+  
+  // 尝试匹配带前缀的类型
+  const prefixedType = type.toLowerCase()
+  if (componentMap[prefixedType]) {
+    return componentMap[prefixedType]
+  }
+  
+  // 尝试匹配不带前缀的类型
+  const unprefixedType = type.replace(/^goal/, '').toLowerCase()
+  if (componentMap[unprefixedType]) {
+    return componentMap[unprefixedType]
+  }
+  
+  return null
 }
 
 export default componentMap

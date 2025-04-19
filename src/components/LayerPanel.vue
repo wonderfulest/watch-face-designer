@@ -327,7 +327,7 @@ const getElementIcon = (eleType) => {
 }
 
 const getLayerBackgroundColor = (layer) => {
-  if ((layer.eleType === 'icon' || layer.eleType === 'data' || layer.eleType === 'label' || layer.eleType === 'progressRing') && layer.metricGroup) {
+  if ((layer.eleType === 'icon' || layer.eleType === 'data' || layer.eleType === 'label' || layer.eleType === 'goalArc') && layer.metricGroup) {
     const id = layer.metricGroup
     const color = generateColorFromId(id)
     return { backgroundColor: color }

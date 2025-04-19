@@ -4,13 +4,13 @@ import { nanoid } from 'nanoid'
 import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
 
-export const useProgressLineStore = defineStore('progressLineStore', {
+export const useGoalBarStore = defineStore('goalBarStore', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
 
     return {
-      progressLineElements: [],
+      goalBarElements: [],
       baseStore,
       layerStore
     }
@@ -61,7 +61,7 @@ export const useProgressLineStore = defineStore('progressLineStore', {
         // 创建组
         const group = new Group([background, progress], {
           id: nanoid(),
-          eleType: 'progressLine',
+          eleType: 'goalBar',
           left: Number(options.left) || 0,
           top: Number(options.top) || 0,
           selectable: true,
@@ -214,7 +214,7 @@ export const useProgressLineStore = defineStore('progressLineStore', {
       const background = objects.find(obj => obj.id.endsWith('_background'))
 
       return {
-        type: 'progressLine',
+        type: 'goalBar',
         x: element.left,
         y: element.top,
         width: background.width,
@@ -236,7 +236,7 @@ export const useProgressLineStore = defineStore('progressLineStore', {
 
     decodeConfig(config) {
       return {
-        eleType: 'progressLine',
+        eleType: 'goalBar',
         left: config.x,
         top: config.y,
         width: config.width,

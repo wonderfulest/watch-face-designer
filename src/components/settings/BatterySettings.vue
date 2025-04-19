@@ -96,6 +96,11 @@ const props = defineProps({
 
 const batteryStore = useBatteryStore()
 
+// 确保 levelColors 对象存在
+if (!props.element.levelColors) {
+  props.element.levelColors = { ...batteryStore.defaultLevelColors }
+}
+
 // 从画布元素中获取实际属性值
 const initElementProperties = () => {
   const group = batteryStore.baseStore.canvas.getObjects().find((obj) => obj.id === props.element.id)
@@ -133,11 +138,6 @@ const initElementProperties = () => {
   // 计算头部间距
   const headGap = Math.round(batteryHead.left - (batteryBody.left + batteryBody.width))
   props.element.headGap = headGap
-
-  // 初始化电量颜色
-  if (!props.element.levelColors) {
-    props.element.levelColors = { ...batteryStore.defaultLevelColors }
-  }
 }
 
 // 组件挂载时初始化属性

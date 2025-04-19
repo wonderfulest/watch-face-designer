@@ -76,7 +76,8 @@ const groupElement = props.elements
 const iconElement = computed(() => getElementByType('icon'))
 const dataElement = computed(() => getElementByType('data'))
 const labelElement = computed(() => getElementByType('label'))
-const progressRingElement = computed(() => getElementByType('progressRing'))
+const goalBarElement = computed(() => getElementByType('goalBar'))
+const goalArcElement = computed(() => getElementByType('goalArc'))
 
 const isMetricGroup = ref(false)
 const varName = ref('')
@@ -179,8 +180,8 @@ const updateMetricType = () => {
   iconElement.value && iconElement.value.set('text', metric.icon)
   dataElement.value && dataElement.value.set('text', metric.defaultValue)
   labelElement.value && labelElement.value.set('text', metric.enLabel?.short)
-  progressRingElement.value && progressRingElement.value.set('text', metric.defaultValue)
-
+  goalBarElement.value && goalBarElement.value.set('text', metric.defaultValue)
+  goalArcElement.value && goalArcElement.value.set('text', metric.defaultValue)
   baseStore.canvas.renderAll()
 }
 

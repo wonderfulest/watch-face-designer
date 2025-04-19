@@ -33,7 +33,7 @@ const getCategoryLabel = (category) => {
     time: '时间元素',
     metric: '数据元素',
     indicator: '指示器',
-    progress: '进度',
+    goal: '目标',
     shape: '形状'
   }
   return labels[category] || category

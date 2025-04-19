@@ -5,7 +5,7 @@ import { useLayerStore } from '@/stores/layerStore'
 import { Circle, Group } from 'fabric'
 import { nanoid } from 'nanoid'
 
-export const useProgressRingStore = defineStore('progressRingElement', {
+export const useGoalArcStore = defineStore('goalArcElement', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
@@ -64,7 +64,7 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         width: size,
         height: size,
         id: id,
-        eleType: 'progressRing',
+        eleType: 'goalArc',
         selectable: true,
         hasControls: true,
         hasBorders: true,
@@ -184,14 +184,14 @@ export const useProgressRingStore = defineStore('progressRingElement', {
       this.baseStore.canvas.renderAll()
     },
     encodeConfig(element) {
-      const progressRingStore = useProgressRingStore() 
+      const goalArcStore = useGoalArcStore() 
       const mainRing = element.getObjects().find((obj) => obj.id.endsWith('_main'))
       const bgRing = element.getObjects().find((obj) => obj.id.endsWith('_bg'))
       if (!mainRing || !bgRing) {
         throw new Error('无效的元素')
       }
       return {
-        type: 'progressRing',
+        type: 'goalArc',
         x: Math.round(element.left),
         y: Math.round(element.top),
         startAngle: mainRing.startAngle,
@@ -202,14 +202,14 @@ export const useProgressRingStore = defineStore('progressRingElement', {
         bgColor: bgRing.stroke,
         metricGroup: element.metricGroup,
         metricSymbol: element.metricSymbol,
-        fullAngle: progressRingStore.getFullAngle(mainRing.startAngle, bgRing.endAngle, mainRing.counterClockwise), // 不需要反序列化
+        fullAngle: goalArcStore.getFullAngle(mainRing.startAngle, bgRing.endAngle, mainRing.counterClockwise), // 不需要反序列化
         varName: element.varName,
         counterClockwise: mainRing.counterClockwise
       }
     },
     decodeConfig(config) {
       return {
-        eleType: 'progressRing',
+        eleType: 'goalArc',
         left: config.x,
         top: config.y,
         startAngle: config.startAngle,

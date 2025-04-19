@@ -118,9 +118,9 @@ export const elementConfigs = {
       opacity: 1
     }
   },
-  // 进度
-  progress: {
-    progressLine: { 
+  // 目标
+  goal: {
+    goalBar: { 
       icon: 'pajamas:progress',
       label: '进度条',
       ...elementAttribute,
@@ -131,7 +131,7 @@ export const elementConfigs = {
       borderRadius: 5,
       progress: 0.5
     },
-    ring: {
+    goalArc: {
       icon: 'material-symbols:data-usage-rounded',
       label: '进度环',
       ...elementAttribute

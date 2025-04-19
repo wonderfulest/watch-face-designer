@@ -105,7 +105,7 @@
 import { ref, watch, computed } from 'vue'
 import { useBaseStore } from '@/stores/baseStore'
 
-import { useProgressRingStore } from '@/stores/elements/progress/progressRingElement'
+import { useGoalArcStore } from '@/stores/elements/goal/goalArcElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 import { DataTypeOptions } from '@/config/settings'
 import { ElTooltip } from 'element-plus'
@@ -119,7 +119,7 @@ const props = defineProps({
 })
 
 const baseStore = useBaseStore()
-const progressRingStore = useProgressRingStore()
+const goalArcStore = useGoalArcStore()
 
 // 获取主圆环和背景圆环
 const mainRing = computed(() => props.element.getObjects().find((obj) => {
@@ -178,7 +178,7 @@ const updateElement = () => {
   const groupLeft = props.element.left
   const groupTop = props.element.top
   // const middleAngle = endAngle.value
-  const middleAngle = progressRingStore.getMiddleAngle(startAngle.value, endAngle.value, counterClockwise.value, progress.value * 1.0 / 100.0)
+  const middleAngle = goalArcStore.getMiddleAngle(startAngle.value, endAngle.value, counterClockwise.value, progress.value * 1.0 / 100.0)
   // 更新主圆环
   mainRing.value.set({
     radius: radius.value,
@@ -249,7 +249,7 @@ const updatePosition = () => {
 
 // 更新进度
 const updateProgress = () => {
-  progressRingStore.updateProgress(props.element, progress.value * 1.0 / 100.0)
+  goalArcStore.updateProgress(props.element, progress.value * 1.0 / 100.0)
 }
 </script>
 
