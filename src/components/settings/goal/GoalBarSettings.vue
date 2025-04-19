@@ -122,7 +122,7 @@
 </template>
 
 <script setup>
-import { ref, watch, defineEmits } from 'vue'
+import { ref, watch, defineEmits, defineExpose } from 'vue'
 import { useGoalBarStore } from '@/stores/elements/goal/goalBarElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 import { DataTypeOptions } from '@/config/settings'
@@ -182,6 +182,7 @@ const handleClose = async () => {
 
 // 暴露方法给父组件
 defineExpose({
+  formRef,
   handleClose
 })
 </script>
