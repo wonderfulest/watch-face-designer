@@ -10,7 +10,12 @@ export const useBatteryStore = defineStore('batteryElement', {
     const layerStore = useLayerStore()
     return {
       baseStore,
-      layerStore
+      layerStore,
+      defaultLevelColors: {
+        low: '#ff0000',    // 红色，电量低
+        medium: '#ffaa00', // 黄色，电量中等
+        high: '#00ff00'    // 绿色，电量充足
+      }
     }
   },
 
@@ -19,24 +24,24 @@ export const useBatteryStore = defineStore('batteryElement', {
       const id = nanoid()
       
       // 基础尺寸配置
-      const width = config.width || 120
-      const height = config.height || 60
-      const headWidth = config.headWidth || width * 0.08
-      const headHeight = config.headHeight || height * 0.5
-      const padding = config.padding || 5
-      const level = config.level || 0.5
-      const headGap = config.headGap || 2 // 默认间距为2
+      const width = config.width || 120 // 电池宽度
+      const height = config.height || 60 // 电池高度
+      const headWidth = Math.round(config.headWidth || width * 0.08) // 电池头部宽度
+      const headHeight = Math.round(config.headHeight || height * 0.5)  // 电池头部高度
+      const padding = Math.round(config.padding || 5) // 电池电量条内边距
+      const level = config.level || 0.5 // 电池电量
+      const headGap = Math.round(config.headGap || 2) // 电池头部间距
 
       // 样式配置
-      const bodyStrokeWidth = config.bodyStrokeWidth || 2
-      const bodyStroke = config.bodyStroke || '#ffffff'
-      const bodyFill = config.bodyFill || 'transparent'
-      const bodyRx = config.bodyRx || height * 0.1
-      const bodyRy = config.bodyRy || height * 0.1
+      const bodyStrokeWidth = config.bodyStrokeWidth || 2 // 电池外壳边框宽度
+      const bodyStroke = config.bodyStroke || '#ffffff' // 电池外壳边框颜色
+      const bodyFill = config.bodyFill || 'transparent' // 电池外壳填充颜色
+      const bodyRx = config.bodyRx || height * 0.1 // 电池外壳圆角半径X
+      const bodyRy = config.bodyRy || height * 0.1 // 电池外壳圆角半径Y
       
-      const headFill = config.headFill || bodyStroke
-      const headRx = config.headRx || headWidth * 0.2
-      const headRy = config.headRy || headWidth * 0.2
+      const headFill = config.headFill || bodyStroke // 电池头部填充颜色
+      const headRx = Math.round(config.headRx || headWidth * 0.2) // 电池头部圆角半径X
+      const headRy = Math.round(config.headRy || headWidth * 0.2) // 电池头部圆角半径Y
 
       // 电池外壳
       const batteryBody = new Rect({
@@ -70,7 +75,7 @@ export const useBatteryStore = defineStore('batteryElement', {
       const batteryLevel = new Rect({
         width: (width - padding * 2) * level,
         height: height - padding * 2,
-        fill: config.levelColor || this.getLevelColor(level),
+        fill: this.getLevelColor(level, config.levelColors),
         id: id + '_level',
         originX: 'left',
         originY: 'center',
@@ -108,10 +113,11 @@ export const useBatteryStore = defineStore('batteryElement', {
     },
 
     // 根据电量获取颜色
-    getLevelColor(level) {
-      if (level <= 0.2) return '#ff0000' // 红色，电量低
-      if (level <= 0.5) return '#ffaa00' // 黄色，电量中等
-      return '#00ff00' // 绿色，电量充足
+    getLevelColor(level, levelColors = null) {
+      const colors = levelColors || this.defaultLevelColors
+      if (level <= 0.2) return colors.low
+      if (level <= 0.5) return colors.medium
+      return colors.high
     },
 
     // 更新电池电量
@@ -152,28 +158,28 @@ export const useBatteryStore = defineStore('batteryElement', {
         throw new Error('无效的元素')
       }
 
-      const padding = batteryLevel.left + batteryBody.width / 2
-      const headGap = batteryHead.left - (batteryBody.left + batteryBody.width)
+      const padding = Math.round(batteryLevel.left + batteryBody.width / 2)
+      const headGap = Math.round(batteryHead.left - (batteryBody.left + batteryBody.width))
 
       return {
         type: 'battery',
         x: Math.round(element.left),
         y: Math.round(element.top),
-        width: batteryBody.width,
-        height: batteryBody.height,
+        width: Math.round(batteryBody.width),
+        height: Math.round(batteryBody.height),
         bodyStroke: batteryBody.stroke,
         bodyFill: batteryBody.fill,
-        bodyStrokeWidth: batteryBody.strokeWidth,
-        bodyRx: batteryBody.rx,
-        bodyRy: batteryBody.ry,
-        headWidth: batteryHead.width,
-        headHeight: batteryHead.height,
+        bodyStrokeWidth: Math.round(batteryBody.strokeWidth),
+        bodyRx: Math.round(batteryBody.rx),
+        bodyRy: Math.round(batteryBody.ry),
+        headWidth: Math.round(batteryHead.width),
+        headHeight: Math.round(batteryHead.height),
         headFill: batteryHead.fill,
-        headRx: batteryHead.rx,
-        headRy: batteryHead.ry,
+        headRx: Math.round(batteryHead.rx),
+        headRy: Math.round(batteryHead.ry),
         padding: padding,
-        level: batteryLevel.width / (batteryBody.width - padding * 2),
-        levelColor: batteryLevel.fill,
+        level: Number((batteryLevel.width / (batteryBody.width - padding * 2)).toFixed(2)),
+        levelColors: element.levelColors || this.defaultLevelColors,
         headGap: headGap,
       }
     },
@@ -198,7 +204,7 @@ export const useBatteryStore = defineStore('batteryElement', {
         headRy: config.headRy,
         padding: config.padding,
         level: config.level,
-        levelColor: config.levelColor,
+        levelColors: config.levelColors || this.defaultLevelColors,
         headGap: config.headGap || 2,
       }
     },
@@ -247,15 +253,16 @@ export const useBatteryStore = defineStore('batteryElement', {
       batteryLevel.set({
         width: (config.width - padding * 2) * config.level,
         height: config.height - padding * 2,
-        fill: config.levelColor || this.getLevelColor(config.level),
+        fill: this.getLevelColor(config.level, config.levelColors),
         originX: 'left',
         originY: 'center',
         left: -config.width/2 + padding
       })
 
-      // 更新组的位置
+      // 更新组的位置和属性
       if (config.left !== undefined) group.set('left', config.left)
       if (config.top !== undefined) group.set('top', config.top)
+      if (config.levelColors !== undefined) group.set('levelColors', config.levelColors)
 
       // 强制重新计算边界和渲染
       group.setCoords()

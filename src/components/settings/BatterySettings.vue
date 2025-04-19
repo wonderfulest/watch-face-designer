@@ -67,11 +67,14 @@
           <el-form-item label="电量">
             <el-slider v-model="element.level" :min="0" :max="1" :step="0.01" :format-tooltip="(val) => `${Math.round(val * 100)}%`" @change="updateElement" />
           </el-form-item>
-          <el-form-item label="自定义颜色">
-            <el-switch v-model="useCustomColor" @change="handleCustomColorChange" />
+          <el-form-item label="低电量颜色（<20%）">
+            <color-picker v-model="element.levelColors.low" @change="updateElement" />
           </el-form-item>
-          <el-form-item label="电量颜色" v-if="useCustomColor">
-            <color-picker v-model="element.levelColor" @change="updateElement" />
+          <el-form-item label="中等电量颜色（20%-50%）">
+            <color-picker v-model="element.levelColors.medium" @change="updateElement" />
+          </el-form-item>
+          <el-form-item label="高电量颜色（>50%）">
+            <color-picker v-model="element.levelColors.high" @change="updateElement" />
           </el-form-item>
         </el-form>
       </el-collapse-item>
@@ -92,7 +95,6 @@ const props = defineProps({
 })
 
 const batteryStore = useBatteryStore()
-const useCustomColor = ref(false)
 
 // 从画布元素中获取实际属性值
 const initElementProperties = () => {
@@ -107,31 +109,35 @@ const initElementProperties = () => {
   if (!batteryBody || !batteryHead || !batteryLevel) return
 
   // 更新所有属性值
-  props.element.width = batteryBody.width
-  props.element.height = batteryBody.height
+  props.element.width = Math.round(batteryBody.width)
+  props.element.height = Math.round(batteryBody.height)
   props.element.bodyFill = batteryBody.fill
   props.element.bodyStroke = batteryBody.stroke
-  props.element.bodyStrokeWidth = batteryBody.strokeWidth
-  props.element.bodyRx = batteryBody.rx
-  props.element.bodyRy = batteryBody.ry
+  props.element.bodyStrokeWidth = Math.round(batteryBody.strokeWidth)
+  props.element.bodyRx = Math.round(batteryBody.rx)
+  props.element.bodyRy = Math.round(batteryBody.ry)
 
-  props.element.headWidth = batteryHead.width
-  props.element.headHeight = batteryHead.height
+  props.element.headWidth = Math.round(batteryHead.width)
+  props.element.headHeight = Math.round(batteryHead.height)
   props.element.headFill = batteryHead.fill
-  props.element.headRx = batteryHead.rx
-  props.element.headRy = batteryHead.ry
+  props.element.headRx = Math.round(batteryHead.rx)
+  props.element.headRy = Math.round(batteryHead.ry)
 
-  props.element.padding = batteryLevel.left
-  props.element.level = batteryLevel.width / (batteryBody.width - batteryLevel.left * 2)
-  props.element.levelColor = batteryLevel.fill
+  // 计算内边距
+  const padding = Math.round(batteryLevel.left - batteryBody.left)
+  props.element.padding = padding
+
+  // 计算电量百分比
+  props.element.level = batteryLevel.width / (batteryBody.width - padding * 2)
 
   // 计算头部间距
-  const headGap = batteryHead.left - (batteryBody.left + batteryBody.width)
+  const headGap = Math.round(batteryHead.left - (batteryBody.left + batteryBody.width))
   props.element.headGap = headGap
 
-  // 检查是否使用自定义颜色
-  const defaultColor = batteryStore.getLevelColor(props.element.level)
-  useCustomColor.value = props.element.levelColor !== defaultColor
+  // 初始化电量颜色
+  if (!props.element.levelColors) {
+    props.element.levelColors = { ...batteryStore.defaultLevelColors }
+  }
 }
 
 // 组件挂载时初始化属性
@@ -154,11 +160,6 @@ const metricSymbols = [
 
 // 更新元素
 const updateElement = () => {
-  // 如果不使用自定义颜色，则使用默认的电量颜色逻辑
-  if (!useCustomColor.value) {
-    props.element.levelColor = batteryStore.getLevelColor(props.element.level)
-  }
-
   // 更新画布上的元素
   batteryStore.updateElement(props.element, {
     width: props.element.width,
@@ -175,20 +176,11 @@ const updateElement = () => {
     headRy: props.element.headRy,
     padding: props.element.padding,
     level: props.element.level,
-    levelColor: props.element.levelColor,
+    levelColors: props.element.levelColors,
     left: props.element.left,
     top: props.element.top,
     headGap: props.element.headGap
   })
-}
-
-// 处理自定义颜色开关变化
-const handleCustomColorChange = (val) => {
-  if (!val) {
-    // 切换回默认颜色逻辑
-    props.element.levelColor = batteryStore.getLevelColor(props.element.level)
-  }
-  updateElement()
 }
 </script>
 

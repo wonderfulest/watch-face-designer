@@ -113,7 +113,7 @@ watch(
 </script>
 
 <style scoped>
-@import '../../assets/styles/settings.css';
+@import '@/assets/styles/settings.css';
 
 .position-inputs {
     display: flex;
