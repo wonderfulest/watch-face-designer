@@ -1,18 +1,22 @@
 import { defineStore } from 'pinia'
 import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
+import { usePropertiesStore } from '@/stores/properties'
 import { nanoid } from 'nanoid'
 import { FabricText } from 'fabric'
-import { getMetricBySymbol } from '@/config/settings'
+import { getMetricByDataProperty } from '@/config/settings'
 
 export const useLabelStore = defineStore('labelElement', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
+    const propertiesStore = usePropertiesStore()
     return {
       baseStore,
       layerStore,
-      baseStore
+      propertiesStore,
+      elements: {},
+      progressMap: {}
     }
   },
 
@@ -40,7 +44,7 @@ export const useLabelStore = defineStore('labelElement', {
       }
 
       try {
-        const metric = getMetricBySymbol(options.metricSymbol)
+        const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
         
         // 获取原始文本并应用大小写设置
         let originalText = 'Label'
@@ -80,13 +84,10 @@ export const useLabelStore = defineStore('labelElement', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          metricGroup: options.metricGroup,
-          metricSymbol: options.metricSymbol,
+          dataProperty: options.dataProperty,
           text: formattedText,
           originalText: originalText, // 保存原始文本，以便在大小写设置变化时可以重新格式化
-          varName: options.varName,
         }
-        console.log('创建标签元素', labelOptions)
 
         // 创建文本对象
         const element = new FabricText(labelOptions.text, labelOptions)
@@ -135,9 +136,73 @@ export const useLabelStore = defineStore('labelElement', {
         throw error
       }
     },
+
+    updateElement(element, options) {
+      if (!element || !this.baseStore.canvas) return
+
+      try {
+        const updates = {}
+
+        if (options.dataProperty !== undefined) {
+          const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
+          if (metric) {
+            let originalText = 'Label'
+            if (typeof metric.enLabel === 'object') {
+              const labelLengthType = this.baseStore.labelLengthType
+              if (labelLengthType === 1) {
+                originalText = metric.enLabel.short || metric.enLabel.medium || metric.enLabel.long || 'Label'
+              } else if (labelLengthType === 2) {
+                originalText = metric.enLabel.medium || metric.enLabel.short || metric.enLabel.long || 'Label'
+              } else if (labelLengthType === 3) {
+                originalText = metric.enLabel.long || metric.enLabel.medium || metric.enLabel.short || 'Label'
+              } else {
+                originalText = metric.enLabel.short || metric.enLabel.medium || metric.enLabel.long || 'Label'
+              }
+            } else {
+              originalText = metric.enLabel
+            }
+            updates.text = this.applyTextCase(originalText)
+            updates.originalText = originalText
+            updates.dataProperty = options.dataProperty
+          }
+        }
+
+        if (options.fontSize !== undefined) {
+          updates.fontSize = Number(options.fontSize)
+        }
+
+        if (options.fill !== undefined) {
+          updates.fill = options.fill
+        }
+
+        if (options.fontFamily !== undefined) {
+          updates.fontFamily = options.fontFamily
+        }
+
+        if (options.originX !== undefined) {
+          updates.originX = options.originX
+        }
+
+        if (options.left !== undefined) {
+          updates.left = options.left
+        }
+
+        if (options.top !== undefined) {
+          updates.top = options.top
+        }
+
+        element.set(updates)
+        element.setCoords()
+        this.baseStore.canvas.requestRenderAll()
+      } catch (error) {
+        console.error('更新标签元素失败:', error)
+        throw error
+      }
+    },
+
     encodeConfig(element) {
       return {
-        type: 'label',
+        type: element.eleType,
         x: Math.round(element.left),
         y: Math.round(element.top),
         originX: element.originX,
@@ -145,25 +210,22 @@ export const useLabelStore = defineStore('labelElement', {
         font: element.fontFamily,
         size: element.fontSize,
         color: element.fill,
-        varName: element.varName,
-        metricGroup: element.metricGroup,
-        metricSymbol: element.metricSymbol,
+        dataProperty: element.dataProperty,
         text: element.text,
       }
     },
+
     decodeConfig(config) {
       return {
         eleType: 'label',
         left: config.x,
         top: config.y,
+        fill: config.color,
+        fontFamily: config.font,
+        fontSize: config.size,
         originX: config.originX,
         originY: config.originY,
-        font: config.font,
-        size: config.size,
-        fill: config.color,
-        varName: config.varName,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
+        dataProperty: config.dataProperty,
         text: config.text,
       }
     }

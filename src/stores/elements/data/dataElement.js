@@ -3,18 +3,22 @@ import { FabricText } from 'fabric'
 import { nanoid } from 'nanoid'
 import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
+import { usePropertiesStore } from '@/stores/properties'
 
-import { getMetricBySymbol } from '@/config/settings'
+import { getMetricByDataProperty } from '@/config/settings'
 
-export const useDataStore = defineStore('dataStore', {
+export const useDataStore = defineStore('dataElement', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
+    const propertiesStore = usePropertiesStore()
 
     return {
-      dataElements: [],
       baseStore,
-      layerStore
+      layerStore,
+      propertiesStore,
+      elements: {},
+      progressMap: {}
     }
   },
 
@@ -24,33 +28,31 @@ export const useDataStore = defineStore('dataStore', {
         throw new Error('画布未初始化，无法添加文本元素')
       }
       try {
-        const metric = getMetricBySymbol(options.metricSymbol)
-        if (!metric) {
-          throw new Error('data未找到指标配置')
-        }
+        const elementId = nanoid()
         const dataOptions = {
+          id: elementId,
           eleType: 'data',
-          id: nanoid(),
-          left: Number(options.left),
-          top: Number(options.top),
+          left: options.left,
+          top: options.top,
           fontSize: Number(options.fontSize),
           fill: options.fill,
           fontFamily: options.fontFamily,
           originX: options.originX,
-          originY: options.originY,
+          originY: 'center',
           selectable: true,
-          hasControls: false,
+          hasControls: true,
           hasBorders: true,
-          metricGroup: options.metricGroup,
-          metricSymbol: metric.metricSymbol,
-          varName: options.varName, // 数据变量名字
+          dataProperty: options.dataProperty,
         }
+        const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
+        
         // 创建文本对象
         const element = new FabricText(metric.defaultValue, dataOptions)
 
         // 添加到画布
         this.baseStore.canvas.add(element)
 
+        // 添加到图层
         this.layerStore.addLayer(element)
 
         // 渲染画布
@@ -62,46 +64,81 @@ export const useDataStore = defineStore('dataStore', {
 
         return element
       } catch (error) {
-        console.error('创建文本元素失败:', error)
+        console.error('创建数据元素失败:', error)
         throw error
       }
     },
+
+    updateElement(element, options) {
+      if (!element || !this.baseStore.canvas) return
+
+      try {
+        const updates = {}
+
+        if (options.dataProperty !== undefined) {
+          const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
+          updates.text = metric.defaultValue
+          updates.dataProperty = options.dataProperty
+        }
+
+        if (options.fontSize !== undefined) {
+          updates.fontSize = Number(options.fontSize)
+        }
+
+        if (options.fill !== undefined) {
+          updates.fill = options.fill
+        }
+
+        if (options.fontFamily !== undefined) {
+          updates.fontFamily = options.fontFamily
+        }
+
+        if (options.originX !== undefined) {
+          updates.originX = options.originX
+        }
+
+        if (options.left !== undefined) {
+          updates.left = options.left
+        }
+
+        if (options.top !== undefined) {
+          updates.top = options.top
+        }
+
+        element.set(updates)
+        element.setCoords()
+        this.baseStore.canvas.requestRenderAll()
+      } catch (error) {
+        console.error('更新数据元素失败:', error)
+        throw error
+      }
+    },
+
     encodeConfig(element) {
-      if (!element) {
-        throw new Error('无效的元素')
-      }
-      const metric = getMetricBySymbol(element.metricSymbol)
-      if (!metric) {
-        throw new Error('data未找到指标配置')
-      }
       return {
-        type: 'data',
-        x: element.left,
-        y: element.top,
+        type: element.eleType,
+        x: Math.round(element.left),
+        y: Math.round(element.top),
         originX: element.originX,
         originY: element.originY,
         font: element.fontFamily,
         size: element.fontSize,
         color: element.fill,
-        // 其他图标元素特有的属性
-        varName: element.varName,
-        metricGroup: element.metricGroup,
-        metricSymbol: element.metricSymbol
+        dataProperty: element.dataProperty,
       }
     },
+
     decodeConfig(config) {
       return {
         eleType: 'data',
         left: config.x,
         top: config.y,
-        originX: config.originX,
-        originY: config.originY,
+        fill: config.color,
         fontFamily: config.font,
         fontSize: config.size,
-        fill: config.color,
-        varName: config.varName,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol
+        originX: config.originX,
+        originY: config.originY,
+        dataProperty: config.dataProperty,
       }
     }
   }

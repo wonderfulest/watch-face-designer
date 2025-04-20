@@ -66,6 +66,52 @@ export const useIconStore = defineStore('iconElement', {
         throw error
       }
     },
+
+    updateElement(element, options) {
+      if (!element || !this.baseStore.canvas) return
+
+      try {
+        const updates = {}
+
+        if (options.metricSymbol !== undefined) {
+          const metric = getMetricByDataProperty(options.metricSymbol, this.propertiesStore)
+          updates.text = metric.icon
+          updates.metricSymbol = options.metricSymbol
+        }
+
+        if (options.fontSize !== undefined) {
+          updates.fontSize = Number(options.fontSize)
+        }
+
+        if (options.fill !== undefined) {
+          updates.fill = options.fill
+        }
+
+        if (options.fontFamily !== undefined) {
+          updates.fontFamily = options.fontFamily
+        }
+
+        if (options.originX !== undefined) {
+          updates.originX = options.originX
+        }
+
+        if (options.left !== undefined) {
+          updates.left = options.left
+        }
+
+        if (options.top !== undefined) {
+          updates.top = options.top
+        }
+
+        element.set(updates)
+        element.setCoords()
+        this.baseStore.canvas.requestRenderAll()
+      } catch (error) {
+        console.error('更新图标元素失败:', error)
+        throw error
+      }
+    },
+    
     encodeConfig(element) {
       return {
         type: element.eleType,

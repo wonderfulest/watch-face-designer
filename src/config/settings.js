@@ -81,11 +81,11 @@ export const LayoutOptions = [
 ]
 
 export const DataTypeOptions = [
-  { 
-    label: '心率', 
-    metricSymbol: ':FIELD_TYPE_HEART_RATE', 
-    value: 0, 
-    defaultValue: '80', 
+  {
+    label: '心率',
+    metricSymbol: ':FIELD_TYPE_HEART_RATE',
+    value: 0,
+    defaultValue: '80',
     icon: '\u0030',
     unit: 'bpm',
     enLabel: {
@@ -147,7 +147,7 @@ export const DataTypeOptions = [
     }
   },
   {
-    label: '距离',
+    label: '今日距离',
     metricSymbol: ':FIELD_TYPE_DISTANCE',
     value: 5,
     defaultValue: '5',
@@ -173,6 +173,24 @@ export const DataTypeOptions = [
     }
   },
   {
+    label: '日出', metricSymbol: ':FIELD_TYPE_SUN_RISE', value: 7, defaultValue: '6', icon: '\u0060',
+    unit: '',
+    enLabel: {
+      short: 'Rise',
+      medium: 'Sunrise',
+      long: 'Sunrise Time'
+    }
+  },
+  {
+    label: '日落', metricSymbol: ':FIELD_TYPE_SUN_SET', value: 8, defaultValue: '18', icon: '\u0061',
+    unit: '',
+    enLabel: {
+      short: 'Set',
+      medium: 'Sunset',
+      long: 'Sunset Time'
+    }
+  },
+  {
     label: '设备电量',
     metricSymbol: ':FIELD_TYPE_BATTERY',
     value: 9,
@@ -183,6 +201,51 @@ export const DataTypeOptions = [
       short: 'Bat',
       medium: 'Battery',
       long: 'Battery Lvl'
+    }
+  },
+  {
+    label: '每日活动时间', metricSymbol: ':FIELD_TYPE_DAYLY_ACTIVE_MINUTES', value: 10, defaultValue: '30', icon: '\u0044',
+    unit: 'min',
+    enLabel: {
+      short: 'ActM',
+      medium: 'ActvMin',
+      long: 'Daily Active'
+    }
+  },
+  {
+    label: '每周活动时间', metricSymbol: ':FIELD_TYPE_WEEKLY_ACTIVE_MINUTES', value: 11, defaultValue: '150', icon: '\u0040',
+    unit: 'min',
+    enLabel: {
+      short: 'WkAc',
+      medium: 'WkActive',
+      long: 'Weekly Activ'
+    }
+  },
+  {
+    label: '周跑步距离', metricSymbol: ':FIELD_TYPE_WEEKLY_RUN_DISTANCE', value: 12, defaultValue: '10', icon: '\u0046',
+    unit: 'km',
+    enLabel: {
+      short: 'Run',
+      medium: 'RunDist',
+      long: 'Run Distance'
+    }
+  },
+  {
+    label: '周骑行距离', metricSymbol: ':FIELD_TYPE_WEEKLY_CYCLING_DISTANCE', value: 13, defaultValue: '15', icon: '\u0047',
+    unit: 'km',
+    enLabel: {
+      short: 'Cycle',
+      medium: 'CycleDist',
+      long: 'Cycle Dist'
+    }
+  },
+  {
+    label: '恢复时间', metricSymbol: ':FIELD_TYPE_TIME_TO_RECOVERY', value: 14, defaultValue: '24', icon: '\u0041',
+    unit: 'h',
+    enLabel: {
+      short: 'Recv',
+      medium: 'RecvTime',
+      long: 'Recovery T'
     }
   },
   {
@@ -199,6 +262,23 @@ export const DataTypeOptions = [
     }
   },
   {
+    label: '血氧饱和度', metricSymbol: ':FIELD_TYPE_PULSE_OX', value: 16, defaultValue: '95', icon: '\u003b',
+    unit: '%',
+    enLabel: {
+      short: 'SpO2',
+      medium: 'Pulse Ox',
+      long: 'Blood Oxygen Saturation'
+    }
+  },
+  {
+    label: '睡眠时间', metricSymbol: ':FIELD_TYPE_SLEEP_TIME', value: 17, defaultValue: '8', icon: '\u0021', enLabel: {
+      short: 'Sleep',
+      medium: 'Sleep Time',
+      long: 'Total Sleep Hours'
+    }
+  },
+
+  {
     label: '压力',
     metricSymbol: ':FIELD_TYPE_STRESS',
     value: 18,
@@ -211,92 +291,11 @@ export const DataTypeOptions = [
       long: 'Stress Lvl'
     }
   },
-  { label: '日出', metricSymbol: ':FIELD_TYPE_SUN_RISE', value: 7, defaultValue: '6', icon: '\u0060',
-    unit: '',
-    enLabel: {
-      short: 'Rise',
-      medium: 'Sunrise',
-      long: 'Sunrise Time'
-    }
-  },
-  { label: '日落', metricSymbol: ':FIELD_TYPE_SUN_SET', value: 8, defaultValue: '18', icon: '\u0061',
-    unit: '',
-    enLabel: {
-      short: 'Set',
-      medium: 'Sunset',
-      long: 'Sunset Time'
-    }
-  },
-  { label: '每日活动时间', metricSymbol: ':FIELD_TYPE_DAYLY_ACTIVE_MINUTES', value: 10, defaultValue: '30', icon: '\u0044',
-    unit: 'min',
-    enLabel: {
-      short: 'ActM',
-      medium: 'ActvMin',
-      long: 'Daily Active'
-    }
-  },
-  { label: '每周活动时间', metricSymbol: ':FIELD_TYPE_WEEKLY_ACTIVE_MINUTES', value: 11, defaultValue: '150', icon: '\u0040',
-    unit: 'min',
-    enLabel: {
-      short: 'WkAc',
-      medium: 'WkActive',
-      long: 'Weekly Activ'
-    }
-  },
-  { label: '周跑步距离', metricSymbol: ':FIELD_TYPE_WEEKLY_RUN_DISTANCE', value: 12, defaultValue: '10', icon: '\u0046',
-    unit: 'km',
-    enLabel: {
-      short: 'Run',
-      medium: 'RunDist',
-      long: 'Run Distance'
-    }
-  },
-  { label: '周骑行距离', metricSymbol: ':FIELD_TYPE_WEEKLY_CYCLING_DISTANCE', value: 13, defaultValue: '15', icon: '\u0047',
-    unit: 'km',
-    enLabel: {
-      short: 'Cycle',
-      medium: 'CycleDist',
-      long: 'Cycle Dist'
-    }
-  },
-  { label: '周游泳距离', metricSymbol: ':FIELD_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 14, defaultValue: '2', icon: '\u0048',
-    unit: 'km',
-    enLabel: {
-      short: 'Swim',
-      medium: 'SwimDist',
-      long: 'Swim Dist'
-    }
-  },
-  { label: '周步行距离', metricSymbol: ':FIELD_TYPE_WEEKLY_WALKING_DISTANCE', value: 15, defaultValue: '20', icon: '\u0049',
-    unit: 'km',
-    enLabel: {
-      short: 'Walk',
-      medium: 'WalkDist',
-      long: 'Walk Dist'
-    }
-  },
-  { label: '恢复时间', metricSymbol: ':FIELD_TYPE_TIME_TO_RECOVERY', value: 16, defaultValue: '24', icon: '\u0041',
-    unit: 'h',
-    enLabel: {
-      short: 'Recv',
-      medium: 'RecvTime',
-      long: 'Recovery T'
-    }
-  },
-  { label: '血氧饱和度', metricSymbol: ':FIELD_TYPE_PULSE_OX', value: 17, defaultValue: '95', icon: '\u003b',
-    unit: '%',
-    enLabel: {
-      short: 'SpO2',
-      medium: 'Pulse Ox',
-      long: 'Blood Oxygen Saturation'
-    }
-  },
-  // { label: '睡眠时间', metricSymbol: ':FIELD_TYPE_SLEEP_TIME', value: 17, defaultValue: '8', icon: '\u0021', enLabel: {
-  //   short: 'Sleep',
-  //   medium: 'Sleep Time',
-  //   long: 'Total Sleep Hours'
-  // }},
-  { label: '通知', metricSymbol: ':FIELD_TYPE_NOTIFICATIONS', value: 19, defaultValue: '0', icon: '\u0025',
+
+
+
+  {
+    label: '通知', metricSymbol: ':FIELD_TYPE_NOTIFICATIONS', value: 19, defaultValue: '0', icon: '\u0025',
     unit: '',
     enLabel: {
       short: 'Ntf',
@@ -304,7 +303,8 @@ export const DataTypeOptions = [
       long: 'Notif Cnt'
     }
   },
-  { label: '闹钟', metricSymbol: ':FIELD_TYPE_ALARMS', value: 20, defaultValue: '0', icon: '\u0024',
+  {
+    label: '闹钟', metricSymbol: ':FIELD_TYPE_ALARMS', value: 20, defaultValue: '0', icon: '\u0024',
     unit: '',
     enLabel: {
       short: 'Alm',
@@ -312,7 +312,8 @@ export const DataTypeOptions = [
       long: 'Alarm Cnt'
     }
   },
-  { label: '蓝牙连接状态', metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', value: 21, defaultValue: '1', icon: '\u0022',
+  {
+    label: '蓝牙连接状态', metricSymbol: ':INDICATOR_TYPE_BLUETOOTH', value: 21, defaultValue: '1', icon: '\u0022',
     unit: '',
     enLabel: {
       short: 'BT',
@@ -320,7 +321,35 @@ export const DataTypeOptions = [
       long: 'Bluetooth Connection'
     }
   },
-  { label: '天气', metricSymbol: ':FIELD_TYPE_WEATHER', value: 30, defaultValue: '25°C', icon: '\uF000',
+  {
+    label: '闹钟', metricSymbol: ':INDICATOR_TYPE_ALARM', value: 22, defaultValue: '1', icon: '\u0022',
+    unit: '',
+    enLabel: {
+      short: 'Alm',
+      medium: 'Alarms',
+      long: 'Alarm Cnt'
+    }
+  },
+  {
+    label: '消息通知', metricSymbol: ':INDICATOR_TYPE_NOTIFICATIONS', value: 23, defaultValue: '1', icon: '\u0022',
+    unit: '',
+    enLabel: {
+      short: 'Ntf',
+      medium: 'Notif',
+      long: 'Notif Cnt'
+    }
+  },
+  {
+    label: '勿扰时间', metricSymbol: ':INDICATOR_TYPE_DISTURB', value: 24, defaultValue: '1', icon: '\u0022',
+    unit: '',
+    enLabel: {
+      short: 'Dnt',
+      medium: 'Dnt',
+      long: 'Dnt'
+    }
+  },
+  {
+    label: '天气', metricSymbol: ':FIELD_TYPE_WEATHER', value: 30, defaultValue: '25°C', icon: '\uF000',
     unit: '',
     enLabel: {
       short: 'Wthr',
@@ -328,7 +357,8 @@ export const DataTypeOptions = [
       long: 'Condition'
     }
   },
-  { label: '温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE', value: 31, defaultValue: '25°C', icon: '\u0062',
+  {
+    label: '温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE', value: 31, defaultValue: '25°C', icon: '\u0062',
     unit: '°C',
     enLabel: {
       short: 'Temp',
@@ -336,7 +366,9 @@ export const DataTypeOptions = [
       long: 'Current Temperature'
     }
   },
-  { label: '体感温度', metricSymbol: ':FIELD_TYPE_FEELS_LIKE_TEMPERATURE', value: 32, defaultValue: '25°C', icon: '\u0021',
+
+  {
+    label: '体感温度', metricSymbol: ':FIELD_TYPE_FEELS_LIKE_TEMPERATURE', value: 32, defaultValue: '25°C', icon: '\u0021',
     unit: '°C',
     enLabel: {
       short: 'Fl',
@@ -344,23 +376,9 @@ export const DataTypeOptions = [
       long: 'Feels Like'
     }
   },
-  { label: '每天最高温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE_HIGH', value: 41, defaultValue: '30°C', icon: '\u0021',
-    unit: '°C',
-    enLabel: {
-      short: 'High',
-      medium: 'High Temp',
-      long: 'Today\'s High Temp'
-    }
-  },
-  { label: '每天最低温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE_LOW', value: 42, defaultValue: '15°C', icon: '\u0021',
-    unit: '°C',
-    enLabel: {
-      short: 'Low',
-      medium: 'Low Temp',
-      long: 'Today\'s Low Temp'
-    }
-  },
-  { label: '湿度', metricSymbol: ':FIELD_TYPE_HUMIDITY', value: 33, defaultValue: '50', icon: '\u0021',
+
+  {
+    label: '湿度', metricSymbol: ':FIELD_TYPE_HUMIDITY', value: 33, defaultValue: '50', icon: '\u0021',
     unit: '%',
     enLabel: {
       short: 'Humid',
@@ -368,7 +386,8 @@ export const DataTypeOptions = [
       long: 'Current Humidity'
     }
   },
-  { label: '风速', metricSymbol: ':FIELD_TYPE_WIND_SPEED', value: 34, defaultValue: '10', icon: '\u0021',
+  {
+    label: '风速', metricSymbol: ':FIELD_TYPE_WIND_SPEED', value: 34, defaultValue: '10', icon: '\u0021',
     unit: 'km/h',
     enLabel: {
       short: 'Wind',
@@ -376,7 +395,8 @@ export const DataTypeOptions = [
       long: 'Wind Speed'
     }
   },
-  { label: '传感器温度', metricSymbol: ':FIELD_TYPE_SENSOR_TEMPERATURE', value: 35, defaultValue: '20', icon: '\u0021',
+  {
+    label: '传感器温度', metricSymbol: ':FIELD_TYPE_SENSOR_TEMPERATURE', value: 35, defaultValue: '20', icon: '\u0021',
     unit: '°C',
     enLabel: {
       short: 'Sensor',
@@ -384,7 +404,8 @@ export const DataTypeOptions = [
       long: 'Sensor Temperature'
     }
   },
-  { label: '天气描述', metricSymbol: ':FIELD_TYPE_WEATHER_DESCRIPTION', value: 36, defaultValue: 'Clear Sky', icon: '\u0021',
+  {
+    label: '天气描述', metricSymbol: ':FIELD_TYPE_WEATHER_DESCRIPTION', value: 36, defaultValue: 'Clear Sky', icon: '\u0021',
     unit: '',
     enLabel: {
       short: 'Sky',
@@ -392,7 +413,8 @@ export const DataTypeOptions = [
       long: 'Weather Description'
     }
   },
-  { label: '呼吸频率', metricSymbol: ':FIELD_TYPE_RESPIRATION_RATE', value: 37, defaultValue: '16', icon: '\u0037',
+  {
+    label: '呼吸频率', metricSymbol: ':FIELD_TYPE_RESPIRATION_RATE', value: 37, defaultValue: '16', icon: '\u0037',
     unit: 'brpm',
     enLabel: {
       short: 'Resp',
@@ -400,7 +422,8 @@ export const DataTypeOptions = [
       long: 'Resp Rate'
     }
   },
-  { label: '静息心率', metricSymbol: ':FIELD_TYPE_RESTING_HEARTRATE', value: 38, defaultValue: '70', icon: '\u0038',
+  {
+    label: '静息心率', metricSymbol: ':FIELD_TYPE_RESTING_HEARTRATE', value: 38, defaultValue: '70', icon: '\u0038',
     unit: 'bpm',
     enLabel: {
       short: 'RHR',
@@ -408,7 +431,8 @@ export const DataTypeOptions = [
       long: 'Resting Heart Rate'
     }
   },
-  { label: '周游泳距离', metricSymbol: ':FIELD_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 39, defaultValue: '1', icon: '\u0048',
+  {
+    label: '周游泳距离', metricSymbol: ':FIELD_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 39, defaultValue: '1', icon: '\u0048',
     unit: 'km',
     enLabel: {
       short: 'Swim',
@@ -416,7 +440,8 @@ export const DataTypeOptions = [
       long: 'Swim Dist'
     }
   },
-  { label: '周步行距离', metricSymbol: ':FIELD_TYPE_WEEKLY_WALKING_DISTANCE', value: 40, defaultValue: '10', icon: '\u0049',
+  {
+    label: '周步行距离', metricSymbol: ':FIELD_TYPE_WEEKLY_WALKING_DISTANCE', value: 40, defaultValue: '10', icon: '\u0049',
     unit: 'km',
     enLabel: {
       short: 'Walk',
@@ -424,7 +449,35 @@ export const DataTypeOptions = [
       long: 'Walk Dist'
     }
   },
-  { label: '气压', metricSymbol: ':FIELD_TYPE_WEATHER_PRESSURE', value: 50, defaultValue: '1013', icon: '\u0063',
+  {
+    label: '每天最高温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE_HIGH', value: 41, defaultValue: '30°C', icon: '\u0021',
+    unit: '°C',
+    enLabel: {
+      short: 'High',
+      medium: 'High Temp',
+      long: 'Today\'s High Temp'
+    }
+  },
+  {
+    label: '每天最低温度', metricSymbol: ':FIELD_TYPE_TEMPERATURE_LOW', value: 42, defaultValue: '15°C', icon: '\u0021',
+    unit: '°C',
+    enLabel: {
+      short: 'Low',
+      medium: 'Low Temp',
+      long: 'Today\'s Low Temp'
+    }
+  },
+  {
+    label: '月相', metricSymbol: ':FIELD_TYPE_MOON_PHASE', value: 43, defaultValue: '15°C', icon: '\u0021',
+    unit: '°C',
+    enLabel: {
+      short: 'Low',
+      medium: 'Low Temp',
+      long: 'Today\'s Low Temp'
+    }
+  },
+  {
+    label: '气压', metricSymbol: ':FIELD_TYPE_WEATHER_PRESSURE', value: 50, defaultValue: '1013', icon: '\u0063',
     unit: 'hPa',
     enLabel: {
       short: 'Press',
@@ -432,7 +485,8 @@ export const DataTypeOptions = [
       long: 'Barometric Pressure'
     }
   },
-  { label: '温度范围', metricSymbol: ':FIELD_TYPE_TEMPERATURE_RANGE', value: 51, defaultValue: '25', icon: '\u0021',
+  {
+    label: '温度范围', metricSymbol: ':FIELD_TYPE_TEMPERATURE_RANGE', value: 51, defaultValue: '25', icon: '\u0021',
     unit: '°C',
     enLabel: {
       short: 'Range',
@@ -440,7 +494,8 @@ export const DataTypeOptions = [
       long: 'Temperature Range'
     }
   },
-  { label: '紫外线指数', metricSymbol: ':FIELD_TYPE_WEATHER_UVINDEX', value: 52, defaultValue: '3', icon: '\u0021',
+  {
+    label: '紫外线指数', metricSymbol: ':FIELD_TYPE_WEATHER_UVINDEX', value: 52, defaultValue: '3', icon: '\u0021',
     unit: '',
     enLabel: {
       short: 'UV',
@@ -448,7 +503,8 @@ export const DataTypeOptions = [
       long: 'Ultraviolet Index'
     }
   },
-  { label: '露点', metricSymbol: ':FIELD_TYPE_WEATHER_DEWPOINT', value: 53, defaultValue: '10', icon: '\u0021',
+  {
+    label: '露点', metricSymbol: ':FIELD_TYPE_WEATHER_DEWPOINT', value: 53, defaultValue: '10', icon: '\u0021',
     unit: '°C',
     enLabel: {
       short: 'Dew',
@@ -456,7 +512,8 @@ export const DataTypeOptions = [
       long: 'Dew Point Temperature'
     }
   },
-  { label: '云量', metricSymbol: ':FIELD_TYPE_WEATHER_CLOUDS', value: 54, defaultValue: '50', icon: '\u0021',
+  {
+    label: '云量', metricSymbol: ':FIELD_TYPE_WEATHER_CLOUDS', value: 54, defaultValue: '50', icon: '\u0021',
     unit: '%',
     enLabel: {
       short: 'Cloud',
@@ -464,7 +521,8 @@ export const DataTypeOptions = [
       long: 'Cloud Coverage Percent'
     }
   },
-  { label: '能见度', metricSymbol: ':FIELD_TYPE_WEATHER_VISIBILITY', value: 55, defaultValue: '10', icon: '\u0021',
+  {
+    label: '能见度', metricSymbol: ':FIELD_TYPE_WEATHER_VISIBILITY', value: 55, defaultValue: '10', icon: '\u0021',
     unit: 'km',
     enLabel: {
       short: 'Vis',
@@ -472,7 +530,8 @@ export const DataTypeOptions = [
       long: 'Visibility Distance'
     }
   },
-  { label: 'VO2Max', metricSymbol: ':FIELD_TYPE_VO2_MAX', value: 57, defaultValue: '40', icon: '\u003a',
+  {
+    label: 'VO2Max', metricSymbol: ':FIELD_TYPE_VO2_MAX', value: 57, defaultValue: '40', icon: '\u003a',
     unit: '',
     enLabel: {
       short: 'VO2',
@@ -480,7 +539,8 @@ export const DataTypeOptions = [
       long: 'Maximum Oxygen Uptake'
     }
   },
-  { label: '位置信息', metricSymbol: ':FIELD_TYPE_LOCATION', value: 58, defaultValue: 'Los Angeles', icon: '\u0021',
+  {
+    label: '位置信息', metricSymbol: ':FIELD_TYPE_LOCATION', value: 58, defaultValue: 'Los Angeles', icon: '\u0021',
     unit: '',
     enLabel: {
       short: 'Loc',
@@ -488,7 +548,8 @@ export const DataTypeOptions = [
       long: 'Current Location'
     }
   },
-  { label: '年', metricSymbol: ':FIELD_TYPE_DATE_YEAR', value: 70, defaultValue: '2023', icon: '\u0021',
+  {
+    label: '年', metricSymbol: ':FIELD_TYPE_DATE_YEAR', value: 70, defaultValue: '2023', icon: '\u0021',
     unit: '',
     enLabel: {
       short: 'Year',
@@ -496,52 +557,37 @@ export const DataTypeOptions = [
       long: 'Current Year'
     }
   },
-  { label: '月', metricSymbol: ':FIELD_TYPE_DATE_MONTH', value: 71, defaultValue: '10', icon: '\u0021', enLabel: {
-    short: 'Mo',
-    medium: 'Month',
-    long: 'Current Month'
-  }},
-  { label: '日', metricSymbol: ':FIELD_TYPE_DATE_DAY', value: 72, defaultValue: '10', icon: '\u0021', enLabel: {
-    short: 'Day',
-    medium: 'Day',
-    long: 'Day of Month'
-  }},
-  { label: '星期几', metricSymbol: ':FIELD_TYPE_DATE_WEEKDAY', value: 76, defaultValue: '1', icon: '\u0021', enLabel: {
-    short: 'Wkday',
-    medium: 'Weekday',
-    long: 'Day of Week'
-  }},
-  { label: '第几周', metricSymbol: ':FIELD_TYPE_DATE_YEARWEEK', value: 77, defaultValue: '29', icon: '\u0021', enLabel: {
-    short: 'Wk',
-    medium: 'Week',
-    long: 'Week of Year'
-  }},
+  {
+    label: '月', metricSymbol: ':FIELD_TYPE_DATE_MONTH', value: 71, defaultValue: '10', icon: '\u0021', enLabel: {
+      short: 'Mo',
+      medium: 'Month',
+      long: 'Current Month'
+    }
+  },
+  {
+    label: '日', metricSymbol: ':FIELD_TYPE_DATE_DAY', value: 72, defaultValue: '10', icon: '\u0021', enLabel: {
+      short: 'Day',
+      medium: 'Day',
+      long: 'Day of Month'
+    }
+  },
+  {
+    label: '星期几', metricSymbol: ':FIELD_TYPE_DATE_WEEKDAY', value: 76, defaultValue: '1', icon: '\u0021', enLabel: {
+      short: 'Wkday',
+      medium: 'Weekday',
+      long: 'Day of Week'
+    }
+  },
+  {
+    label: '第几周', metricSymbol: ':FIELD_TYPE_DATE_YEARWEEK', value: 77, defaultValue: '29', icon: '\u0021', enLabel: {
+      short: 'Wk',
+      medium: 'Week',
+      long: 'Week of Year'
+    }
+  },
   // ---------------------------- 目标数据项 --------------------------------
-  { label: '目标步数', metricSymbol: ':GOAL_TYPE_STEPS', value: 101, defaultValue: '8000', icon: '\u0031',
-    unit: 'steps',
-    enLabel: {
-      short: 'GStp',
-      medium: 'GoalStep',
-      long: 'Step Goal'
-    }
-  },
-  { label: '目标卡路里', metricSymbol: ':GOAL_TYPE_CALORIES', value: 102, defaultValue: '500', icon: '\u0032',
-    unit: 'kcal',
-    enLabel: {
-      short: 'GCal',
-      medium: 'GoalCal',
-      long: 'Calorie Goal'
-    }
-  },
-  { label: '目标爬楼', metricSymbol: ':GOAL_TYPE_FLOORS_CLIMBED', value: 103, defaultValue: '20', icon: '\u0033',
-    unit: 'floors',
-    enLabel: {
-      short: 'Floor',
-      medium: 'Floor',
-      long: 'Floor Goal'
-    }
-  },
-  { label: '目标设备电量', metricSymbol: ':GOAL_TYPE_BATTERY', value: 100, defaultValue: '80', icon: '\u0026',
+  {
+    label: '目标设备电量', metricSymbol: ':GOAL_TYPE_BATTERY', value: 100, defaultValue: '80', icon: '\u0026',
     unit: '%',
     enLabel: {
       short: 'Bat',
@@ -549,7 +595,35 @@ export const DataTypeOptions = [
       long: 'Battery Goal'
     }
   },
-  { label: '目标心率', metricSymbol: ':GOAL_TYPE_HEART_RATE', value: 104, defaultValue: '120', icon: '\u0030',
+  {
+    label: '目标步数', metricSymbol: ':GOAL_TYPE_STEPS', value: 101, defaultValue: '8000', icon: '\u0031',
+    unit: 'steps',
+    enLabel: {
+      short: 'GStp',
+      medium: 'GoalStep',
+      long: 'Step Goal'
+    }
+  },
+  {
+    label: '目标卡路里', metricSymbol: ':GOAL_TYPE_CALORIES', value: 102, defaultValue: '500', icon: '\u0032',
+    unit: 'kcal',
+    enLabel: {
+      short: 'GCal',
+      medium: 'GoalCal',
+      long: 'Calorie Goal'
+    }
+  },
+  {
+    label: '目标爬楼', metricSymbol: ':GOAL_TYPE_FLOORS_CLIMBED', value: 103, defaultValue: '20', icon: '\u0033',
+    unit: 'floors',
+    enLabel: {
+      short: 'Floor',
+      medium: 'Floor',
+      long: 'Floor Goal'
+    }
+  },
+  {
+    label: '目标心率', metricSymbol: ':GOAL_TYPE_HEART_RATE', value: 104, defaultValue: '120', icon: '\u0030',
     unit: 'bpm',
     enLabel: {
       short: 'HR',
@@ -557,7 +631,8 @@ export const DataTypeOptions = [
       long: 'Heart Rate'
     }
   },
-  { label: '目标身体电量', metricSymbol: ':GOAL_TYPE_BODY_BATTERY', value: 111, defaultValue: '60', icon: '\u0035',
+  {
+    label: '目标身体电量', metricSymbol: ':GOAL_TYPE_BODY_BATTERY', value: 111, defaultValue: '60', icon: '\u0035',
     unit: '%',
     enLabel: {
       short: 'BdBat',
@@ -565,7 +640,8 @@ export const DataTypeOptions = [
       long: 'Body Battery'
     }
   },
-  { label: '目标每日活动时间', metricSymbol: ':GOAL_TYPE_DAYLY_ACTIVE_MINUTES', value: 105, defaultValue: '60', icon: '\u0044',
+  {
+    label: '目标每日活动时间', metricSymbol: ':GOAL_TYPE_DAYLY_ACTIVE_MINUTES', value: 105, defaultValue: '60', icon: '\u0044',
     unit: 'min',
     enLabel: {
       short: 'GAct',
@@ -573,7 +649,8 @@ export const DataTypeOptions = [
       long: 'Daily Active'
     }
   },
-  { label: '目标每周活动时间', metricSymbol: ':GOAL_TYPE_WEEKLY_ACTIVE_MINUTES', value: 106, defaultValue: '300', icon: '\u0044',
+  {
+    label: '目标每周活动时间', metricSymbol: ':GOAL_TYPE_WEEKLY_ACTIVE_MINUTES', value: 106, defaultValue: '300', icon: '\u0044',
     unit: 'min',
     enLabel: {
       short: 'GWkA',
@@ -581,7 +658,8 @@ export const DataTypeOptions = [
       long: 'Weekly Activ'
     }
   },
-  { label: '周跑步目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_RUN_DISTANCE', value: 107, defaultValue: '20', icon: '\u0046',
+  {
+    label: '周跑步目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_RUN_DISTANCE', value: 107, defaultValue: '20', icon: '\u0046',
     unit: 'km',
     enLabel: {
       short: 'GRD',
@@ -589,7 +667,8 @@ export const DataTypeOptions = [
       long: 'Run Distance'
     }
   },
-  { label: '周骑行目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_CYCLING_DISTANCE', value: 108, defaultValue: '30', icon: '\u0047',
+  {
+    label: '周骑行目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_CYCLING_DISTANCE', value: 108, defaultValue: '30', icon: '\u0047',
     unit: 'km',
     enLabel: {
       short: 'GCD',
@@ -597,7 +676,8 @@ export const DataTypeOptions = [
       long: 'Cycle Distance'
     }
   },
-  { label: '周游泳目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 109, defaultValue: '2', icon: '\u0048',
+  {
+    label: '周游泳目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_SWIMMING_DISTANCE', value: 109, defaultValue: '2', icon: '\u0048',
     unit: 'km',
     enLabel: {
       short: 'GSD',
@@ -605,7 +685,8 @@ export const DataTypeOptions = [
       long: 'Swim Distance'
     }
   },
-  { label: '周步行目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_WALKING_DISTANCE', value: 110, defaultValue: '20', icon: '\u0049',
+  {
+    label: '周步行目标距离', metricSymbol: ':GOAL_TYPE_WEEKLY_WALKING_DISTANCE', value: 110, defaultValue: '20', icon: '\u0049',
     unit: 'km',
     enLabel: {
       short: 'GWD',
@@ -613,7 +694,8 @@ export const DataTypeOptions = [
       long: 'Walk Distance'
     }
   },
-  { label: '秒针', metricSymbol: ':GOAL_TYPE_SECOND_OF_MINUTE', value: 120, defaultValue: '40', icon: '\u0021',
+  {
+    label: '秒针', metricSymbol: ':GOAL_TYPE_SECOND_OF_MINUTE', value: 120, defaultValue: '40', icon: '\u0021',
     unit: '',
     enLabel: {
       short: 'Sec',
