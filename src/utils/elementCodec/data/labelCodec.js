@@ -1,5 +1,5 @@
-import { registerEncoder, registerDecoder, registerAddElement } from './registry'
-import { useLabelStore } from '@/stores/elements/labelElement'
+import { registerEncoder, registerDecoder, registerAddElement } from '../registry'
+import { useLabelStore } from '@/stores/elements/data/labelElement'
 
 const addElement = (config) => {
   const labelStore = useLabelStore()

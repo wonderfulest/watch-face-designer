@@ -91,6 +91,10 @@ export const usePropertiesStore = defineStore('properties', {
           return new Date().toISOString()
         case 'select':
           return ''
+        case 'goal':
+          return ''
+        case 'data':
+          return ''
         default:
           return ''
       }
@@ -112,17 +116,21 @@ export const usePropertiesStore = defineStore('properties', {
     },
 
     addProperty(propertyData) {
+      console.log('Adding property:', propertyData)
+      const defaultValue = propertyData.defaultValue !== undefined ? propertyData.defaultValue : 
+                          this.properties[propertyData.key]?.value || 
+                          propertyData.options[0]?.value || 
+                          this.getDefaultValue(propertyData.type)
+      
       this.properties[propertyData.key] = {
         type: propertyData.type,
         title: propertyData.title,
         options: propertyData.options,
-        value: propertyData.defaultValue || 
-               this.properties[propertyData.key]?.value || 
-               propertyData.options[0]?.value || 
-               this.getDefaultValue(propertyData.type),
+        value: defaultValue,
         prompt: propertyData.prompt,
         errorMessage: propertyData.errorMessage
       }
+      console.log('Added property:', this.properties[propertyData.key])
     },
 
     editProperty(key, propertyData) {
@@ -181,6 +189,39 @@ export const usePropertiesStore = defineStore('properties', {
           options[index + 1] = temp
         }
       }
+    },
+
+    // 添加数据选项
+    addDataOption(key, option) {
+      if (this.properties[key] && this.properties[key].type === 'data') {
+        if (!this.properties[key].options) {
+          this.properties[key].options = []
+        }
+        this.properties[key].options.push(option)
+      }
+    },
+
+    // 删除数据选项
+    deleteDataOption(key, index) {
+      if (this.properties[key] && this.properties[key].type === 'data') {
+        this.properties[key].options.splice(index, 1)
+      }
+    },
+
+    // 移动数据选项
+    moveDataOption(key, index, direction) {
+      if (this.properties[key] && this.properties[key].type === 'data') {
+        const options = this.properties[key].options
+        if (direction === 'up' && index > 0) {
+          const temp = options[index]
+          options[index] = options[index - 1]
+          options[index - 1] = temp
+        } else if (direction === 'down' && index < options.length - 1) {
+          const temp = options[index]
+          options[index] = options[index + 1]
+          options[index + 1] = temp
+        }
+      }
     }
   }
-}) 
+})

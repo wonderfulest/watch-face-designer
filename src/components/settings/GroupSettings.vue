@@ -1,22 +1,35 @@
 <template>
   <div class="settings-group">
     <h3>数据组设置</h3>
-    <div>{{ props.elements[0].metricGroup }}</div>
-    <div class="setting-item" v-if="mayMetricGroup">
-      <label>作为数据组</label>
-      <el-switch v-model="isMetricGroup" size="large" active-text="是" inactive-text="否" @change="changeMetricGroup" />
+    <div class="setting-item" v-if="showDataProperty">
+      <label>数据属性</label>
+      <el-select 
+        v-model="dataProperty" 
+        @change="updateDataProperty"
+        placeholder="选择数据属性"
+      >
+        <el-option 
+          v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'data')" 
+          :key="key" 
+          :label="prop.title" 
+          :value="key" 
+        />
+      </el-select>
     </div>
-    <div class="setting-item" v-if="mayMetricGroup && isMetricGroup">
-      <label>数据变量</label>
-      <input type="text" v-model="varName" @change="updateMetricVal" />
-    </div>
-    <div class="setting-item" v-if="mayMetricGroup && isMetricGroup">
-      <label>数据类型</label>
-      <select v-model="metricSymbol" @change="updateMetricType">
-        <option v-for="(option, index) in DataTypeOptions" :key="index" :value="option.metricSymbol">
-          {{ option.label }}
-        </option>
-      </select>
+    <div class="setting-item" v-if="showGoalProperty">
+      <label>目标属性</label>
+      <el-select 
+        v-model="goalProperty" 
+        @change="updateGoalProperty"
+        placeholder="选择目标属性"
+      >
+        <el-option 
+          v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')" 
+          :key="key" 
+          :label="prop.title" 
+          :value="key" 
+        />
+      </el-select>
     </div>
     <div class="setting-item" v-if="isSameTypeLayer">
       <label>对齐方式</label>
@@ -52,12 +65,14 @@ import { nanoid } from 'nanoid'
 import { DataTypeOptions, getMetricBySymbol } from '@/config/settings'
 import { useBaseStore } from '@/stores/baseStore'
 import { useFontStore } from '@/stores/fontStore'
+import { usePropertiesStore } from '@/stores/properties'
 import { fontSizes, originXOptions } from '@/config/settings'
 import ColorPicker from '@/components/color-picker/index.vue'
 import FontPicker from '@/components/font-picker/index.vue'
 
 const baseStore = useBaseStore()
 const fontStore = useFontStore()
+const propertiesStore = usePropertiesStore()
 
 const props = defineProps({
   elements: {
@@ -79,8 +94,6 @@ const labelElement = computed(() => getElementByType('label'))
 const goalBarElement = computed(() => getElementByType('goalBar'))
 const goalArcElement = computed(() => getElementByType('goalArc'))
 
-const isMetricGroup = ref(false)
-const varName = ref('')
 const isGoalGroup = ref(false)
 const fontSize = ref(props.elements[0].fontSize || 36)
 const textColor = ref(props.elements[0].fill || '#FFFFFF')
@@ -88,40 +101,54 @@ const fontFamily = ref(props.elements[0].fontFamily)
 const positionX = ref(Math.round(props.elements[0].left || 0))
 const positionY = ref(Math.round(props.elements[0].top || 0))
 const originX = ref(props.elements[0].originX || 'center')
-const metricSymbol = ref(dataElement.value?.metricSymbol || ':FIELD_TYPE_HEART_RATE')
 
-onMounted(async () => {
-  let firstMetricGroup
-  let firstGoalGroup
-  isMetricGroup.value = false
-  isGoalGroup.value = false
+const dataProperty = ref('')
+const goalProperty = ref('')
 
-  for (const element of props.elements) {
-    if (element.varName) {
-      varName.value = element.varName
-    }
-    if (element.metricGroup === undefined) {
-      isMetricGroup.value = false
-      return
-    }
-
-    if (firstMetricGroup === undefined) {
-      firstMetricGroup = element.metricGroup
-    } else if (firstMetricGroup !== element.metricGroup) {
-      isMetricGroup.value = false
-      return
-    }
+const updateDataProperty = () => {
+  // 更新所有相关元素的数据属性
+  if (dataElement.value) {
+    dataElement.value.set('dataProperty', dataProperty.value)
   }
+  if (iconElement.value) {
+    iconElement.value.set('dataProperty', dataProperty.value)
+  }
+  if (labelElement.value) {
+    labelElement.value.set('dataProperty', dataProperty.value)
+  }
+  baseStore.canvas.renderAll()
+}
 
-  isMetricGroup.value = true
-})
+const updateGoalProperty = () => {
+  // 更新所有相关元素的目标属性
+  if (dataElement.value) {
+    dataElement.value.set('goalProperty', goalProperty.value)
+  }
+  if (iconElement.value) {
+    iconElement.value.set('goalProperty', goalProperty.value)
+  }
+  if (labelElement.value) {
+    labelElement.value.set('goalProperty', goalProperty.value)
+  }
+  if (goalBarElement.value) {
+    goalBarElement.value.set('goalProperty', goalProperty.value)
+  }
+  if (goalArcElement.value) {
+    goalArcElement.value.set('goalProperty', goalProperty.value)
+  }
+  baseStore.canvas.renderAll()
+}
 
-// 可能是数据组
-// 条件是：只有一个data
-const mayMetricGroup = computed(() => {
-  const dataElements = props.elements.filter((element) => element.eleType === 'data')
-  if (dataElements.length !== 1) return false
-  return true
+// 初始化属性值
+onMounted(() => {
+  if (dataElement.value) {
+    dataProperty.value = dataElement.value.dataProperty || ''
+  }
+  if (goalBarElement.value) {
+    goalProperty.value = goalBarElement.value.goalProperty || ''
+  } else if (goalArcElement.value) {
+    goalProperty.value = goalArcElement.value.goalProperty || ''
+  }
 })
 
 const isUpdateColor = computed(() => {
@@ -130,7 +157,6 @@ const isUpdateColor = computed(() => {
   }
   return true
 })
-
 
 const isSameTypeLayer = computed(() => {
   if (props.elements.length <= 1) {
@@ -170,40 +196,28 @@ const updateOriginX = (originX) => {
   baseStore.canvas.renderAll()
 }
 
-const updateMetricType = () => {
-  const metric = getMetricBySymbol(metricSymbol.value)
-  for (let element of props.elements) {
-    element.set({
-      metricSymbol: metric.metricSymbol
-    })
-  }
-  iconElement.value && iconElement.value.set('text', metric.icon)
-  dataElement.value && dataElement.value.set('text', metric.defaultValue)
-  labelElement.value && labelElement.value.set('text', metric.enLabel?.short)
-  goalBarElement.value && goalBarElement.value.set('text', metric.defaultValue)
-  goalArcElement.value && goalArcElement.value.set('text', metric.defaultValue)
-  baseStore.canvas.renderAll()
-}
+const showDataProperty = computed(() => {
+  // 检查是否至少存在一个 data、icon 或 label 元素
+  const hasData = dataElement.value !== undefined
+  const hasIcon = iconElement.value !== undefined
+  const hasLabel = labelElement.value !== undefined
+  
+  // 检查是否只包含这三种类型的元素
+  const validTypes = ['data', 'icon', 'label']
+  const hasOnlyValidTypes = props.elements.every(element => 
+    validTypes.includes(element.eleType)
+  )
+  
+  // 当至少存在一个有效元素，且所有元素都是有效类型时显示
+  return (hasData || hasIcon || hasLabel) && hasOnlyValidTypes
+})
 
-const changeMetricGroup = (isMetricGroup) => {
-  const groupId = nanoid()
-  for (const element of props.elements) {
-    if (isMetricGroup) {
-      element.set({ metricGroup: groupId })
-    } else {
-      delete element['metricGroup']
-    }
-  }
-  if (isMetricGroup) {
-    updateMetricType()
-  }
-}
+const showGoalProperty = computed(() => {
+  const hasGoalBar = goalBarElement.value !== undefined
+  const hasGoalArc = goalArcElement.value !== undefined
+  return hasGoalBar || hasGoalArc
+})
 
-const updateMetricVal = () => {
-  for (const element of props.elements) {
-    element.set({ varName: varName.value })
-  }
-}
 </script>
 
 <style scoped>

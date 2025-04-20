@@ -24,6 +24,9 @@
                     <!-- <span class="goal-label">{{ getGoalOption(prop)?.label }} ({{ getGoalOption(prop)?.metricSymbol }})</span> -->
                     <span class="goal-label">{{ getGoalOption(prop)?.label }}</span>
                   </div>
+                  <div v-else-if="prop.type === 'data'" class="data-value-preview">
+                    <span class="data-label">{{ getDataOption(prop)?.label }}</span>
+                  </div>
                   <div class="property-actions">
                     <el-button type="primary" link @click="editProperty(key, prop)">
                       <el-icon>
@@ -58,6 +61,12 @@
               </el-icon>
               goal select
             </el-button>
+            <el-button type="text" @click="addProperty('data')">
+              <el-icon>
+                <DataLine />
+              </el-icon>
+              data select
+            </el-button>
           </el-button-group>
         </div>
       </div>
@@ -65,6 +74,7 @@
     <!-- 添加对话框组件 -->
     <ColorPropertyDialog ref="colorPropertyDialog" @confirm="handlePropertyConfirm" />
     <GoalPropertyDialog ref="goalPropertyDialog" @confirm="handlePropertyConfirm" />
+    <DataPropertyDialog ref="dataPropertyDialog" @confirm="handlePropertyConfirm" />
   </el-drawer>
 </template>
 
@@ -81,17 +91,20 @@ import {
   Key,
   User,
   Edit,
-  Delete
+  Delete,
+  DataLine
 } from '@element-plus/icons-vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import ColorPropertyDialog from '@/components/properties/dialogs/ColorPropertyDialog.vue'
 import GoalPropertyDialog from '@/components/properties/dialogs/GoalPropertyDialog.vue'
+import DataPropertyDialog from '@/components/properties/dialogs/DataPropertyDialog.vue'
 import { usePropertiesStore } from '@/stores/properties'
 import emitter from '@/utils/eventBus'
 
 const visible = ref(false)
 const colorPropertyDialog = ref(null)
 const goalPropertyDialog = ref(null)
+const dataPropertyDialog = ref(null)
 const propertiesStore = usePropertiesStore()
 
 // 监听打开 App Properties 事件
@@ -111,6 +124,8 @@ const addProperty = (type) => {
     colorPropertyDialog.value?.show()
   } else if (type === 'goal') {
     goalPropertyDialog.value?.show()
+  } else if (type === 'data') {
+    dataPropertyDialog.value?.show()
   }
 }
 // 编辑属性
@@ -122,6 +137,11 @@ const editProperty = (key, prop) => {
     })
   } else if (prop.type === 'goal') {
     goalPropertyDialog.value?.show({
+      ...prop,
+      propertyKey: key
+    })
+  } else if (prop.type === 'data') {
+    dataPropertyDialog.value?.show({
       ...prop,
       propertyKey: key
     })
@@ -158,6 +178,13 @@ const handlePropertyConfirm = (propertyData) => {
 
 // 获取目标选项
 const getGoalOption = (prop) => {
+  console.log('getGoalOption', prop)
+  return prop.options?.find(option => option.value === prop.value)
+}
+
+// 获取指标选项
+const getDataOption = (prop) => {
+  console.log('getDataOption', prop)
   return prop.options?.find(option => option.value === prop.value)
 }
 
@@ -327,6 +354,18 @@ defineExpose({
 }
 
 .goal-label {
+  font-size: 14px;
+  color: var(--el-text-color-primary);
+}
+
+.data-value-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.data-label {
   font-size: 14px;
   color: var(--el-text-color-primary);
 }

@@ -1,4 +1,5 @@
 import { alignmentIcons, layoutIcons } from './icons'
+import { usePropertiesStore } from '@/stores/properties'
 
 // 字体大小选项
 export const fontSizes = [6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 21, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 96, 108, 120, 132, 144, 156, 168, 180, 192, 204, 216, 228, 240, 264, 288, 312]
@@ -625,4 +626,14 @@ export const DataTypeOptions = [
 // 获取指标配置信息
 export function getMetricBySymbol(metricSymbol) {
   return DataTypeOptions.find((item) => item.metricSymbol === metricSymbol)
+}
+
+// 获取指标配置信息
+export function getMetricByDataProperty(dataProperty, propertiesStore) {
+  if (!dataProperty || !propertiesStore) return DataTypeOptions[0]
+  const metric = Object.values(propertiesStore.allProperties).find((item) => item.dataProperty === dataProperty)
+  if (!metric) {
+    return DataTypeOptions[0]
+  }
+  return metric
 }

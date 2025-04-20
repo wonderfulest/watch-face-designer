@@ -23,16 +23,16 @@
           />
         </el-select>
       </el-form-item>
-      <!-- 位置设置 -->
-      <div class="setting-item">
-        <label>位置</label>
-        <div class="position-inputs">
-          <div class="input-group">
-            <label>X</label>
+    <!-- 位置设置 -->
+    <div class="setting-item">
+      <label>位置</label>
+      <div class="position-inputs">
+        <div class="input-group">
+          <label>X</label>
             <input type="number" :value="element.left" @input="e => element.left = Number(e.target.value)" @change="updatePosition" />
-          </div>
-          <div class="input-group">
-            <label>Y</label>
+        </div>
+        <div class="input-group">
+          <label>Y</label>
             <input type="number" :value="element.top" @input="e => element.top = Number(e.target.value)" @change="updatePosition" />
           </div>
         </div>
@@ -56,79 +56,81 @@
           <div class="input-group">
             <label>背景线宽</label>
             <input type="number" :value="bgRing?.strokeWidth" @input="e => bgRing.strokeWidth = Number(e.target.value)" @change="updateElement" />
-          </div>
         </div>
       </div>
+    </div>
 
       <!-- 角度设置 -->
-      <div class="setting-item">
-        <div class="setting-header">
+    <div class="setting-item">
+      <div class="setting-header">
           <label>角度设置</label>
-          <el-tooltip
-            :content="tooltipContent"
-            placement="top"
-            effect="light"
-            :show-after="0"
-            raw-content
-          >
-            <el-icon class="help-icon"><Warning /></el-icon>
-          </el-tooltip>
-        </div>
-        <div class="angle-inputs">
-          <div class="input-group">
+        <el-tooltip
+          :content="tooltipContent"
+          placement="top"
+          effect="light"
+          :show-after="0"
+          raw-content
+        >
+          <el-icon class="help-icon"><Warning /></el-icon>
+        </el-tooltip>
+      </div>
+      <div class="angle-inputs">
+        <div class="input-group">
             <label>起始角度</label>
             <input type="number" :value="element.startAngle" @input="e => element.startAngle = Number(e.target.value)" @change="updateElement" />
-          </div>
-          <div class="input-group">
+        </div>
+        <div class="input-group">
             <label>结束角度</label>
             <input type="number" :value="element.endAngle" @input="e => element.endAngle = Number(e.target.value)" @change="updateElement" />
-          </div>
         </div>
-        <!-- 添加方向选择 -->
-        <div class="direction-group">
-          <label>方向</label>
+      </div>
+      <!-- 添加方向选择 -->
+      <div class="direction-group">
+        <label>方向</label>
           <el-radio-group v-model="element.counterClockwise" @change="updateElement">
             <el-radio :label="false">顺时针</el-radio>
             <el-radio :label="true">逆时针</el-radio>
-          </el-radio-group>
-        </div>
+        </el-radio-group>
       </div>
+    </div>
 
-      <!-- 颜色属性 -->
-      <div class="setting-item">
-        <label>颜色</label>
-        <div class="color-inputs">
-          <div class="input-group">
-            <label>前景色</label>
+    <!-- 颜色属性 -->
+    <div class="setting-item">
+      <label>颜色</label>
+      <div class="color-inputs">
+        <div class="input-group">
+          <label>前景色</label>
             <ColorPicker 
-              :value="mainRing?.stroke" 
+              v-model="mainRing.stroke" 
               @change="val => {
                 console.log('更新前景色:', val);
-                mainRing.stroke = val;
-                updateElement();
+                goalArcStore.updateElement(element, {
+                  color: val
+                });
               }" 
             />
-          </div>
-          <div class="input-group">
-            <label>背景色</label>
+        </div>
+        <div class="input-group">
+          <label>背景色</label>
             <ColorPicker 
-              :value="bgRing?.stroke" 
+              v-model="bgRing.stroke" 
               @change="val => {
                 console.log('更新背景色:', val);
-                bgRing.stroke = val;
-                updateElement();
+                goalArcStore.updateElement(element, {
+                  bgColor: val
+                });
               }" 
             />
-          </div>
         </div>
       </div>
+    </div>
 
-      <!-- 进度值（用于测试） -->
-      <div class="setting-item">
-        <label>进度值</label>
+    <!-- 进度值（用于测试） -->
+    <div class="setting-item">
+      <label>进度值</label>
         <input type="range" :value="goalArcStore.progressMap.get(element.id) * 100" min="0" max="100" @input="e => { goalArcStore.progressMap.set(element.id, Number(e.target.value) / 100); updateProgress() }" />
         <span>{{ Math.round(goalArcStore.progressMap.get(element.id) * 100) }}%</span>
-      </div>
+    </div>
     </el-form>
   </div>
 </template>
@@ -185,7 +187,7 @@ const rules = {
 const updateElement = async () => {
   try {
     await formRef.value.validate()
-    if (!mainRing.value || !bgRing.value) return
+  if (!mainRing.value || !bgRing.value) return
 
     console.log('更新元素前的状态:', {
       element: {
@@ -210,7 +212,7 @@ const updateElement = async () => {
         stroke: bgRing.value.stroke
       },
       progress: goalArcStore.progressMap.get(props.element.id)
-    })
+  })
 
     // 使用store中的方法更新元素
     goalArcStore.updateElement(props.element, {

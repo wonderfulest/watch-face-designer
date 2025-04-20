@@ -1,5 +1,5 @@
-import { registerEncoder, registerDecoder, registerAddElement } from './registry'
-import { useIconStore } from '@/stores/elements/iconElement'
+import { registerEncoder, registerDecoder, registerAddElement } from '../registry'
+import { useIconStore } from '@/stores/elements/data/iconElement'
 
 // 图标编码器
 const iconEncoder = (element) => {

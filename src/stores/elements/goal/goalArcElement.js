@@ -133,16 +133,6 @@ export const useGoalArcStore = defineStore('goalArcElement', {
       const group = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!group || !group.getObjects) return
 
-      console.log('updateProgress 参数:', {
-        elementId: element.id,
-        progress,
-        element: {
-          startAngle: element.startAngle,
-          endAngle: element.endAngle,
-          counterClockwise: element.counterClockwise
-        }
-      })
-
       const objects = group.getObjects()
       const mainRing = objects.find((obj) => obj.id === element.id + '_main')
 
@@ -153,14 +143,6 @@ export const useGoalArcStore = defineStore('goalArcElement', {
       const counterClockwise = element.counterClockwise
       const progressAngle = this.getProgressAngle(startAngle, endAngle, counterClockwise, progress)
 
-      console.log('updateProgress 计算结果:', {
-        startAngle,
-        endAngle,
-        counterClockwise,
-        progress,
-        progressAngle
-      })
-
       mainRing.set('endAngle', progressAngle)
       mainRing.set('counterClockwise', counterClockwise)
       this.baseStore.canvas.renderAll()
@@ -170,11 +152,6 @@ export const useGoalArcStore = defineStore('goalArcElement', {
 
     updateElement(element, options = {}) {
       if (!element || !element.getObjects) return
-
-      console.log('updateElement 参数:', {
-        elementId: element.id,
-        options
-      })
 
       const objects = element.getObjects()
       const mainRing = objects.find((obj) => obj.id === element.id + '_main')
@@ -191,7 +168,6 @@ export const useGoalArcStore = defineStore('goalArcElement', {
         endAngle: options.endAngle || bgRing.endAngle,
         counterClockwise: options.counterClockwise !== undefined ? options.counterClockwise : bgRing.counterClockwise
       }
-      console.log('更新背景圆环:', bgRingOptions)
       bgRing.set(bgRingOptions)
 
       // 更新前景色圆环
@@ -211,7 +187,6 @@ export const useGoalArcStore = defineStore('goalArcElement', {
         endAngle: progressAngle,
         counterClockwise: options.counterClockwise !== undefined ? options.counterClockwise : mainRing.counterClockwise
       }
-      console.log('更新前景色圆环:', mainRingOptions)
       mainRing.set(mainRingOptions)
 
       // 更新组的属性
@@ -223,7 +198,6 @@ export const useGoalArcStore = defineStore('goalArcElement', {
         counterClockwise: options.counterClockwise !== undefined ? options.counterClockwise : element.counterClockwise,
         goalProperty: options.goalProperty !== undefined ? options.goalProperty : element.goalProperty
       }
-      console.log('更新组属性:', groupOptions)
       element.set(groupOptions)
 
       // 计算组的新尺寸
@@ -248,34 +222,6 @@ export const useGoalArcStore = defineStore('goalArcElement', {
       if (options.progress !== undefined) {
         this.progressMap.set(element.id, options.progress)
       }
-
-      console.log('更新后的状态:', {
-        element: {
-          left: element.left,
-          top: element.top,
-          startAngle: element.startAngle,
-          endAngle: element.endAngle,
-          counterClockwise: element.counterClockwise,
-          goalProperty: element.goalProperty
-        },
-        mainRing: {
-          radius: mainRing.radius,
-          strokeWidth: mainRing.strokeWidth,
-          stroke: mainRing.stroke,
-          startAngle: mainRing.startAngle,
-          endAngle: mainRing.endAngle,
-          counterClockwise: mainRing.counterClockwise
-        },
-        bgRing: {
-          radius: bgRing.radius,
-          strokeWidth: bgRing.strokeWidth,
-          stroke: bgRing.stroke,
-          startAngle: bgRing.startAngle,
-          endAngle: bgRing.endAngle,
-          counterClockwise: bgRing.counterClockwise
-        },
-        progress: this.progressMap.get(element.id)
-      })
     },
 
     encodeConfig(element) {

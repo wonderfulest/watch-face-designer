@@ -1,5 +1,5 @@
-import { registerEncoder, registerDecoder, registerAddElement } from './registry'
-import { useDataStore } from '@/stores/elements/dataElement'
+import { registerEncoder, registerDecoder, registerAddElement } from '../registry'
+import { useDataStore } from '@/stores/elements/data/dataElement'
 
 // 数据编码器
 const dataEncoder = (element) => {

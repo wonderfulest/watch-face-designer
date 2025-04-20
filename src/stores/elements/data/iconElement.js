@@ -1,18 +1,21 @@
 import { defineStore } from 'pinia'
-import { useBaseStore } from '../baseStore'
-import { useLayerStore } from '../layerStore'
+import { useBaseStore } from '@/stores/baseStore'
+import { useLayerStore } from '@/stores/layerStore'
+import { usePropertiesStore } from '@/stores/properties'
 
 import { nanoid } from 'nanoid'
 import { FabricText } from 'fabric'
-import { getMetricBySymbol } from '@/config/settings'
+import { getMetricByDataProperty } from '@/config/settings'
 export const useIconStore = defineStore('iconElement', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
+    const propertiesStore = usePropertiesStore()
 
     return {
       baseStore,
       layerStore,
+      propertiesStore,
       baseStore
     }
   },
@@ -24,10 +27,6 @@ export const useIconStore = defineStore('iconElement', {
       }
       try {
         const elementId = nanoid()
-        const metric = getMetricBySymbol(options.metricSymbol)
-        if (!metric) {
-          throw new Error('未找到指标配置')
-        }
         const iconOptions = {
           id: elementId,
           eleType: 'icon',
@@ -41,11 +40,10 @@ export const useIconStore = defineStore('iconElement', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          metricGroup: options.metricGroup,
-          metricSymbol: metric.metricSymbol,
-          varName: options.varName,
+          dataProperty: options.dataProperty,
         }
-
+        const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
+        console.log('1111 metric', metric)
         // 创建文本对象
         const element = new FabricText(metric.icon, iconOptions)
 
@@ -71,16 +69,14 @@ export const useIconStore = defineStore('iconElement', {
     encodeConfig(element) {
       return {
         type: element.eleType,
-    x: Math.round(element.left),
-    y: Math.round(element.top),
-    originX: element.originX,
-    originY: element.originY,
-    font: element.fontFamily,
-    size: element.fontSize,
-    color: element.fill,
-    metricGroup: element.metricGroup,
-    metricSymbol: element.metricSymbol,
-        varName: element.varName,
+        x: Math.round(element.left),
+        y: Math.round(element.top),
+        originX: element.originX,
+        originY: element.originY,
+        font: element.fontFamily,
+        size: element.fontSize,
+        color: element.fill,
+        dataProperty: element.dataProperty,
       }
     },
     decodeConfig(config) {
@@ -93,9 +89,7 @@ export const useIconStore = defineStore('iconElement', {
         fontSize: config.size,
         originX: config.originX,
         originY: config.originY,
-        metricGroup: config.metricGroup,
-        metricSymbol: config.metricSymbol,
-        varName: config.varName,
+        dataProperty: config.dataProperty,
       }
     }
   }

@@ -205,7 +205,7 @@ watch(activeElements, (newValue, oldValue) => {
     // 等待下一个 tick 确保组件已更新
     nextTick(() => {
       setupEventListeners()
-    })
+})
   }
 }, { immediate: true })
 

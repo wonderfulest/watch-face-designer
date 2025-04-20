@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { FabricText } from 'fabric'
 import { nanoid } from 'nanoid'
-import { useBaseStore } from '../baseStore'
-import { useLayerStore } from '../layerStore'
+import { useBaseStore } from '@/stores/baseStore'
+import { useLayerStore } from '@/stores/layerStore'
 
 import { getMetricBySymbol } from '@/config/settings'
 

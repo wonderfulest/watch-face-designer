@@ -39,7 +39,7 @@
         >
           <el-input 
             v-model="formData.propertyKey" 
-            placeholder="goal_1" 
+            placeholder="data_1" 
             :disabled="isEdit"
           />
           <div class="field-help">
@@ -48,7 +48,7 @@
         </el-form-item>
 
         <el-form-item label="Type">
-          <el-input v-model="formData.type" disabled placeholder="goal" />
+          <el-input v-model="formData.type" disabled placeholder="data" />
           <div class="field-help">
             The display type of the setting.
           </div>
@@ -58,7 +58,7 @@
       <!-- 选项部分 -->
       <div class="form-section">
         <div class="section-header">
-          <h3 class="section-title">Goal Options</h3>
+          <h3 class="section-title">Data Options</h3>
         </div>
         <el-form-item 
           label="Default Value"
@@ -66,8 +66,9 @@
         >
           <el-select 
             v-model="formData.value" 
-            placeholder="Select goal type"
+            placeholder="Select data type"
             style="width: 100%"
+            @change="handleValueChange"
           >
             <el-option
               v-for="option in formData.options"
@@ -75,15 +76,15 @@
               :label="option.label + ' (' + option.metricSymbol + ')'"
               :value="option.value"
             >
-              <div class="goal-option">
-                <span class="goal-icon">{{ option.icon }}</span>
-                <span class="goal-label">{{ option.label }} ({{ option.metricSymbol }})</span>
+              <div class="metric-option">
+                <span class="metric-icon">{{ option.icon }}</span>
+                <span class="metric-label">{{ option.label }} ({{ option.metricSymbol }})</span>
               </div>
             </el-option>
           </el-select>
         </el-form-item>
         <el-collapse v-model="activeOptions" class="options-collapse">
-          <el-collapse-item title="Goal Options" name="options">
+          <el-collapse-item title="Data Options" name="options">
             <el-form-item 
               prop="options"
               :rules="[
@@ -94,9 +95,9 @@
                 <div v-for="(option, index) in formData.options" :key="index" class="option-item">
                   <div class="option-content">
                     <div class="option-info">
-                      <span class="goal-icon">{{ option.icon }}</span>
-                      <span class="goal-label">{{ option.label }}</span>
-                      <span class="goal-metric">({{ option.metricSymbol }})</span>
+                      <span class="metric-icon">{{ option.icon }}</span>
+                      <span class="metric-label">{{ option.label }}</span>
+                      <span class="metric-symbol">({{ option.metricSymbol }})</span>
                     </div>
                   </div>
                   <div class="option-actions">
@@ -163,71 +164,103 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { ArrowUp, ArrowDown, Delete, Plus } from '@element-plus/icons-vue'
+import { ArrowUp, ArrowDown, Delete } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { usePropertiesStore } from '@/stores/properties'
 import { ElMessageBox } from 'element-plus'
 import '@/assets/styles/propertyDialog.css'
 import { DataTypeOptions } from '@/config/settings'
 
 const dialogVisible = ref(false)
 const formRef = ref(null)
-const propertiesStore = usePropertiesStore()
 const isEdit = ref(false)
 const activeOptions = ref([])
-// 获取目标数据项作为选项
-const goalOptions = DataTypeOptions.filter(option => option.metricSymbol.startsWith(':GOAL_TYPE_'))
+// 获取指标数据项作为选项
+const dataOptions = DataTypeOptions.filter(option => option.metricSymbol.startsWith(':FIELD_TYPE_'))
 
+console.log('dataOptions', dataOptions)
 const formData = reactive({
   title: '',
   propertyKey: '',
-  type: 'goal',
-  options: goalOptions,
-  value: goalOptions[0]?.value,
+  type: 'data',
+  options: dataOptions,
+  value: dataOptions[0]?.value,
   prompt: '',
   errorMessage: ''
 })
 
-console.log('goalOptions', goalOptions)
+console.log('Initial formData:', {
+  value: formData.value,
+  options: formData.options,
+  firstOption: dataOptions[0]
+})
 
 const initFormData = (data = null) => {
+  console.log('initFormData called with data:', data)
   isEdit.value = !!data
   if (data) {
+    console.log('Editing existing data:', {
+      currentValue: data.value,
+      firstOption: dataOptions[0]?.value
+    })
     Object.assign(formData, {
       title: data.title,
       propertyKey: data.propertyKey,
       type: data.type,
-      options: goalOptions,
-      value: data.value || goalOptions[0]?.value || '',
+      options: dataOptions,
+      value: data.value || dataOptions[0]?.value,
       prompt: data.prompt,
       errorMessage: data.errorMessage
     })
   } else {
+    console.log('Creating new data:', {
+      firstOption: dataOptions[0]?.value
+    })
     Object.assign(formData, {
-      title: 'Goal 1',
-      propertyKey: 'goal_1',
-      type: 'goal',
-      options: goalOptions,
-      value: goalOptions[0]?.value,
+      title: 'Data 1',
+      propertyKey: 'data_1',
+      type: 'data',
+      options: dataOptions,
+      value: dataOptions[0]?.value,
       prompt: '',
       errorMessage: ''
     })
   }
+  console.log('After initFormData, formData:', {
+    value: formData.value,
+    options: formData.options
+  })
 }
 
 const emit = defineEmits(['confirm'])
+
+const handleValueChange = (value) => {
+  console.log('Value changed:', value)
+  console.log('Selected option:', formData.options.find(opt => opt.value === value))
+}
 
 const handleConfirm = async () => {
   if (!formRef.value) return
   
   try {
     await formRef.value.validate()
+    console.log('Before emit, formData:', {
+      value: formData.value,
+      options: formData.options,
+      selectedOption: formData.options.find(opt => opt.value === formData.value)
+    })
+    
+    const selectedOption = formData.options.find(opt => opt.value === formData.value)
+    if (!selectedOption) {
+      ElMessage.error('Please select a valid option')
+      return
+    }
+
     emit('confirm', {
-      type: 'goal',
+      type: 'data',
       key: formData.propertyKey,
       title: formData.title,
       options: formData.options,
-      defaultValue: formData.value,
+      defaultValue: selectedOption.value,
       prompt: formData.prompt,
       errorMessage: formData.errorMessage
     })
@@ -274,3 +307,30 @@ defineExpose({
   }
 })
 </script>
+
+<style scoped>
+.metric-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  width: 100%;
+}
+
+.metric-icon {
+  font-size: 16px;
+  width: 24px;
+  text-align: center;
+}
+
+.metric-label {
+  font-size: 14px;
+  color: var(--el-text-color-primary);
+}
+
+.metric-symbol {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  margin-left: 4px;
+}
+</style> 

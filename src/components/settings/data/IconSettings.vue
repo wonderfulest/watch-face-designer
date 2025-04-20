@@ -1,6 +1,14 @@
 <template>
   <div class="settings-section">
     <div class="setting-item">
+      <label>数据类型</label>
+      <select v-model="metricSymbol" @change="updateIconType">
+        <option v-for="(option, index) in DataTypeOptions" :key="index" :value="option.metricSymbol">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+    <div class="setting-item">
       <label>位置</label>
       <div class="position-inputs">
         <div>
@@ -34,14 +42,6 @@
     <div class="setting-item">
       <label>字体</label>
       <font-picker v-model="fontFamily" @change="updateFontFamily" />
-    </div>
-    <div class="setting-item">
-      <label>数据类型</label>
-      <select v-model="metricSymbol" @change="updateIconType">
-        <option v-for="(option, index) in DataTypeOptions" :key="index" :value="option.metricSymbol">
-          {{ option.label }}
-        </option>
-      </select>
     </div>
   </div>
 </template>
