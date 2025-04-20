@@ -56,7 +56,7 @@ const activeElements = ref([])
 
 /**
  * 对元素进行排序：
- * 1. 按metricSymbol分组，同一组元素必须相邻
+ * 1. 按dataProperty或goalProperty分组，同一组元素必须相邻
  * 2. 按照坐标从上到下，从左到右排序
  * 3. 分组的数据根据data的坐标进行比较
  * 4. 同步排序后的顺序到canvas._objects
@@ -64,13 +64,13 @@ const activeElements = ref([])
 const sortElements = () => {
   if (!elements.value) return
 
-  // 按metricSymbol分组
+  // 按dataProperty或goalProperty分组
   const groups = {}
   const nonMetricElements = []
 
   elements.value.forEach((element) => {
-    if (element.metricSymbol) {
-      const key = element.metricGroup || element.metricSymbol
+    if (element.dataProperty || element.goalProperty) {
+      const key = element.dataProperty || element.goalProperty
       if (!groups[key]) {
         groups[key] = []
       }
@@ -173,11 +173,11 @@ const setupElementListeners = () => {
   elements.value.forEach((element) => {
     element.on('modified', (e) => {
       if (e.transform) return // 忽略位置和大小的修改
-      if (e.target.metricSymbol !== e.target._previousState?.metricSymbol || e.target.metricGroup !== e.target._previousState?.metricGroup) {
+      if (e.target.dataProperty !== e.target._previousState?.dataProperty || e.target.goalProperty !== e.target._previousState?.goalProperty) {
         // 保存当前状态用于下次比较
         e.target._previousState = {
-          metricSymbol: e.target.metricSymbol,
-          metricGroup: e.target.metricGroup
+          dataProperty: e.target.dataProperty,
+          goalProperty: e.target.goalProperty
         }
 
         // 使用 requestAnimationFrame 批量处理画布更新
@@ -327,8 +327,14 @@ const getElementIcon = (eleType) => {
 }
 
 const getLayerBackgroundColor = (layer) => {
-  if ((layer.eleType === 'icon' || layer.eleType === 'data' || layer.eleType === 'label' || layer.eleType === 'goalArc') && layer.metricGroup) {
-    const id = layer.metricGroup
+  if (
+    (
+    layer.eleType === 'icon' 
+    || layer.eleType === 'data' || layer.eleType === 'label'
+    || layer.eleType === 'goalArc'
+    || layer.eleType === 'goalBar'
+  ) && (layer.dataProperty || layer.goalProperty)) {
+    const id = layer.dataProperty || layer.goalProperty
     const color = generateColorFromId(id)
     return { backgroundColor: color }
   }
@@ -336,12 +342,24 @@ const getLayerBackgroundColor = (layer) => {
 }
 
 const generateColorFromId = (id) => {
-  let hash = 0
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const color = `hsl(${hash % 360}, 70%, 80%)` // HSL color
-  return color
+  console.log('generateColorFromId', id)
+  // 根据元素类型设置基础色调
+  const baseHue = id.startsWith('data_') ? 200 : 0 // data 用蓝色系，goal 用红色系
+  
+  // 从 id 中提取数字部分
+  const num = parseInt(id.split('_')[1]) || 0
+  
+  // 根据数字生成不同的色相偏移
+  const hueOffset = (num * 30) % 360
+  
+  // 组合基础色调和偏移
+  const hue = (baseHue + hueOffset) % 360
+  
+  // 使用固定的饱和度和亮度
+  const saturation = 70
+  const lightness = 80
+  
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`
 }
 
 onUnmounted(() => {

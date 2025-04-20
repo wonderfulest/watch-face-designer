@@ -5,7 +5,7 @@ import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
 import { usePropertiesStore } from '@/stores/properties'
 
-import { getMetricByDataProperty } from '@/config/settings'
+import { getMetricByProperty } from '@/config/settings'
 
 export const useDataStore = defineStore('dataElement', {
   state: () => {
@@ -43,8 +43,9 @@ export const useDataStore = defineStore('dataElement', {
           hasControls: true,
           hasBorders: true,
           dataProperty: options.dataProperty,
+          goalProperty: options.goalProperty,
         }
-        const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
+        const metric = getMetricByProperty(options.dataProperty || options.goalProperty, this.propertiesStore.allProperties)
         
         // 创建文本对象
         const element = new FabricText(metric.defaultValue, dataOptions)
@@ -76,9 +77,16 @@ export const useDataStore = defineStore('dataElement', {
         const updates = {}
 
         if (options.dataProperty !== undefined) {
-          const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
+          const metric = getMetricByProperty(options.dataProperty, this.propertiesStore)
           updates.text = metric.defaultValue
           updates.dataProperty = options.dataProperty
+          updates.goalProperty = null
+        }
+        if (options.goalProperty !== undefined) {
+          const metric = getMetricByProperty(options.goalProperty, this.propertiesStore)
+          updates.text = metric.defaultValue
+          updates.goalProperty = options.goalProperty
+          updates.dataProperty = null
         }
 
         if (options.fontSize !== undefined) {
@@ -125,6 +133,7 @@ export const useDataStore = defineStore('dataElement', {
         size: element.fontSize,
         color: element.fill,
         dataProperty: element.dataProperty,
+        goalProperty: element.goalProperty,
       }
     },
 
@@ -139,6 +148,7 @@ export const useDataStore = defineStore('dataElement', {
         originX: config.originX,
         originY: config.originY,
         dataProperty: config.dataProperty,
+        goalProperty: config.goalProperty,
       }
     }
   }

@@ -62,7 +62,7 @@ import { debounce } from 'lodash-es'
 import moment from 'moment'
 import emitter from '@/utils/eventBus'
 import { nanoid } from 'nanoid'
-import { DataTypeOptions, getMetricBySymbol } from '@/config/settings'
+import { DataTypeOptions, getMetricByProperty } from '@/config/settings'
 import { useBaseStore } from '@/stores/baseStore'
 import { useFontStore } from '@/stores/fontStore'
 import { usePropertiesStore } from '@/stores/properties'
@@ -106,28 +106,36 @@ const dataProperty = ref('')
 const goalProperty = ref('')
 
 const updateDataProperty = () => {
+  const metric = getMetricByProperty(dataProperty.value, propertiesStore.allProperties)
   // 更新所有相关元素的数据属性
   if (dataElement.value) {
     dataElement.value.set('dataProperty', dataProperty.value)
+    dataElement.value.set('text', metric.defaultValue)
   }
   if (iconElement.value) {
     iconElement.value.set('dataProperty', dataProperty.value)
+    iconElement.value.set('text', metric.icon)
   }
   if (labelElement.value) {
     labelElement.value.set('dataProperty', dataProperty.value)
+    labelElement.value.set('text', metric.enLabel.short)
   }
   baseStore.canvas.renderAll()
 }
 
 const updateGoalProperty = () => {
+  const metric = getMetricByProperty(goalProperty.value, propertiesStore.allProperties)
   // 更新所有相关元素的目标属性
   if (dataElement.value) {
+    dataElement.value.set('text', metric.defaultValue)
     dataElement.value.set('goalProperty', goalProperty.value)
   }
   if (iconElement.value) {
+    iconElement.value.set('text', metric.icon)
     iconElement.value.set('goalProperty', goalProperty.value)
   }
   if (labelElement.value) {
+    labelElement.value.set('text', metric.enLabel.short)
     labelElement.value.set('goalProperty', goalProperty.value)
   }
   if (goalBarElement.value) {

@@ -7,7 +7,7 @@
       label-width="100px"
       :rules="rules"
     >
-      <el-form-item label="数据属性" prop="dataProperty" :rules="[{ required: true, message: '请选择数据属性', trigger: 'change' }]">
+      <el-form-item label="数据属性" v-if="!element.goalProperty" prop="dataProperty" :rules="[{ required: true, message: '请选择数据属性', trigger: 'change' }]">
         <el-select 
           v-model="element.dataProperty" 
           @change="updateElement"
@@ -22,6 +22,12 @@
         </el-select>
       </el-form-item>
 
+      <el-form-item label="目标属性" v-if="element.goalProperty">
+        <el-select v-model="element.goalProperty" @change="updateElement">
+          <el-option v-for="prop in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')"
+            :key="prop[0]" :label="prop[1].title" :value="prop[0]" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="位置">
         <div class="position-inputs">
           <el-input-number 

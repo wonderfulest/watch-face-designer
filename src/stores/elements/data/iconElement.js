@@ -5,7 +5,7 @@ import { usePropertiesStore } from '@/stores/properties'
 
 import { nanoid } from 'nanoid'
 import { FabricText } from 'fabric'
-import { getMetricByDataProperty } from '@/config/settings'
+import { getMetricByProperty } from '@/config/settings'
 export const useIconStore = defineStore('iconElement', {
   state: () => {
     const baseStore = useBaseStore()
@@ -41,9 +41,9 @@ export const useIconStore = defineStore('iconElement', {
           hasControls: true,
           hasBorders: true,
           dataProperty: options.dataProperty,
+          goalProperty: options.goalProperty,
         }
-        const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
-        console.log('1111 metric', metric)
+        const metric = getMetricByProperty(options.dataProperty, this.propertiesStore.allProperties)
         // 创建文本对象
         const element = new FabricText(metric.icon, iconOptions)
 
@@ -73,10 +73,17 @@ export const useIconStore = defineStore('iconElement', {
       try {
         const updates = {}
 
-        if (options.metricSymbol !== undefined) {
-          const metric = getMetricByDataProperty(options.metricSymbol, this.propertiesStore)
+        if (options.dataProperty !== undefined) {
+          const metric = getMetricByProperty(options.dataProperty, this.propertiesStore.allProperties)
           updates.text = metric.icon
-          updates.metricSymbol = options.metricSymbol
+          updates.dataProperty = options.dataProperty
+          updates.goalProperty = null
+        }
+        if (options.goalProperty !== undefined) {
+          const metric = getMetricByProperty(options.goalProperty, this.propertiesStore.allProperties)
+          updates.text = metric.icon
+          updates.goalProperty = options.goalProperty
+          updates.dataProperty = null
         }
 
         if (options.fontSize !== undefined) {
@@ -111,7 +118,7 @@ export const useIconStore = defineStore('iconElement', {
         throw error
       }
     },
-    
+
     encodeConfig(element) {
       return {
         type: element.eleType,
@@ -123,6 +130,7 @@ export const useIconStore = defineStore('iconElement', {
         size: element.fontSize,
         color: element.fill,
         dataProperty: element.dataProperty,
+        goalProperty: element.goalProperty,
       }
     },
     decodeConfig(config) {
@@ -136,6 +144,7 @@ export const useIconStore = defineStore('iconElement', {
         originX: config.originX,
         originY: config.originY,
         dataProperty: config.dataProperty,
+        goalProperty: config.goalProperty,
       }
     }
   }

@@ -4,7 +4,7 @@ import { useLayerStore } from '@/stores/layerStore'
 import { usePropertiesStore } from '@/stores/properties'
 import { nanoid } from 'nanoid'
 import { FabricText } from 'fabric'
-import { getMetricByDataProperty } from '@/config/settings'
+import { getMetricByProperty } from '@/config/settings'
 
 export const useLabelStore = defineStore('labelElement', {
   state: () => {
@@ -44,7 +44,7 @@ export const useLabelStore = defineStore('labelElement', {
       }
 
       try {
-        const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
+        const metric = getMetricByProperty(options.dataProperty, this.propertiesStore.allProperties)
         
         // 获取原始文本并应用大小写设置
         let originalText = 'Label'
@@ -144,7 +144,7 @@ export const useLabelStore = defineStore('labelElement', {
         const updates = {}
 
         if (options.dataProperty !== undefined) {
-          const metric = getMetricByDataProperty(options.dataProperty, this.propertiesStore)
+          const metric = getMetricByProperty(options.dataProperty, this.propertiesStore)
           if (metric) {
             let originalText = 'Label'
             if (typeof metric.enLabel === 'object') {
@@ -165,6 +165,12 @@ export const useLabelStore = defineStore('labelElement', {
             updates.originalText = originalText
             updates.dataProperty = options.dataProperty
           }
+        }
+        if (options.goalProperty !== undefined) {
+          const metric = getMetricByProperty(options.goalProperty, this.propertiesStore)
+          updates.text = metric.enLabel
+          updates.goalProperty = options.goalProperty
+          updates.dataProperty = null
         }
 
         if (options.fontSize !== undefined) {
