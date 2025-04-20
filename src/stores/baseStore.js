@@ -432,7 +432,8 @@ export const useBaseStore = defineStore('baseStore', {
           { source: 'borderColor', target: 'borderColorProperty' },
           { source: 'bodyStroke', target: 'bodyStrokeProperty' },
           { source: 'headFill', target: 'headFillProperty' },
-          { source: 'bodyFill', target: 'bodyFillProperty' }
+          { source: 'bodyFill', target: 'bodyFillProperty' },
+          { source: 'fill', target: 'fillProperty' },
         ]
 
         // 处理所有颜色属性映射

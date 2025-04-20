@@ -83,14 +83,19 @@ export const useCircleStore = defineStore('circleElement', {
 
       if (options.fill !== undefined) {
         element.set('fill', options.fill)
+        // element.set('backgroundColor', options.fill)
       }
 
       if (options.stroke !== undefined) {
         element.set('stroke', options.stroke)
+        // 强制重新渲染边框
+        element.set('dirty', true)
       }
 
       if (options.strokeWidth !== undefined) {
         element.set('strokeWidth', Number(options.strokeWidth))
+        // 强制重新渲染边框
+        element.set('dirty', true)
       }
 
       if (options.opacity !== undefined) {
@@ -115,7 +120,9 @@ export const useCircleStore = defineStore('circleElement', {
         opacity: element.opacity
       }
 
+      // 强制重新计算坐标和渲染
       element.setCoords()
+      element.dirty = true
       this.baseStore.canvas.renderAll()
     },
 

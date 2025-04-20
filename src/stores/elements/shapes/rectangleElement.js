@@ -81,6 +81,7 @@ export const useRectangleStore = defineStore('rectangleElement', {
     },
 
     updateElement(element, options = {}) {
+      console.log('updateElement', element, options)
       if (!element) return
 
       // 更新基本属性
@@ -98,10 +99,14 @@ export const useRectangleStore = defineStore('rectangleElement', {
 
       if (options.stroke !== undefined) {
         element.set('stroke', options.stroke)
+        // 强制重新渲染边框
+        element.set('dirty', true)
       }
 
       if (options.strokeWidth !== undefined) {
         element.set('strokeWidth', Number(options.strokeWidth))
+        // 强制重新渲染边框
+        element.set('dirty', true)
       }
 
       if (options.opacity !== undefined) {
@@ -135,7 +140,9 @@ export const useRectangleStore = defineStore('rectangleElement', {
         borderRadius: element.rx
       }
 
+      // 强制重新计算坐标和渲染
       element.setCoords()
+      element.dirty = true
       this.baseStore.canvas.renderAll()
     },
 
