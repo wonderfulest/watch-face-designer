@@ -83,7 +83,6 @@ export const useCircleStore = defineStore('circleElement', {
 
       if (options.fill !== undefined) {
         element.set('fill', options.fill)
-        // element.set('backgroundColor', options.fill)
       }
 
       if (options.stroke !== undefined) {
