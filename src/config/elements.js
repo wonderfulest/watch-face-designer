@@ -66,6 +66,22 @@ export const elementConfigs = {
         color: '#333',
         level: 0.5
       })
+    },
+    moveBar: {
+      label: '久坐提醒',
+      icon: 'mdi:progress-bar',
+      type: 'moveBar',
+      ...assign({}, elementAttribute, {
+        left: 227,
+        top: 227,
+        width: 150,
+        height: 10,
+        tailWidth: 5,
+        separator: 6,
+        color: '#FFFFFF',
+        bgColor: '#808080',
+        level: 0
+      })
     }
   },
   // 基础元素

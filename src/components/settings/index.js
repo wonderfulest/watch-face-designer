@@ -13,6 +13,7 @@ Object.entries(modules).forEach(([path, module]) => {
   // './BatterySettings.vue' -> 'battery'
   // './goal/GoalArcSettings.vue' -> 'goalarc'
   // './goal/GoalBarSettings.vue' -> 'goalbar'
+  // './MoveBarSettings.vue' -> 'movebar'
   const match = path.match(/\/(\w+)Settings\.vue$/)
   if (match) {
     const type = match[1].toLowerCase()

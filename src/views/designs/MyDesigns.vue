@@ -26,6 +26,13 @@
         <Icon icon="material-symbols:search" />
         搜索
       </el-button>
+      <div class="display-options">
+        <el-switch
+          v-model="showCreator"
+          active-text="显示作者"
+          inactive-text="隐藏作者"
+        />
+      </div>
     </div>
 
     <el-row :gutter="20" class="design-grid">
@@ -73,13 +80,13 @@
           <div class="design-info">
             <div class="design-background" v-if="design.screenshotUrl">
               <img :src="design.screenshotUrl" :alt="design.name" class="background-image" />
-              <div class="creator-badge">
+              <div class="creator-badge" v-if="showCreator">
                 <span>作者：{{ getCreatorName(design) }}</span>
               </div>
             </div>
             <div class="design-background" v-else-if="design.backgroundUrl">
               <img :src="design.backgroundUrl" :alt="design.name" class="background-image" />
-              <div class="creator-badge">
+              <div class="creator-badge" v-if="showCreator">
                 <span>作者：{{ getCreatorName(design) }}</span>
               </div>
             </div>
@@ -167,6 +174,9 @@ const selectedUserId = ref(null)
 const sortField = ref('updatedAt')
 const sortOrder = ref('desc')
 const usersList = ref([])
+
+// 添加作者显示控制
+const showCreator = ref(true)  // 默认显示作者
 
 // 获取用户列表
 const fetchUsers = async () => {
@@ -540,6 +550,7 @@ const handleEditSuccess = () => {
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .name-filter {
@@ -566,6 +577,12 @@ const handleEditSuccess = () => {
 
 .sort-order-filter {
   width: 100px;
+}
+
+.display-options {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
 }
 
 /* 响应式布局调整 */
