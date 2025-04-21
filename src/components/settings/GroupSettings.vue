@@ -106,57 +106,72 @@ const dataProperty = ref('')
 const goalProperty = ref('')
 
 const updateDataProperty = () => {
-  const metric = getMetricByProperty(dataProperty.value, propertiesStore.allProperties)
-  // 更新所有相关元素的数据属性
-  if (dataElement.value) {
-    dataElement.value.set('dataProperty', dataProperty.value)
-    dataElement.value.set('text', metric.defaultValue)
-  }
-  if (iconElement.value) {
-    iconElement.value.set('dataProperty', dataProperty.value)
-    iconElement.value.set('text', metric.icon)
-  }
-  if (labelElement.value) {
-    labelElement.value.set('dataProperty', dataProperty.value)
-    labelElement.value.set('text', metric.enLabel.short)
+  const metric = getMetricByProperty(dataProperty.value || goalProperty.value, propertiesStore.allProperties)
+  if (dataProperty.value) {
+    // 更新所有相关元素的数据属性
+    if (dataElement.value) {
+      dataElement.value.set('dataProperty', dataProperty.value)
+      dataElement.value.set('goalProperty', null)
+      dataElement.value.set('text', metric.defaultValue)
+    }
+    if (iconElement.value) {
+      iconElement.value.set('dataProperty', dataProperty.value)
+      iconElement.value.set('goalProperty', null)
+      iconElement.value.set('text', metric.icon)
+    }
+    if (labelElement.value) {
+      labelElement.value.set('dataProperty', dataProperty.value)
+      labelElement.value.set('goalProperty', null)
+      labelElement.value.set('text', metric.enLabel.short)
+    }
   }
   baseStore.canvas.renderAll()
 }
 
 const updateGoalProperty = () => {
   const metric = getMetricByProperty(goalProperty.value, propertiesStore.allProperties)
-  // 更新所有相关元素的目标属性
-  if (dataElement.value) {
-    dataElement.value.set('text', metric.defaultValue)
-    dataElement.value.set('goalProperty', goalProperty.value)
-  }
-  if (iconElement.value) {
-    iconElement.value.set('text', metric.icon)
-    iconElement.value.set('goalProperty', goalProperty.value)
-  }
-  if (labelElement.value) {
-    labelElement.value.set('text', metric.enLabel.short)
-    labelElement.value.set('goalProperty', goalProperty.value)
-  }
-  if (goalBarElement.value) {
-    goalBarElement.value.set('goalProperty', goalProperty.value)
-  }
-  if (goalArcElement.value) {
-    goalArcElement.value.set('goalProperty', goalProperty.value)
+   if (goalProperty.value) {
+    // 更新所有相关元素的目标属性
+    if (dataElement.value) {
+      dataElement.value.set('goalProperty', goalProperty.value)
+      dataElement.value.set('dataProperty', null)
+      dataElement.value.set('text', metric.defaultValue)
+    }
+    if (iconElement.value) {
+      iconElement.value.set('goalProperty', goalProperty.value)
+      iconElement.value.set('dataProperty', null)
+      iconElement.value.set('text', metric.icon)
+    }
+    if (labelElement.value) {
+      labelElement.value.set('goalProperty', goalProperty.value)
+      labelElement.value.set('dataProperty', null)
+      labelElement.value.set('text', metric.enLabel.short)
+    }
+    if (goalBarElement.value) {
+      goalBarElement.value.set('goalProperty', goalProperty.value)
+    }
+    if (goalArcElement.value) {
+      goalArcElement.value.set('goalProperty', goalProperty.value)
+    }
   }
   baseStore.canvas.renderAll()
 }
 
 // 初始化属性值
 onMounted(() => {
-  if (dataElement.value) {
-    dataProperty.value = dataElement.value.dataProperty || ''
-  }
-  if (goalBarElement.value) {
-    goalProperty.value = goalBarElement.value.goalProperty || ''
-  } else if (goalArcElement.value) {
-    goalProperty.value = goalArcElement.value.goalProperty || ''
-  }
+  // 获取组内所有元素的 dataProperty 值
+  const dataProperties = props.elements.map(el => el.dataProperty)
+  // 检查是否所有值都相同
+  const allSame = dataProperties.every(prop => prop === dataProperties[0])
+  // 如果都相同则使用该值，否则使用空字符串
+  dataProperty.value = allSame ? dataProperties[0] || '' : ''
+
+  // 获取组内所有元素的 goalProperty 值
+  const goalProperties = props.elements.map(el => el.goalProperty)
+  // 检查是否所有值都相同
+  const allSameGoal = goalProperties.every(prop => prop === goalProperties[0])
+  // 如果都相同则使用该值，否则使用空字符串
+  goalProperty.value = allSameGoal ? goalProperties[0] || '' : ''
 })
 
 const isUpdateColor = computed(() => {

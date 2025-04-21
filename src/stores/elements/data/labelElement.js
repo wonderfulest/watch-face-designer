@@ -44,33 +44,9 @@ export const useLabelStore = defineStore('labelElement', {
       }
 
       try {
-        const metric = getMetricByProperty(options.dataProperty, this.propertiesStore.allProperties)
-        
-        // 获取原始文本并应用大小写设置
-        let originalText = 'Label'
-        
-        if (metric) {
-          // 根据 labelLengthType 选择合适的标签长度
-          if (typeof metric.enLabel === 'object') {
-            const labelLengthType = this.baseStore.labelLengthType
-            
-            if (labelLengthType === 1) { // 短文本
-              originalText = metric.enLabel.short || metric.enLabel.medium || metric.enLabel.long || 'Label'
-            } else if (labelLengthType === 2) { // 中等文本
-              originalText = metric.enLabel.medium || metric.enLabel.short || metric.enLabel.long || 'Label'
-            } else if (labelLengthType === 3) { // 长文本
-              originalText = metric.enLabel.long || metric.enLabel.medium || metric.enLabel.short || 'Label'
-            } else { // 默认使用短文本
-              originalText = metric.enLabel.short || metric.enLabel.medium || metric.enLabel.long || 'Label'
-            }
-          } else {
-            // 兼容旧版本，如果 enLabel 不是对象而是字符串
-            originalText = metric.enLabel
-          }
-        }
-        
+        const metric = getMetricByProperty(options.dataProperty || options.goalProperty, this.propertiesStore.allProperties)
+        const originalText = metric.enLabel.medium
         const formattedText = this.applyTextCase(originalText)
-
         const labelOptions = {
           id: nanoid(),
           eleType: 'label',
@@ -86,7 +62,7 @@ export const useLabelStore = defineStore('labelElement', {
           hasBorders: true,
           dataProperty: options.dataProperty,
           text: formattedText,
-          originalText: originalText, // 保存原始文本，以便在大小写设置变化时可以重新格式化
+          originalText: originalText,
         }
 
         // 创建文本对象
@@ -144,31 +120,14 @@ export const useLabelStore = defineStore('labelElement', {
         const updates = {}
 
         if (options.dataProperty !== undefined) {
-          const metric = getMetricByProperty(options.dataProperty, this.propertiesStore)
-          if (metric) {
-            let originalText = 'Label'
-            if (typeof metric.enLabel === 'object') {
-              const labelLengthType = this.baseStore.labelLengthType
-              if (labelLengthType === 1) {
-                originalText = metric.enLabel.short || metric.enLabel.medium || metric.enLabel.long || 'Label'
-              } else if (labelLengthType === 2) {
-                originalText = metric.enLabel.medium || metric.enLabel.short || metric.enLabel.long || 'Label'
-              } else if (labelLengthType === 3) {
-                originalText = metric.enLabel.long || metric.enLabel.medium || metric.enLabel.short || 'Label'
-              } else {
-                originalText = metric.enLabel.short || metric.enLabel.medium || metric.enLabel.long || 'Label'
-              }
-            } else {
-              originalText = metric.enLabel
-            }
-            updates.text = this.applyTextCase(originalText)
-            updates.originalText = originalText
-            updates.dataProperty = options.dataProperty
-          }
+          const metric = getMetricByProperty(options.dataProperty, this.propertiesStore.allProperties)
+          updates.text = this.applyTextCase(metric.enLabel.medium)
+          updates.dataProperty = options.dataProperty
+          updates.goalProperty = null
         }
         if (options.goalProperty !== undefined) {
-          const metric = getMetricByProperty(options.goalProperty, this.propertiesStore)
-          updates.text = metric.enLabel
+          const metric = getMetricByProperty(options.goalProperty, this.propertiesStore.allProperties)
+          updates.text = this.applyTextCase(metric.enLabel.medium)
           updates.goalProperty = options.goalProperty
           updates.dataProperty = null
         }
@@ -217,7 +176,9 @@ export const useLabelStore = defineStore('labelElement', {
         size: element.fontSize,
         color: element.fill,
         dataProperty: element.dataProperty,
+        goalProperty: element.goalProperty,
         text: element.text,
+        originalText: element.originalText,
       }
     },
 
@@ -232,7 +193,9 @@ export const useLabelStore = defineStore('labelElement', {
         originX: config.originX,
         originY: config.originY,
         dataProperty: config.dataProperty,
+        goalProperty: config.goalProperty,
         text: config.text,
+        originalText: config.originalText,
       }
     }
   }

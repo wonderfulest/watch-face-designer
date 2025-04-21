@@ -1,6 +1,6 @@
 <template>
   <div class="settings-section">
-    <el-form ref="formRef" :model="element" label-position="left" label-width="100px" :rules="rules">
+    <el-form ref="formRef" :model="element" label-position="left" label-width="100px">
       <el-form-item label="数据属性" v-if="!element.goalProperty" prop="dataProperty"
         :rules="[{ required: true, message: '请选择数据属性', trigger: 'change' }]">
         <el-select v-model="element.dataProperty" @change="updateElement" placeholder="选择数据属性">
@@ -9,7 +9,8 @@
             :key="key" :label="prop.title" :value="key" />
         </el-select>
       </el-form-item>
-      <el-form-item label="目标属性" v-if="element.goalProperty">
+      <el-form-item label="目标属性" v-if="element.goalProperty" prop="goalProperty" 
+        :rules="[{ required: true, message: '请选择目标属性', trigger: 'change' }]">
         <el-select v-model="element.goalProperty" @change="updateElement">
           <el-option v-for="prop in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')"
             :key="prop[0]" :label="prop[1].title" :value="prop[0]" />
@@ -36,7 +37,7 @@
       </el-form-item>
 
       <el-form-item label="字体颜色">
-        <color-picker v-model="element.fill" @change="updateElement" />
+        <color-picker v-model="element.fill"  @update:modelValue="updateElement" />
       </el-form-item>
 
       <el-form-item label="字体">
@@ -68,17 +69,9 @@ const formRef = ref(null)
 const dataStore = useDataStore()
 const propertiesStore = usePropertiesStore()
 
-const rules = {
-  dataProperty: [
-    { required: true, message: '请选择数据属性', trigger: 'change' }
-  ],
-  goalProperty: [
-    { required: true, message: '请选择目标属性', trigger: 'change' }
-  ]
-}
-
 const updateElement = async () => {
   try {
+    console.log('updateElement', props.element)
     await formRef.value.validate()
     dataStore.updateElement(props.element, {
       dataProperty: props.element.dataProperty,

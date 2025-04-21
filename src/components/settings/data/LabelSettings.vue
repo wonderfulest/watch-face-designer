@@ -5,9 +5,8 @@
       :model="element" 
       label-position="left" 
       label-width="100px"
-      :rules="rules"
     >
-      <el-form-item label="数据属性" prop="dataProperty" :rules="[{ required: true, message: '请选择数据属性', trigger: 'change' }]">
+      <el-form-item label="数据属性" v-if="element.dataProperty" prop="dataProperty" :rules="[{ required: true, message: '请选择数据属性', trigger: 'change' }]">
         <el-select 
           v-model="element.dataProperty" 
           @change="updateElement"
@@ -15,6 +14,20 @@
         >
           <el-option 
             v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'data')" 
+            :key="key" 
+            :label="prop.title" 
+            :value="key" 
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="目标属性" v-if="element.goalProperty" prop="goalProperty" :rules="[{ required: true, message: '请选择目标属性', trigger: 'change' }]">
+        <el-select 
+          v-model="element.goalProperty" 
+          @change="updateElement"
+          placeholder="选择目标属性"
+        >
+          <el-option 
+            v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')" 
             :key="key" 
             :label="prop.title" 
             :value="key" 
@@ -103,12 +116,6 @@ const props = defineProps({
 const formRef = ref(null)
 const labelStore = useLabelStore()
 const propertiesStore = usePropertiesStore()
-
-const rules = {
-  dataProperty: [
-    { required: true, message: '请选择数据属性', trigger: 'change' }
-  ]
-}
 
 const updateElement = async () => {
   try {

@@ -327,13 +327,7 @@ const getElementIcon = (eleType) => {
 }
 
 const getLayerBackgroundColor = (layer) => {
-  if (
-    (
-    layer.eleType === 'icon' 
-    || layer.eleType === 'data' || layer.eleType === 'label'
-    || layer.eleType === 'goalArc'
-    || layer.eleType === 'goalBar'
-  ) && (layer.dataProperty || layer.goalProperty)) {
+  if ((layer.eleType === 'icon' || layer.eleType === 'data' || layer.eleType === 'label' || layer.eleType === 'goalArc' || layer.eleType === 'goalBar') && (layer.dataProperty || layer.goalProperty)) {
     const id = layer.dataProperty || layer.goalProperty
     const color = generateColorFromId(id)
     return { backgroundColor: color }
@@ -342,23 +336,22 @@ const getLayerBackgroundColor = (layer) => {
 }
 
 const generateColorFromId = (id) => {
-  console.log('generateColorFromId', id)
   // 根据元素类型设置基础色调
   const baseHue = id.startsWith('data_') ? 200 : 0 // data 用蓝色系，goal 用红色系
-  
+
   // 从 id 中提取数字部分
   const num = parseInt(id.split('_')[1]) || 0
-  
+
   // 根据数字生成不同的色相偏移
   const hueOffset = (num * 30) % 360
-  
+
   // 组合基础色调和偏移
   const hue = (baseHue + hueOffset) % 360
-  
+
   // 使用固定的饱和度和亮度
   const saturation = 70
   const lightness = 80
-  
+
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`
 }
 

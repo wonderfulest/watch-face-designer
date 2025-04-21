@@ -75,15 +75,16 @@ export const useDataStore = defineStore('dataElement', {
 
       try {
         const updates = {}
+        console.log('options', options.dataProperty, options.goalProperty)
 
-        if (options.dataProperty !== undefined) {
-          const metric = getMetricByProperty(options.dataProperty, this.propertiesStore)
+        if (options.dataProperty) {
+          const metric = getMetricByProperty(options.dataProperty, this.propertiesStore.allProperties)
           updates.text = metric.defaultValue
           updates.dataProperty = options.dataProperty
           updates.goalProperty = null
         }
-        if (options.goalProperty !== undefined) {
-          const metric = getMetricByProperty(options.goalProperty, this.propertiesStore)
+        if (options.goalProperty) {
+          const metric = getMetricByProperty(options.goalProperty, this.propertiesStore.allProperties)
           updates.text = metric.defaultValue
           updates.goalProperty = options.goalProperty
           updates.dataProperty = null
@@ -112,7 +113,7 @@ export const useDataStore = defineStore('dataElement', {
         if (options.top !== undefined) {
           updates.top = options.top
         }
-
+        console.log('11111 updates', updates)
         element.set(updates)
         element.setCoords()
         this.baseStore.canvas.requestRenderAll()
