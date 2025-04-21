@@ -165,20 +165,20 @@ export const DataTypeOptions = [
       long: 'Total Dist'
     }
   },
-  {
-    labelCn: '日出和日落 (废弃)',
-    metricSymbol: ':FIELD_TYPE_SUN_RISE_SET',
-    value: 6,
-    defaultValue: '0',
-    icon: '\u0021',
-    unit: '',
-    label:  'Next Sunrise or Sunset',
-    enLabel: {
-      short: 'Sun',
-      medium: 'Sunrise',
-      long: 'Sun Rise'
-    }
-  },
+  // {
+  //   labelCn: '日出和日落 (废弃)',
+  //   metricSymbol: ':FIELD_TYPE_SUN_RISE_SET',
+  //   value: 6,
+  //   defaultValue: '0',
+  //   icon: '\u0021',
+  //   unit: '',
+  //   label:  'Next Sunrise or Sunset',
+  //   enLabel: {
+  //     short: 'Sun',
+  //     medium: 'Sunrise',
+  //     long: 'Sun Rise'
+  //   }
+  // },
   {
     labelCn: '日出',
     metricSymbol: ':FIELD_TYPE_SUN_RISE',
@@ -416,118 +416,118 @@ export const DataTypeOptions = [
       long: 'Notif Cnt'
     }
   },
-  {
-    labelCn: '勿扰时间',
-    metricSymbol: ':INDICATOR_TYPE_DISTURB',
-    value: 24,
-    defaultValue: '1',
-    icon: '\u0022',
-    unit: '',
-    label:  'Bluetooth/Notifications',
-    enLabel: {
-      short: 'Dnt',
-      medium: 'Dnt',
-      long: 'Dnt'
-    }
-  },
-  {
-    labelCn: '天气',
-    metricSymbol: ':FIELD_TYPE_WEATHER',
-    value: 30,
-    defaultValue: '25°C',
-    icon: '\uF000',
-    unit: '',
-    label:  'Weather',
-    enLabel: {
-      short: 'Wthr',
-      medium: 'Weather',
-      long: 'Condition'
-    }
-  },
-  {
-    labelCn: '温度',
-    metricSymbol: ':FIELD_TYPE_TEMPERATURE',
-    value: 31,
-    defaultValue: '25°C',
-    icon: '\u0062',
-    unit: '°C',
-    label:  'Temperature',
-    enLabel: {
-      short: 'Temp',
-      medium: 'Temperature',
-      long: 'Current Temperature'
-    }
-  },
-  {
-    labelCn: '体感温度',
-    metricSymbol: ':FIELD_TYPE_FEELS_LIKE_TEMPERATURE',
-    value: 32,
-    defaultValue: '25°C',
-    icon: '\u0021',
-    unit: '°C',
-    label:  'FeelsLikeTemperature',
-    enLabel: {
-      short: 'Fl',
-      medium: 'FeelLike',
-      long: 'Feels Like'
-    }
-  },
-  {
-    labelCn: '湿度',
-    metricSymbol: ':FIELD_TYPE_HUMIDITY',
-    value: 33,
-    defaultValue: '50',
-    icon: '\u0021',
-    unit: '%',
-    label:  'Humidity',
-    enLabel: {
-      short: 'Humid',
-      medium: 'Humidity',
-      long: 'Current Humidity'
-    }
-  },
-  {
-    labelCn: '风速',
-    metricSymbol: ':FIELD_TYPE_WIND_SPEED',
-    value: 34,
-    defaultValue: '10',
-    icon: '\u0021',
-    unit: 'km/h',
-    label:  'WindSpeed',
-    enLabel: {
-      short: 'Wind',
-      medium: 'WindSpd',
-      long: 'Wind Speed'
-    }
-  },
-  {
-    labelCn: '传感器温度',
-    metricSymbol: ':FIELD_TYPE_SENSOR_TEMPERATURE',
-    value: 35,
-    defaultValue: '20',
-    icon: '\u0021',
-    unit: '°C',
-    label:  'Sensor Temperature',
-    enLabel: {
-      short: 'Sensor',
-      medium: 'Sensor Temp',
-      long: 'Sensor Temperature'
-    }
-  },
-  {
-    labelCn: '天气描述',
-    metricSymbol: ':FIELD_TYPE_WEATHER_DESCRIPTION',
-    value: 36,
-    defaultValue: 'Clear Sky',
-    icon: '\u0021',
-    unit: '',
-    label:  'Weather',
-    enLabel: {
-      short: 'Sky',
-      medium: 'Weather',
-      long: 'Weather Description'
-    }
-  },
+  // {
+  //   labelCn: '勿扰时间',
+  //   metricSymbol: ':INDICATOR_TYPE_DISTURB',
+  //   value: 24,
+  //   defaultValue: '1',
+  //   icon: '\u0022',
+  //   unit: '',
+  //   label:  'Bluetooth/Notifications',
+  //   enLabel: {
+  //     short: 'Dnt',
+  //     medium: 'Dnt',
+  //     long: 'Dnt'
+  //   }
+  // },
+  // {
+  //   labelCn: '天气',
+  //   metricSymbol: ':FIELD_TYPE_WEATHER',
+  //   value: 30,
+  //   defaultValue: '25°C',
+  //   icon: '\uF000',
+  //   unit: '',
+  //   label:  'Weather',
+  //   enLabel: {
+  //     short: 'Wthr',
+  //     medium: 'Weather',
+  //     long: 'Condition'
+  //   }
+  // },
+  // {
+  //   labelCn: '温度',
+  //   metricSymbol: ':FIELD_TYPE_TEMPERATURE',
+  //   value: 31,
+  //   defaultValue: '25°C',
+  //   icon: '\u0062',
+  //   unit: '°C',
+  //   label:  'Temperature',
+  //   enLabel: {
+  //     short: 'Temp',
+  //     medium: 'Temperature',
+  //     long: 'Current Temperature'
+  //   }
+  // },
+  // {
+  //   labelCn: '体感温度',
+  //   metricSymbol: ':FIELD_TYPE_FEELS_LIKE_TEMPERATURE',
+  //   value: 32,
+  //   defaultValue: '25°C',
+  //   icon: '\u0021',
+  //   unit: '°C',
+  //   label:  'FeelsLikeTemperature',
+  //   enLabel: {
+  //     short: 'Fl',
+  //     medium: 'FeelLike',
+  //     long: 'Feels Like'
+  //   }
+  // },
+  // {
+  //   labelCn: '湿度',
+  //   metricSymbol: ':FIELD_TYPE_HUMIDITY',
+  //   value: 33,
+  //   defaultValue: '50',
+  //   icon: '\u0021',
+  //   unit: '%',
+  //   label:  'Humidity',
+  //   enLabel: {
+  //     short: 'Humid',
+  //     medium: 'Humidity',
+  //     long: 'Current Humidity'
+  //   }
+  // },
+  // {
+  //   labelCn: '风速',
+  //   metricSymbol: ':FIELD_TYPE_WIND_SPEED',
+  //   value: 34,
+  //   defaultValue: '10',
+  //   icon: '\u0021',
+  //   unit: 'km/h',
+  //   label:  'WindSpeed',
+  //   enLabel: {
+  //     short: 'Wind',
+  //     medium: 'WindSpd',
+  //     long: 'Wind Speed'
+  //   }
+  // },
+  // {
+  //   labelCn: '传感器温度',
+  //   metricSymbol: ':FIELD_TYPE_SENSOR_TEMPERATURE',
+  //   value: 35,
+  //   defaultValue: '20',
+  //   icon: '\u0021',
+  //   unit: '°C',
+  //   label:  'Sensor Temperature',
+  //   enLabel: {
+  //     short: 'Sensor',
+  //     medium: 'Sensor Temp',
+  //     long: 'Sensor Temperature'
+  //   }
+  // },
+  // {
+  //   labelCn: '天气描述',
+  //   metricSymbol: ':FIELD_TYPE_WEATHER_DESCRIPTION',
+  //   value: 36,
+  //   defaultValue: 'Clear Sky',
+  //   icon: '\u0021',
+  //   unit: '',
+  //   label:  'Weather',
+  //   enLabel: {
+  //     short: 'Sky',
+  //     medium: 'Weather',
+  //     long: 'Weather Description'
+  //   }
+  // },
   {
     labelCn: '呼吸频率',
     metricSymbol: ':FIELD_TYPE_RESPIRATION_RATE',
@@ -584,132 +584,132 @@ export const DataTypeOptions = [
       long: 'Walk Dist'
     }
   },
-  {
-    labelCn: '每天最高温度',
-    metricSymbol: ':FIELD_TYPE_TEMPERATURE_HIGH',
-    value: 41,
-    defaultValue: '30°C',
-    icon: '\u0021',
-    unit: '°C',
-    label:  'Daily Temperature High',
-    enLabel: {
-      short: 'High',
-      medium: 'High Temp',
-      long: 'Today\'s High Temp'
-    }
-  },
-  {
-    labelCn: '每天最低温度',
-    metricSymbol: ':FIELD_TYPE_TEMPERATURE_LOW',
-    value: 42,
-    defaultValue: '15°C',
-    icon: '\u0021',
-    unit: '°C',
-    label:  'Daily Temperature Low',
-    enLabel: {
-      short: 'Low',
-      medium: 'Low Temp',
-      long: 'Today\'s Low Temp'
-    }
-  },
-  {
-    labelCn: '月相',
-    metricSymbol: ':FIELD_TYPE_MOON_PHASE',
-    value: 43,
-    defaultValue: '15°C',
-    icon: '\u0021',
-    unit: '°C',
-    label:  'Moon Phase',
-    enLabel: {
-      short: 'Moon',
-      medium: 'Moon Phase',
-      long: 'Moon Phase'
-    }
-  },
-  {
-    labelCn: '气压',
-    metricSymbol: ':FIELD_TYPE_WEATHER_PRESSURE',
-    value: 50,
-    defaultValue: '1013',
-    icon: '\u0063',
-    unit: 'hPa',
-    label:  'Barometer',
-    enLabel: {
-      short: 'Press',
-      medium: 'Pressure',
-      long: 'Barometric Pressure'
-    }
-  },
-  {
-    labelCn: '温度范围',
-    metricSymbol: ':FIELD_TYPE_TEMPERATURE_RANGE',
-    value: 51,
-    defaultValue: '25',
-    icon: '\u0021',
-    unit: '°C',
-    label:  'Temperature Range',
-    enLabel: {
-      short: 'Range',
-      medium: 'Temp Range',
-      long: 'Temperature Range'
-    }
-  },
-  {
-    labelCn: '紫外线指数',
-    metricSymbol: ':FIELD_TYPE_WEATHER_UVINDEX',
-    value: 52,
-    defaultValue: '3',
-    icon: '\u0021',
-    unit: '',
-    label:  'UVIndex',
-    enLabel: {
-      short: 'UV',
-      medium: 'UV Index',
-      long: 'Ultraviolet Index'
-    }
-  },
-  {
-    labelCn: '露点',
-    metricSymbol: ':FIELD_TYPE_WEATHER_DEWPOINT',
-    value: 53,
-    defaultValue: '10',
-    icon: '\u0021',
-    unit: '°C',
-    label:  'DewPoint',
-    enLabel: {
-      short: 'Dew',
-      medium: 'Dew Point',
-      long: 'Dew Point Temperature'
-    }
-  },
-  {
-    labelCn: '云量',
-    metricSymbol: ':FIELD_TYPE_WEATHER_CLOUDS',
-    value: 54,
-    defaultValue: '50',
-    icon: '\u0021',
-    unit: '%',
-    label:  'Clouds',
-    enLabel: {
-      short: 'Cloud',
-      medium: 'Cloud Cover',
-      long: 'Cloud Coverage Percent'
-    }
-  },
-  {
-    labelCn: '能见度',
-    metricSymbol: ':FIELD_TYPE_WEATHER_VISIBILITY',
-    value: 55,
-    defaultValue: '10',
-    icon: '\u0021',
-    unit: 'km',
-    label:  'Visibility',
-    enLabel: {
-      short: 'Vis',
-      medium: 'Visibility',
-      long: 'Visibility Distance'
-    }
-  },
+  // {
+  //   labelCn: '每天最高温度',
+  //   metricSymbol: ':FIELD_TYPE_TEMPERATURE_HIGH',
+  //   value: 41,
+  //   defaultValue: '30°C',
+  //   icon: '\u0021',
+  //   unit: '°C',
+  //   label:  'Daily Temperature High',
+  //   enLabel: {
+  //     short: 'High',
+  //     medium: 'High Temp',
+  //     long: 'Today\'s High Temp'
+  //   }
+  // },
+  // {
+  //   labelCn: '每天最低温度',
+  //   metricSymbol: ':FIELD_TYPE_TEMPERATURE_LOW',
+  //   value: 42,
+  //   defaultValue: '15°C',
+  //   icon: '\u0021',
+  //   unit: '°C',
+  //   label:  'Daily Temperature Low',
+  //   enLabel: {
+  //     short: 'Low',
+  //     medium: 'Low Temp',
+  //     long: 'Today\'s Low Temp'
+  //   }
+  // },
+  // {
+  //   labelCn: '月相',
+  //   metricSymbol: ':FIELD_TYPE_MOON_PHASE',
+  //   value: 43,
+  //   defaultValue: '15°C',
+  //   icon: '\u0021',
+  //   unit: '',
+  //   label:  'Moon Phase',
+  //   enLabel: {
+  //     short: 'Moon',
+  //     medium: 'Moon Phase',
+  //     long: 'Moon Phase'
+  //   }
+  // },
+  // {
+  //   labelCn: '气压',
+  //   metricSymbol: ':FIELD_TYPE_WEATHER_PRESSURE',
+  //   value: 50,
+  //   defaultValue: '1013',
+  //   icon: '\u0063',
+  //   unit: 'hPa',
+  //   label:  'Barometer',
+  //   enLabel: {
+  //     short: 'Press',
+  //     medium: 'Pressure',
+  //     long: 'Barometric Pressure'
+  //   }
+  // },
+  // {
+  //   labelCn: '温度范围',
+  //   metricSymbol: ':FIELD_TYPE_TEMPERATURE_RANGE',
+  //   value: 51,
+  //   defaultValue: '25',
+  //   icon: '\u0021',
+  //   unit: '°C',
+  //   label:  'Temperature Range',
+  //   enLabel: {
+  //     short: 'Range',
+  //     medium: 'Temp Range',
+  //     long: 'Temperature Range'
+  //   }
+  // },
+  // {
+  //   labelCn: '紫外线指数',
+  //   metricSymbol: ':FIELD_TYPE_WEATHER_UVINDEX',
+  //   value: 52,
+  //   defaultValue: '3',
+  //   icon: '\u0021',
+  //   unit: '',
+  //   label:  'UVIndex',
+  //   enLabel: {
+  //     short: 'UV',
+  //     medium: 'UV Index',
+  //     long: 'Ultraviolet Index'
+  //   }
+  // },
+  // {
+  //   labelCn: '露点',
+  //   metricSymbol: ':FIELD_TYPE_WEATHER_DEWPOINT',
+  //   value: 53,
+  //   defaultValue: '10',
+  //   icon: '\u0021',
+  //   unit: '°C',
+  //   label:  'DewPoint',
+  //   enLabel: {
+  //     short: 'Dew',
+  //     medium: 'Dew Point',
+  //     long: 'Dew Point Temperature'
+  //   }
+  // },
+  // {
+  //   labelCn: '云量',
+  //   metricSymbol: ':FIELD_TYPE_WEATHER_CLOUDS',
+  //   value: 54,
+  //   defaultValue: '50',
+  //   icon: '\u0021',
+  //   unit: '%',
+  //   label:  'Clouds',
+  //   enLabel: {
+  //     short: 'Cloud',
+  //     medium: 'Cloud Cover',
+  //     long: 'Cloud Coverage Percent'
+  //   }
+  // },
+  // {
+  //   labelCn: '能见度',
+  //   metricSymbol: ':FIELD_TYPE_WEATHER_VISIBILITY',
+  //   value: 55,
+  //   defaultValue: '10',
+  //   icon: '\u0021',
+  //   unit: 'km',
+  //   label:  'Visibility',
+  //   enLabel: {
+  //     short: 'Vis',
+  //     medium: 'Visibility',
+  //     long: 'Visibility Distance'
+  //   }
+  // },
   {
     labelCn: 'VO2Max',
     metricSymbol: ':FIELD_TYPE_VO2_MAX',
@@ -724,20 +724,20 @@ export const DataTypeOptions = [
       long: 'Maximum Oxygen Uptake'
     }
   },
-  {
-    labelCn: '位置信息',
-    metricSymbol: ':FIELD_TYPE_LOCATION',
-    value: 58,
-    defaultValue: 'Los Angeles',
-    icon: '\u0021',
-    unit: '',
-    label:  'Location',
-    enLabel: {
-      short: 'Loc',
-      medium: 'Location',
-      long: 'Current Location'
-    }
-  },
+  // {
+  //   labelCn: '位置信息',
+  //   metricSymbol: ':FIELD_TYPE_LOCATION',
+  //   value: 58,
+  //   defaultValue: 'Los Angeles',
+  //   icon: '\u0021',
+  //   unit: '',
+  //   label:  'Location',
+  //   enLabel: {
+  //     short: 'Loc',
+  //     medium: 'Location',
+  //     long: 'Current Location'
+  //   }
+  // },
   {
     labelCn: '年',
     metricSymbol: ':FIELD_TYPE_DATE_YEAR',
