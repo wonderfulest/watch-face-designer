@@ -104,7 +104,8 @@ export const useTimeStore = defineStore('timeStore', {
 
       // 如果有格式化器变化，更新文本
       if (config.formatter !== undefined) {
-        const formatterOption = TimeFormatOptions.find(option => option.value === config.formatter)
+        const formatterValue = parseInt(config.formatter)
+        const formatterOption = TimeFormatOptions.find(option => option.value === formatterValue)
         if (formatterOption) {
           obj.set('text', this.formatTime(new Date(), formatterOption.label))
         }

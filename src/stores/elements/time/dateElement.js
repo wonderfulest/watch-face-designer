@@ -170,7 +170,8 @@ export const useDateStore = defineStore('dateElement', {
 
       // 如果有格式化器变化，更新文本
       if (config.formatter !== undefined) {
-        const formatterOption = DateFormatOptions.find(option => option.value === config.formatter)
+        const formatterValue = parseInt(config.formatter)
+        const formatterOption = DateFormatOptions.find(option => option.value === formatterValue)
         if (formatterOption) {
           obj.set('text', this.formatDate(new Date(), formatterOption.label))
         }
