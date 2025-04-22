@@ -192,7 +192,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useBaseStore } from '@/stores/baseStore'
 import { useExportStore } from '@/stores/exportStore'
 import { useMessageStore } from '@/stores/message'
-import { useTimeStore } from '@/stores/elements/timeElement'
+import { useTimeStore } from '@/stores/elements/time/timeElement'
 import {
   Operation,
   Edit,

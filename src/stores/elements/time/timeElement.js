@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { useBaseStore } from '../baseStore'
-import { useLayerStore } from '../layerStore'
+import { useBaseStore } from '@/stores/baseStore'
+import { useLayerStore } from '@/stores/layerStore'
 import { nanoid } from 'nanoid'
 import moment from 'moment'
 import { FabricText } from 'fabric'

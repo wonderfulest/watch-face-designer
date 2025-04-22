@@ -7,14 +7,12 @@ import { onMounted, ref, onUnmounted, computed } from 'vue'
 import { Canvas, FabricText, Circle, FabricObject } from 'fabric'
 import emitter from '@/utils/eventBus'
 import { useBaseStore } from '@/stores/baseStore'
-import { useTimeStore } from '@/stores/elements/timeElement'
 import { useLayerStore } from '@/stores/layerStore'
 import { initAligningGuidelines } from '@/lib/aligning_guidelines'
 import { initCenteringGuidelines } from '@/lib/centering_guidelines'
 import { throttle } from '@/utils/performance'
 const canvasRef = ref(null)
 const baseStore = useBaseStore()
-const timeElement = useTimeStore()
 const layerStore = useLayerStore()
 let updateInterval
 const WATCH_SIZE = computed(() => baseStore.WATCH_SIZE)
@@ -56,7 +54,7 @@ onMounted(() => {
   baseStore.setCanvas(canvas)
 
   // 时间更新
-  updateInterval = setInterval(() => timeElement.updateTimeDisplay(), 1000)
+  // updateInterval = setInterval(() => timeElement.updateTimeDisplay(), 1000)
 })
 
 onUnmounted(() => {

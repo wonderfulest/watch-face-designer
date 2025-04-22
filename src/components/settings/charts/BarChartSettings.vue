@@ -33,42 +33,52 @@
       <el-form-item label="高度">
         <el-input-number 
           v-model="element.height" 
-          :min="4" 
-          :max="50" 
+          :min="20" 
+          :max="100" 
           @change="updateElement" 
         />
       </el-form-item>
 
-      <el-form-item label="箭头间距">
+      <el-form-item label="数据点数量">
         <el-input-number 
-          v-model="element.separator" 
-          :min="0" 
-          :max="20" 
+          v-model="element.pointCount" 
+          :min="10" 
+          :max="500" 
           @change="updateElement" 
         />
       </el-form-item>
 
-      <el-form-item label="活动级别">
-        <el-slider 
-          v-model="element.level" 
-          :min="0" 
-          :max="5" 
-          :step="1" 
+      <el-form-item label="Y轴最小值">
+        <el-input-number 
+          v-model="element.minY" 
           @change="updateElement" 
-          show-stops
         />
       </el-form-item>
 
-      <el-form-item label="活动颜色">
+      <el-form-item label="Y轴最大值">
+        <el-input-number 
+          v-model="element.maxY" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="填充缺失数据">
+        <el-switch 
+          v-model="element.fillMissing" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="线条颜色">
         <color-picker 
-          v-model="element.activeColor" 
+          v-model="element.color" 
           @change="updateElement" 
         />
       </el-form-item>
 
-      <el-form-item label="非活动颜色">
+      <el-form-item label="背景颜色">
         <color-picker 
-          v-model="element.inactiveColor" 
+          v-model="element.bgColor" 
           @change="updateElement" 
         />
       </el-form-item>
@@ -91,8 +101,8 @@
 </template>
 
 <script setup>
-import { ref, defineProps, computed } from 'vue'
-import { useMoveBarStore } from '@/stores/elements/moveBarElement'
+import { ref, defineProps } from 'vue'
+import { useBarChartStore } from '@/stores/elements/charts/barChartElement'
 import { useBaseStore } from '@/stores/baseStore'
 import { originXOptions } from '@/config/settings'
 import ColorPicker from '@/components/color-picker/index.vue'
@@ -105,7 +115,7 @@ const props = defineProps({
 })
 
 const formRef = ref(null)
-const moveBarStore = useMoveBarStore()
+const barChartStore = useBarChartStore()
 const baseStore = useBaseStore()
 
 // 获取画布上的实际元素
@@ -128,14 +138,16 @@ const updateElement = () => {
     // 保持其他属性不变
     width: props.element.width,
     height: props.element.height,
-    separator: props.element.separator,
-    level: props.element.level,
-    activeColor: props.element.activeColor,
-    inactiveColor: props.element.inactiveColor,
+    pointCount: props.element.pointCount,
+    minY: props.element.minY,
+    maxY: props.element.maxY,
+    fillMissing: props.element.fillMissing,
+    color: props.element.color,
+    bgColor: props.element.bgColor,
     originX: props.element.originX
   }
 
-  moveBarStore.updateElement(props.element, updateConfig)
+  barChartStore.updateElement(props.element, updateConfig)
 }
 
 // 处理位置更新
@@ -165,9 +177,5 @@ const handlePositionChange = (type, value) => {
 
 .position-inputs .el-input-number {
   width: 120px;
-}
-
-:deep(.el-slider) {
-  width: 100%;
 }
 </style> 

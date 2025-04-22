@@ -1,5 +1,5 @@
-import { registerEncoder, registerDecoder, registerAddElement } from './registry'
-import { useMoveBarStore } from '@/stores/elements/moveBarElement'
+import { registerEncoder, registerDecoder, registerAddElement } from '../registry'
+import { useMoveBarStore } from '@/stores/elements/status/moveBarElement'
 
 // 添加元素
 const addElement = (config) => {

@@ -1,5 +1,5 @@
-import { registerEncoder, registerDecoder, registerAddElement } from './registry'
-import { useTimeStore } from '@/stores/elements/timeElement'
+import { registerEncoder, registerDecoder, registerAddElement } from '../registry'
+import { useTimeStore } from '@/stores/elements/time/timeElement'
 
 // 时间编码器
 const timeEncoder = (element) => {

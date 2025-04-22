@@ -202,7 +202,7 @@ const updateDateFormat = () => {
 </script>
 
 <style scoped>
-@import '../../assets/styles/settings.css';
+@import '../../../assets/styles/settings.css';
 .example-text {
   color: #555;
   margin-left: 1em; /* 使用制表符对齐 */

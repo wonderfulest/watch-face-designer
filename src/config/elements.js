@@ -152,5 +152,17 @@ export const elementConfigs = {
       ...elementAttribute
     }
   },
+  chart: {
+    barChart: {
+      icon: 'mdi:chart-bar',
+      label: '柱状图',
+      ...elementAttribute
+    },
+    lineChart: {
+      icon: 'mdi:chart-line',
+      label: '折线图',
+      ...elementAttribute
+    }
+  }
   
 }

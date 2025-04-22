@@ -84,7 +84,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useBatteryStore } from '@/stores/elements/batteryElement'
+import { useBatteryStore } from '@/stores/elements/status/batteryElement'
 import ColorPicker from '@/components/color-picker/index.vue'
 
 const props = defineProps({

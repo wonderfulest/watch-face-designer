@@ -1,6 +1,6 @@
 import { ref } from 'vue'
-import { registerEncoder, registerDecoder, registerAddElement } from './registry'
-import { useDateStore } from '@/stores/elements/dateElement'
+import { registerEncoder, registerDecoder, registerAddElement } from '../registry'
+import { useDateStore } from '@/stores/elements/time/dateElement'
 
 // 日期编码器
 const dateEncoder = (element) => {

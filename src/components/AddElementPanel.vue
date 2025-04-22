@@ -29,12 +29,14 @@ const { proxy } = getCurrentInstance()
 
 const getCategoryLabel = (category) => {
   const labels = {
-    basic: '基础元素',
-    time: '时间元素',
-    metric: '数据元素',
-    indicator: '指示器',
-    goal: '目标',
-    shape: '形状'
+    status: 'Status',
+    basic: 'Basic',
+    time: 'Time',
+    metric: 'Metric',
+    indicator: 'Indicator',
+    goal: 'Goal',
+    shape: 'Shape',
+    chart: 'Chart',
   }
   return labels[category] || category
 }

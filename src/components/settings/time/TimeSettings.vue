@@ -47,17 +47,14 @@
 </template>
 
 <script setup>
-import moment from 'moment'
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useBaseStore } from '@/stores/baseStore'
-import { useTimeStore } from '@/stores/elements/timeElement'
 import { useFontStore } from '@/stores/fontStore'
 
 import { fontSizes, originXOptions, TimeFormatOptions } from '@/config/settings'
 import ColorPicker from '@/components/color-picker/index.vue'
-import FontPicker from '@/components/font-picker/index.vue' // Import FontPicker component
+import FontPicker from '@/components/font-picker/index.vue'
 
-const timeElement = useTimeStore()
 const fontStore = useFontStore()
 const baseStore = useBaseStore()
 
@@ -206,7 +203,7 @@ const updateTimeFormat = () => {
 </script>
 
 <style scoped>
-@import '../../assets/styles/settings.css';
+@import '../../../assets/styles/settings.css';
 
 .color-input {
   position: relative;
