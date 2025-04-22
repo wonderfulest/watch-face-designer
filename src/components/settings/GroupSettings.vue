@@ -31,7 +31,7 @@
         />
       </el-select>
     </div>
-    <div class="setting-item" v-if="isSameTypeLayer">
+    <div class="setting-item" v-if="isSameTypeLayer && !isTimeGroup">
       <label>对齐方式</label>
       <div class="align-buttons">
         <button v-for="align in originXOptions" :key="align.value" @click="updateOriginX(align.value)" :class="{ active: originX === align.value }" :title="align.label">
@@ -179,6 +179,10 @@ const isUpdateColor = computed(() => {
     return false
   }
   return true
+})
+
+const isTimeGroup = computed(() => {
+  return props.elements.every((element) => element.eleType === 'time')
 })
 
 const isSameTypeLayer = computed(() => {

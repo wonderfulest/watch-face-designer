@@ -51,7 +51,7 @@
           :class="{ active: props.element.originX === align.value }" 
           :title="align.label"
         >
-          <Icon :icon="align.icon" />
+          <i :class="align.icon"></i>
         </button>
       </div>
     </div>
@@ -81,7 +81,6 @@ import { useDateStore } from '@/stores/elements/time/dateElement'
 import { fontSizes, originXOptions, DateFormatOptions } from '@/config/settings'
 import ColorPicker from '@/components/color-picker/index.vue'
 import FontPicker from '@/components/font-picker/index.vue'
-import Icon from '@/components/Icon.vue'
 
 const props = defineProps({
   element: {
