@@ -31,6 +31,14 @@ export default {
       // 用户反馈评分功能 在底部自动弹出 1-10 个星星 让用户评分，可以选择输入用户建议后提交
       // },
       {
+        version: '1.0.9',
+        date: '2025-04-22',
+        updates: [
+          '增加了久坐提醒MoveBar元素',
+          '增加 Bar Chart 元素、Line Chart 元素',
+        ]
+      },
+      {
         version: '1.0.8',
         date: '2025-04-20',
         updates: [

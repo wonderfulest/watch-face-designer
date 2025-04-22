@@ -69,17 +69,16 @@ export const elementConfigs = {
     },
     moveBar: {
       label: '久坐提醒',
-      icon: 'mdi:progress-bar',
+      icon: 'guidance:do-not-sit',
       type: 'moveBar',
       ...assign({}, elementAttribute, {
         left: 227,
         top: 227,
         width: 150,
-        height: 10,
-        tailWidth: 5,
-        separator: 6,
+        height: 8,
+        separator: 2,
         color: '#FFFFFF',
-        bgColor: '#808080',
+        bgColor: '#555555',
         level: 0
       })
     }
