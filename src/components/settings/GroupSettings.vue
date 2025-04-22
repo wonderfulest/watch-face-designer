@@ -214,12 +214,12 @@ const updateFontFamily = () => {
   baseStore.canvas.renderAll()
 }
 
-const updateOriginX = (originX) => {
+const updateOriginX = (originXVal) => {
   for (const element of props.elements) {
-    element.set('originX', originX)
+    element.set('originX', originXVal)
+    element.setCoords()
   }
-  originX.value = originX
-  element.setCoords()
+  originX.value = originXVal
   baseStore.canvas.renderAll()
 }
 
@@ -234,9 +234,14 @@ const showDataProperty = computed(() => {
   const hasOnlyValidTypes = props.elements.every(element => 
     validTypes.includes(element.eleType)
   )
+  // 并且同一种类型的元素最多只能有一个
+  const hasOnlyOneOfType = props.elements.every(element => {  
+    const count = props.elements.filter(e => e.eleType === element.eleType).length
+    return count <= 1
+  })
   
   // 当至少存在一个有效元素，且所有元素都是有效类型时显示
-  return (hasData || hasIcon || hasLabel) && hasOnlyValidTypes
+  return (hasData || hasIcon || hasLabel) && hasOnlyValidTypes && hasOnlyOneOfType
 })
 
 const showGoalProperty = computed(() => {
