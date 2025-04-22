@@ -141,5 +141,51 @@ export const useDateStore = defineStore('dateElement', {
         throw error
       }
     },
+
+    updateElement(element, config) {
+      if (!this.baseStore.canvas) return
+      const obj = this.baseStore.canvas.getObjects().find((o) => o.id === element.id)
+      if (!obj) return
+
+      // 保存当前位置
+      const currentLeft = obj.left
+      const currentTop = obj.top
+
+      // 更新属性
+      const updateProps = {
+        fontSize: config.fontSize,
+        fill: config.fill,
+        fontFamily: config.fontFamily,
+        formatter: config.formatter,
+        originX: config.originX,
+        originY: config.originY
+      }
+
+      // 过滤掉未定义的属性
+      Object.keys(updateProps).forEach(key => {
+        if (updateProps[key] !== undefined) {
+          obj.set(key, updateProps[key])
+        }
+      })
+
+      // 如果有格式化器变化，更新文本
+      if (config.formatter !== undefined) {
+        const formatterOption = DateFormatOptions.find(option => option.value === config.formatter)
+        if (formatterOption) {
+          obj.set('text', this.formatDate(new Date(), formatterOption.label))
+        }
+      }
+
+      // 恢复位置
+      if (config.left === undefined) {
+        obj.set('left', currentLeft)
+      }
+      if (config.top === undefined) {
+        obj.set('top', currentTop)
+      }
+
+      obj.setCoords()
+      this.baseStore.canvas.renderAll()
+    }
   }
 })

@@ -156,7 +156,13 @@ export const elementConfigs = {
     barChart: {
       icon: 'mdi:chart-bar',
       label: '柱状图',
-      ...elementAttribute
+      ...elementAttribute,
+      width: 220,
+      height: 80,
+      pointCount: 40,
+      color: '#00aaff',
+      bgColor: 'transparent',
+      fillMissing: true
     },
     lineChart: {
       icon: 'mdi:chart-line',

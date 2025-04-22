@@ -42,7 +42,7 @@
       <el-form-item label="数据点数量">
         <el-input-number 
           v-model="element.pointCount" 
-          :min="10" 
+          :min="5" 
           :max="500" 
           @change="updateElement" 
         />
@@ -96,6 +96,16 @@
           />
         </el-select>
       </el-form-item>
+
+      <el-form-item label="柱形宽度">
+        <el-input-number 
+          v-model="element.barWidth" 
+          :min="1" 
+          :max="30" 
+          :step="1"
+          @change="updateElement" 
+        />
+      </el-form-item>
     </el-form>
   </div>
 </template>
@@ -144,7 +154,8 @@ const updateElement = () => {
     fillMissing: props.element.fillMissing,
     color: props.element.color,
     bgColor: props.element.bgColor,
-    originX: props.element.originX
+    originX: props.element.originX,
+    barWidth: props.element.barWidth
   }
 
   barChartStore.updateElement(props.element, updateConfig)

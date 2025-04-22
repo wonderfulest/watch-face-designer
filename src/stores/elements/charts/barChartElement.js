@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { useBaseStore } from '../../baseStore'
-import { useLayerStore } from '../../layerStore'
-import { Group, Line } from 'fabric'
+import { useBaseStore } from '@/stores/baseStore'
+import { useLayerStore } from '@/stores/layerStore'
+import { Group, Line, Rect } from 'fabric'
 import { nanoid } from 'nanoid'
 
 export const useBarChartStore = defineStore('barChartElement', {
@@ -14,7 +14,8 @@ export const useBarChartStore = defineStore('barChartElement', {
       defaultColors: {
         color: '#ffffff',    // 线条颜色
         bgColor: '#000000'   // 背景颜色
-      }
+      },
+      defaultBarWidth: 1     // 默认柱形宽度
     }
   },
 
@@ -35,6 +36,7 @@ export const useBarChartStore = defineStore('barChartElement', {
       const bgColor = config.bgColor || this.defaultColors.bgColor
 
       // 创建组
+      const barWidth = config.barWidth || this.defaultBarWidth
       const group = new Group([], {
         left: config.left,
         top: config.top,
@@ -52,11 +54,12 @@ export const useBarChartStore = defineStore('barChartElement', {
         pointCount: pointCount,
         fillMissing: fillMissing,
         minY: minY,
-        maxY: maxY
+        maxY: maxY,
+        barWidth: barWidth,
       })
 
       // 创建背景
-      const bgRect = new fabric.Rect({
+      const bgRect = new Rect({
         width: width,
         height: height,
         fill: bgColor,
@@ -97,6 +100,7 @@ export const useBarChartStore = defineStore('barChartElement', {
     createBars(group, width, height, pointCount, color, fillMissing) {
       const stepX = width / pointCount
       const data = this.generateSampleData(pointCount)
+      const barWidth = group.barWidth || this.defaultBarWidth
 
       // 计算数据范围
       const validData = data.filter(v => v !== null)
@@ -112,17 +116,25 @@ export const useBarChartStore = defineStore('barChartElement', {
           const scaledY = ((value - minY) * (height - 2)) / rangeY
           const yTop = -height/2 + (height - scaledY)
           
-          const bar = new Line([xPos, yTop, xPos, height/2], {
-            stroke: color,
-            strokeWidth: 1,
+          // 使用 Rect 替代 Line 来创建柱形
+          const bar = new Rect({
+            left: xPos - barWidth/2,
+            top: yTop,
+            width: barWidth,
+            height: height/2 - yTop,
+            fill: color,
             selectable: false,
             hasControls: false
           })
           group.add(bar)
         } else if (fillMissing) {
-          const missingBar = new Line([xPos, -height/2, xPos, height/2], {
-            stroke: '#666666',
-            strokeWidth: 1,
+          // 缺失数据的柱形也使用相同宽度
+          const missingBar = new Rect({
+            left: xPos - barWidth/2,
+            top: -height/2,
+            width: barWidth,
+            height: height,
+            fill: '#666666',
             selectable: false,
             hasControls: false
           })
@@ -163,7 +175,8 @@ export const useBarChartStore = defineStore('barChartElement', {
         minY: config.minY,
         maxY: config.maxY,
         originX: config.originX,
-        originY: config.originY
+        originY: config.originY,
+        barWidth: config.barWidth,
       }
 
       // 过滤掉未定义的属性
@@ -182,9 +195,10 @@ export const useBarChartStore = defineStore('barChartElement', {
       const color = config.color || group.color || this.defaultColors.color
       const bgColor = config.bgColor || group.bgColor || this.defaultColors.bgColor
       const fillMissing = config.fillMissing !== undefined ? config.fillMissing : group.fillMissing !== undefined ? group.fillMissing : true
+      const barWidth = config.barWidth || group.barWidth || this.defaultBarWidth
 
       // 创建背景
-      const bgRect = new fabric.Rect({
+      const bgRect = new Rect({
         width: width,
         height: height,
         fill: bgColor,
@@ -205,7 +219,10 @@ export const useBarChartStore = defineStore('barChartElement', {
       if (config.top === undefined) {
         group.set('top', currentTop)
       }
-
+      group.set({
+        left: currentLeft,
+        top: currentTop
+      })
       // 强制重新计算边界和渲染
       group.setCoords()
       this.baseStore.canvas.renderAll()
@@ -227,7 +244,8 @@ export const useBarChartStore = defineStore('barChartElement', {
         pointCount: element.pointCount || 240,
         fillMissing: element.fillMissing !== undefined ? element.fillMissing : true,
         minY: element.minY,
-        maxY: element.maxY
+        maxY: element.maxY,
+        barWidth: element.barWidth || this.defaultBarWidth,
       }
     },
 
@@ -243,7 +261,8 @@ export const useBarChartStore = defineStore('barChartElement', {
         pointCount: config.pointCount || 240,
         fillMissing: config.fillMissing !== undefined ? config.fillMissing : true,
         minY: config.minY,
-        maxY: config.maxY
+        maxY: config.maxY,
+        barWidth: config.barWidth || this.defaultBarWidth,
       }
     }
   }
