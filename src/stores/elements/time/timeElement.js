@@ -20,6 +20,15 @@ export const useTimeStore = defineStore('timeStore', {
 
   actions: {
     formatTime(date, format) {
+      // 如果format是数字，从TimeFormatOptions中查找对应的格式化字符串
+      if (typeof format === 'number') {
+        const formatterOption = TimeFormatOptions.find(option => option.value === format)
+        if (formatterOption) {
+          format = formatterOption.label
+        } else {
+          format = 'HH:mm:ss' // 默认格式
+        }
+      }
       return moment(date).format(format)
     },
     async addElement(options = {}) {
@@ -98,7 +107,15 @@ export const useTimeStore = defineStore('timeStore', {
       // 过滤掉未定义的属性
       Object.keys(updateProps).forEach(key => {
         if (updateProps[key] !== undefined) {
-          obj.set(key, updateProps[key])
+          // 特殊处理颜色属性
+          if (key === 'fill' && updateProps[key]) {
+            obj.set(key, updateProps[key])
+            // 强制更新文本颜色
+            const currentFormatter = obj.get('formatter')
+            obj.set('text', this.formatTime(new Date(), currentFormatter))
+          } else {
+            obj.set(key, updateProps[key])
+          }
         }
       })
 

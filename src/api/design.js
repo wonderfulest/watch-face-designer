@@ -22,12 +22,12 @@ export const getDesign = async (id) => {
 
 /**
  * 更新设计
- * @param {string} id - 设计ID
+ * @param {string} documentId - 设计ID
  * @param {Object} data - 设计数据
  * @returns {Promise} 更新结果
  */
-export const updateDesign = async (id, data) => {
-  const response = await axiosInstance.put(`/designs/${id}`, { data })
+export const updateDesign = async (documentId, data) => {
+  const response = await axiosInstance.put(`/designs/${documentId}`, { data })
   return response.data
 }
 
@@ -80,14 +80,14 @@ export const getDesignsByProductIds = async (productIds) => {
 
 /**
  * 更新设计状态
- * @param {string} id - 设计ID
+ * @param {string} documentId - 设计ID
  * @param {string} status - 新状态
  * @returns {Promise} 更新结果
  */
-export const updateDesignStatus = async (id, status) => {
-  const response = await axiosInstance.put(`/designs/${id}`, {
+export const updateDesignStatus = async (documentId, status) => {
+  const response = await axiosInstance.put(`/designs/${documentId}`, {
     data: {
-      status
+      designStatus: status
     }
   })
   return response.data

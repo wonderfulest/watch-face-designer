@@ -20,6 +20,14 @@ export const useDateStore = defineStore('dateElement', {
 
   actions: {
     formatDate(date, format) {
+      if (typeof format === 'number') {
+        const formatterOption = DateFormatOptions.find(option => option.value === format)
+        if (formatterOption) {
+          format = formatterOption.label
+        } else {
+          format = 'YYYY-MM-DD' // 默认格式
+        }
+      }
       let formattedDate = moment(date).format(format)
       
       // 应用文本大小写设置
@@ -169,8 +177,8 @@ export const useDateStore = defineStore('dateElement', {
       })
 
       // 如果有格式化器变化，更新文本
-      if (config.formatter !== undefined) {
-        const formatterValue = parseInt(config.formatter)
+      if (config.formatter !== undefined || obj.get('formatter') !== undefined) {
+        const formatterValue = parseInt(config.formatter) || parseInt(obj.get('formatter'))
         const formatterOption = DateFormatOptions.find(option => option.value === formatterValue)
         if (formatterOption) {
           obj.set('text', this.formatDate(new Date(), formatterOption.label))

@@ -72,6 +72,10 @@
             v-model="formData.value" 
             placeholder="Select color value"
             style="width: 100%"
+            filterable
+            allow-create
+            :default-first-option="true"
+            @create="handleCreateColor"
           >
             <el-option
               v-for="option in formData.options"
@@ -275,6 +279,34 @@ const moveOption = (index, direction) => {
     formData.options[index] = formData.options[index + 1]
     formData.options[index + 1] = temp
   }
+}
+
+const handleCreateColor = (value) => {
+  // Remove '#' if present
+  const colorValue = value.startsWith('#') ? value.substring(1) : value
+  
+  // Validate hex color format
+  if (!/^[0-9A-Fa-f]{6}$/.test(colorValue)) {
+    ElMessage.error('Please enter a valid hex color (e.g. FF0000 or #FF0000)')
+    return
+  }
+
+  // Convert to Garmin format (0xRRGGBB)
+  const garminColor = `0x${colorValue.toLowerCase()}`
+  
+  // Add the new color option
+  const newOption = {
+    label: `Custom (${garminColor})`,
+    value: garminColor
+  }
+  
+  // Add to options if not exists
+  if (!formData.options.some(opt => opt.value === garminColor)) {
+    formData.options.push(newOption)
+  }
+  
+  // Set the value
+  formData.value = garminColor
 }
 
 const emit = defineEmits(['confirm'])

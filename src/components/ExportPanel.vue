@@ -206,7 +206,7 @@ const saveConfig = async () => {
       name: baseStore.watchFaceName,
       kpayId: baseStore.kpayId,
       configJson: JSON.stringify(baseStore.generateConfig()),
-      userId: user.value.id
+      // userId: user.value.id
     }
     if (baseStore.id) {
       // 如果 id 存在，则更新; 否则创建

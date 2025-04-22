@@ -54,6 +54,7 @@
                     link 
                     @click.stop="handleFavorite(design)"
                     :title="'收藏'"
+                    :loading="loadingStates.favorite.has(design.id)"
                   >
                     <el-icon><Star /></el-icon>
                   </el-button>
@@ -96,12 +97,20 @@
             </div>
             <div class="actions">
               <el-button type="primary" size="small" @click="openCanvas(design)">编 辑</el-button>
-              <el-button type="warning" size="small" @click="copyDesign(design)">复 制</el-button>
+              <el-button 
+                type="warning" 
+                size="small" 
+                @click="copyDesign(design)"
+                :loading="loadingStates.copy.has(design.id)"
+              >
+                复 制
+              </el-button>
               <el-button 
                 v-if="design.designStatus === 'draft'" 
                 type="success" 
                 size="small"
                 @click="submitDesign(design)"
+                :loading="loadingStates.submit.has(design.id)"
               >
                 提 交
               </el-button>
@@ -130,7 +139,13 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="deleteDialogVisible = false">取消</el-button>
-          <el-button type="danger" @click="confirmDeleteDesign">确认删除</el-button>
+          <el-button 
+            type="danger" 
+            @click="confirmDeleteDesign"
+            :loading="designToDelete && loadingStates.delete.has(designToDelete.id)"
+          >
+            确认删除
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -166,6 +181,14 @@ const pageSize = ref(24)
 const total = ref(0)
 const deleteDialogVisible = ref(false)
 const designToDelete = ref(null)
+
+// 添加加载状态
+const loadingStates = ref({
+  submit: new Set(),
+  copy: new Set(),
+  delete: new Set(),
+  favorite: new Set()
+})
 
 // 搜索相关状态
 const searchName = ref('')
@@ -291,7 +314,10 @@ const editDesign = (design) => {
 
 // 复制设计
 const copyDesign = async (design) => {
+  if (loadingStates.value.copy.has(design.id)) return
+  
   try {
+    loadingStates.value.copy.add(design.id)
     const newDesignData = {
       name: `${design.name}—copy`,
       kpayId: new Date().getTime().toString(),
@@ -309,6 +335,8 @@ const copyDesign = async (design) => {
   } catch (error) {
     console.error('复制失败:', error)
     messageStore.error('复制失败')
+  } finally {
+    loadingStates.value.copy.delete(design.id)
   }
 }
 
@@ -320,9 +348,10 @@ const confirmDelete = (design) => {
 
 // 执行删除
 const confirmDeleteDesign = async () => {
-  if (!designToDelete.value) return
+  if (!designToDelete.value || loadingStates.value.delete.has(designToDelete.value.id)) return
 
   try {
+    loadingStates.value.delete.add(designToDelete.value.id)
     await deleteDesign(designToDelete.value.documentId)
     messageStore.success('删除成功')
     deleteDialogVisible.value = false
@@ -330,18 +359,25 @@ const confirmDeleteDesign = async () => {
   } catch (error) {
     console.error('删除失败:', error)
     messageStore.error('删除失败')
+  } finally {
+    loadingStates.value.delete.delete(designToDelete.value.id)
   }
 }
 
 // 提交设计
 const submitDesign = async (design) => {
+  if (loadingStates.value.submit.has(design.id)) return
+  
   try {
-    await updateDesignStatus(design.id, 'submitted')
+    loadingStates.value.submit.add(design.id)
+    await updateDesignStatus(design.documentId, 'submitted')
     messageStore.success('提交成功')
     await fetchDesigns()
   } catch (error) {
     console.error('提交失败:', error)
     messageStore.error('提交失败')
+  } finally {
+    loadingStates.value.submit.delete(design.id)
   }
 }
 
@@ -371,12 +407,17 @@ onUnmounted(() => {
 
 // 处理收藏
 const handleFavorite = async (design) => {
+  if (loadingStates.value.favorite.has(design.id)) return
+  
   try {
+    loadingStates.value.favorite.add(design.id)
     await toggleFavorite(design.name, design.id, authStore.user.id, true)
     messageStore.success('收藏成功')
   } catch (error) {
     console.error('收藏失败:', error)
     messageStore.error('收藏失败')
+  } finally {
+    loadingStates.value.favorite.delete(design.id)
   }
 }
 
