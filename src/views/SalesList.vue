@@ -103,14 +103,14 @@
             </el-table-column>
             <el-table-column label="设计作者" width="150">
                 <template #default="{ row }">
+                    <span v-if="row.design?.userId">
+                        {{ getUserNameById(row.design.userId) }}
+                    </span>
                     <span v-if="row.designer?.user">
                         {{ row.designer.user.username }}
                     </span>
                     <span v-else-if="row.kpay_app?.kpay_developer">
                         {{ row.kpay_app.kpay_developer.name }}
-                    </span>
-                    <span v-else-if="row.design?.userId">
-                        {{ getUserNameById(row.design.userId) }}
                     </span>
                     <span v-else>-</span>
                 </template>
