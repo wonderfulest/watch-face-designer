@@ -1005,3 +1005,47 @@ export function getMetricByProperty(dataProperty, propertiesStore) {
   }
   return metric
 }
+
+// BarChart 配置
+export const BarChartOptions = [
+  // - 7 days steps
+  {
+    label: '7 days steps',
+    value: 0
+  },
+  // - 7 days activeMinutes
+  {
+    label: '7 days activeMinutes',
+    value: 1
+  },
+  // - 7 days floorsClimbed
+  {
+    label: '7 days floorsClimbed',
+    value: 2
+  },
+   // - 7 days calories
+  {
+    label: '7 days calories',
+    value: 3
+  },
+  // - 7 days activeMinutes
+  {
+    label: '7 days activeMinutes',
+    value: 4
+  },
+  // - 7 days  distance
+  {
+    label: '7 days  distance',
+    value: 5
+  },
+  // - 7 days  pushes
+  {
+    label: '7 days  pushes',
+    value: 6
+  },
+  // - 7 days  pushDistance
+  {
+    label: '7 days  pushDistance',
+    value: 7
+  }
+]
