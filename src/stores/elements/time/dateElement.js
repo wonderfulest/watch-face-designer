@@ -195,6 +195,33 @@ export const useDateStore = defineStore('dateElement', {
 
       obj.setCoords()
       this.baseStore.canvas.renderAll()
+    },
+    encodeConfig(element) {
+      return {
+        type: 'date',
+        x: Math.round(element.left),
+        y: Math.round(element.top),
+        originX: element.originX,
+        originY: element.originY,
+        font: element.fontFamily,
+        size: element.fontSize,
+        color: element.fill,
+        formatter: element.formatter
+      }
+    },
+    decodeConfig(config) {
+      return {
+        eleType: 'date',
+        left: config.x,
+        top: config.y,
+        color: config.color,
+        fontFamily: config.font,
+        fontSize: config.size,
+        originX: config.originX,
+        originY: config.originY,
+        // 日期元素特有属性
+        dateFormatter: config.formatter,
+      }
     }
   }
 })

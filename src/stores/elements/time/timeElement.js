@@ -19,16 +19,16 @@ export const useTimeStore = defineStore('timeStore', {
   },
 
   actions: {
-    formatTime(date, format) {
+    formatTime(date, formatter) {
+      console.log('date', date, 'formatter', formatter)
       // 如果format是数字，从TimeFormatOptions中查找对应的格式化字符串
-      if (typeof format === 'number') {
-        const formatterOption = TimeFormatOptions.find(option => option.value === format)
-        if (formatterOption) {
-          format = formatterOption.label
-        } else {
-          format = 'HH:mm:ss' // 默认格式
-        }
+      let format = '--' // 默认格式
+      const formatterOption = TimeFormatOptions.find(option => option.value == formatter)
+      if (formatterOption) {
+        format = formatterOption.label
       }
+      console.log('formatterOption', formatterOption, 'format', format)
+     
       return moment(date).format(format)
     },
     async addElement(options = {}) {
@@ -37,7 +37,7 @@ export const useTimeStore = defineStore('timeStore', {
       }
 
       try {
-        let text = this.formatTime(new Date(), TimeFormatOptions.find((option) => option.value == +options.formatter).label)
+        let text = this.formatTime(new Date(),  options.formatter)
         const timeOptions = {
           eleType: 'time',
           id: nanoid(),
@@ -64,27 +64,6 @@ export const useTimeStore = defineStore('timeStore', {
         throw error
       }
     },
-    updateTimeDisplay() {
-      const now = new Date()
-      this.timeElements.forEach((element) => {
-        if (!element.element) return
-        const formattedTime = this.formatTime(now, element.element.formatter)
-        element.element.set('text', formattedTime)
-      })
-
-      if (this.baseStore.canvas) {
-        this.baseStore.canvas.renderAll()
-      }
-    },
-    startTimeUpdate() {
-      this.updateInterval = setInterval(() => this.updateTimeDisplay(), 1000)
-    },
-    stopTimeUpdate() {
-      if (this.updateInterval) {
-        clearInterval(this.updateInterval)
-        this.updateInterval = null
-      }
-    },
     updateElement(element, config) {
       if (!this.baseStore.canvas) return
       const obj = this.baseStore.canvas.getObjects().find((o) => o.id === element.id)
@@ -103,7 +82,7 @@ export const useTimeStore = defineStore('timeStore', {
         originX: config.originX,
         originY: config.originY
       }
-
+ 
       // 过滤掉未定义的属性
       Object.keys(updateProps).forEach(key => {
         if (updateProps[key] !== undefined) {
@@ -119,13 +98,10 @@ export const useTimeStore = defineStore('timeStore', {
         }
       })
 
+      console.log('config', config)
       // 如果有格式化器变化，更新文本
       if (config.formatter !== undefined) {
-        const formatterValue = parseInt(config.formatter)
-        const formatterOption = TimeFormatOptions.find(option => option.value === formatterValue)
-        if (formatterOption) {
-          obj.set('text', this.formatTime(new Date(), formatterOption.label))
-        }
+        obj.set('text', this.formatTime(new Date(), config.formatter))
       }
 
       // 恢复位置
@@ -138,6 +114,33 @@ export const useTimeStore = defineStore('timeStore', {
 
       obj.setCoords()
       this.baseStore.canvas.renderAll()
+    },
+    encodeConfig(element) {
+      return {
+        type: 'time',
+        x: element.left,
+        y: element.top,
+        originX: element.originX,
+        originY: element.originY,
+        font: element.fontFamily,
+        size: element.fontSize,
+        color: element.fill,
+        formatter: +element.formatter,
+      }
+    },
+    decodeConfig(config) {
+      return {
+        type: 'time',
+        left: config.x,
+        top: config.y,
+        fontSize: config.size,
+        fontFamily: config.font,
+        fill: config.color,
+        originX: config.originX,
+        originY: config.originY,
+        // 时间元素特有属性
+        formatter: +config.formatter,
+      }
     }
   }
 })
