@@ -80,6 +80,8 @@ export const LayoutOptions = [
   { value: ':LAYOUT_TYPES_RIGHT', label: '水平向右', icon: layoutIcons[':LAYOUT_TYPES_RIGHT'] }
 ]
 
+// 数据类型选项
+// 包括：数据项、目标、图表
 export const DataTypeOptions = [
   {
     labelCn: '心率',
@@ -986,7 +988,93 @@ export const DataTypeOptions = [
       medium: 'Second',
       long: 'Second'
     }
-  }
+  },
+  // ---------------------------- 图表数据项 --------------------------------
+  {
+    labelCn: '7天步数',
+    metricSymbol: ':CHART_TYPE_7DAYS_STEPS',
+    value: 201,
+    defaultValue: '10000',
+    icon: '\u0021',
+    unit: 'steps',
+    label:  '7 Days Steps',
+    enLabel: {
+      short: '7 Days Steps',
+      medium: '7 Days Steps',
+      long: '7 Days Steps'
+    }
+  },
+  {
+    labelCn: '7天活动分钟',
+    metricSymbol: ':CHART_TYPE_7DAYS_ACTIVE_MINUTES',
+    value: 202,
+    defaultValue: '10000',
+    icon: '\u0021',
+    unit: 'min',
+    label:  '7 Days Active Minutes',
+    enLabel: {
+      short: '7 Days Active Minutes',
+      medium: '7 Days Active Minutes',
+      long: '7 Days Active Minutes'
+    }
+  },
+  {
+    labelCn: '7天爬楼',
+    metricSymbol: ':CHART_TYPE_7DAYS_FLOORS_CLIMBED',
+    value: 203,
+    defaultValue: '10000',
+    icon: '\u0021',
+    unit: 'floors',
+    label:  '7 Days Floors Climbed',
+    enLabel: {
+      short: '7 Days Floors Climbed',
+      medium: '7 Days Floors Climbed',
+      long: '7 Days Floors Climbed'
+    }
+  },
+  {
+    labelCn: '7天卡路里',
+    metricSymbol: ':CHART_TYPE_7DAYS_CALORIES',
+    value: 204,
+    defaultValue: '10000',
+    icon: '\u0021',
+    unit: 'kcal',
+    label:  '7 Days Calories',
+    enLabel: {
+      short: '7 Days Calories',
+      medium: '7 Days Calories',
+      long: '7 Days Calories'
+    }
+  },
+  {
+    labelCn: '7天轮椅',
+    metricSymbol: ':CHART_TYPE_7DAYS_WHEELCHAIR_DISTANCE',
+    value: 205,
+    defaultValue: '10000',
+    icon: '\u0021',
+    unit: 'km',
+    label:  '7 Days Wheelchair Distance',
+    enLabel: {
+      short: '7 Days Wheelchair Distance',
+      medium: '7 Days Wheelchair Distance',
+      long: '7 Days Wheelchair Distance'
+    }
+  },
+  {
+    labelCn: '7天轮椅距离',
+    metricSymbol: ':CHART_TYPE_7DAYS_PUSH_DISTANCE',
+    value: 206,
+    defaultValue: '10000',
+    icon: '\u0021',
+    unit: 'km',
+    label:  '7 Days Push Distance',
+    enLabel: {
+      short: '7 Days Push Distance',
+      medium: '7 Days Push Distance',
+      long: '7 Days Push Distance'
+    }
+  } 
+
 ]
 
 // 获取指标配置信息
@@ -1006,46 +1094,3 @@ export function getMetricByProperty(dataProperty, propertiesStore) {
   return metric
 }
 
-// BarChart 配置
-export const BarChartOptions = [
-  // - 7 days steps
-  {
-    label: '7 days steps',
-    value: 0
-  },
-  // - 7 days activeMinutes
-  {
-    label: '7 days activeMinutes',
-    value: 1
-  },
-  // - 7 days floorsClimbed
-  {
-    label: '7 days floorsClimbed',
-    value: 2
-  },
-   // - 7 days calories
-  {
-    label: '7 days calories',
-    value: 3
-  },
-  // - 7 days activeMinutes
-  {
-    label: '7 days activeMinutes',
-    value: 4
-  },
-  // - 7 days  distance
-  {
-    label: '7 days  distance',
-    value: 5
-  },
-  // - 7 days  pushes
-  {
-    label: '7 days  pushes',
-    value: 6
-  },
-  // - 7 days  pushDistance
-  {
-    label: '7 days  pushDistance',
-    value: 7
-  }
-]
