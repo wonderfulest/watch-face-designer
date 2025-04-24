@@ -2,38 +2,23 @@
   <div class="settings-section">
     <h3>进度环设置</h3>
 
-    <el-form 
-      ref="formRef"
-      :model="element" 
-      label-position="left" 
-      label-width="100px"
-      :rules="rules"
-    >
+    <el-form ref="formRef" :model="element" label-position="left" label-width="100px" :rules="rules">
       <el-form-item label="目标属性" prop="goalProperty" :rules="[{ required: true, message: '请选择目标属性', trigger: 'change' }]">
-        <el-select 
-          v-model="element.goalProperty" 
-          @change="updateElement"
-          placeholder="选择目标属性"
-        >
-          <el-option 
-            v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')" 
-            :key="key" 
-            :label="prop.title" 
-            :value="key" 
-          />
+        <el-select v-model="element.goalProperty" @change="updateElement" placeholder="选择目标属性">
+          <el-option v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'goal')" :key="key" :label="prop.title" :value="key" />
         </el-select>
       </el-form-item>
-    <!-- 位置设置 -->
-    <div class="setting-item">
-      <label>位置</label>
-      <div class="position-inputs">
-        <div class="input-group">
-          <label>X</label>
-            <input type="number" :value="element.left" @input="e => element.left = Number(e.target.value)" @change="updatePosition" />
-        </div>
-        <div class="input-group">
-          <label>Y</label>
-            <input type="number" :value="element.top" @input="e => element.top = Number(e.target.value)" @change="updatePosition" />
+      <!-- 位置设置 -->
+      <div class="setting-item">
+        <label>位置</label>
+        <div class="position-inputs">
+          <div class="input-group">
+            <label>X</label>
+            <input type="number" :value="element.left" @input="(e) => (element.left = Number(e.target.value))" @change="updatePosition" />
+          </div>
+          <div class="input-group">
+            <label>Y</label>
+            <input type="number" :value="element.top" @input="(e) => (element.top = Number(e.target.value))" @change="updatePosition" />
           </div>
         </div>
       </div>
@@ -43,94 +28,100 @@
         <div class="size-inputs">
           <div class="input-group">
             <label>前景半径</label>
-            <input type="number" :value="mainRing?.radius" @input="e => mainRing.radius = Number(e.target.value)" @change="updateElement" />
+            <input type="number" :value="mainRing?.radius" @input="(e) => (mainRing.radius = Number(e.target.value))" @change="updateElement" />
           </div>
           <div class="input-group">
             <label>背景半径</label>
-            <input type="number" :value="bgRing?.radius" @input="e => bgRing.radius = Number(e.target.value)" @change="updateElement" />
+            <input type="number" :value="bgRing?.radius" @input="(e) => (bgRing.radius = Number(e.target.value))" @change="updateElement" />
           </div>
           <div class="input-group">
             <label>前景线宽</label>
-            <input type="number" :value="mainRing?.strokeWidth" @input="e => mainRing.strokeWidth = Number(e.target.value)" @change="updateElement" />
+            <input type="number" :value="mainRing?.strokeWidth" @input="(e) => (mainRing.strokeWidth = Number(e.target.value))" @change="updateElement" />
           </div>
           <div class="input-group">
             <label>背景线宽</label>
-            <input type="number" :value="bgRing?.strokeWidth" @input="e => bgRing.strokeWidth = Number(e.target.value)" @change="updateElement" />
+            <input type="number" :value="bgRing?.strokeWidth" @input="(e) => (bgRing.strokeWidth = Number(e.target.value))" @change="updateElement" />
+          </div>
         </div>
       </div>
-    </div>
 
       <!-- 角度设置 -->
-    <div class="setting-item">
-      <div class="setting-header">
+      <div class="setting-item">
+        <div class="setting-header">
           <label>角度设置</label>
-        <el-tooltip
-          :content="tooltipContent"
-          placement="top"
-          effect="light"
-          :show-after="0"
-          raw-content
-        >
-          <el-icon class="help-icon"><Warning /></el-icon>
-        </el-tooltip>
-      </div>
-      <div class="angle-inputs">
-        <div class="input-group">
+          <el-tooltip :content="tooltipContent" placement="top" effect="light" :show-after="0" raw-content>
+            <el-icon class="help-icon"><Warning /></el-icon>
+          </el-tooltip>
+        </div>
+        <div class="angle-inputs">
+          <div class="input-group">
             <label>起始角度</label>
-            <input type="number" :value="element.startAngle" @input="e => element.startAngle = Number(e.target.value)" @change="updateElement" />
-        </div>
-        <div class="input-group">
+            <input type="number" :value="element.startAngle" @input="(e) => (element.startAngle = Number(e.target.value))" @change="updateElement" />
+          </div>
+          <div class="input-group">
             <label>结束角度</label>
-            <input type="number" :value="element.endAngle" @input="e => element.endAngle = Number(e.target.value)" @change="updateElement" />
+            <input type="number" :value="element.endAngle" @input="(e) => (element.endAngle = Number(e.target.value))" @change="updateElement" />
+          </div>
         </div>
-      </div>
-      <!-- 添加方向选择 -->
-      <div class="direction-group">
-        <label>方向</label>
+        <!-- 添加方向选择 -->
+        <div class="direction-group">
+          <label>方向</label>
           <el-radio-group v-model="element.counterClockwise" @change="updateElement">
             <el-radio :label="false">顺时针</el-radio>
             <el-radio :label="true">逆时针</el-radio>
-        </el-radio-group>
-      </div>
-    </div>
-
-    <!-- 颜色属性 -->
-    <div class="setting-item">
-      <label>颜色</label>
-      <div class="color-inputs">
-        <div class="input-group">
-          <label>前景色</label>
-            <ColorPicker 
-              v-model="mainRing.stroke" 
-              @change="val => {
-                console.log('更新前景色:', val);
-                goalArcStore.updateElement(element, {
-                  color: val
-                });
-              }" 
-            />
-        </div>
-        <div class="input-group">
-          <label>背景色</label>
-            <ColorPicker 
-              v-model="bgRing.stroke" 
-              @change="val => {
-                console.log('更新背景色:', val);
-                goalArcStore.updateElement(element, {
-                  bgColor: val
-                });
-              }" 
-            />
+          </el-radio-group>
         </div>
       </div>
-    </div>
 
-    <!-- 进度值（用于测试） -->
-    <div class="setting-item">
-      <label>进度值</label>
-        <input type="range" :value="goalArcStore.progressMap.get(element.id) * 100" min="0" max="100" @input="e => { goalArcStore.progressMap.set(element.id, Number(e.target.value) / 100); updateProgress() }" />
+      <!-- 颜色属性 -->
+      <div class="setting-item">
+        <label>颜色</label>
+        <div class="color-inputs">
+          <div class="input-group">
+            <label>前景色</label>
+            <ColorPicker
+              v-model="mainRing.stroke"
+              @change="
+                (val) => {
+                  console.log('更新前景色:', val)
+                  goalArcStore.updateElement(element, {
+                    color: val
+                  })
+                }
+              " />
+          </div>
+          <div class="input-group">
+            <label>背景色</label>
+            <ColorPicker
+              v-model="bgRing.stroke"
+              @change="
+                (val) => {
+                  console.log('更新背景色:', val)
+                  goalArcStore.updateElement(element, {
+                    bgColor: val
+                  })
+                }
+              " />
+          </div>
+        </div>
+      </div>
+
+      <!-- 进度值（用于测试） -->
+      <div class="setting-item">
+        <label>进度值</label>
+        <input
+          type="range"
+          :value="goalArcStore.progressMap.get(element.id) * 100"
+          min="0"
+          max="100"
+          @input="
+            (e) => {
+              goalArcStore.progressMap.set(element.id, Number(e.target.value) / 100)
+              updateProgress()
+            }
+          " />
         <span>{{ Math.round(goalArcStore.progressMap.get(element.id) * 100) }}%</span>
-    </div>
+      </div>
     </el-form>
   </div>
 </template>
@@ -162,9 +153,11 @@ const propertiesStore = usePropertiesStore()
 const formRef = ref(null)
 
 // 获取主圆环和背景圆环
-const mainRing = computed(() => props.element.getObjects().find((obj) => {
-  return obj.id.endsWith('_main')
-}))
+const mainRing = computed(() =>
+  props.element.getObjects().find((obj) => {
+    return obj.id.endsWith('_main')
+  })
+)
 const bgRing = computed(() => props.element.getObjects().find((obj) => obj.id.endsWith('_bg')))
 
 // 定义提示内容，使用 HTML 格式
@@ -178,41 +171,14 @@ const tooltipContent = `
 `
 
 const rules = {
-  goalProperty: [
-    { required: true, message: '请选择目标属性', trigger: 'change' }
-  ]
+  goalProperty: [{ required: true, message: '请选择目标属性', trigger: 'change' }]
 }
 
 // 更新元素
 const updateElement = async () => {
   try {
     await formRef.value.validate()
-  if (!mainRing.value || !bgRing.value) return
-
-    console.log('更新元素前的状态:', {
-      element: {
-        left: props.element.left,
-        top: props.element.top,
-        startAngle: props.element.startAngle,
-        endAngle: props.element.endAngle,
-        counterClockwise: props.element.counterClockwise,
-        goalProperty: props.element.goalProperty
-      },
-      mainRing: {
-        radius: mainRing.value.radius,
-        strokeWidth: mainRing.value.strokeWidth,
-        stroke: mainRing.value.stroke,
-        startAngle: mainRing.value.startAngle,
-        endAngle: mainRing.value.endAngle,
-        counterClockwise: mainRing.value.counterClockwise
-      },
-      bgRing: {
-        radius: bgRing.value.radius,
-        strokeWidth: bgRing.value.strokeWidth,
-        stroke: bgRing.value.stroke
-      },
-      progress: goalArcStore.progressMap.get(props.element.id)
-  })
+    if (!mainRing.value || !bgRing.value) return
 
     // 使用store中的方法更新元素
     goalArcStore.updateElement(props.element, {
@@ -231,30 +197,6 @@ const updateElement = async () => {
       progress: goalArcStore.progressMap.get(props.element.id)
     })
 
-    console.log('更新元素后的状态:', {
-      element: {
-        left: props.element.left,
-        top: props.element.top,
-        startAngle: props.element.startAngle,
-        endAngle: props.element.endAngle,
-        counterClockwise: props.element.counterClockwise,
-        goalProperty: props.element.goalProperty
-      },
-      mainRing: {
-        radius: mainRing.value.radius,
-        strokeWidth: mainRing.value.strokeWidth,
-        stroke: mainRing.value.stroke,
-        startAngle: mainRing.value.startAngle,
-        endAngle: mainRing.value.endAngle,
-        counterClockwise: mainRing.value.counterClockwise
-      },
-      bgRing: {
-        radius: bgRing.value.radius,
-        strokeWidth: bgRing.value.strokeWidth,
-        stroke: bgRing.value.stroke
-      },
-      progress: goalArcStore.progressMap.get(props.element.id)
-    })
   } catch (error) {
     console.error('表单验证失败:', error)
   }
@@ -278,27 +220,7 @@ const updatePosition = () => {
 
 // 更新进度
 const updateProgress = () => {
-  console.log('更新进度前的状态:', {
-    element: {
-      id: props.element.id,
-      startAngle: props.element.startAngle,
-      endAngle: props.element.endAngle,
-      counterClockwise: props.element.counterClockwise
-    },
-    progress: goalArcStore.progressMap.get(props.element.id)
-  })
-
   goalArcStore.updateProgress(props.element, goalArcStore.progressMap.get(props.element.id))
-
-  console.log('更新进度后的状态:', {
-    element: {
-      id: props.element.id,
-      startAngle: props.element.startAngle,
-      endAngle: props.element.endAngle,
-      counterClockwise: props.element.counterClockwise
-    },
-    progress: goalArcStore.progressMap.get(props.element.id)
-  })
 }
 
 // 添加关闭时的验证方法
@@ -344,7 +266,7 @@ defineExpose({
 }
 
 .help-icon:hover {
-  color: #409EFF;
+  color: #409eff;
 }
 
 /* 调整提示框样式 */

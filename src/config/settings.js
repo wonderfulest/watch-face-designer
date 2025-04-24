@@ -993,7 +993,7 @@ export const DataTypeOptions = [
   {
     labelCn: '7天步数',
     metricSymbol: ':CHART_TYPE_7DAYS_STEPS',
-    value: 201,
+    value: 150,
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'steps',
@@ -1007,7 +1007,7 @@ export const DataTypeOptions = [
   {
     labelCn: '7天活动分钟',
     metricSymbol: ':CHART_TYPE_7DAYS_ACTIVE_MINUTES',
-    value: 202,
+    value: 151,
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'min',
@@ -1021,7 +1021,7 @@ export const DataTypeOptions = [
   {
     labelCn: '7天爬楼',
     metricSymbol: ':CHART_TYPE_7DAYS_FLOORS_CLIMBED',
-    value: 203,
+    value: 152,
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'floors',
@@ -1035,7 +1035,7 @@ export const DataTypeOptions = [
   {
     labelCn: '7天卡路里',
     metricSymbol: ':CHART_TYPE_7DAYS_CALORIES',
-    value: 204,
+    value: 153,
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'kcal',
@@ -1047,9 +1047,23 @@ export const DataTypeOptions = [
     }
   },
   {
+    labelCn: '7天距离',
+    metricSymbol: ':CHART_TYPE_7DAYS_DISTANCE',
+    value: 154,
+    defaultValue: '10000',
+    icon: '\u0021',
+    unit: 'km',
+    label:  '7 Days Distance',
+    enLabel: {
+      short: '7 Days Calories',
+      medium: '7 Days Calories',
+      long: '7 Days Calories'
+    }
+  },
+  {
     labelCn: '7天轮椅',
-    metricSymbol: ':CHART_TYPE_7DAYS_WHEELCHAIR_DISTANCE',
-    value: 205,
+    metricSymbol: ':CHART_TYPE_7DAYS_PUSH',
+    value: 155,
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'km',
@@ -1063,7 +1077,7 @@ export const DataTypeOptions = [
   {
     labelCn: '7天轮椅距离',
     metricSymbol: ':CHART_TYPE_7DAYS_PUSH_DISTANCE',
-    value: 206,
+    value: 156,
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'km',

@@ -56,6 +56,7 @@ export const useBarChartStore = defineStore('barChartElement', {
         minY: minY,
         maxY: maxY,
         barWidth: barWidth,
+        chartProperty: config.chartProperty,
       })
 
       // 创建背景
@@ -177,6 +178,7 @@ export const useBarChartStore = defineStore('barChartElement', {
         originX: config.originX,
         originY: config.originY,
         barWidth: config.barWidth,
+        chartProperty: config.chartProperty,
       }
 
       // 过滤掉未定义的属性
@@ -246,6 +248,7 @@ export const useBarChartStore = defineStore('barChartElement', {
         minY: element.minY,
         maxY: element.maxY,
         barWidth: element.barWidth || this.defaultBarWidth,
+        chartProperty: element.chartProperty,
       }
     },
 
@@ -263,6 +266,7 @@ export const useBarChartStore = defineStore('barChartElement', {
         minY: config.minY,
         maxY: config.maxY,
         barWidth: config.barWidth || this.defaultBarWidth,
+        chartProperty: config.chartProperty,
       }
     }
   }

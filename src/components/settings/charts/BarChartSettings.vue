@@ -6,6 +6,11 @@
       label-position="left" 
       label-width="100px"
     >
+      <el-form-item label="图表属性" prop="chartProperty" :rules="[{ required: true, message: '请选择图表属性', trigger: 'change' }]">
+        <el-select v-model="element.chartProperty" @change="updateElement" placeholder="选择图表属性">
+          <el-option v-for="[key, prop] in Object.entries(propertiesStore.allProperties).filter(([_, p]) => p.type === 'chart')" :key="key" :label="prop.title" :value="key" />
+        </el-select>
+      </el-form-item>
       <el-form-item label="位置">
         <div class="position-inputs">
           <el-input-number 
@@ -116,6 +121,7 @@ import { useBarChartStore } from '@/stores/elements/charts/barChartElement'
 import { useBaseStore } from '@/stores/baseStore'
 import { originXOptions } from '@/config/settings'
 import ColorPicker from '@/components/color-picker/index.vue'
+import { usePropertiesStore } from '@/stores/properties'
 
 const props = defineProps({
   element: {
@@ -127,7 +133,7 @@ const props = defineProps({
 const formRef = ref(null)
 const barChartStore = useBarChartStore()
 const baseStore = useBaseStore()
-
+const propertiesStore = usePropertiesStore()
 // 获取画布上的实际元素
 const getFabricElement = () => {
   if (!baseStore.canvas) return null
@@ -155,7 +161,8 @@ const updateElement = () => {
     color: props.element.color,
     bgColor: props.element.bgColor,
     originX: props.element.originX,
-    barWidth: props.element.barWidth
+    barWidth: props.element.barWidth,
+    chartProperty: props.element.chartProperty
   }
 
   barChartStore.updateElement(props.element, updateConfig)
