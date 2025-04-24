@@ -37,7 +37,7 @@ export const useTimeStore = defineStore('timeStore', {
       }
 
       try {
-        let text = this.formatTime(new Date(), TimeFormatOptions.find((option) => option.value === options.formatter).label)
+        let text = this.formatTime(new Date(), TimeFormatOptions.find((option) => option.value == +options.formatter).label)
         const timeOptions = {
           eleType: 'time',
           id: nanoid(),
