@@ -96,7 +96,7 @@
               <span>更新时间: {{ formatDate(design.updatedAt) }}</span>
             </div>
             <div class="actions">
-              <el-button type="primary" size="small" @click="openCanvas(design)">编 辑</el-button>
+              <el-button v-if="design.userId == authStore.user.id" type="primary" size="small" @click="openCanvas(design)">编 辑</el-button>
               <el-button 
                 type="warning" 
                 size="small" 

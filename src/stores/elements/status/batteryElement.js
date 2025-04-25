@@ -24,11 +24,11 @@ export const useBatteryStore = defineStore('batteryElement', {
       const id = nanoid()
       
       // 基础尺寸配置
-      const width = config.width || 120 // 电池宽度
-      const height = config.height || 60 // 电池高度
+      const width = config.width || 28 // 电池宽度
+      const height = config.height || 18 // 电池高度
       const headWidth = Math.round(config.headWidth || width * 0.08) // 电池头部宽度
       const headHeight = Math.round(config.headHeight || height * 0.5)  // 电池头部高度
-      const padding = Math.round(config.padding || 5) // 电池电量条内边距
+      const padding = Math.round(config.padding || 4) // 电池电量条内边距
       const level = config.level || 0.5 // 电池电量
       const headGap = Math.round(config.headGap || 2) // 电池头部间距
 
@@ -158,9 +158,6 @@ export const useBatteryStore = defineStore('batteryElement', {
         throw new Error('无效的元素')
       }
 
-      const padding = Math.round(batteryLevel.left + batteryBody.width / 2)
-      const headGap = Math.round(batteryHead.left - (batteryBody.left + batteryBody.width))
-
       return {
         type: 'battery',
         x: Math.round(element.left),
@@ -177,10 +174,10 @@ export const useBatteryStore = defineStore('batteryElement', {
         headFill: batteryHead.fill,
         headRx: Math.round(batteryHead.rx),
         headRy: Math.round(batteryHead.ry),
-        padding: padding,
-        level: Number((batteryLevel.width / (batteryBody.width - padding * 2)).toFixed(2)),
+        padding: Math.round(element.padding),
+        level: Number((batteryLevel.width / (batteryBody.width - element.padding * 2)).toFixed(2)),
         levelColors: element.levelColors || this.defaultLevelColors,
-        headGap: headGap,
+        headGap: Math.round(element.headGap),
       }
     },
 
@@ -249,7 +246,7 @@ export const useBatteryStore = defineStore('batteryElement', {
       })
 
       // 更新电量条
-      const padding = config.padding || 5
+      const padding = config.padding || 4
       batteryLevel.set({
         width: (config.width - padding * 2) * config.level,
         height: config.height - padding * 2,
