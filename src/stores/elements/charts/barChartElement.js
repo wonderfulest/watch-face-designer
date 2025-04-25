@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
-import { Group, Line, Rect } from 'fabric'
+import { Group, Line, Rect, Text } from 'fabric'
 import { nanoid } from 'nanoid'
 
 export const useBarChartStore = defineStore('barChartElement', {
@@ -13,9 +13,17 @@ export const useBarChartStore = defineStore('barChartElement', {
       layerStore,
       defaultColors: {
         color: '#ffffff',    // 线条颜色
-        bgColor: '#000000'   // 背景颜色
+        bgColor: '#000000',  // 背景颜色
+        gridColor: '#555555', // 网格颜色
+        xAxisColor: '#aaaaaa', // X轴颜色
+        yAxisColor: '#aaaaaa', // Y轴颜色
+        xLabelColor: '#ffffff', // X轴标签颜色
+        yLabelColor: '#ffffff'  // Y轴标签颜色
       },
-      defaultBarWidth: 1     // 默认柱形宽度
+      defaultBarWidth: 1,     // 默认柱形宽度
+      defaultGridYCount: 3,   // 默认Y轴网格数量
+      defaultXFontSize: 12,   // 默认X轴标签大小
+      defaultYFontSize: 12    // 默认Y轴标签大小
     }
   },
 
@@ -34,6 +42,23 @@ export const useBarChartStore = defineStore('barChartElement', {
       // 样式配置
       const color = config.color || this.defaultColors.color
       const bgColor = config.bgColor || this.defaultColors.bgColor
+
+      // 图表显示配置
+      const showGrid = config.showGrid !== undefined ? config.showGrid : false
+      const gridColor = config.gridColor || this.defaultColors.gridColor
+      const gridYCount = config.gridYCount || this.defaultGridYCount
+      const showXAxis = config.showXAxis !== undefined ? config.showXAxis : true
+      const showYAxis = config.showYAxis !== undefined ? config.showYAxis : true
+      const xAxisColor = config.xAxisColor || this.defaultColors.xAxisColor
+      const yAxisColor = config.yAxisColor || this.defaultColors.yAxisColor
+      const showXLabels = config.showXLabels !== undefined ? config.showXLabels : true
+      const showYLabels = config.showYLabels !== undefined ? config.showYLabels : true
+      const xLabelColor = config.xLabelColor || this.defaultColors.xLabelColor
+      const yLabelColor = config.yLabelColor || this.defaultColors.yLabelColor
+      const xFont = config.xFont 
+      const yFont = config.yFont 
+      const xFontSize = config.xFontSize || this.defaultXFontSize
+      const yFontSize = config.yFontSize || this.defaultYFontSize
 
       // 创建组
       const barWidth = config.barWidth || this.defaultBarWidth
@@ -57,6 +82,22 @@ export const useBarChartStore = defineStore('barChartElement', {
         maxY: maxY,
         barWidth: barWidth,
         chartProperty: config.chartProperty,
+        // 新增的图表显示属性
+        showGrid: showGrid,
+        gridColor: gridColor,
+        gridYCount: gridYCount,
+        showXAxis: showXAxis,
+        showYAxis: showYAxis,
+        xAxisColor: xAxisColor,
+        yAxisColor: yAxisColor,
+        showXLabels: showXLabels,
+        showYLabels: showYLabels,
+        xLabelColor: xLabelColor,
+        yLabelColor: yLabelColor,
+        xFont: xFont,
+        yFont: yFont,
+        xFontSize: xFontSize,
+        yFontSize: yFontSize
       })
 
       // 创建背景
@@ -71,8 +112,31 @@ export const useBarChartStore = defineStore('barChartElement', {
       })
       group.add(bgRect)
 
+      // 创建网格
+      if (showGrid) {
+        this.createGrid(group, width, height, gridYCount, gridColor)
+      }
+
+      // 创建坐标轴
+      if (showXAxis) {
+        this.createXAxis(group, width, height, xAxisColor)
+      }
+      if (showYAxis) {
+        this.createYAxis(group, width, height, yAxisColor)
+      }
+
+      // 创建X轴标签
+      if (showXLabels) {
+        this.createXLabels(group, width, height, xLabelColor, xFont, xFontSize)
+      }
+
       // 创建柱状图
       this.createBars(group, width, height, pointCount, color, fillMissing)
+
+      // 最后创建Y轴标签，确保显示在最上层
+      if (showYLabels) {
+        this.createYLabels(group, width, height, yLabelColor, yFont, yFontSize, gridYCount)
+      }
 
       // 强制组重新计算边界
       group.setCoords()
@@ -96,6 +160,75 @@ export const useBarChartStore = defineStore('barChartElement', {
       // 设置为当前选中对象
       this.baseStore.canvas.discardActiveObject()
       this.baseStore.canvas.setActiveObject(group)
+    },
+
+    createGrid(group, width, height, gridYCount, gridColor) {
+      const stepY = height / (gridYCount + 1)
+      for (let i = 1; i <= gridYCount; i++) {
+        const y = -height/2 + i * stepY
+        const line = new Line([-width/2, y, width/2, y], {
+          stroke: gridColor,
+          strokeWidth: 1,
+          selectable: false,
+          hasControls: false
+        })
+        group.add(line)
+      }
+    },
+
+    createXAxis(group, width, height, xAxisColor) {
+      const line = new Line([-width/2, height/2, width/2, height/2], {
+        stroke: xAxisColor,
+        strokeWidth: 1,
+        selectable: false,
+        hasControls: false
+      })
+      group.add(line)
+    },
+
+    createYAxis(group, width, height, yAxisColor) {
+      const line = new Line([-width/2, -height/2, -width/2, height/2], {
+        stroke: yAxisColor,
+        strokeWidth: 1,
+        selectable: false,
+        hasControls: false
+      })
+      group.add(line)
+    },
+
+    createXLabels(group, width, height, xLabelColor, xFont, xFontSize) {
+      const stepX = width / 4
+      for (let i = 0; i <= 4; i++) {
+        const x = -width/2 + i * stepX
+        const text = new Text(`${i}`, {
+          left: x,
+          top: height/2 + 5,
+          fontFamily: xFont,
+          fontSize: xFontSize,
+          fill: xLabelColor,
+          selectable: false,
+          hasControls: false
+        })
+        group.add(text)
+      }
+    },
+
+    createYLabels(group, width, height, yLabelColor, yFont, yFontSize, gridYCount) {
+      const stepY = height / (gridYCount + 1)
+      for (let i = 0; i <= gridYCount + 1; i++) {
+        const y = -height/2 + i * stepY
+        const value = Math.round((1 - i / (gridYCount + 1)) * 100)
+        const text = new Text(`${value}`, {
+          left: -width/2 - yFontSize,
+          top: y - 6,
+          fontFamily: yFont,
+          fontSize: yFontSize,
+          fill: yLabelColor,
+          selectable: false,
+          hasControls: false
+        })
+        group.add(text)
+      }
     },
 
     createBars(group, width, height, pointCount, color, fillMissing) {
@@ -161,14 +294,14 @@ export const useBarChartStore = defineStore('barChartElement', {
       const group = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!group || !group.getObjects) return
 
-      // 保存当前位置
+      // 保存当前位置和大小
       const currentLeft = group.left
       const currentTop = group.top
+      const currentWidth = group.width
+      const currentHeight = group.height
 
       // 更新组的属性
       const updateProps = {
-        width: config.width,
-        height: config.height,
         color: config.color,
         bgColor: config.bgColor,
         pointCount: config.pointCount,
@@ -179,6 +312,22 @@ export const useBarChartStore = defineStore('barChartElement', {
         originY: config.originY,
         barWidth: config.barWidth,
         chartProperty: config.chartProperty,
+        // 新增的图表显示属性
+        showGrid: config.showGrid,
+        gridColor: config.gridColor,
+        gridYCount: config.gridYCount,
+        showXAxis: config.showXAxis,
+        showYAxis: config.showYAxis,
+        xAxisColor: config.xAxisColor,
+        yAxisColor: config.yAxisColor,
+        showXLabels: config.showXLabels,
+        showYLabels: config.showYLabels,
+        xLabelColor: config.xLabelColor,
+        yLabelColor: config.yLabelColor,
+        xFont: config.xFont,
+        yFont: config.yFont,
+        xFontSize: config.xFontSize,
+        yFontSize: config.yFontSize
       }
 
       // 过滤掉未定义的属性
@@ -188,11 +337,11 @@ export const useBarChartStore = defineStore('barChartElement', {
         }
       })
 
-      // 重新创建所有条形
+      // 重新创建所有元素
       group.remove(...group.getObjects())
       
-      const width = config.width || group.width || 150
-      const height = config.height || group.height || 50
+      const width = currentWidth
+      const height = currentHeight
       const pointCount = config.pointCount || group.pointCount || 240
       const color = config.color || group.color || this.defaultColors.color
       const bgColor = config.bgColor || group.bgColor || this.defaultColors.bgColor
@@ -211,19 +360,38 @@ export const useBarChartStore = defineStore('barChartElement', {
       })
       group.add(bgRect)
 
+      // 创建网格
+      if (group.showGrid) {
+        this.createGrid(group, width, height, group.gridYCount, group.gridColor)
+      }
+
+      // 创建坐标轴
+      if (group.showXAxis) {
+        this.createXAxis(group, width, height, group.xAxisColor)
+      }
+      if (group.showYAxis) {
+        this.createYAxis(group, width, height, group.yAxisColor)
+      }
+
+      // 创建X轴标签
+      if (group.showXLabels) {
+        this.createXLabels(group, width, height, group.xLabelColor, group.xFont, group.xFontSize)
+      }
+
       // 创建柱状图
       this.createBars(group, width, height, pointCount, color, fillMissing)
 
+      // 最后创建Y轴标签，确保显示在最上层
+      if (group.showYLabels) {
+        this.createYLabels(group, width, height, group.yLabelColor, group.yFont, group.yFontSize, group.gridYCount)
+      }
+
       // 恢复位置
-      if (config.left === undefined) {
-        group.set('left', currentLeft)
-      }
-      if (config.top === undefined) {
-        group.set('top', currentTop)
-      }
       group.set({
         left: currentLeft,
-        top: currentTop
+        top: currentTop,
+        width: currentWidth,
+        height: currentHeight
       })
       // 强制重新计算边界和渲染
       group.setCoords()
@@ -249,6 +417,22 @@ export const useBarChartStore = defineStore('barChartElement', {
         maxY: element.maxY,
         barWidth: element.barWidth || this.defaultBarWidth,
         chartProperty: element.chartProperty,
+        // 新增的图表显示属性
+        showGrid: element.showGrid !== undefined ? element.showGrid : false,
+        gridColor: element.gridColor || this.defaultColors.gridColor,
+        gridYCount: element.gridYCount || this.defaultGridYCount,
+        showXAxis: element.showXAxis !== undefined ? element.showXAxis : true,
+        showYAxis: element.showYAxis !== undefined ? element.showYAxis : true,
+        xAxisColor: element.xAxisColor || this.defaultColors.xAxisColor,
+        yAxisColor: element.yAxisColor || this.defaultColors.yAxisColor,
+        showXLabels: element.showXLabels !== undefined ? element.showXLabels : true,
+        showYLabels: element.showYLabels !== undefined ? element.showYLabels : true,
+        xLabelColor: element.xLabelColor || this.defaultColors.xLabelColor,
+        yLabelColor: element.yLabelColor || this.defaultColors.yLabelColor,
+        xFont: element.xFont,
+        yFont: element.yFont,
+        xFontSize: element.xFontSize || this.defaultXFontSize,
+        yFontSize: element.yFontSize || this.defaultYFontSize
       }
     },
 
@@ -267,6 +451,22 @@ export const useBarChartStore = defineStore('barChartElement', {
         maxY: config.maxY,
         barWidth: config.barWidth || this.defaultBarWidth,
         chartProperty: config.chartProperty,
+        // 新增的图表显示属性
+        showGrid: config.showGrid !== undefined ? config.showGrid : false,
+        gridColor: config.gridColor || this.defaultColors.gridColor,
+        gridYCount: config.gridYCount || this.defaultGridYCount,
+        showXAxis: config.showXAxis !== undefined ? config.showXAxis : true,
+        showYAxis: config.showYAxis !== undefined ? config.showYAxis : true,
+        xAxisColor: config.xAxisColor || this.defaultColors.xAxisColor,
+        yAxisColor: config.yAxisColor || this.defaultColors.yAxisColor,
+        showXLabels: config.showXLabels !== undefined ? config.showXLabels : true,
+        showYLabels: config.showYLabels !== undefined ? config.showYLabels : true,
+        xLabelColor: config.xLabelColor || this.defaultColors.xLabelColor,
+        yLabelColor: config.yLabelColor || this.defaultColors.yLabelColor,
+        xFont: config.xFont || this.defaultXFont,
+        yFont: config.yFont || this.defaultYFont,
+        xFontSize: config.xFontSize || this.defaultXFontSize,
+        yFontSize: config.yFontSize || this.defaultYFontSize
       }
     }
   }

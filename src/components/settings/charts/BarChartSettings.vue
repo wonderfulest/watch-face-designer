@@ -88,6 +88,111 @@
         />
       </el-form-item>
 
+      <el-form-item label="显示网格">
+        <el-switch 
+          v-model="element.showGrid" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="网格颜色" v-if="element.showGrid">
+        <color-picker 
+          v-model="element.gridColor" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="Y轴网格数量" v-if="element.showGrid">
+        <el-input-number 
+          v-model="element.gridYCount" 
+          :min="1" 
+          :max="10" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="显示X轴">
+        <el-switch 
+          v-model="element.showXAxis" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="显示Y轴">
+        <el-switch 
+          v-model="element.showYAxis" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="X轴颜色" v-if="element.showXAxis">
+        <color-picker 
+          v-model="element.xAxisColor" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="Y轴颜色" v-if="element.showYAxis">
+        <color-picker 
+          v-model="element.yAxisColor" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="显示X轴标签">
+        <el-switch 
+          v-model="element.showXLabels" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="显示Y轴标签">
+        <el-switch 
+          v-model="element.showYLabels" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="X轴标签颜色" v-if="element.showXLabels">
+        <color-picker 
+          v-model="element.xLabelColor" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="Y轴标签颜色" v-if="element.showYLabels">
+        <color-picker 
+          v-model="element.yLabelColor" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="X轴标签字体" v-if="element.showXLabels">
+        <font-picker 
+          v-model="element.xFont" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="X轴标签大小" v-if="element.showXLabels">
+        <el-select v-model="element.xFontSize" @change="updateElement">
+          <el-option v-for="size in fontSizes" :key="size" :label="`${size}px`" :value="size" />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="Y轴标签字体" v-if="element.showYLabels">
+        <font-picker 
+          v-model="element.yFont" 
+          @change="updateElement" 
+        />
+      </el-form-item>
+
+      <el-form-item label="Y轴标签大小" v-if="element.showYLabels">
+        <el-select v-model="element.yFontSize" @change="updateElement">
+          <el-option v-for="size in fontSizes" :key="size" :label="`${size}px`" :value="size" />
+        </el-select>
+      </el-form-item>
+
       <el-form-item label="对齐方式">
         <el-select 
           v-model="element.originX" 
@@ -119,8 +224,9 @@
 import { ref, defineProps } from 'vue'
 import { useBarChartStore } from '@/stores/elements/charts/barChartElement'
 import { useBaseStore } from '@/stores/baseStore'
-import { originXOptions } from '@/config/settings'
+import { fontSizes, originXOptions } from '@/config/settings'
 import ColorPicker from '@/components/color-picker/index.vue'
+import FontPicker from '@/components/font-picker/index.vue'
 import { usePropertiesStore } from '@/stores/properties'
 
 const props = defineProps({
@@ -162,7 +268,23 @@ const updateElement = () => {
     bgColor: props.element.bgColor,
     originX: props.element.originX,
     barWidth: props.element.barWidth,
-    chartProperty: props.element.chartProperty
+    chartProperty: props.element.chartProperty,
+    // 新增的图表显示属性
+    showGrid: props.element.showGrid,
+    gridColor: props.element.gridColor,
+    gridYCount: props.element.gridYCount,
+    showXAxis: props.element.showXAxis,
+    showYAxis: props.element.showYAxis,
+    xAxisColor: props.element.xAxisColor,
+    yAxisColor: props.element.yAxisColor,
+    showXLabels: props.element.showXLabels,
+    showYLabels: props.element.showYLabels,
+    xLabelColor: props.element.xLabelColor,
+    yLabelColor: props.element.yLabelColor,
+    xFont: props.element.xFont,
+    yFont: props.element.yFont,
+    xFontSize: props.element.xFontSize,
+    yFontSize: props.element.yFontSize
   }
 
   barChartStore.updateElement(props.element, updateConfig)

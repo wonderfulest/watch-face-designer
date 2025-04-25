@@ -436,6 +436,11 @@ export const useBaseStore = defineStore('baseStore', {
           { source: 'fill', target: 'fillProperty' },
           { source: 'activeColor', target: 'activeColorProperty' },
           { source: 'inactiveColor', target: 'inactiveColorProperty' },
+          { source: 'gridColor', target: 'gridColorProperty' },
+          { source: 'xAxisColor', target: 'xAxisColorProperty' },
+          { source: 'yAxisColor', target: 'yAxisColorProperty' },
+          { source: 'xLabelColor', target: 'xLabelColorProperty' },
+          { source: 'yLabelColor', target: 'yLabelColorProperty' },
         ]
 
         // 处理所有颜色属性映射
