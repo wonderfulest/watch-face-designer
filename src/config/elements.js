@@ -157,17 +157,27 @@ export const elementConfigs = {
       icon: 'mdi:chart-bar',
       label: '柱状图',
       ...elementAttribute,
-      width: 220,
+      width: 200,
       height: 80,
-      pointCount: 40,
-      color: '#00aaff',
+      fontSize: 12,
       bgColor: 'transparent',
       fillMissing: true
     },
     lineChart: {
       icon: 'mdi:chart-line',
       label: '折线图',
-      ...elementAttribute
+      ...elementAttribute,
+      width: 200,
+      height: 80,
+      pointCount: 7,
+      bgColor: 'transparent',
+      fillMissing: true,
+      showXLabels: true,
+      showYLabels: true,
+      xLabelColor: '#aaaaaa',
+      yLabelColor: '#aaaaaa',
+      xFont: 'RobotoCondensed-Regular',
+      yFont: 'RobotoCondensed-Regular',
     }
   }
   
