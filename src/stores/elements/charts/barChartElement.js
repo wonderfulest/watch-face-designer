@@ -200,6 +200,15 @@ export const useBarChartStore = defineStore('barChartElement', {
       const stepX = width / 4
       for (let i = 0; i <= 4; i++) {
         const x = -width/2 + i * stepX
+        console.log({
+          left: x,
+          top: height/2 + 5,
+          fontFamily: xFont,
+          fontSize: xFontSize,
+          fill: xLabelColor,
+          selectable: false,
+          hasControls: false
+        })
         const text = new Text(`${i}`, {
           left: x,
           top: height/2 + 5,

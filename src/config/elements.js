@@ -161,7 +161,9 @@ export const elementConfigs = {
       height: 80,
       fontSize: 12,
       bgColor: 'transparent',
-      fillMissing: true
+      fillMissing: true,
+      xFont: 'RobotoCondensed-Regular',
+      yFont: 'RobotoCondensed-Regular',
     },
     lineChart: {
       icon: 'mdi:chart-line',
