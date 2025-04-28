@@ -166,37 +166,37 @@
       <!-- X轴设置 -->
       <div class="axis-section">
         <h4>X轴设置</h4>
-        <el-form-item label="显示标签">
-          <el-switch 
+      <el-form-item label="显示标签">
+        <el-switch 
             v-model="element.showXLabels" 
-            @change="updateElement" 
-          />
-        </el-form-item>
+          @change="updateElement" 
+        />
+      </el-form-item>
 
         <template v-if="element.showXLabels">
           <el-form-item label="标签颜色">
-            <color-picker 
+        <color-picker 
               v-model="element.xLabelColor" 
-              @change="updateElement" 
-            />
-          </el-form-item>
+          @change="updateElement" 
+        />
+      </el-form-item>
 
           <el-form-item label="时间格式">
-            <el-select v-model="element.timeFormat" @change="updateElement">
-              <el-option label="HH:mm" value="HH:mm" />
-              <el-option label="mm:ss" value="mm:ss" />
-              <el-option label="MM/dd" value="MM/dd" />
-            </el-select>
-          </el-form-item>
+        <el-select v-model="element.timeFormat" @change="updateElement">
+          <el-option label="HH:mm" value="HH:mm" />
+          <el-option label="mm:ss" value="mm:ss" />
+          <el-option label="MM/dd" value="MM/dd" />
+        </el-select>
+      </el-form-item>
 
           <el-form-item label="标签高度">
-            <el-input-number 
+        <el-input-number 
               v-model="element.xLabelHeight" 
-              :min="0" 
-              :max="100" 
-              @change="updateElement" 
-            />
-          </el-form-item>
+          :min="0" 
+          :max="100" 
+          @change="updateElement" 
+        />
+      </el-form-item>
 
           <el-form-item label="标签字体">
             <font-picker 
@@ -232,26 +232,26 @@
           </el-form-item>
 
           <el-form-item label="标签宽度">
-            <el-input-number 
+        <el-input-number 
               v-model="element.yLabelWidth" 
-              :min="0" 
-              :max="100" 
-              @change="updateElement" 
-            />
-          </el-form-item>
+          :min="0" 
+          :max="100" 
+          @change="updateElement" 
+        />
+      </el-form-item>
 
           <el-form-item label="标签字体">
-            <font-picker 
+        <font-picker 
               v-model="element.yFont" 
-              @change="updateElement" 
-            />
-          </el-form-item>
+          @change="updateElement" 
+        />
+      </el-form-item>
 
           <el-form-item label="字体大小">
             <el-select v-model="element.yFontSize" @change="updateElement">
-              <el-option v-for="size in availableFontSizes" :key="size" :label="`${size}px`" :value="size" />
-            </el-select>
-          </el-form-item>
+          <el-option v-for="size in availableFontSizes" :key="size" :label="`${size}px`" :value="size" />
+        </el-select>
+      </el-form-item>
         </template>
       </div>
 
