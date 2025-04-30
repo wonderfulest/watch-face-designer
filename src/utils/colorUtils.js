@@ -81,3 +81,17 @@ function toRgbObject(color) {
   // 如果无法转换，返回默认的黑色
   return { r: 0, g: 0, b: 0 }
 }
+
+/**
+ * 解码颜色
+ * @param {string|number} color 
+ * @returns {string}  
+ */
+export const decodeColor = (color) => {
+  if (typeof color === 'number') {
+    if (color == -1) {
+      return 'transparent'
+    }
+  }
+  return color
+}

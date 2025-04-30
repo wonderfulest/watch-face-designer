@@ -1108,3 +1108,41 @@ export function getMetricByProperty(dataProperty, propertiesStore) {
   return metric
 }
 
+
+/**
+ * 时钟指针样式
+ */
+export const AnalogHandOptions = [
+  { name: 'hand1', url: '/src/assets/analog/hands/hand1.svg' },
+  { name: 'hand2', url: '/src/assets/analog/hands/hand2.svg' },
+  { name: 'hand3', url: '/src/assets/analog/hands/hand3.svg' },
+  { name: 'hand4', url: '/src/assets/analog/hands/hand4.svg' },
+  { name: 'hand5', url: '/src/assets/analog/hands/hand5.svg' },
+  { name: 'hand6', url: '/src/assets/analog/hands/hand6.svg' },
+  { name: 'hand7', url: '/src/assets/analog/hands/hand7.svg' },
+  { name: 'hand8', url: '/src/assets/analog/hands/hand8.svg' },
+  { name: 'hand9', url: '/src/assets/analog/hands/hand9.svg' },
+  { name: 'hand10', url: '/src/assets/analog/hands/hand10.svg' },
+  { name: 'hand11', url: '/src/assets/analog/hands/hand11.svg' },
+  { name: 'hand12', url: '/src/assets/analog/hands/hand12.svg' },
+  { name: 'hand21', url: '/src/assets/analog/hands/hand21.svg' },
+  { name: 'hand22', url: '/src/assets/analog/hands/hand22.svg' },
+  { name: 'hand23', url: '/src/assets/analog/hands/hand23.svg' },
+  { name: 'hand24', url: '/src/assets/analog/hands/hand24.svg' },
+  { name: 'hand25', url: '/src/assets/analog/hands/hand25.svg' },
+  { name: 'hand26', url: '/src/assets/analog/hands/hand26.svg' },
+  { name: 'hand27', url: '/src/assets/analog/hands/hand27.svg' },
+  { name: 'hand28', url: '/src/assets/analog/hands/hand28.svg' },
+  { name: 'hand29', url: '/src/assets/analog/hands/hand29.svg' },
+  { name: 'hand30', url: '/src/assets/analog/hands/hand30.svg' },
+  { name: 'hand31', url: '/src/assets/analog/hands/hand31.svg' },
+  { name: 'hand32', url: '/src/assets/analog/hands/hand32.svg' },
+  { name: 'hand33', url: '/src/assets/analog/hands/hand33.svg' },
+  { name: 'hand34', url: '/src/assets/analog/hands/hand34.svg' },
+  { name: 'hand35', url: '/src/assets/analog/hands/hand35.svg' },
+  { name: 'hand36', url: '/src/assets/analog/hands/hand36.svg' },
+  { name: 'hand37', url: '/src/assets/analog/hands/hand37.svg' },
+  { name: 'hand38', url: '/src/assets/analog/hands/hand38.svg' },
+  { name: 'hand39', url: '/src/assets/analog/hands/hand39.svg' },
+  { name: 'hand40', url: '/src/assets/analog/hands/hand40.svg' },
+]

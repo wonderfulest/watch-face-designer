@@ -3,8 +3,7 @@ import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
 import { loadSVGFromURL, util } from 'fabric'
 import { nanoid } from 'nanoid'
-import hand1Svg from '@/assets/hands/hand1.svg?url'
-
+import { AnalogHandOptions } from '@/config/settings'
 export const useHourHandStore = defineStore('hourHandElement', {
   state: () => {
     const baseStore = useBaseStore()
@@ -12,48 +11,78 @@ export const useHourHandStore = defineStore('hourHandElement', {
     return {
       baseStore,
       layerStore,
+      handHeight: 150,
+      moveDx: 0,
+      moveDy: 0,
       defaultColors: {
         color: '#FFFFFF',
         bgColor: 'transparent'
       },
-      defaultHeight: 150,
-      defaultRotation: 270,
-      defaultImage: hand1Svg
+
+      defaultAngle: 0,
+      defaultRotationCenter: { x: 227, y: 227 },
+      updateTimer: null
     }
   },
 
   actions: {
+    
     async addElement(config) {
+      
+      console.log('addElement', config)
       const id = nanoid()
-      const height = Math.min(config.height || this.defaultHeight, 300)
-      const rotation = config.rotation || this.defaultRotation
-      const imageUrl = config.imageUrl || this.defaultImage
+      this.handHeight = Math.min(config.height || this.handHeight, 300)
+      const angle = config.angle || this.defaultAngle
+      const imageUrl = config.imageUrl || AnalogHandOptions[0].url
       const color = config.color || this.defaultColors.color
+      const rotationCenter = config.rotationCenter || this.defaultRotationCenter
 
       const loadedSVG = await loadSVGFromURL(imageUrl)
       const svgGroup = util.groupSVGElements(loadedSVG.objects)
-      svgGroup.set({
+      const options = {
         id,
         eleType: 'hourHand',
-        left: config.left,
-        top: config.top,
         originX: 'center',
         originY: 'center',
         selectable: true,
         hasControls: true,
         hasBorders: true,
-        rotation: rotation,
+        angle: angle,
         imageUrl: imageUrl,
-        color: color
-      })
+        color: color,
+        rotationCenter: rotationCenter
+      }
+      svgGroup.set(options)
 
+      if (config.moveDy) {
+        this.moveDy = config.moveDy
+      }
       if (Array.isArray(svgGroup._objects)) {
         svgGroup._objects.forEach((obj) => obj.set('fill', color))
       } else if (svgGroup.type === 'path') {
         svgGroup.set('fill', color)
       }
 
-      svgGroup.scaleToHeight(height)
+      svgGroup.scaleToHeight(this.handHeight)
+
+      // 计算自定义旋转中心后的 left/top
+      const radians = util.degreesToRadians(angle)
+      const dx = 0
+      const dy = -this.handHeight / 2 + this.moveDy
+      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
+      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
+
+      svgGroup.set({
+        left: rotationCenter.x + rotatedX,
+        top: rotationCenter.y + rotatedY
+      })
+
+      // 添加移动事件监听
+      svgGroup.on('moving', (e) => {
+        const moveTop = e.transform.target.top
+        this.moveDy = moveTop + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
+        console.log('moveDy', this.moveDy)
+      })
 
       this.baseStore.canvas.add(svgGroup)
       svgGroup.setCoords()
@@ -61,6 +90,8 @@ export const useHourHandStore = defineStore('hourHandElement', {
       this.baseStore.canvas.requestRenderAll()
       this.baseStore.canvas.discardActiveObject()
       this.baseStore.canvas.setActiveObject(svgGroup)
+
+      this.startTimeUpdate()
     },
 
     async updateElement(element, config) {
@@ -69,15 +100,13 @@ export const useHourHandStore = defineStore('hourHandElement', {
       const svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!svgGroup) return
 
-      const currentLeft = svgGroup.left
-      const currentTop = svgGroup.top
-      const currentRotation = svgGroup.rotation
+      const currentAngle = svgGroup.angle
       const currentImageUrl = svgGroup.imageUrl
-      const currentHeight = svgGroup.height * svgGroup.scaleY
+      const rotationCenter = config.rotationCenter || svgGroup.rotationCenter || this.defaultRotationCenter
 
       let newSVG = svgGroup
 
-      // 如果传入了新的 imageUrl，需要重新加载SVG
+      // 替换 image
       if (config.imageUrl && config.imageUrl !== currentImageUrl) {
         this.baseStore.canvas.remove(svgGroup)
 
@@ -86,14 +115,12 @@ export const useHourHandStore = defineStore('hourHandElement', {
         newSVG.set({
           id: element.id,
           eleType: 'hourHand',
-          left: currentLeft,
-          top: currentTop,
           originX: 'center',
           originY: 'center',
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          rotation: currentRotation,
+          angle: currentAngle,
           imageUrl: config.imageUrl
         })
         this.baseStore.canvas.add(newSVG)
@@ -108,20 +135,34 @@ export const useHourHandStore = defineStore('hourHandElement', {
       }
       newSVG.set({ color: colorToSet })
 
-      // 使用 scaleToHeight 调整尺寸
-      const targetHeight = Math.min(config.height || currentHeight, 300)
-      newSVG.scaleToHeight(targetHeight)
+      // 调整尺寸
+      if (config.height) {
+        this.handHeight = Math.min(config.height, 300)
+        newSVG.scaleToHeight(this.handHeight)
+      }
 
-      // 应用位置、旋转
+      // 计算旋转后位置
+      const angle = config.angle !== undefined ? config.angle : currentAngle
+      const radians = util.degreesToRadians(angle)
+      const dx = 0
+      const dy = -this.handHeight / 2 + this.moveDy
+      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
+      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
+
       newSVG.set({
-        left: config.left !== undefined ? config.left : currentLeft,
-        top: config.top !== undefined ? config.top : currentTop,
-        rotation: config.rotation !== undefined ? config.rotation : currentRotation,
-        imageUrl: config.imageUrl || newSVG.imageUrl
+        left: rotationCenter.x + rotatedX,
+        top: rotationCenter.y + rotatedY,
+        angle: angle,
+        imageUrl: config.imageUrl || newSVG.imageUrl,
+        rotationCenter: rotationCenter
       })
 
       newSVG.setCoords()
       this.baseStore.canvas.requestRenderAll()
+
+      if (!this.updateTimer) {
+        this.startTimeUpdate()
+      }
     },
 
     encodeConfig(element) {
@@ -131,10 +172,13 @@ export const useHourHandStore = defineStore('hourHandElement', {
         x: Math.round(element.left),
         y: Math.round(element.top),
         height: Math.round(element.height * element.scaleY),
-        color: element.color || this.defaultColors.color,
-        bgColor: element.bgColor || this.defaultColors.bgColor,
-        rotation: element.rotation || this.defaultRotation,
-        imageUrl: element.imageUrl || this.defaultImage
+        color: element.color,
+        bgColor: element.bgColor,
+        angle: element.angle,
+        imageUrl: element.imageUrl,
+        rotationCenter: element.rotationCenter,
+        moveDy: this.moveDy,
+        scaleY: element.scaleY
       }
     },
 
@@ -144,10 +188,47 @@ export const useHourHandStore = defineStore('hourHandElement', {
         left: config.x,
         top: config.y,
         height: config.height,
-        color: config.color || this.defaultColors.color,
-        bgColor: config.bgColor || this.defaultColors.bgColor,
-        rotation: config.rotation || this.defaultRotation,
-        imageUrl: config.imageUrl || this.defaultImage
+        color: config.color,
+        bgColor: config.bgColor,
+        angle: config.angle,
+        imageUrl: config.imageUrl,
+        rotationCenter: config.rotationCenter,
+        moveDy: config.moveDy,
+        scaleY: config.scaleY
+      }
+    },
+
+    updateTime() {
+      if (!this.baseStore.canvas) return
+      
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'hourHand')
+      if (!hourHand) return
+
+      const now = new Date()
+      const hours = now.getHours()
+      const minutes = now.getMinutes()
+      
+      // 计算小时指针角度 (每小时30度，每分钟0.5度)
+      const angle = (hours % 12) * 30 + minutes * 0.5
+      
+      // 更新指针角度
+      // this.updateElement(hourHand, { angle: angle })
+    },
+
+    startTimeUpdate() {
+      // 先执行一次更新
+      this.updateTime()
+      
+      // 每分钟更新一次
+      this.updateTimer = setInterval(() => {
+        this.updateTime()
+      }, 60000)
+    },
+
+    stopTimeUpdate() {
+      if (this.updateTimer) {
+        clearInterval(this.updateTimer)
+        this.updateTimer = null
       }
     }
   }

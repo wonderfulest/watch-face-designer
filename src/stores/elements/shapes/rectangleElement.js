@@ -81,7 +81,6 @@ export const useRectangleStore = defineStore('rectangleElement', {
     },
 
     updateElement(element, options = {}) {
-      console.log('updateElement', element, options)
       if (!element) return
 
       // 更新基本属性

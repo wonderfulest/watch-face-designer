@@ -1,5 +1,24 @@
 import { uploadImage } from '@/api/upload'
 
+// 上传指针SVG
+export const uploadHandSVG = async (svgUrl) => {
+  try {
+    const response = await fetch(svgUrl)
+    const blob = await response.blob()
+    // 创建 FormData 对象
+    const formData = new FormData()
+    formData.append('files', blob, `hand.svg`)
+
+    // 上传文件
+    const res = await uploadImage(formData)
+    console.log('uploadHandSVG res', res)
+    return res[0]
+  } catch (error) {
+    console.error('上传指针SVG失败:', error)
+    throw error
+  }
+}
+
 // 上传图片文件
 export const uploadImageFile = async (blobUrl) => {
   try {
@@ -13,6 +32,7 @@ export const uploadImageFile = async (blobUrl) => {
 
     // 上传文件
     const res = await uploadImage(formData)
+    console.log('uploadImageFile res', res)
 
     return res.data[0]
   } catch (error) {

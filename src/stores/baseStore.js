@@ -11,6 +11,10 @@ export const useBaseStore = defineStore('baseStore', {
   state: () => ({
     canvas: null,
     id: null,
+    builder: {
+      zoomLevel: 1,
+      backgroundColor: '#55f5f5',
+    },
     watchFaceName: '',
     kpayId: '',
     WATCH_SIZE: 454,
@@ -20,11 +24,40 @@ export const useBaseStore = defineStore('baseStore', {
     textCase: 0, // 文本大小写设置：0=默认, 1=全大写, 2=全小写, 3=驼峰
     labelLengthType: 1, // 标签长度类型：1=短文本, 2=中等文本, 3=长文本
     showUnit: false, // 是否显示数据项单位
-    screenshot: null // 存储表盘截图数据
+    screenshot: null, // 存储表盘截图数据
+    // 添加背景元素的引用
+    watchFaceCircle: null,
+    backgroundImage: null
   }),
 
-  getters: {
+  // 添加持久化配置
+  persist: {
+    key: 'watch-face-builder',
+    paths: ['builder'],
+    storage: localStorage,
+    // 添加调试钩子
+    beforeRestore: (context) => {
+      // console.log('准备恢复状态:', context)
+    },
+    afterRestore: (context) => {
+      // console.log('状态恢复完成:', context)
+    },
+    serializer: {
+      serialize: (value) => {
+        // console.log('序列化状态:', value)
+        return JSON.stringify(value)
+      },
+      deserialize: (value) => {
+        // console.log('反序列化状态:', value)
 
+        const settings = JSON.parse(value)
+
+        return settings
+      }
+    }
+  },
+
+  getters: {
   },
 
   // actions
@@ -244,32 +277,50 @@ export const useBaseStore = defineStore('baseStore', {
       this.canvas = fabricCanvas
       // 禁用自动渲染，手动控制渲染时机
       this.canvas.renderOnAddRemove = false
+    
+      // 设置画布的裁剪路径
+      this.canvas.set({
+        clipPath: this.watchFaceCircle
+      })
       this.addBackground()
     },
+    // 添加背景
     addBackground() {
+
+      const center = this.$state.WATCH_SIZE / 2
+      console.log('add Background', center)
+
       // 创建表盘背景圆
-      const watchFace = new Circle({
+      this.watchFaceCircle = new Circle({
         eleType: 'global',
-        left: 0,
-        top: 0,
+        left: center,
+        top: center,
+        originX: 'center',
+        originY: 'center',
         radius: this.$state.WATCH_SIZE / 2,
         fill: this.$state.themeBackgroundColors[this.$state.currentThemeIndex] || '#000000',
+        backgroundColor: 'transparent',
         selectable: false,
         evented: true
       })
 
+      console.log('background color', this.$state.builder.backgroundColor)
       // 设置背景图片
       const currentBgImage = this.$state.themeBackgroundImages[this.$state.currentThemeIndex]
+      console.log('currentBgImage', currentBgImage)
       if (currentBgImage) {
         FabricImage.fromURL(currentBgImage, (img) => {
           // 计算缩放比例以填充圆形区域
           const scale = this.$state.WATCH_SIZE / Math.min(img.width, img.height)
+          this.backgroundImage = img
           img.set({
             eleType: 'background-image',
             scaleX: scale,
             scaleY: scale,
-            left: 0,
-            top: 0,
+            left: center,
+            top: center,
+            originX: 'center',
+            originY: 'center',
             selectable: false,
             evented: false
           })
@@ -277,16 +328,68 @@ export const useBaseStore = defineStore('baseStore', {
           this.canvas.moveObjectTo(img, 0)
         })
       }
-
+      this.canvas.add(this.watchFaceCircle)
       this.canvas.set({
-        clipPath: watchFace
+        clipPath: this.watchFaceCircle
       })
-      this.canvas.add(watchFace)
-      this.canvas.moveObjectTo(watchFace, 0)
+      // 确保背景圆在最上层
+      this.canvas.moveObjectTo(this.watchFaceCircle, 0)
+        
     },
-    // 加载全局元素
-    loadGlobalElement() {
-      // 全局元素加载
+    // 更新背景元素大小和位置
+    updateBackgroundElements(zoom) {
+      console.log('update BackgroundElements', zoom)
+      if (zoom && zoom != this.$state.builder.zoomLevel) {
+        this.$state.builder.zoomLevel = zoom
+      }
+      zoom = this.$state.builder.zoomLevel
+      const center = this.$state.WATCH_SIZE / 2
+      const radius = this.$state.WATCH_SIZE / 2
+
+      if (this.watchFaceCircle) {
+        this.watchFaceCircle.set({
+          left: center,
+          top: center,
+          originX: 'center',
+          originY: 'center',
+          radius: radius,
+          strokeUniform: true,  // 确保边框均匀缩放
+          strokeWidth: 1,
+          selectable: false,
+          evented: true,
+          hasBorders: false,
+          hasControls: false,
+          backgroundColor: 'transparent'
+        })
+        console.log('updateBackgroundElements', this.watchFaceCircle, this.$state.builder.backgroundColor)
+        this.watchFaceCircle.setCoords()
+      }
+
+      if (this.backgroundImage) {
+        const scale = radius / Math.min(this.backgroundImage.width, this.backgroundImage.height)
+        this.backgroundImage.set({
+          left: center,
+          top: center,
+          originX: 'center',
+          originY: 'center',
+          scaleX: scale,
+          scaleY: scale,
+          strokeUniform: true,
+          selectable: false,
+          evented: false
+        })
+        this.backgroundImage.setCoords()
+      }
+
+      // 确保画布尺寸足够大
+      if (this.canvas) {
+        const size = this.$state.WATCH_SIZE * zoom
+        this.canvas.setDimensions({
+          width: size,
+          height: size
+        })
+        this.canvas.requestRenderAll()
+      }
     },
     // 设置表盘名称
     setWatchFaceName(name) {
@@ -312,7 +415,7 @@ export const useBaseStore = defineStore('baseStore', {
     },
     // 切换主题背景
     toggleThemeBackground() {
-      if (!this.canvas) {
+      if (!this.canvas || !this.watchFaceCircle) {
         console.warn('画布不存在')
         return
       }
@@ -322,6 +425,7 @@ export const useBaseStore = defineStore('baseStore', {
       const watchFace = objects.find((obj) => obj.eleType === 'global')
       const oldBgImage = objects.find((obj) => obj.eleType === 'background-image')
 
+      console.log('toggleThemeBackground', watchFace, oldBgImage)
       // 更新背景颜色
       if (watchFace) {
         watchFace.set('fill', this.themeBackgroundColors[this.currentThemeIndex])
@@ -335,6 +439,7 @@ export const useBaseStore = defineStore('baseStore', {
       // 添加新的背景图片
       const currentBgImage = this.themeBackgroundImages[this.currentThemeIndex]
       if (currentBgImage) {
+        console.log('1111 currentBgImage', currentBgImage)
         // 创建一个新的 Image 对象
         const img = new Image()
         img.onload = () => {
@@ -344,7 +449,8 @@ export const useBaseStore = defineStore('baseStore', {
             selectable: false,
             evented: false,
             originX: 'left',
-            originY: 'top'
+            originY: 'top',
+            
           })
 
           // 计算缩放比例以填充圆形区域
@@ -358,33 +464,40 @@ export const useBaseStore = defineStore('baseStore', {
             scaleX: scale,
             scaleY: scale,
             left: left,
-            top: top
+            top: top,
+        
           })
 
-          if (watchFace) {
-            this.canvas.moveObjectTo(watchFace, 0) // 背景圆放在背景图片之上
-          }
-
+  
           // 添加图片并设置层级
           this.canvas.add(fabricImage)
           this.canvas.moveObjectTo(fabricImage, 1) // 背景图片放在最底层
 
+          if (watchFace) {
+            this.canvas.moveObjectTo(watchFace, 0) // 背景圆放在背景图片之上
+          }
+          this.canvas.set({
+            clipPath: this.watchFaceCircle
+          })
           this.canvas.renderAll()
+          console.log('3333 watchFaceCircle', this.watchFaceCircle)
         }
-
-        img.onerror = (error) => {
+        img.onerror = (error) => { 
           console.error('加载图片出错', error)
         }
-
         // 设置图片源
         img.src = currentBgImage
         img.crossOrigin = 'anonymous'
       } else if (watchFace) {
+        console.log('2222 watchFace', watchFace)
         // 如果没有背景图片，确保背景圆在最底层
         this.canvas.moveObjectTo(watchFace, 0)
+        this.canvas.set({
+          clipPath: this.watchFaceCircle
+        })
+        this.canvas.renderAll()
       }
-
-      this.canvas.renderAll()
+ 
     },
     // 生成配置
     generateConfig() {
@@ -515,7 +628,16 @@ export const useBaseStore = defineStore('baseStore', {
       }
 
       return config
-    }
+    },
+    // 更新编辑器设置
+    updateBuilderSettings(settings) {
+      this.builder = {
+        ...this.builder,
+        ...settings
+      }
+      // 手动触发持久化
+      this.$persist()
+    },
   }
 })
 

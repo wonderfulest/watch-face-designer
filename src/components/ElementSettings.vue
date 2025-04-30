@@ -45,6 +45,12 @@ const updateElements = () => {
   if (!baseStore.canvas) return
   elements.value = baseStore.canvas.getObjects()
   activeElements.value = baseStore.canvas.getActiveObjects()
+  if (activeElements.value.length === 1) {
+    const element = activeElements.value[0]
+    if (element.eleType === 'hourHand') {
+      console.log('hourHand', element)
+    }
+  }
 }
 
 const debouncedUpdateElements = debounce(updateElements, 100)
@@ -71,8 +77,6 @@ const handleCanvasBlur = async (e) => {
       (target && target.eleType === 'global' && target.selectable === false)) {
     // 等待下一个 tick 确保组件已更新
     await nextTick()
-    // 等待下一个 tick 确保组件已更新
-    await nextTick()
     const formRef = getCurrentFormRef()
     if (formRef) {
       try {
@@ -89,7 +93,7 @@ const handleCanvasBlur = async (e) => {
           baseStore.canvas.fire('selection:created', { target: activeObject })
           baseStore.canvas.renderAll()
           // 阻止默认行为
-          e.e.preventDefault()
+          e.preventDefault()
         }
         ElMessage.warning('请完成必填项')
       }
@@ -137,11 +141,6 @@ const handleSelectionCleared = async (e) => {
 const handleSelectionCreated = async (e) => {
   // 立即更新 activeElements
   updateElements()
-  
-  // 触发打开设置项事件
-  if (activeElements.value.length === 1) {
-    emitter.emit('open-settings', activeElements.value[0])
-  }
   
   // 如果当前有选中的对象，且是之前验证的对象
   const lastActiveObject = activeElements.value[0]
@@ -205,7 +204,7 @@ watch(activeElements, (newValue, oldValue) => {
     // 等待下一个 tick 确保组件已更新
     nextTick(() => {
       setupEventListeners()
-})
+    })
   }
 }, { immediate: true })
 

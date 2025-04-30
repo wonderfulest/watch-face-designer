@@ -8,7 +8,36 @@
     </div>
     <!-- 中间画布区域 -->
     <div class="center-area">
-      <Canvas ref="canvasRef" />
+      <div class="ruler-corner"></div>
+      <div class="ruler-horizontal-wrapper">
+        <canvas class="ruler-horizontal"></canvas>
+      </div>
+      <div class="ruler-vertical-wrapper">
+        <canvas class="ruler-vertical"></canvas>
+      </div>
+      <div class="canvas-container">
+        <Canvas ref="canvasRef" />
+      </div>
+      <div class="editor-controls">
+        <!-- 缩放控件 -->
+        <div class="zoom-controls">
+          <el-button circle @click="handleZoomOut" title="缩小">
+            <el-icon><Minus /></el-icon>
+          </el-button>
+          <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
+          <el-button circle @click="handleZoomIn" title="放大">
+            <el-icon><Plus /></el-icon>
+          </el-button>
+          <el-button circle @click="handleResetZoom" title="重置缩放">
+            <el-icon><Refresh /></el-icon>
+          </el-button>
+        </div>
+        
+        <!-- 编辑器设置按钮 -->
+        <div class="editor-settings-btn" @click="openEditorSettings">
+          <el-icon><Setting /></el-icon>
+        </div>
+      </div>
     </div>
     <!-- 右侧设置面板 -->
     <div class="right-panel">
@@ -21,11 +50,14 @@
       :isDialogVisible="isDialogVisible" 
       @update:isDialogVisible="isDialogVisible = $event" 
     />
+
+    <!-- 添加设置对话框 -->
+    <EditorSettingsDialog ref="editorSettingsDialog" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, defineProps, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, defineProps, watchEffect, computed } from 'vue'
 import ChangelogDialog from '@/components/dialogs/ChangelogDialog.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { nanoid } from 'nanoid'
@@ -35,6 +67,7 @@ import SidePanel from '@/components/SidePanel.vue'
 import ExportPanel from '@/components/ExportPanel.vue'
 import appConfig from '@/config/appConfig'
 import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
+import { useCanvas } from '../composables/useCanvas'
 import emitter from '@/utils/eventBus'
 import { usePropertiesStore } from '@/stores/properties'
 import { useMessageStore } from '@/stores/message'
@@ -45,7 +78,9 @@ import { useImageElementStore } from '@/stores/elements/imageElement'
 import { useBaseStore } from '@/stores/baseStore'
 import { decodeElement } from '@/utils/elementCodec'
 import { getAddElement } from '@/utils/elementCodec/registry'
-
+import EditorSettingsDialog from '@/components/dialogs/EditorSettingsDialog.vue'
+import { Setting } from '@element-plus/icons-vue'
+import { Minus, Plus, Refresh } from '@element-plus/icons-vue'
 const propertiesStore = usePropertiesStore()
 const imageStore = useImageElementStore()
 const route = useRoute()
@@ -54,12 +89,15 @@ const baseStore = useBaseStore()
 const messageStore = useMessageStore()
 const fontStore = useFontStore()
 const exportStore = useExportStore()
+const { waitCanvasReady } = useCanvas()
 const canvasRef = ref(null)
 const exportPanelRef = ref(null)
 const isDialogVisible = ref(false)
+const zoomLevel = computed(() => canvasRef.value?.zoomLevel || 1)
 let saveTimer = null
 
 const changelogDialog = ref(null)
+const editorSettingsDialog = ref(null)
 
 const props = defineProps({
   designKey: {
@@ -67,19 +105,24 @@ const props = defineProps({
     default: null
   }
 })
-// 监听 exportPanelRef 变化，注册到 store 中
-watch(exportPanelRef, (newValue) => {
-  if (newValue) {
-    exportStore.setExportPanelRef(newValue)
+
+// 使用 watchEffect 监听 exportPanelRef 变化
+watchEffect(() => {
+  if (exportPanelRef.value) {
+    exportStore.setExportPanelRef(exportPanelRef.value)
   }
-}, { immediate: true })
+})
 
 // 启用键盘快捷键
 useKeyboardShortcuts()
 
+// 添加背景色计算属性
+const backgroundColor = computed(() => baseStore.builder?.backgroundColor || '#55f5f5')
+
 // 加载设计配置
 const loadDesign = async (id) => {
   try {
+    
     const response = await getDesign(id)
     const designData = response.data
     const config = designData.configJson
@@ -120,16 +163,7 @@ const loadDesign = async (id) => {
     baseStore.currentThemeIndex = 0
 
     // 等待画布初始化完成
-    await new Promise((resolve) => {
-      const checkCanvas = () => {
-        if (baseStore.canvas) {
-          resolve()
-        } else {
-          setTimeout(checkCanvas, 100)
-        }
-      }
-      checkCanvas()
-    })
+    await waitCanvasReady()
     
     // 切换主题背景
     baseStore.toggleThemeBackground()
@@ -148,16 +182,7 @@ const loadDesign = async (id) => {
 // 初始化新设计
 const initNewDesign = async () => {
   // 等待画布初始化完成
-  await new Promise((resolve) => {
-    const checkCanvas = () => {
-      if (baseStore.canvas) {
-        resolve()
-      } else {
-        setTimeout(checkCanvas, 100)
-      }
-    }
-    checkCanvas()
-  })
+  await waitCanvasReady()
 
   // 设置默认值
   baseStore.watchFaceName = ''
@@ -193,11 +218,6 @@ const loadElements = async (elements) => {
         continue
       }
 
-      if (element.type === 'global') {
-        baseStore.loadGlobalElement(decodedElement)
-        continue
-      }
-
       const addElement = getAddElement(element.type)
       if (element.type === 'goalBar') {
         console.log('加载目标条元素:', decodedElement)
@@ -217,6 +237,11 @@ const loadElements = async (elements) => {
 
 onMounted(() => {
   changelogDialog.value?.checkShowChangelog()
+
+  // 编辑器设置
+  const settings = baseStore.builder
+  // baseStore.updateBuilderSettings()
+
   // 检查URL参数中是否有设计ID
   const designId = route.query.id
   if (designId) {
@@ -251,10 +276,26 @@ onBeforeUnmount(() => {
   })
 })
 
+const handleZoomOut = () => {
+  canvasRef.value.zoomOut()
+}
+
+const handleZoomIn = () => {
+  canvasRef.value.zoomIn()
+}
+
+const handleResetZoom = () => {
+  canvasRef.value.resetZoom()
+}
+
 // 向外部暴露方法
 defineExpose({
   exportPanelRef
 })
+
+const openEditorSettings = () => {
+  editorSettingsDialog.value?.openDialog()
+}
 </script>
 
 <style scoped>
@@ -287,7 +328,9 @@ defineExpose({
   justify-content: center;
   align-items: center;
   overflow: auto;
-  background-color: #f5f5f5;
+  background-color: v-bind(backgroundColor);
+  padding: 20px;
+  position: relative;
 }
 
 .right-panel {
@@ -299,4 +342,102 @@ defineExpose({
   padding: 16px;
   padding-bottom: 76px; /* 原有的16px + 额外的60px空间 */
 }
+
+.canvas-container {
+  position: relative;
+  background: white;
+  margin: 40px 0 0 40px; /* 标尺和画布之间的距离 40px */
+}
+
+.ruler-corner {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 40px;
+  height: 40px;
+  background: #f0f0f0;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  z-index: 2;
+}
+
+.ruler-horizontal-wrapper {
+  position: absolute;
+  top: 0px;
+  left: 40px;
+  right: 0px;
+  height: 40px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
+  z-index: 1;
+}
+
+.ruler-vertical-wrapper {
+  position: absolute;
+  top: 40px;
+  left: 0px;
+  bottom: 0px;
+  width: 40px;
+  background: #f0f0f0;
+  border-right: 1px solid #e0e0e0;
+  z-index: 1;
+}
+
+.editor-settings-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s;
+}
+
+.editor-settings-btn:hover {
+  transform: rotate(30deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.editor-settings-btn .el-icon {
+  font-size: 20px;
+  color: #666;
+}
+
+.zoom-controls {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: #f0f0f0;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 2;
+}
+
+.zoom-controls button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoom-controls button:hover {
+  background: #f5f5f5;
+}
+
 </style>

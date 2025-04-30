@@ -5,19 +5,31 @@
     <el-form ref="formRef" :model="element" label-position="left" label-width="100px">
       <!-- 图片选择 -->
       <div class="setting-item">
-        <label>指针样式</label>
-        <div class="image-selector">
-          <div 
-            v-for="(hand, index) in availableHands" 
-            :key="index"
-            class="hand-preview"
-            :class="{ active: element.imageUrl === hand.url }"
-            @click="selectHand(hand.url)"
-          >
-            <img :src="hand.url" :alt="hand.name" />
-            <span>{{ hand.name }}</span>
-          </div>
-        </div>
+        <label>指针hand</label>
+        <HandPicker
+          :selected-url="element.imageUrl"
+          :available-hands="availableHands"
+          :on-select="(url) => hourHandStore.updateElement(element, { imageUrl: url })"
+          :on-upload="(url, fileName) => {
+            hourHandStore.updateElement(element, {
+              imageUrl: url,
+              angle: 0,
+              height: element.height,
+            })
+            // 检查是否已存在相同名称的指针
+            const existingIndex = availableHands.findIndex(hand => hand.name === fileName.replace('.svg', ''))
+            if (existingIndex !== -1) {
+              // 如果已存在，更新URL
+              availableHands[existingIndex].url = url
+            } else {
+              // 如果不存在，添加到列表
+              availableHands.push({
+                name: fileName.replace('.svg', ''),
+                url: url
+              })
+            }
+          }"
+        />
       </div>
 
       <!-- 位置设置 -->
@@ -41,7 +53,18 @@
         <div class="size-inputs">
           <div class="input-group">
             <label>高度</label>
-            <input type="number" :value="element.height " min="1" max="300" @change="updateElement" />
+            <input type="number" :value="Math.round(element.height * element.scaleY)" min="1" max="300" @change="onHeightChange($event)" />
+          </div>
+        </div>
+        <label>缩放比例</label>
+        <div class="scale-inputs">
+          <div class="scale-input">
+            <label>X</label>
+            <input type="number" :value="element.scaleX.toFixed(2)" readonly />
+          </div>
+          <div class="scale-input">
+            <label>Y</label>
+            <input type="number" :value="element.scaleY.toFixed(2)" readonly />
           </div>
         </div>
       </div>
@@ -57,7 +80,27 @@
         <div class="angle-inputs">
           <div class="input-group">
             <label>角度</label>
-            <input type="number" :value="element.rotation" @input="(e) => (element.rotation = Number(e.target.value))" @change="updateElement" />
+            <input type="number" :value="element.angle" @input="(e) => (element.angle = Number(e.target.value))" @change="updateElement" />
+          </div>
+        </div>
+      </div>
+
+      <!-- 旋转中心点设置 -->
+      <div class="setting-item">
+        <div class="setting-header">
+          <label>旋转中心点</label>
+          <el-tooltip content="设置指针旋转的中心点坐标" placement="top" effect="light" :show-after="0">
+            <el-icon class="help-icon"><Warning /></el-icon>
+          </el-tooltip>
+        </div>
+        <div class="position-inputs">
+          <div class="input-group">
+            <label>X</label>
+            <input type="number" :value="element.rotationCenter?.x || 227" @input="(e) => updateRotationCenter({ x: Number(e.target.value), y: element.rotationCenter?.y || 227 })" @change="updateRotationCenter" />
+          </div>
+          <div class="input-group">
+            <label>Y</label>
+            <input type="number" :value="element.rotationCenter?.y || 227" @input="(e) => updateRotationCenter({ x: element.rotationCenter?.x || 227, y: Number(e.target.value) })" @change="updateRotationCenter" />
           </div>
         </div>
       </div>
@@ -98,16 +141,18 @@
         <label>测试旋转</label>
         <input
           type="range"
-          :value="element.rotation"
+          :value="element.angle"
           min="0"
           max="360"
           @input="
             (e) => {
-              element.rotation = Number(e.target.value)
-              updateElement()
+              element.angle = Number(e.target.value)
+              hourHandStore.updateElement(element, {
+                angle: element.angle
+              })
             }
           " />
-        <span>{{ Math.round(element.rotation) }}°</span>
+        <span>{{ Math.round(element.angle) }}°</span>
       </div>
     </el-form>
   </div>
@@ -118,9 +163,10 @@ import { ref, defineEmits, defineExpose } from 'vue'
 import { useBaseStore } from '@/stores/baseStore'
 import { useHourHandStore } from '@/stores/elements/hands/hourHandElement'
 import ColorPicker from '@/components/color-picker/index.vue'
-import { ElTooltip } from 'element-plus'
+import HandPicker from '@/components/hand-picker/index.vue'
+import { ElTooltip, ElMessage } from 'element-plus'
 import { Warning } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { AnalogHandOptions } from '@/config/settings'
 
 const emit = defineEmits(['close'])
 
@@ -135,17 +181,40 @@ const baseStore = useBaseStore()
 const hourHandStore = useHourHandStore()
 const formRef = ref(null)
 
-// 可用的指针样式
-const availableHands = [
-  { name: '样式1', url: '/src/assets/hands/hand1.svg' },
-  { name: '样式2', url: '/src/assets/hands/hand2.svg' },
-  { name: '样式3', url: '/src/assets/hands/hand3.svg' }
-]
+// 可用的时针hand
+const availableHands = ref(AnalogHandOptions)
 
-// 选择指针样式
-const selectHand = (url) => {
+const onHeightChange = (e) => {
   hourHandStore.updateElement(props.element, {
-    imageUrl: url
+    height: e.target.value,
+  })
+}
+
+// 更新元素
+const updateElement = () => {
+  if (!props.element) return
+  hourHandStore.updateElement(props.element, {
+    left: props.element.left,
+    top: props.element.top,
+    angle: props.element.angle,
+    imageUrl: props.element.imageUrl
+  })
+}
+
+// 更新位置
+const updatePosition = () => {
+  if (!props.element) return
+  hourHandStore.updateElement(props.element, {
+    left: props.element.left,
+    top: props.element.top
+  })
+}
+
+// 更新旋转中心点
+const updateRotationCenter = (center) => {
+  if (!props.element) return
+  hourHandStore.updateElement(props.element, {
+    rotationCenter: center
   })
 }
 
@@ -157,29 +226,6 @@ const tooltipContent = `
     <p>3. 角度范围0到359</p>
   </div>
 `
-
-// 更新元素
-const updateElement = () => {
-  if (!props.element) return
-  console.log('updateElement height', props.element.height)
-  hourHandStore.updateElement(props.element, {
-    height: props.element.height,
-    left: props.element.left,
-    top: props.element.top,
-    rotation: props.element.rotation,
-    imageUrl: props.element.imageUrl
-  })
-}
-
-// 更新位置
-const updatePosition = () => {
-  if (!props.element) return
-
-  hourHandStore.updateElement(props.element, {
-    left: props.element.left,
-    top: props.element.top
-  })
-}
 
 // 添加关闭时的验证方法
 const handleClose = async () => {
@@ -227,7 +273,7 @@ defineExpose({
   color: #409eff;
 }
 
-/* 调整提示框样式 */
+/* 调整提示框hand */
 :deep(.el-tooltip__trigger) {
   display: flex;
   align-items: center;
@@ -251,7 +297,7 @@ defineExpose({
   margin-bottom: 4px;
 }
 
-/* 图片选择器样式 */
+/* 图片选择器hand */
 .image-selector {
   display: flex;
   gap: 10px;
@@ -291,5 +337,44 @@ defineExpose({
   font-size: 12px;
   margin-top: 4px;
   text-align: center;
+}
+
+.scale-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.scale-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scale-input label {
+  min-width: 20px;
+}
+
+.scale-input input {
+  width: 60px;
+}
+
+.upload-preview {
+  border: 1px dashed #dcdfe6;
+  background-color: #f5f7fa;
+}
+
+.upload-preview:hover {
+  border-color: #409eff;
+  background-color: #ecf5ff;
+}
+
+.upload-icon {
+  font-size: 24px;
+  color: #909399;
+  margin-bottom: 4px;
+}
+
+.upload-preview:hover .upload-icon {
+  color: #409eff;
 }
 </style>

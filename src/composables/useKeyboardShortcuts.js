@@ -7,6 +7,34 @@ export function useKeyboardShortcuts() {
   const baseStore = useBaseElementStore()
 
   onMounted(() => {
+    // 阻止浏览器默认快捷键
+    const preventDefaultShortcuts = (e) => {
+      // 如果是在输入框内，允许默认行为
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return
+      }
+
+      // 阻止的快捷键列表
+      const blockedShortcuts = [
+        'ctrl+d', 'ctrl+f', 'ctrl+h', 'ctrl+p', 'ctrl+s', 'ctrl+w',
+        'command+d', 'command+f', 'command+h', 'command+p', 'command+s', 'command+w'
+      ]
+
+      const key = e.key.toLowerCase()
+      const isCtrl = e.ctrlKey
+      const isCommand = e.metaKey
+      const shortcut = `${isCtrl ? 'ctrl+' : isCommand ? 'command+' : ''}${key}`
+
+      if (blockedShortcuts.includes(shortcut)) {
+        e.preventDefault()
+        e.stopImmediatePropagation() // 加强阻止传播，防止 Mousetrap 或其他插件响应
+        return false
+      }
+    }
+
+    // 在捕获阶段添加事件监听
+    document.addEventListener('keydown', preventDefaultShortcuts, { capture: true })
+
     // 绑定方向键
     Mousetrap.bind('left', () => baseStore.moveElement('left', 1))
     Mousetrap.bind('right', () => baseStore.moveElement('right', 1))
@@ -55,5 +83,6 @@ export function useKeyboardShortcuts() {
       'command+c', 'ctrl+c', 'command+v', 'ctrl+v',
       'command+,', 'ctrl+,'
     ])
+    // 移除事件监听
   })
 }

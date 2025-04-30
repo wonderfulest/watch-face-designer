@@ -3,6 +3,7 @@ import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
 import { Rect, Group } from 'fabric'
 import { nanoid } from 'nanoid'
+import { decodeColor } from '@/utils/colorUtils'
 
 export const useBatteryStore = defineStore('batteryElement', {
   state: () => {
@@ -47,7 +48,7 @@ export const useBatteryStore = defineStore('batteryElement', {
       const batteryBody = new Rect({
         width,
         height,
-        fill: bodyFill,
+        fill: decodeColor(bodyFill),
         stroke: bodyStroke,
         strokeWidth: bodyStrokeWidth,
         rx: bodyRx,
@@ -177,7 +178,7 @@ export const useBatteryStore = defineStore('batteryElement', {
         padding: Math.round(element.padding),
         level: Number((batteryLevel.width / (batteryBody.width - element.padding * 2)).toFixed(2)),
         levelColors: element.levelColors || this.defaultLevelColors,
-        headGap: Math.round(element.headGap),
+        headGap: Math.round(element.headGap) || 2,
       }
     },
 

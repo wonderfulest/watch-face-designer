@@ -20,15 +20,12 @@ export const useTimeStore = defineStore('timeStore', {
 
   actions: {
     formatTime(date, formatter) {
-      console.log('date', date, 'formatter', formatter)
       // 如果format是数字，从TimeFormatOptions中查找对应的格式化字符串
       let format = '--' // 默认格式
       const formatterOption = TimeFormatOptions.find(option => option.value == formatter)
       if (formatterOption) {
         format = formatterOption.label
       }
-      console.log('formatterOption', formatterOption, 'format', format)
-     
       return moment(date).format(format)
     },
     async addElement(options = {}) {
@@ -98,7 +95,6 @@ export const useTimeStore = defineStore('timeStore', {
         }
       })
 
-      console.log('config', config)
       // 如果有格式化器变化，更新文本
       if (config.formatter !== undefined) {
         obj.set('text', this.formatTime(new Date(), config.formatter))

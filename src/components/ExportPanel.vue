@@ -167,6 +167,7 @@ const dowloadConfig = async () => {
   URL.revokeObjectURL(url)
 }
 
+// 上传表盘截图
 const uploadScreenshot = async () => {
   try {
     // 先捕获最新的画布截图

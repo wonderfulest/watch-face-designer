@@ -240,6 +240,7 @@ const handleBackgroundImageChange = (file) => {
       // 更新当前主题的背景图片
       baseStore.themeBackgroundImages[currentThemeIndex.value] = imageUpload.url
 
+      
       // 强制更新画布背景
       baseStore.toggleThemeBackground()
       
