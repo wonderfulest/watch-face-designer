@@ -73,6 +73,26 @@
         </div>
       </div>
 
+      <!-- 旋转中心点设置 -->
+      <div class="setting-item">
+        <div class="setting-header">
+          <label>旋转中心点</label>
+          <el-tooltip content="设置指针旋转的中心点坐标" placement="top" effect="light" :show-after="0">
+            <el-icon class="help-icon"><Warning /></el-icon>
+          </el-tooltip>
+        </div>
+        <div class="position-inputs">
+          <div class="input-group">
+            <label>X</label>
+            <input type="number" :value="element.rotationCenter?.x || 227" @input="(e) => updateRotationCenter({ x: Number(e.target.value), y: element.rotationCenter?.y || 227 })" @change="updateRotationCenter" />
+          </div>
+          <div class="input-group">
+            <label>Y</label>
+            <input type="number" :value="element.rotationCenter?.y || 227" @input="(e) => updateRotationCenter({ x: element.rotationCenter?.x || 227, y: Number(e.target.value) })" @change="updateRotationCenter" />
+          </div>
+        </div>
+      </div>
+
       <!-- 颜色设置 -->
       <div class="setting-item">
         <label>颜色</label>
@@ -194,6 +214,15 @@ const updatePosition = () => {
     top: props.element.top
   })
 }
+
+// 更新旋转中心点
+const updateRotationCenter = (center) => {
+  if (!props.element) return
+  hourHandStore.updateElement(props.element, {
+    rotationCenter: center
+  })
+}
+
 // 添加关闭时的验证方法
 const handleClose = async () => {
   try {

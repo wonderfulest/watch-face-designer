@@ -18,7 +18,8 @@ export const useHourHandStore = defineStore('hourHandElement', {
       },
       defaultHeight: 150,
       defaultAngle: 0,
-      defaultImage: hand1Svg
+      defaultImage: hand1Svg,
+      defaultRotationCenter: { x: 227, y: 227 }
     }
   },
 
@@ -29,14 +30,13 @@ export const useHourHandStore = defineStore('hourHandElement', {
       const angle = config.angle || this.defaultAngle
       const imageUrl = config.imageUrl || this.defaultImage
       const color = config.color || this.defaultColors.color
+      const rotationCenter = config.rotationCenter || this.defaultRotationCenter
 
       const loadedSVG = await loadSVGFromURL(imageUrl)
       const svgGroup = util.groupSVGElements(loadedSVG.objects)
       const options = {
         id,
         eleType: 'hourHand',
-        left: config.left,
-        top: config.top,
         originX: 'center',
         originY: 'center',
         selectable: true,
@@ -44,7 +44,8 @@ export const useHourHandStore = defineStore('hourHandElement', {
         hasBorders: true,
         angle: angle,
         imageUrl: imageUrl,
-        color: color
+        color: color,
+        rotationCenter: rotationCenter
       }
       svgGroup.set(options)
 
@@ -55,6 +56,19 @@ export const useHourHandStore = defineStore('hourHandElement', {
       }
 
       svgGroup.scaleToHeight(height)
+
+      // 计算自定义旋转中心后的 left/top
+      const radians = util.degreesToRadians(angle)
+      const dx = 0
+      const dy = -height / 2
+      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
+      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
+
+      svgGroup.set({
+        left: rotationCenter.x + rotatedX,
+        top: rotationCenter.y + rotatedY
+      })
+
       this.baseStore.canvas.add(svgGroup)
       svgGroup.setCoords()
       this.layerStore.addLayer(svgGroup)
@@ -69,14 +83,14 @@ export const useHourHandStore = defineStore('hourHandElement', {
       const svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!svgGroup) return
 
-      const currentLeft = svgGroup.left
-      const currentTop = svgGroup.top
+      const currentHeight = Math.round(svgGroup.height * svgGroup.scaleY)
       const currentAngle = svgGroup.angle
       const currentImageUrl = svgGroup.imageUrl
-      
+      const rotationCenter = config.rotationCenter || svgGroup.rotationCenter || this.defaultRotationCenter
+
       let newSVG = svgGroup
 
-      // 如果传入了新的 imageUrl，需要重新加载SVG
+      // 替换 image
       if (config.imageUrl && config.imageUrl !== currentImageUrl) {
         this.baseStore.canvas.remove(svgGroup)
 
@@ -85,15 +99,13 @@ export const useHourHandStore = defineStore('hourHandElement', {
         newSVG.set({
           id: element.id,
           eleType: 'hourHand',
-          left: currentLeft,
-          top: currentTop,
           originX: 'center',
           originY: 'center',
           selectable: true,
           hasControls: true,
           hasBorders: true,
           angle: currentAngle,
-          imageUrl: config.imageUrl,
+          imageUrl: config.imageUrl
         })
         this.baseStore.canvas.add(newSVG)
       }
@@ -107,19 +119,27 @@ export const useHourHandStore = defineStore('hourHandElement', {
       }
       newSVG.set({ color: colorToSet })
 
-      // 使用 scaleToHeight 调整尺寸
+      // 调整尺寸
       if (config.height) {
         const targetHeight = Math.min(config.height, 300)
         newSVG.scaleToHeight(targetHeight)
       }
 
-      console.log('updateElement angle', config.angle)
-      // 应用位置、旋转
+      // 计算旋转后位置
+      const angle = config.angle !== undefined ? config.angle : currentAngle
+      const height = config.height || currentHeight
+      const radians = util.degreesToRadians(angle)
+      const dx = 0
+      const dy = -height / 2
+      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
+      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
+
       newSVG.set({
-        left: config.left !== undefined ? config.left : currentLeft,
-        top: config.top !== undefined ? config.top : currentTop,
-        angle: config.angle !== undefined ? config.angle : currentAngle,
-        imageUrl: config.imageUrl || newSVG.imageUrl
+        left: rotationCenter.x + rotatedX,
+        top: rotationCenter.y + rotatedY,
+        angle: angle,
+        imageUrl: config.imageUrl || newSVG.imageUrl,
+        rotationCenter: rotationCenter
       })
 
       newSVG.setCoords()
@@ -133,10 +153,11 @@ export const useHourHandStore = defineStore('hourHandElement', {
         x: Math.round(element.left),
         y: Math.round(element.top),
         height: Math.round(element.height * element.scaleY),
-        color: element.color ,
-        bgColor: element.bgColor ,
-        angle: element.angle ,
-        imageUrl: element.imageUrl
+        color: element.color,
+        bgColor: element.bgColor,
+        angle: element.angle,
+        imageUrl: element.imageUrl,
+        rotationCenter: element.rotationCenter
       }
     },
 
@@ -149,7 +170,8 @@ export const useHourHandStore = defineStore('hourHandElement', {
         color: config.color,
         bgColor: config.bgColor,
         angle: config.angle,
-        imageUrl: config.imageUrl
+        imageUrl: config.imageUrl,
+        rotationCenter: config.rotationCenter
       }
     }
   }
