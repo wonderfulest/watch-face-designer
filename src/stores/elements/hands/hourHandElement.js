@@ -17,7 +17,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
         bgColor: 'transparent'
       },
       defaultHeight: 150,
-      defaultRotation: 270,
+      defaultAngle: 0,
       defaultImage: hand1Svg
     }
   },
@@ -26,7 +26,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
     async addElement(config) {
       const id = nanoid()
       const height = Math.min(config.height || this.defaultHeight, 300)
-      const rotation = config.rotation || this.defaultRotation
+      const angle = config.angle || this.defaultAngle
       const imageUrl = config.imageUrl || this.defaultImage
       const color = config.color || this.defaultColors.color
 
@@ -42,11 +42,10 @@ export const useHourHandStore = defineStore('hourHandElement', {
         selectable: true,
         hasControls: true,
         hasBorders: true,
-        rotation: rotation,
+        angle: angle,
         imageUrl: imageUrl,
         color: color
       }
-      console.log('addElement hourHand options', options)
       svgGroup.set(options)
 
       if (Array.isArray(svgGroup._objects)) {
@@ -55,9 +54,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
         svgGroup.set('fill', color)
       }
 
-      console.log('addElement hourHand height', height)
       svgGroup.scaleToHeight(height)
-
       this.baseStore.canvas.add(svgGroup)
       svgGroup.setCoords()
       this.layerStore.addLayer(svgGroup)
@@ -74,10 +71,9 @@ export const useHourHandStore = defineStore('hourHandElement', {
 
       const currentLeft = svgGroup.left
       const currentTop = svgGroup.top
-      const currentRotation = svgGroup.rotation
+      const currentAngle = svgGroup.angle
       const currentImageUrl = svgGroup.imageUrl
       
-
       let newSVG = svgGroup
 
       // 如果传入了新的 imageUrl，需要重新加载SVG
@@ -96,7 +92,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          rotation: currentRotation,
+          angle: currentAngle,
           imageUrl: config.imageUrl,
         })
         this.baseStore.canvas.add(newSVG)
@@ -112,14 +108,17 @@ export const useHourHandStore = defineStore('hourHandElement', {
       newSVG.set({ color: colorToSet })
 
       // 使用 scaleToHeight 调整尺寸
-      const targetHeight = Math.min(config.height || currentHeight, 300)
-      newSVG.scaleToHeight(targetHeight)
+      if (config.height) {
+        const targetHeight = Math.min(config.height, 300)
+        newSVG.scaleToHeight(targetHeight)
+      }
 
+      console.log('updateElement angle', config.angle)
       // 应用位置、旋转
       newSVG.set({
         left: config.left !== undefined ? config.left : currentLeft,
         top: config.top !== undefined ? config.top : currentTop,
-        rotation: config.rotation !== undefined ? config.rotation : currentRotation,
+        angle: config.angle !== undefined ? config.angle : currentAngle,
         imageUrl: config.imageUrl || newSVG.imageUrl
       })
 
@@ -134,10 +133,10 @@ export const useHourHandStore = defineStore('hourHandElement', {
         x: Math.round(element.left),
         y: Math.round(element.top),
         height: Math.round(element.height * element.scaleY),
-        color: element.color || this.defaultColors.color,
-        bgColor: element.bgColor || this.defaultColors.bgColor,
-        rotation: element.rotation || this.defaultRotation,
-        imageUrl: element.imageUrl || this.defaultImage
+        color: element.color ,
+        bgColor: element.bgColor ,
+        angle: element.angle ,
+        imageUrl: element.imageUrl
       }
     },
 
@@ -147,10 +146,10 @@ export const useHourHandStore = defineStore('hourHandElement', {
         left: config.x,
         top: config.y,
         height: config.height,
-        color: config.color || this.defaultColors.color,
-        bgColor: config.bgColor || this.defaultColors.bgColor,
-        rotation: config.rotation || this.defaultRotation,
-        imageUrl: config.imageUrl || this.defaultImage
+        color: config.color,
+        bgColor: config.bgColor,
+        angle: config.angle,
+        imageUrl: config.imageUrl
       }
     }
   }

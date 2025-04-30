@@ -55,7 +55,6 @@
             <input type="number" :value="element.scaleY.toFixed(2)" readonly />
           </div>
         </div>
-       
       </div>
 
       <!-- 旋转角度设置 -->
@@ -69,7 +68,7 @@
         <div class="angle-inputs">
           <div class="input-group">
             <label>角度</label>
-            <input type="number" :value="element.rotation" @input="(e) => (element.rotation = Number(e.target.value))" @change="updateElement" />
+            <input type="number" :value="element.angle" @input="(e) => (element.angle = Number(e.target.value))" @change="updateElement" />
           </div>
         </div>
       </div>
@@ -110,16 +109,18 @@
         <label>测试旋转</label>
         <input
           type="range"
-          :value="element.rotation"
+          :value="element.angle"
           min="0"
           max="360"
           @input="
             (e) => {
-              element.rotation = Number(e.target.value)
-              updateElement()
+              element.angle = Number(e.target.value)
+              hourHandStore.updateElement(element, {
+                angle: element.angle
+              })
             }
           " />
-        <span>{{ Math.round(element.rotation) }}°</span>
+        <span>{{ Math.round(element.angle) }}°</span>
       </div>
     </el-form>
   </div>
@@ -177,14 +178,10 @@ const onHeightChange = (e) => {
 // 更新元素
 const updateElement = () => {
   if (!props.element) return
-  console.log('updateElement height', props.element.height)
   hourHandStore.updateElement(props.element, {
-    scaleX: props.element.scaleX,
-    scaleY: props.element.scaleY,
-    height: props.element.height,
     left: props.element.left,
     top: props.element.top,
-    rotation: props.element.rotation,
+    angle: props.element.angle,
     imageUrl: props.element.imageUrl
   })
 }
@@ -192,13 +189,11 @@ const updateElement = () => {
 // 更新位置
 const updatePosition = () => {
   if (!props.element) return
-
   hourHandStore.updateElement(props.element, {
     left: props.element.left,
     top: props.element.top
   })
 }
-
 // 添加关闭时的验证方法
 const handleClose = async () => {
   try {
