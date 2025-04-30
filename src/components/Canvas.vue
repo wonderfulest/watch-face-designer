@@ -24,17 +24,35 @@ FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup']
 
 // 绘制水平标尺
 const drawHorizontalRuler = (ctx, width, zoom) => {
+  console.log('绘制水平标尺:', { width, zoom })
+  
   ctx.clearRect(0, 0, width, 40)
   ctx.fillStyle = '#f0f0f0'
   ctx.fillRect(0, 0, width, 40)
   ctx.strokeStyle = '#999'
   ctx.beginPath()
-  for (let i = 0; i < width; i += 10 * zoom) {
-    ctx.moveTo(i, 40)
-    ctx.lineTo(i, i % (50 * zoom) === 0 ? 15 : 30)
-    if (i % (50 * zoom) === 0) {
+  
+  // 计算中心点
+  const centerX = width / 2
+  
+  // 绘制刻度线
+  for (let i = -1000; i <= 1000; i += 10) {
+    const x = centerX + i * zoom
+    
+    // 大刻度（100像素）
+    if (i % 100 === 0) {
+      ctx.moveTo(x, 40)
+      ctx.lineTo(x, 20)
+      // 添加数字标签
       ctx.fillStyle = '#333'
-      ctx.fillText(Math.round(i / zoom), i + 2, 10)
+      ctx.font = '12px Arial'
+      ctx.fillText(i, x + 2, 15)
+      console.log('绘制大刻度:', { position: x, value: i })
+    } 
+    // 小刻度（10像素）
+    else {
+      ctx.moveTo(x, 40)
+      ctx.lineTo(x, 30)
     }
   }
   ctx.stroke()
@@ -42,21 +60,39 @@ const drawHorizontalRuler = (ctx, width, zoom) => {
 
 // 绘制垂直标尺
 const drawVerticalRuler = (ctx, height, zoom) => {
+  console.log('绘制垂直标尺:', { height, zoom })
+  
   ctx.clearRect(0, 0, 40, height)
   ctx.fillStyle = '#f0f0f0'
   ctx.fillRect(0, 0, 40, height)
   ctx.strokeStyle = '#999'
   ctx.beginPath()
-  for (let i = 0; i < height; i += 10 * zoom) {
-    ctx.moveTo(40, i)
-    ctx.lineTo(i % (50 * zoom) === 0 ? 15 : 30, i)
-    if (i % (50 * zoom) === 0) {
+  
+  // 计算中心点
+  const centerY = height / 2
+  
+  // 绘制刻度线
+  for (let i = -1000; i <= 1000; i += 10) {
+    const y = centerY + i * zoom
+    
+    // 大刻度（100像素）
+    if (i % 100 === 0) {
+      ctx.moveTo(40, y)
+      ctx.lineTo(20, y)
+      // 添加数字标签
       ctx.fillStyle = '#333'
+      ctx.font = '12px Arial'
       ctx.save()
-      ctx.translate(10, i + 2)
+      ctx.translate(15, y + 2)
       ctx.rotate(-Math.PI / 2)
-      ctx.fillText(Math.round(i / zoom), 0, 0)
+      ctx.fillText(i, 0, 0)
       ctx.restore()
+      console.log('绘制大刻度:', { position: y, value: i })
+    } 
+    // 小刻度（10像素）
+    else {
+      ctx.moveTo(40, y)
+      ctx.lineTo(30, y)
     }
   }
   ctx.stroke()
@@ -66,14 +102,52 @@ const drawVerticalRuler = (ctx, height, zoom) => {
 const updateRulers = () => {
   const horizontalRuler = document.querySelector('.ruler-horizontal')
   const verticalRuler = document.querySelector('.ruler-vertical')
-  if (!horizontalRuler || !verticalRuler || !baseStore.canvas) return
   
-  const horizontalCtx = horizontalRuler.getContext('2d')
-  const verticalCtx = verticalRuler.getContext('2d')
-  const zoom = baseStore.canvas.getZoom()
-  
-  drawHorizontalRuler(horizontalCtx, WATCH_SIZE.value, zoom)
-  drawVerticalRuler(verticalCtx, WATCH_SIZE.value, zoom)
+  if (!horizontalRuler || !verticalRuler || !baseStore.canvas) {
+    console.log('标尺元素未找到:', {
+      horizontalRuler: !!horizontalRuler,
+      verticalRuler: !!verticalRuler,
+      canvas: !!baseStore.canvas
+    })
+    return
+  }
+
+  try {
+    const horizontalCtx = horizontalRuler.getContext('2d')
+    const verticalCtx = verticalRuler.getContext('2d')
+    
+    if (!horizontalCtx || !verticalCtx) {
+      console.error('无法获取标尺上下文')
+      return
+    }
+
+    const zoom = baseStore.canvas.getZoom()
+    
+    // 设置画布尺寸
+    horizontalRuler.width = WATCH_SIZE.value
+    horizontalRuler.height = 40
+    verticalRuler.width = 40
+    verticalRuler.height = WATCH_SIZE.value
+    
+    console.log('更新标尺:', {
+      width: WATCH_SIZE.value,
+      height: WATCH_SIZE.value,
+      zoom,
+      horizontalRulerSize: {
+        width: horizontalRuler.width,
+        height: horizontalRuler.height
+      },
+      verticalRulerSize: {
+        width: verticalRuler.width,
+        height: verticalRuler.height
+      }
+    })
+    
+    drawHorizontalRuler(horizontalCtx, WATCH_SIZE.value, zoom)
+    drawVerticalRuler(verticalCtx, WATCH_SIZE.value, zoom)
+  } catch (error) {
+    console.error('更新标尺时出错:', error)
+  }
 }
 
 // 添加辅助线

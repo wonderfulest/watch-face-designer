@@ -9,8 +9,12 @@
     <!-- 中间画布区域 -->
     <div class="center-area">
       <div class="ruler-corner"></div>
-      <div class="ruler-horizontal"></div>
-      <div class="ruler-vertical"></div>
+      <div class="ruler-horizontal-wrapper">
+        <canvas class="ruler-horizontal"></canvas>
+      </div>
+      <div class="ruler-vertical-wrapper">
+        <canvas class="ruler-vertical"></canvas>
+      </div>
       <div class="canvas-container">
         <Canvas ref="canvasRef" />
       </div>
@@ -327,7 +331,7 @@ defineExpose({
   z-index: 2;
 }
 
-.ruler-horizontal {
+.ruler-horizontal-wrapper {
   position: absolute;
   top: 0px;
   left: 40px;
@@ -338,7 +342,7 @@ defineExpose({
   z-index: 1;
 }
 
-.ruler-vertical {
+.ruler-vertical-wrapper {
   position: absolute;
   top: 40px;
   left: 0px;
