@@ -1,16 +1,19 @@
 <template>
-  <canvas ref="canvasRef"></canvas>
+  <div class="canvas-wrapper">
+    <canvas ref="canvasRef"></canvas>
+  </div>
 </template>
 
 <script setup>
-import { onMounted, ref, onUnmounted, computed } from 'vue'
-import { Canvas, FabricText, Circle, FabricObject } from 'fabric'
+import { onMounted, ref, onUnmounted, computed, watch } from 'vue'
+import { Canvas, FabricText, Circle, FabricObject, Line } from 'fabric'
 import emitter from '@/utils/eventBus'
 import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
 import { initAligningGuidelines } from '@/lib/aligning_guidelines'
 import { initCenteringGuidelines } from '@/lib/centering_guidelines'
 import { throttle } from '@/utils/performance'
+
 const canvasRef = ref(null)
 const baseStore = useBaseStore()
 const layerStore = useLayerStore()
@@ -19,9 +22,82 @@ const WATCH_SIZE = computed(() => baseStore.WATCH_SIZE)
 
 FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup']
 
+// 绘制水平标尺
+const drawHorizontalRuler = (ctx, width, zoom) => {
+  ctx.clearRect(0, 0, width, 40)
+  ctx.fillStyle = '#f0f0f0'
+  ctx.fillRect(0, 0, width, 40)
+  ctx.strokeStyle = '#999'
+  ctx.beginPath()
+  for (let i = 0; i < width; i += 10 * zoom) {
+    ctx.moveTo(i, 40)
+    ctx.lineTo(i, i % (50 * zoom) === 0 ? 15 : 30)
+    if (i % (50 * zoom) === 0) {
+      ctx.fillStyle = '#333'
+      ctx.fillText(Math.round(i / zoom), i + 2, 10)
+    }
+  }
+  ctx.stroke()
+}
+
+// 绘制垂直标尺
+const drawVerticalRuler = (ctx, height, zoom) => {
+  ctx.clearRect(0, 0, 40, height)
+  ctx.fillStyle = '#f0f0f0'
+  ctx.fillRect(0, 0, 40, height)
+  ctx.strokeStyle = '#999'
+  ctx.beginPath()
+  for (let i = 0; i < height; i += 10 * zoom) {
+    ctx.moveTo(40, i)
+    ctx.lineTo(i % (50 * zoom) === 0 ? 15 : 30, i)
+    if (i % (50 * zoom) === 0) {
+      ctx.fillStyle = '#333'
+      ctx.save()
+      ctx.translate(10, i + 2)
+      ctx.rotate(-Math.PI / 2)
+      ctx.fillText(Math.round(i / zoom), 0, 0)
+      ctx.restore()
+    }
+  }
+  ctx.stroke()
+}
+
+// 更新标尺
+const updateRulers = () => {
+  const horizontalRuler = document.querySelector('.ruler-horizontal')
+  const verticalRuler = document.querySelector('.ruler-vertical')
+  if (!horizontalRuler || !verticalRuler || !baseStore.canvas) return
+  
+  const horizontalCtx = horizontalRuler.getContext('2d')
+  const verticalCtx = verticalRuler.getContext('2d')
+  const zoom = baseStore.canvas.getZoom()
+  
+  drawHorizontalRuler(horizontalCtx, WATCH_SIZE.value, zoom)
+  drawVerticalRuler(verticalCtx, WATCH_SIZE.value, zoom)
+}
+
+// 添加辅助线
+const addGuideLine = (canvas, orientation, position) => {
+  const line = new Line(
+    orientation === 'horizontal' 
+      ? [0, position, canvas.width, position] 
+      : [position, 0, position, canvas.height],
+    {
+      stroke: 'rgba(0,0,255,0.5)',
+      selectable: false,
+      evented: false,
+      strokeDashArray: [5, 5],
+      name: 'guideLine'
+    }
+  )
+  canvas.add(line)
+  canvas.requestRenderAll()
+}
+
 // Canvas.vue
 const refreshCanvas = throttle((event) => {
   emitter.emit('refresh-canvas', { event })
+  updateRulers()
 }, 16) // 约60fps
 
 onMounted(() => {
@@ -51,16 +127,30 @@ onMounted(() => {
     'mouse:down': refreshCanvas
   })
 
-  baseStore.setCanvas(canvas)
+  // 添加辅助线
+  canvas.on('mouse:down', function (opt) {
+    if (opt.e.shiftKey) {
+      const pointer = canvas.getPointer(opt.e)
+      addGuideLine(canvas, 'horizontal', pointer.y)
+    } else if (opt.e.ctrlKey) {
+      const pointer = canvas.getPointer(opt.e)
+      addGuideLine(canvas, 'vertical', pointer.x)
+    }
+  })
 
-  // 时间更新
-  // updateInterval = setInterval(() => timeElement.updateTimeDisplay(), 1000)
+  baseStore.setCanvas(canvas)
+  updateRulers()
 })
 
 onUnmounted(() => {
   if (updateInterval) {
     clearInterval(updateInterval)
   }
+})
+
+// 监听画布大小变化
+watch(WATCH_SIZE, () => {
+  updateRulers()
 })
 </script>
 
@@ -83,6 +173,7 @@ onUnmounted(() => {
   display: flex;
   gap: 8px;
   align-items: center;
+  z-index: 2;
 }
 
 .zoom-controls button {

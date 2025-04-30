@@ -8,7 +8,12 @@
     </div>
     <!-- 中间画布区域 -->
     <div class="center-area">
-      <Canvas ref="canvasRef" />
+      <div class="ruler-corner"></div>
+      <div class="ruler-horizontal"></div>
+      <div class="ruler-vertical"></div>
+      <div class="canvas-container">
+        <Canvas ref="canvasRef" />
+      </div>
     </div>
     <!-- 右侧设置面板 -->
     <div class="right-panel">
@@ -287,7 +292,9 @@ defineExpose({
   justify-content: center;
   align-items: center;
   overflow: auto;
-  background-color: #f5f5f5;
+  background-color: #55f5f5;
+  padding: 20px;
+  position: relative;
 }
 
 .right-panel {
@@ -298,5 +305,47 @@ defineExpose({
   overflow-y: auto;
   padding: 16px;
   padding-bottom: 76px; /* 原有的16px + 额外的60px空间 */
+}
+
+.canvas-container {
+  position: relative;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 40px 0 0 40px;
+}
+
+.ruler-corner {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 40px;
+  height: 40px;
+  background: #f0f0f0;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  z-index: 2;
+}
+
+.ruler-horizontal {
+  position: absolute;
+  top: 0px;
+  left: 40px;
+  right: 0px;
+  height: 40px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
+  z-index: 1;
+}
+
+.ruler-vertical {
+  position: absolute;
+  top: 40px;
+  left: 0px;
+  bottom: 0px;
+  width: 40px;
+  background: #f0f0f0;
+  border-right: 1px solid #e0e0e0;
+  z-index: 1;
 }
 </style>
