@@ -19,21 +19,21 @@ const baseStore = useBaseStore()
 const layerStore = useLayerStore()
 let updateInterval
 const WATCH_SIZE = computed(() => baseStore.WATCH_SIZE)
+const RULER_OFFSET = 40
 
 FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup']
 
 // 绘制水平标尺
 const drawHorizontalRuler = (ctx, width, zoom, canvasLeft) => {
-  console.log('绘制水平标尺:', { width, zoom, canvasLeft })
   
-  ctx.clearRect(0, 0, width, 40)
+  ctx.clearRect(0, 0, width, RULER_OFFSET)
   ctx.fillStyle = '#f0f0f0'
-  ctx.fillRect(0, 0, width, 40)
+  ctx.fillRect(0, 0, width, RULER_OFFSET)
   ctx.strokeStyle = '#999'
   ctx.beginPath()
   
   // 计算起始位置，使手表表盘左上角为(0,0)点
-  const rulerOffset = 40 // 标尺的宽度
+  const rulerOffset = RULER_OFFSET // 标尺的宽度
   const startX = -canvasLeft
   const endX = startX + WATCH_SIZE.value + rulerOffset
   
@@ -43,17 +43,16 @@ const drawHorizontalRuler = (ctx, width, zoom, canvasLeft) => {
     
     // 大刻度（100像素）
     if (i % 100 === 0) {
-      ctx.moveTo(x, 40)
+      ctx.moveTo(x, RULER_OFFSET)
       ctx.lineTo(x, 20)
       // 添加数字标签
       ctx.fillStyle = '#333'
       ctx.font = '12px Arial'
       ctx.fillText(i, x + 2, 15)
-      console.log('绘制大刻度:', { position: x, value: i })
     } 
     // 小刻度（10像素）
     else {
-      ctx.moveTo(x, 40)
+      ctx.moveTo(x, RULER_OFFSET)
       ctx.lineTo(x, 30)
     }
   }
@@ -62,7 +61,6 @@ const drawHorizontalRuler = (ctx, width, zoom, canvasLeft) => {
 
 // 绘制垂直标尺
 const drawVerticalRuler = (ctx, height, zoom, canvasTop) => {
-  console.log('绘制垂直标尺:', { height, zoom, canvasTop })
   
   ctx.clearRect(0, 0, 40, height)
   ctx.fillStyle = '#f0f0f0'
@@ -91,7 +89,6 @@ const drawVerticalRuler = (ctx, height, zoom, canvasTop) => {
       ctx.rotate(-Math.PI / 2)
       ctx.fillText(i, 0, 0)
       ctx.restore()
-      console.log('绘制大刻度:', { position: y, value: i })
     } 
     // 小刻度（10像素）
     else {
@@ -136,8 +133,8 @@ const updateRulers = () => {
     const centerRect = centerArea.getBoundingClientRect()
     
     // 计算表盘左上角相对于标尺的偏移量
-    const canvasLeft = containerRect.left - centerRect.left - 40 // 减去垂直标尺宽度
-    const canvasTop = containerRect.top - centerRect.top - 40 // 减去水平标尺高度
+    const canvasLeft = containerRect.left - centerRect.left - RULER_OFFSET // 减去垂直标尺宽度
+    const canvasTop = containerRect.top - centerRect.top - RULER_OFFSET // 减去水平标尺高度
     
     console.log('更新标尺:', {
       containerRect,
@@ -149,10 +146,10 @@ const updateRulers = () => {
     })
     
     // 设置画布尺寸
-    horizontalRuler.width = centerArea.clientWidth - 40 // 减去标尺的宽度
-    horizontalRuler.height = 40
-    verticalRuler.width = 40
-    verticalRuler.height = centerArea.clientHeight - 40 // 减去标尺的高度
+    horizontalRuler.width = centerArea.clientWidth - RULER_OFFSET // 减去标尺的宽度
+    horizontalRuler.height = RULER_OFFSET
+    verticalRuler.width = RULER_OFFSET
+    verticalRuler.height = centerArea.clientHeight - RULER_OFFSET // 减去标尺的高度
     
     drawHorizontalRuler(horizontalCtx, horizontalRuler.width, zoom, canvasLeft)
     drawVerticalRuler(verticalCtx, verticalRuler.height, zoom, canvasTop)
@@ -164,7 +161,7 @@ const updateRulers = () => {
 // 添加辅助线
 const addGuideLine = (canvas, orientation, position) => {
   const line = new Line(
-    orientation === 'horizontal' 
+    orientation === 'horizontal'
       ? [0, position, canvas.width, position] 
       : [position, 0, position, canvas.height],
     {
@@ -175,6 +172,7 @@ const addGuideLine = (canvas, orientation, position) => {
       name: 'guideLine'
     }
   )
+  console.log('添加辅助线: x1:', line.x1, 'y1:', line.y1, 'x2:', line.x2, 'y2:', line.y2)
   canvas.add(line)
   canvas.requestRenderAll()
 }
@@ -184,6 +182,118 @@ const refreshCanvas = throttle((event) => {
   emitter.emit('refresh-canvas', { event })
   updateRulers()
 }, 16) // 约60fps
+
+// 创建水平辅助线
+const createHorizontalGuideline = (y) => {
+  // 获取中心区域的宽度
+  const centerArea = document.querySelector('.center-area')
+  const width = centerArea ? centerArea.clientWidth - RULER_OFFSET : WATCH_SIZE.value // 减去垂直标尺宽度
+
+  const line = new Line([-width, y, width * 2, y], {
+    stroke: '#0a90ff',
+    strokeWidth: 1,
+    selectable: true,
+    evented: true,
+    lockMovementX: true, // 只允许垂直移动
+    lockScalingX: true,
+    lockScalingY: true,
+    lockRotation: true,
+    hasControls: false, // 禁用控制点
+    hasBorders: false, // 禁用边框
+    originX: 'left',
+    originY: 'top',
+    hoverCursor: 'ns-resize', // 垂直移动光标
+    moveCursor: 'ns-resize',
+    guideline: true, // 标记为辅助线
+    type: 'horizontalGuideline',
+    perPixelTargetFind: true,
+    targetFindTolerance: 5
+  })
+  
+  baseStore.canvas.add(line)
+  return line
+}
+
+// 创建垂直辅助线
+const createVerticalGuideline = (x) => {
+  // 获取中心区域的高度
+  const centerArea = document.querySelector('.center-area')
+  const height = centerArea ? centerArea.clientHeight - RULER_OFFSET : WATCH_SIZE.value // 减去水平标尺高度
+
+  console.log('创建垂直辅助线: x1:', x, 'y1:', -height, 'x2:', x, 'y2:', height * 2)
+  const line = new Line([x, -height, x, height * 2], {
+    stroke: '#0a90ff',
+    strokeWidth: 1,
+    selectable: true,
+    evented: true,
+    lockMovementY: true, // 只允许水平移动
+    lockScalingX: true,
+    lockScalingY: true,
+    lockRotation: true,
+    hasControls: false, // 禁用控制点
+    hasBorders: false, // 禁用边框
+    originX: 'left',
+    originY: 'top',
+    hoverCursor: 'ew-resize', // 水平移动光标
+    moveCursor: 'ew-resize',
+    guideline: true, // 标记为辅助线
+    type: 'verticalGuideline',
+    perPixelTargetFind: true,
+    targetFindTolerance: 5
+  })
+  
+  baseStore.canvas.add(line)
+  return line
+}
+
+// 更新辅助线尺寸
+const updateGuidelineSize = () => {
+  if (!baseStore.canvas) return
+
+  const centerArea = document.querySelector('.center-area')
+  if (!centerArea) return
+
+  const width = centerArea.clientWidth - RULER_OFFSET // 减去垂直标尺宽度
+  const height = centerArea.clientHeight - RULER_OFFSET // 减去水平标尺高度
+
+  baseStore.canvas.getObjects().forEach(obj => {
+    if (obj.guideline) {
+      if (obj.type === 'horizontalGuideline') {
+        obj.set({
+          x1: -width,
+          x2: width * 2
+        })
+      } else {
+        obj.set({
+          y1: -height,
+          y2: height * 2
+        })
+      }
+      obj.setCoords()
+    }
+  })
+  baseStore.canvas.requestRenderAll()
+}
+
+// 处理标尺双击事件
+const handleRulerDoubleClick = (e, isHorizontal) => {
+  const rect = e.target.getBoundingClientRect()
+  const centerRect = document.querySelector('.center-area').getBoundingClientRect()
+  const canvasContainer = document.querySelector('.canvas-container').getBoundingClientRect()
+  
+  if (isHorizontal) {
+    const x = e.clientX - rect.left + RULER_OFFSET
+    const normalizedX = x + (centerRect.left - canvasContainer.left)
+    const guideline = createVerticalGuideline(normalizedX)
+    baseStore.canvas.setActiveObject(guideline)
+  } else {
+    const y = e.clientY - rect.top + RULER_OFFSET
+    const normalizedY = y + (centerRect.top - canvasContainer.top)
+    const guideline = createHorizontalGuideline(normalizedY)
+    baseStore.canvas.setActiveObject(guideline)
+  }
+  baseStore.canvas.requestRenderAll()
+}
 
 onMounted(() => {
   // 创建画布，尺寸比手表大一些以显示边界
@@ -224,6 +334,7 @@ onMounted(() => {
   })
 
   baseStore.setCanvas(canvas)
+  // 更新标尺
   updateRulers()
 
   // 监听窗口大小变化
@@ -234,6 +345,50 @@ onMounted(() => {
   if (centerArea) {
     centerArea.addEventListener('scroll', updateRulers)
   }
+
+  // 添加标尺双击事件监听
+  const horizontalRuler = document.querySelector('.ruler-horizontal')
+  const verticalRuler = document.querySelector('.ruler-vertical')
+  
+  if (horizontalRuler) {
+    horizontalRuler.addEventListener('dblclick', (e) => handleRulerDoubleClick(e, true))
+  }
+  if (verticalRuler) {
+    verticalRuler.addEventListener('dblclick', (e) => handleRulerDoubleClick(e, false))
+  }
+
+  // 监听画布对象移动事件
+  baseStore.canvas.on('object:moving', (e) => {
+    const target = e.target
+    if (target && target.guideline) {
+      // 吸附到网格
+      const gridSize = 10
+      if (target.type === 'horizontalGuideline') {
+        target.set({
+          top: Math.round(target.top / gridSize) * gridSize
+        })
+      } else if (target.type === 'verticalGuideline') {
+        target.set({
+          left: Math.round(target.left / gridSize) * gridSize
+        })
+      }
+      target.setCoords()
+    }
+  })
+
+  // 添加删除快捷键
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && baseStore.canvas) {
+      const activeObject = baseStore.canvas.getActiveObject()
+      if (activeObject && activeObject.guideline) {
+        baseStore.canvas.remove(activeObject)
+        baseStore.canvas.requestRenderAll()
+      }
+    }
+  })
+
+  // 监听窗口大小变化，更新辅助线尺寸
+  window.addEventListener('resize', updateGuidelineSize)
 })
 
 onUnmounted(() => {
@@ -248,6 +403,31 @@ onUnmounted(() => {
   if (centerArea) {
     centerArea.removeEventListener('scroll', updateRulers)
   }
+
+  // 移除标尺双击事件监听
+  const horizontalRuler = document.querySelector('.ruler-horizontal')
+  const verticalRuler = document.querySelector('.ruler-vertical')
+  
+  if (horizontalRuler) {
+    horizontalRuler.removeEventListener('dblclick', (e) => handleRulerDoubleClick(e, true))
+  }
+  if (verticalRuler) {
+    verticalRuler.removeEventListener('dblclick', (e) => handleRulerDoubleClick(e, false))
+  }
+
+  // 移除删除快捷键监听
+  document.removeEventListener('keydown', (e) => {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && baseStore.canvas) {
+      const activeObject = baseStore.canvas.getActiveObject()
+      if (activeObject && activeObject.guideline) {
+        baseStore.canvas.remove(activeObject)
+        baseStore.canvas.requestRenderAll()
+      }
+    }
+  })
+
+  // 移除窗口大小变化监听
+  window.removeEventListener('resize', updateGuidelineSize)
 })
 
 // 监听画布大小变化

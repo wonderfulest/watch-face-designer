@@ -23,6 +23,10 @@ Object.entries(modules).forEach(([path, module]) => {
 
 // 获取设置组件的函数
 export function getSettingsComponent(type) {
+  if (type == undefined) {
+    return null
+  }
+  console.log('获取设置组件:', type)
   // 尝试直接匹配
   if (componentMap[type]) {
     return componentMap[type]

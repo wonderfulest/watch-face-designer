@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, defineProps, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, defineProps, watchEffect } from 'vue'
 import ChangelogDialog from '@/components/dialogs/ChangelogDialog.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { nanoid } from 'nanoid'
@@ -44,6 +44,7 @@ import SidePanel from '@/components/SidePanel.vue'
 import ExportPanel from '@/components/ExportPanel.vue'
 import appConfig from '@/config/appConfig'
 import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
+import { useCanvas } from '../composables/useCanvas'
 import emitter from '@/utils/eventBus'
 import { usePropertiesStore } from '@/stores/properties'
 import { useMessageStore } from '@/stores/message'
@@ -63,6 +64,7 @@ const baseStore = useBaseStore()
 const messageStore = useMessageStore()
 const fontStore = useFontStore()
 const exportStore = useExportStore()
+const { waitCanvasReady } = useCanvas()
 const canvasRef = ref(null)
 const exportPanelRef = ref(null)
 const isDialogVisible = ref(false)
@@ -76,12 +78,13 @@ const props = defineProps({
     default: null
   }
 })
-// 监听 exportPanelRef 变化，注册到 store 中
-watch(exportPanelRef, (newValue) => {
-  if (newValue) {
-    exportStore.setExportPanelRef(newValue)
+
+// 使用 watchEffect 监听 exportPanelRef 变化
+watchEffect(() => {
+  if (exportPanelRef.value) {
+    exportStore.setExportPanelRef(exportPanelRef.value)
   }
-}, { immediate: true })
+})
 
 // 启用键盘快捷键
 useKeyboardShortcuts()
@@ -129,16 +132,7 @@ const loadDesign = async (id) => {
     baseStore.currentThemeIndex = 0
 
     // 等待画布初始化完成
-    await new Promise((resolve) => {
-      const checkCanvas = () => {
-        if (baseStore.canvas) {
-          resolve()
-        } else {
-          setTimeout(checkCanvas, 100)
-        }
-      }
-      checkCanvas()
-    })
+    await waitCanvasReady()
     
     // 切换主题背景
     baseStore.toggleThemeBackground()
@@ -157,16 +151,7 @@ const loadDesign = async (id) => {
 // 初始化新设计
 const initNewDesign = async () => {
   // 等待画布初始化完成
-  await new Promise((resolve) => {
-    const checkCanvas = () => {
-      if (baseStore.canvas) {
-        resolve()
-      } else {
-        setTimeout(checkCanvas, 100)
-      }
-    }
-    checkCanvas()
-  })
+  await waitCanvasReady()
 
   // 设置默认值
   baseStore.watchFaceName = ''
