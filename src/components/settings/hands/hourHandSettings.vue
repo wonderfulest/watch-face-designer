@@ -41,9 +41,21 @@
         <div class="size-inputs">
           <div class="input-group">
             <label>高度</label>
-            <input type="number" :value="element.height " min="1" max="300" @change="updateElement" />
+            <input type="number" :value="Math.round(element.height * element.scaleY)" min="1" max="300" @change="onHeightChange($event)" />
           </div>
         </div>
+        <label>缩放比例</label>
+        <div class="scale-inputs">
+          <div class="scale-input">
+            <label>X</label>
+            <input type="number" :value="element.scaleX.toFixed(2)" readonly />
+          </div>
+          <div class="scale-input">
+            <label>Y</label>
+            <input type="number" :value="element.scaleY.toFixed(2)" readonly />
+          </div>
+        </div>
+       
       </div>
 
       <!-- 旋转角度设置 -->
@@ -157,12 +169,18 @@ const tooltipContent = `
     <p>3. 角度范围0到359</p>
   </div>
 `
-
+const onHeightChange = (e) => {
+  hourHandStore.updateElement(props.element, {
+    height: e.target.value,
+  })
+}
 // 更新元素
 const updateElement = () => {
   if (!props.element) return
   console.log('updateElement height', props.element.height)
   hourHandStore.updateElement(props.element, {
+    scaleX: props.element.scaleX,
+    scaleY: props.element.scaleY,
     height: props.element.height,
     left: props.element.left,
     top: props.element.top,
@@ -291,5 +309,24 @@ defineExpose({
   font-size: 12px;
   margin-top: 4px;
   text-align: center;
+}
+
+.scale-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.scale-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scale-input label {
+  min-width: 20px;
+}
+
+.scale-input input {
+  width: 60px;
 }
 </style>

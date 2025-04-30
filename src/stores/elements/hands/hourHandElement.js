@@ -32,7 +32,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
 
       const loadedSVG = await loadSVGFromURL(imageUrl)
       const svgGroup = util.groupSVGElements(loadedSVG.objects)
-      svgGroup.set({
+      const options = {
         id,
         eleType: 'hourHand',
         left: config.left,
@@ -45,7 +45,9 @@ export const useHourHandStore = defineStore('hourHandElement', {
         rotation: rotation,
         imageUrl: imageUrl,
         color: color
-      })
+      }
+      console.log('addElement hourHand options', options)
+      svgGroup.set(options)
 
       if (Array.isArray(svgGroup._objects)) {
         svgGroup._objects.forEach((obj) => obj.set('fill', color))
@@ -53,6 +55,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
         svgGroup.set('fill', color)
       }
 
+      console.log('addElement hourHand height', height)
       svgGroup.scaleToHeight(height)
 
       this.baseStore.canvas.add(svgGroup)
@@ -73,7 +76,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
       const currentTop = svgGroup.top
       const currentRotation = svgGroup.rotation
       const currentImageUrl = svgGroup.imageUrl
-      const currentHeight = svgGroup.height * svgGroup.scaleY
+      
 
       let newSVG = svgGroup
 
@@ -94,7 +97,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
           hasControls: true,
           hasBorders: true,
           rotation: currentRotation,
-          imageUrl: config.imageUrl
+          imageUrl: config.imageUrl,
         })
         this.baseStore.canvas.add(newSVG)
       }
