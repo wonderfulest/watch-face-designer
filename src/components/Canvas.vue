@@ -23,8 +23,8 @@ const WATCH_SIZE = computed(() => baseStore.WATCH_SIZE)
 FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup']
 
 // 绘制水平标尺
-const drawHorizontalRuler = (ctx, width, zoom) => {
-  console.log('绘制水平标尺:', { width, zoom })
+const drawHorizontalRuler = (ctx, width, zoom, canvasLeft) => {
+  console.log('绘制水平标尺:', { width, zoom, canvasLeft })
   
   ctx.clearRect(0, 0, width, 40)
   ctx.fillStyle = '#f0f0f0'
@@ -32,12 +32,14 @@ const drawHorizontalRuler = (ctx, width, zoom) => {
   ctx.strokeStyle = '#999'
   ctx.beginPath()
   
-  // 计算中心点
-  const centerX = width / 2
+  // 计算起始位置，使手表表盘左上角为(0,0)点
+  const rulerOffset = 40 // 标尺的宽度
+  const startX = -canvasLeft
+  const endX = startX + WATCH_SIZE.value + rulerOffset
   
   // 绘制刻度线
-  for (let i = -1000; i <= 1000; i += 10) {
-    const x = centerX + i * zoom
+  for (let i = Math.floor(startX / 10) * 10; i <= 800; i += 10) {
+    const x = (i + canvasLeft) * zoom
     
     // 大刻度（100像素）
     if (i % 100 === 0) {
@@ -59,8 +61,8 @@ const drawHorizontalRuler = (ctx, width, zoom) => {
 }
 
 // 绘制垂直标尺
-const drawVerticalRuler = (ctx, height, zoom) => {
-  console.log('绘制垂直标尺:', { height, zoom })
+const drawVerticalRuler = (ctx, height, zoom, canvasTop) => {
+  console.log('绘制垂直标尺:', { height, zoom, canvasTop })
   
   ctx.clearRect(0, 0, 40, height)
   ctx.fillStyle = '#f0f0f0'
@@ -68,12 +70,14 @@ const drawVerticalRuler = (ctx, height, zoom) => {
   ctx.strokeStyle = '#999'
   ctx.beginPath()
   
-  // 计算中心点
-  const centerY = height / 2
+  // 计算起始位置，使手表表盘左上角为(0,0)点
+  const rulerOffset = 40 // 标尺的高度
+  const startY = -canvasTop
+  const endY = startY + WATCH_SIZE.value + rulerOffset
   
   // 绘制刻度线
-  for (let i = -1000; i <= 1000; i += 10) {
-    const y = centerY + i * zoom
+  for (let i = Math.floor(startY / 10) * 10; i <= 800; i += 10) {
+    const y = (i + canvasTop) * zoom
     
     // 大刻度（100像素）
     if (i % 100 === 0) {
@@ -102,12 +106,16 @@ const drawVerticalRuler = (ctx, height, zoom) => {
 const updateRulers = () => {
   const horizontalRuler = document.querySelector('.ruler-horizontal')
   const verticalRuler = document.querySelector('.ruler-vertical')
+  const centerArea = document.querySelector('.center-area')
+  const canvasContainer = document.querySelector('.canvas-container')
   
-  if (!horizontalRuler || !verticalRuler || !baseStore.canvas) {
+  if (!horizontalRuler || !verticalRuler || !baseStore.canvas || !centerArea || !canvasContainer) {
     console.log('标尺元素未找到:', {
       horizontalRuler: !!horizontalRuler,
       verticalRuler: !!verticalRuler,
-      canvas: !!baseStore.canvas
+      canvas: !!baseStore.canvas,
+      centerArea: !!centerArea,
+      canvasContainer: !!canvasContainer
     })
     return
   }
@@ -123,28 +131,31 @@ const updateRulers = () => {
 
     const zoom = baseStore.canvas.getZoom()
     
-    // 设置画布尺寸
-    horizontalRuler.width = WATCH_SIZE.value
-    horizontalRuler.height = 40
-    verticalRuler.width = 40
-    verticalRuler.height = WATCH_SIZE.value
+    // 获取表盘容器的位置
+    const containerRect = canvasContainer.getBoundingClientRect()
+    const centerRect = centerArea.getBoundingClientRect()
+    
+    // 计算表盘左上角相对于标尺的偏移量
+    const canvasLeft = containerRect.left - centerRect.left - 40 // 减去垂直标尺宽度
+    const canvasTop = containerRect.top - centerRect.top - 40 // 减去水平标尺高度
     
     console.log('更新标尺:', {
-      width: WATCH_SIZE.value,
-      height: WATCH_SIZE.value,
-      zoom,
-      horizontalRulerSize: {
-        width: horizontalRuler.width,
-        height: horizontalRuler.height
-      },
-      verticalRulerSize: {
-        width: verticalRuler.width,
-        height: verticalRuler.height
-      }
+      containerRect,
+      centerRect,
+      canvasLeft,
+      canvasTop,
+      watchSize: WATCH_SIZE.value,
+      zoom
     })
     
-    drawHorizontalRuler(horizontalCtx, WATCH_SIZE.value, zoom)
-    drawVerticalRuler(verticalCtx, WATCH_SIZE.value, zoom)
+    // 设置画布尺寸
+    horizontalRuler.width = centerArea.clientWidth - 40 // 减去标尺的宽度
+    horizontalRuler.height = 40
+    verticalRuler.width = 40
+    verticalRuler.height = centerArea.clientHeight - 40 // 减去标尺的高度
+    
+    drawHorizontalRuler(horizontalCtx, horizontalRuler.width, zoom, canvasLeft)
+    drawVerticalRuler(verticalCtx, verticalRuler.height, zoom, canvasTop)
   } catch (error) {
     console.error('更新标尺时出错:', error)
   }
@@ -214,11 +225,28 @@ onMounted(() => {
 
   baseStore.setCanvas(canvas)
   updateRulers()
+
+  // 监听窗口大小变化
+  window.addEventListener('resize', updateRulers)
+  
+  // 监听滚动事件
+  const centerArea = document.querySelector('.center-area')
+  if (centerArea) {
+    centerArea.addEventListener('scroll', updateRulers)
+  }
 })
 
 onUnmounted(() => {
   if (updateInterval) {
     clearInterval(updateInterval)
+  }
+
+  // 移除事件监听
+  window.removeEventListener('resize', updateRulers)
+  
+  const centerArea = document.querySelector('.center-area')
+  if (centerArea) {
+    centerArea.removeEventListener('scroll', updateRulers)
   }
 })
 
