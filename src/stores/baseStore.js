@@ -20,7 +20,10 @@ export const useBaseStore = defineStore('baseStore', {
     textCase: 0, // 文本大小写设置：0=默认, 1=全大写, 2=全小写, 3=驼峰
     labelLengthType: 1, // 标签长度类型：1=短文本, 2=中等文本, 3=长文本
     showUnit: false, // 是否显示数据项单位
-    screenshot: null // 存储表盘截图数据
+    screenshot: null, // 存储表盘截图数据
+    // 添加背景元素的引用
+    watchFaceCircle: null,
+    backgroundImage: null
   }),
 
   getters: {
@@ -248,12 +251,11 @@ export const useBaseStore = defineStore('baseStore', {
     },
     // 添加背景
     addBackground() {
-    
       const center = this.$state.WATCH_SIZE / 2
       console.log('addBackground center', center)
 
       // 创建表盘背景圆
-      const watchFace = new Circle({
+      this.watchFaceCircle = new Circle({
         eleType: 'global',
         left: center,
         top: center,
@@ -261,6 +263,7 @@ export const useBaseStore = defineStore('baseStore', {
         originY: 'center',
         radius: this.$state.WATCH_SIZE / 2,
         fill: this.$state.themeBackgroundColors[this.$state.currentThemeIndex] || '#000000',
+        backgroundColor: 'red',
         selectable: false,
         evented: true
       })
@@ -271,6 +274,7 @@ export const useBaseStore = defineStore('baseStore', {
         FabricImage.fromURL(currentBgImage, (img) => {
           // 计算缩放比例以填充圆形区域
           const scale = this.$state.WATCH_SIZE / Math.min(img.width, img.height)
+          this.backgroundImage = img
           img.set({
             eleType: 'background-image',
             scaleX: scale,
@@ -288,10 +292,58 @@ export const useBaseStore = defineStore('baseStore', {
       }
 
       this.canvas.set({
-        clipPath: watchFace
+        clipPath: this.watchFaceCircle
       })
-      this.canvas.add(watchFace)
-      this.canvas.moveObjectTo(watchFace, 0)
+      this.canvas.add(this.watchFaceCircle)
+      this.canvas.moveObjectTo(this.watchFaceCircle, 0)
+    },
+    // 更新背景元素大小和位置
+    updateBackgroundElements(zoom = 1) {
+      const center = this.$state.WATCH_SIZE / 2
+      const radius = this.$state.WATCH_SIZE / 2
+
+      if (this.watchFaceCircle) {
+        this.watchFaceCircle.set({
+          left: center,
+          top: center,
+          originX: 'center',
+          originY: 'center',
+          radius: radius,
+          strokeUniform: true,  // 确保边框均匀缩放
+          strokeWidth: 1,
+          selectable: false,
+          evented: true,
+          hasBorders: false,
+          hasControls: false
+        })
+        this.watchFaceCircle.setCoords()
+      }
+
+      if (this.backgroundImage) {
+        const scale = radius / Math.min(this.backgroundImage.width, this.backgroundImage.height)
+        this.backgroundImage.set({
+          left: center,
+          top: center,
+          originX: 'center',
+          originY: 'center',
+          scaleX: scale,
+          scaleY: scale,
+          strokeUniform: true,
+          selectable: false,
+          evented: false
+        })
+        this.backgroundImage.setCoords()
+      }
+
+      // 确保画布尺寸足够大
+      if (this.canvas) {
+        const size = this.$state.WATCH_SIZE * zoom
+        this.canvas.setDimensions({
+          width: size,
+          height: size
+        })
+        this.canvas.requestRenderAll()
+      }
     },
     // 加载全局元素
     loadGlobalElement() {

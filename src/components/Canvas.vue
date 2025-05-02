@@ -37,6 +37,11 @@ const zoomLevel = ref(1)
 const MIN_ZOOM = 0.1
 const MAX_ZOOM = 3
 const ZOOM_STEP = 0.1
+const isDragging = ref(false)
+const lastX = ref(0)
+const lastY = ref(0)
+const canvasOffset = ref({ x: 0, y: 0 })
+const isSpacePressed = ref(false)
 
 FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup']
 
@@ -84,7 +89,7 @@ const drawVerticalRuler = (ctx, height, zoom, canvasTop) => {
   // 计算起始位置，使手表表盘左上角为(0,0)点
   const rulerOffset = 40 // 标尺的高度
   const startY = -canvasTop / zoom  // 除以缩放因子
-  const endY = startY + WATCH_SIZE.value / zoom + rulerOffset  // 除以缩放因子
+  const endY = startY + WATCH_SIZE.value / zoom + rulerOffset + 800 // 除以缩放因子
   
   // 绘制刻度线
   for (let i = Math.floor(startY / 10) * 10; i <= endY; i += 10) {
@@ -132,13 +137,13 @@ const updateRulers = () => {
 
     const zoom = baseStore.canvas.getZoom()
     
-    // 获取表盘容器的位置
+    // 获取表盘容器的位置，包括画布偏移
     const containerRect = canvasContainer.getBoundingClientRect()
     const centerRect = centerArea.getBoundingClientRect()
     
-    // 计算表盘左上角相对于标尺的偏移量
-    const canvasLeft = containerRect.left - centerRect.left - RULER_OFFSET // 减去垂直标尺宽度
-    const canvasTop = containerRect.top - centerRect.top - RULER_OFFSET // 减去水平标尺高度
+    // 计算表盘左上角相对于标尺的偏移量，考虑画布偏移
+    const canvasLeft = containerRect.left - centerRect.left - RULER_OFFSET + canvasOffset.value.x
+    const canvasTop = containerRect.top - centerRect.top - RULER_OFFSET + canvasOffset.value.y
     
     // 设置画布尺寸
     horizontalRuler.width = centerArea.clientWidth - RULER_OFFSET // 减去标尺的宽度
@@ -391,12 +396,6 @@ const resetZoom = () => {
 const updateZoom = () => {
   if (!baseStore.canvas) return
   
-  // 保存当前中心点
-  const centerPoint = {
-    x: 0,
-    y: 0
-  }
-
   // 更新容器大小
   const container = document.querySelector('.canvas-container')
   if (container) {
@@ -405,21 +404,17 @@ const updateZoom = () => {
     container.style.height = `${size}px`
   }
 
-  // 设置新的变换矩阵
+  // 设置新的变换矩阵，保持当前偏移
   baseStore.canvas.setViewportTransform([
     zoomLevel.value, 0,
     0, zoomLevel.value,
-    centerPoint.x * zoomLevel.value,
-    centerPoint.y * zoomLevel.value
+    canvasOffset.value.x, canvasOffset.value.y
   ])
 
-  // 保持中心点位置
-  baseStore.canvas.absolutePan({
-    x: -centerPoint.x * zoomLevel.value,
-    y: -centerPoint.y * zoomLevel.value
-  })
+  // 更新背景元素
+  baseStore.updateBackgroundElements(zoomLevel.value)
 
-
+  // 强制重新渲染
   baseStore.canvas.requestRenderAll()
   updateRulers()
 }
@@ -437,13 +432,90 @@ const handleWheel = (e) => {
   }
 }
 
+// 添加拖拽事件监听
+const handleCanvasMouseDown = (e) => {
+  // 当空格键被按下且是左键点击时启用拖拽
+  if (isSpacePressed.value && e.button === 0) {
+    isDragging.value = true
+    lastX.value = e.clientX
+    lastY.value = e.clientY
+    
+    // 更新鼠标样式
+    const canvasWrapper = document.querySelector('.canvas-wrapper')
+    if (canvasWrapper) {
+      canvasWrapper.classList.add('dragging')
+    }
+    
+    e.preventDefault()
+  }
+}
+
+const handleCanvasMouseMove = (e) => {
+  if (!isDragging.value) return
+
+  const deltaX = e.clientX - lastX.value
+  const deltaY = e.clientY - lastY.value
+  
+  // 更新偏移量
+  canvasOffset.value.x += deltaX
+  canvasOffset.value.y += deltaY
+
+  // 更新画布变换
+  baseStore.canvas.setViewportTransform([
+    zoomLevel.value, 0,
+    0, zoomLevel.value,
+    canvasOffset.value.x, canvasOffset.value.y
+  ])
+
+  // 更新最后的位置
+  lastX.value = e.clientX
+  lastY.value = e.clientY
+
+  // 更新标尺
+  updateRulers()
+}
+
+const handleCanvasMouseUp = () => {
+  if (isDragging.value) {
+    isDragging.value = false
+    // 移除拖拽时的样式
+    const canvasWrapper = document.querySelector('.canvas-wrapper')
+    if (canvasWrapper) {
+      canvasWrapper.classList.remove('dragging')
+    }
+  }
+}
+
+const handleKeyDown = (e) => {
+  if (e.code === 'Space' && !isSpacePressed.value) {
+    isSpacePressed.value = true
+    // 更新鼠标样式为抓手
+    const canvasWrapper = document.querySelector('.canvas-wrapper')
+    if (canvasWrapper) {
+      canvasWrapper.style.cursor = 'grab'
+    }
+    e.preventDefault()
+  }
+}
+
+const handleKeyUp = (e) => {
+  if (e.code === 'Space') {
+    isSpacePressed.value = false
+    // 恢复默认鼠标样式
+    const canvasWrapper = document.querySelector('.canvas-wrapper')
+    if (canvasWrapper) {
+      canvasWrapper.style.cursor = 'default'
+    }
+  }
+}
+
 onMounted(() => {
   // 创建画布，尺寸比手表大一些以显示边界
   const canvas = new Canvas(canvasRef.value, {
     width: WATCH_SIZE.value,
     height: WATCH_SIZE.value,
     radius: WATCH_SIZE.value / 2,
-    backgroundColor: baseStore.backgroundColor,
+    backgroundColor: 'blue', //baseStore.backgroundColor,
     centeredScaling: true,  // 确保缩放以中心点为基准
     centeredRotation: true  // 确保旋转以中心点为基准
   })
@@ -562,6 +634,23 @@ onMounted(() => {
 
   // 添加滚轮缩放事件监听
   canvas.wrapperEl.addEventListener('wheel', handleWheel, { passive: false })
+
+  // 添加键盘事件监听
+  window.addEventListener('keydown', handleKeyDown)
+  window.addEventListener('keyup', handleKeyUp)
+
+  // 添加拖拽事件监听
+  const canvasWrapper = document.querySelector('.canvas-wrapper')
+  if (canvasWrapper) {
+    canvasWrapper.addEventListener('mousedown', handleCanvasMouseDown)
+    window.addEventListener('mousemove', handleCanvasMouseMove)
+    window.addEventListener('mouseup', handleCanvasMouseUp)
+    
+    // 禁用右键菜单
+    canvasWrapper.addEventListener('contextmenu', (e) => {
+      e.preventDefault()
+    })
+  }
 })
 
 onUnmounted(() => {
@@ -609,6 +698,18 @@ onUnmounted(() => {
   if (baseStore.canvas) {
     baseStore.canvas.wrapperEl.removeEventListener('wheel', handleWheel)
   }
+
+  // 移除键盘事件监听
+  window.removeEventListener('keydown', handleKeyDown)
+  window.removeEventListener('keyup', handleKeyUp)
+
+  // 移除拖拽事件监听
+  const canvasWrapper = document.querySelector('.canvas-wrapper')
+  if (canvasWrapper) {
+    canvasWrapper.removeEventListener('mousedown', handleCanvasMouseDown)
+    window.removeEventListener('mousemove', handleCanvasMouseMove)
+    window.removeEventListener('mouseup', handleCanvasMouseUp)
+  }
 })
 
 // 监听画布大小变化
@@ -623,6 +724,17 @@ watch(WATCH_SIZE, () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: visible; /* 修改为 visible，允许内容溢出 */
+  cursor: default;
+  user-select: none; /* 防止拖拽时选中文本 */
+}
+
+.canvas-wrapper.dragging {
+  cursor: grabbing !important;
+}
+
+.canvas-wrapper:active {
+  cursor: grabbing;
 }
 
 .canvas-controls {
@@ -680,6 +792,9 @@ watch(WATCH_SIZE, () => {
   background: white;
   border-radius: 4px;
   transition: width 0.3s, height 0.3s;
+  position: relative;
+  margin: 50px;
+  overflow: visible; /* 允许内容溢出 */
 }
 
 .zoom-level {
