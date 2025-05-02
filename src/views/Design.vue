@@ -18,6 +18,26 @@
       <div class="canvas-container">
         <Canvas ref="canvasRef" />
       </div>
+      <div class="editor-controls">
+        <!-- 缩放控件 -->
+        <div class="zoom-controls">
+          <el-button circle @click="handleZoomOut" title="缩小">
+            <el-icon><Minus /></el-icon>
+          </el-button>
+          <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
+          <el-button circle @click="handleZoomIn" title="放大">
+            <el-icon><Plus /></el-icon>
+          </el-button>
+          <el-button circle @click="handleResetZoom" title="重置缩放">
+            <el-icon><Refresh /></el-icon>
+          </el-button>
+        </div>
+        
+        <!-- 编辑器设置按钮 -->
+        <div class="editor-settings-btn" @click="openEditorSettings">
+          <el-icon><Setting /></el-icon>
+        </div>
+      </div>
     </div>
     <!-- 右侧设置面板 -->
     <div class="right-panel">
@@ -30,11 +50,14 @@
       :isDialogVisible="isDialogVisible" 
       @update:isDialogVisible="isDialogVisible = $event" 
     />
+
+    <!-- 添加设置对话框 -->
+    <EditorSettingsDialog ref="editorSettingsDialog" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, defineProps, watchEffect } from 'vue'
+import { ref, onMounted, onBeforeUnmount, defineProps, watchEffect, computed } from 'vue'
 import ChangelogDialog from '@/components/dialogs/ChangelogDialog.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { nanoid } from 'nanoid'
@@ -55,7 +78,9 @@ import { useImageElementStore } from '@/stores/elements/imageElement'
 import { useBaseStore } from '@/stores/baseStore'
 import { decodeElement } from '@/utils/elementCodec'
 import { getAddElement } from '@/utils/elementCodec/registry'
-
+import EditorSettingsDialog from '@/components/dialogs/EditorSettingsDialog.vue'
+import { Setting } from '@element-plus/icons-vue'
+import { Minus, Plus, Refresh } from '@element-plus/icons-vue'
 const propertiesStore = usePropertiesStore()
 const imageStore = useImageElementStore()
 const route = useRoute()
@@ -68,9 +93,11 @@ const { waitCanvasReady } = useCanvas()
 const canvasRef = ref(null)
 const exportPanelRef = ref(null)
 const isDialogVisible = ref(false)
+const zoomLevel = computed(() => canvasRef.value?.zoomLevel || 1)
 let saveTimer = null
 
 const changelogDialog = ref(null)
+const editorSettingsDialog = ref(null)
 
 const props = defineProps({
   designKey: {
@@ -88,6 +115,9 @@ watchEffect(() => {
 
 // 启用键盘快捷键
 useKeyboardShortcuts()
+
+// 添加背景色计算属性
+const backgroundColor = computed(() => baseStore.builder?.backgroundColor || '#55f5f5')
 
 // 加载设计配置
 const loadDesign = async (id) => {
@@ -245,10 +275,26 @@ onBeforeUnmount(() => {
   })
 })
 
+const handleZoomOut = () => {
+  canvasRef.value.zoomOut()
+}
+
+const handleZoomIn = () => {
+  canvasRef.value.zoomIn()
+}
+
+const handleResetZoom = () => {
+  canvasRef.value.resetZoom()
+}
+
 // 向外部暴露方法
 defineExpose({
   exportPanelRef
 })
+
+const openEditorSettings = () => {
+  editorSettingsDialog.value?.openDialog()
+}
 </script>
 
 <style scoped>
@@ -281,7 +327,7 @@ defineExpose({
   justify-content: center;
   align-items: center;
   overflow: auto;
-  background-color: #55f5f5;
+  background-color: v-bind(backgroundColor);
   padding: 20px;
   position: relative;
 }
@@ -299,9 +345,7 @@ defineExpose({
 .canvas-container {
   position: relative;
   background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin: 40px 0 0 40px;
+  margin: 40px 0 0 40px; /* 标尺和画布之间的距离 40px */
 }
 
 .ruler-corner {
@@ -337,4 +381,62 @@ defineExpose({
   border-right: 1px solid #e0e0e0;
   z-index: 1;
 }
+
+.editor-settings-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s;
+}
+
+.editor-settings-btn:hover {
+  transform: rotate(30deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.editor-settings-btn .el-icon {
+  font-size: 20px;
+  color: #666;
+}
+
+.zoom-controls {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: #f0f0f0;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  z-index: 2;
+}
+
+.zoom-controls button {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoom-controls button:hover {
+  background: #f5f5f5;
+}
+
 </style>

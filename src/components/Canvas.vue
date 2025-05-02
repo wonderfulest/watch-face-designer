@@ -1,17 +1,5 @@
 <template>
   <div class="canvas-wrapper">
-    <div class="zoom-controls">
-      <button @click="zoomOut" title="缩小">
-        <el-icon><Minus /></el-icon>
-      </button>
-      <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
-      <button @click="zoomIn" title="放大">
-        <el-icon><Plus /></el-icon>
-      </button>
-      <button @click="resetZoom" title="重置缩放">
-        <el-icon><Refresh /></el-icon>
-      </button>
-    </div>
     <canvas ref="canvasRef"></canvas>
   </div>
 </template>
@@ -25,7 +13,6 @@ import { useLayerStore } from '@/stores/layerStore'
 import { initAligningGuidelines } from '@/lib/aligning_guidelines'
 import { initCenteringGuidelines } from '@/lib/centering_guidelines'
 import { throttle } from '@/utils/performance'
-import { Minus, Plus, Refresh } from '@element-plus/icons-vue'
 
 const canvasRef = ref(null)
 const baseStore = useBaseStore()
@@ -741,6 +728,14 @@ onUnmounted(() => {
 watch(WATCH_SIZE, () => {
   updateRulers()
 })
+
+// 在 Canvas.vue 的 script setup 中暴露缩放方法和值
+defineExpose({
+  zoomIn,
+  zoomOut,
+  resetZoom,
+  zoomLevel
+})
 </script>
 
 <style scoped>
@@ -783,35 +778,6 @@ watch(WATCH_SIZE, () => {
   background: #f5f5f5;
 }
 
-.zoom-controls {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: white;
-  padding: 8px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  z-index: 2;
-}
-
-.zoom-controls button {
-  width: 24px;
-  height: 24px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.zoom-controls button:hover {
-  background: #f5f5f5;
-}
 
 .canvas-container {
   background: white;

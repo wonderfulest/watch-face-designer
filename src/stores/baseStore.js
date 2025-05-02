@@ -11,6 +11,10 @@ export const useBaseStore = defineStore('baseStore', {
   state: () => ({
     canvas: null,
     id: null,
+    builder: {
+      zoomLevel: 1,
+      backgroundColor: '#55f5f5',
+    },
     watchFaceName: '',
     kpayId: '',
     WATCH_SIZE: 454,
@@ -27,7 +31,6 @@ export const useBaseStore = defineStore('baseStore', {
   }),
 
   getters: {
-
   },
 
   // actions
@@ -263,7 +266,7 @@ export const useBaseStore = defineStore('baseStore', {
         originY: 'center',
         radius: this.$state.WATCH_SIZE / 2,
         fill: this.$state.themeBackgroundColors[this.$state.currentThemeIndex] || '#000000',
-        backgroundColor: 'red',
+        backgroundColor: this.$state.builder.backgroundColor,
         selectable: false,
         evented: true
       })
@@ -298,7 +301,11 @@ export const useBaseStore = defineStore('baseStore', {
       this.canvas.moveObjectTo(this.watchFaceCircle, 0)
     },
     // 更新背景元素大小和位置
-    updateBackgroundElements(zoom = 1) {
+    updateBackgroundElements(zoom) {
+      if (zoom && zoom != this.$state.builder.zoomLevel) {
+        this.$state.builder.zoomLevel = zoom
+      }
+      zoom = this.$state.builder.zoomLevel
       const center = this.$state.WATCH_SIZE / 2
       const radius = this.$state.WATCH_SIZE / 2
 
@@ -314,8 +321,10 @@ export const useBaseStore = defineStore('baseStore', {
           selectable: false,
           evented: true,
           hasBorders: false,
-          hasControls: false
+          hasControls: false,
+          backgroundColor: this.$state.builder.backgroundColor
         })
+        console.log('updateBackgroundElements', this.watchFaceCircle)
         this.watchFaceCircle.setCoords()
       }
 
@@ -576,7 +585,15 @@ export const useBaseStore = defineStore('baseStore', {
       }
 
       return config
-    }
+    },
+    // 更新编辑器设置
+    updateBuilderSettings(settings) {
+      console.log('1111111 updateBuilderSettings', settings)
+      this.builder = {
+        ...this.builder,
+        ...settings
+      }
+    },
   }
 })
 
