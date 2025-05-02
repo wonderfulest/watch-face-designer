@@ -659,16 +659,16 @@ onMounted(() => {
 
   // 添加拖拽事件监听
   const canvasWrapper = document.querySelector('.canvas-wrapper')
-  if (canvasWrapper) {
-    canvasWrapper.addEventListener('mousedown', handleCanvasMouseDown)
-    window.addEventListener('mousemove', handleCanvasMouseMove)
-    window.addEventListener('mouseup', handleCanvasMouseUp)
+  // if (canvasWrapper) {
+  //   canvasWrapper.addEventListener('mousedown', handleCanvasMouseDown)
+  //   window.addEventListener('mousemove', handleCanvasMouseMove)
+  //   window.addEventListener('mouseup', handleCanvasMouseUp)
     
-    // 禁用右键菜单
-    canvasWrapper.addEventListener('contextmenu', (e) => {
-      e.preventDefault()
-    })
-  }
+  //   // 禁用右键菜单
+  //   canvasWrapper.addEventListener('contextmenu', (e) => {
+  //     e.preventDefault()
+  //   })
+  // }
 
   // 初始化容器样式
   const container = document.querySelector('.canvas-container')
