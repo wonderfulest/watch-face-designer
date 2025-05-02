@@ -30,6 +30,30 @@ export const useBaseStore = defineStore('baseStore', {
     backgroundImage: null
   }),
 
+  // 添加持久化配置
+  persist: {
+    key: 'watch-face-builder',
+    paths: ['builder'],
+    storage: localStorage,
+    // 添加调试钩子
+    beforeRestore: (context) => {
+      console.log('准备恢复状态:', context)
+    },
+    afterRestore: (context) => {
+      console.log('状态恢复完成:', context)
+    },
+    serializer: {
+      serialize: (value) => {
+        console.log('序列化状态:', value)
+        return JSON.stringify(value)
+      },
+      deserialize: (value) => {
+        console.log('反序列化状态:', value)
+        return JSON.parse(value)
+      }
+    }
+  },
+
   getters: {
   },
 
@@ -588,11 +612,12 @@ export const useBaseStore = defineStore('baseStore', {
     },
     // 更新编辑器设置
     updateBuilderSettings(settings) {
-      console.log('1111111 updateBuilderSettings', settings)
       this.builder = {
         ...this.builder,
         ...settings
       }
+      // 手动触发持久化
+      this.$persist()
     },
   }
 })
