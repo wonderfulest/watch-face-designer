@@ -46,6 +46,12 @@ const updateElements = () => {
   elements.value = baseStore.canvas.getObjects()
   activeElements.value = baseStore.canvas.getActiveObjects()
   console.log('activeElements', activeElements.value)
+  if (activeElements.value.length === 1) {
+    const element = activeElements.value[0]
+    if (element.eleType === 'hourHand') {
+      console.log('hourHand', element)
+    }
+  }
 }
 
 const debouncedUpdateElements = debounce(updateElements, 100)

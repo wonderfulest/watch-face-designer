@@ -84,6 +84,5 @@ export function useKeyboardShortcuts() {
       'command+,', 'ctrl+,'
     ])
     // 移除事件监听
-    window.removeEventListener('keydown', preventDefaultShortcuts, { capture: true })
   })
 }

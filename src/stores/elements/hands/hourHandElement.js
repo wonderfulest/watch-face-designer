@@ -12,11 +12,14 @@ export const useHourHandStore = defineStore('hourHandElement', {
     return {
       baseStore,
       layerStore,
+      handHeight: 150,
+      moveDx: 0,
+      moveDy: 0,
       defaultColors: {
         color: '#FFFFFF',
         bgColor: 'transparent'
       },
-      defaultHeight: 150,
+
       defaultAngle: 0,
       defaultImage: hand1Svg,
       defaultRotationCenter: { x: 227, y: 227 }
@@ -24,9 +27,11 @@ export const useHourHandStore = defineStore('hourHandElement', {
   },
 
   actions: {
+    
     async addElement(config) {
+      console.log('addElement', config)
       const id = nanoid()
-      const height = Math.min(config.height || this.defaultHeight, 300)
+      this.handHeight = Math.min(config.height || this.handHeight, 300)
       const angle = config.angle || this.defaultAngle
       const imageUrl = config.imageUrl || this.defaultImage
       const color = config.color || this.defaultColors.color
@@ -55,18 +60,26 @@ export const useHourHandStore = defineStore('hourHandElement', {
         svgGroup.set('fill', color)
       }
 
-      svgGroup.scaleToHeight(height)
+      svgGroup.scaleToHeight(this.handHeight)
 
       // 计算自定义旋转中心后的 left/top
       const radians = util.degreesToRadians(angle)
       const dx = 0
-      const dy = -height / 2
+      const dy = -this.handHeight / 2 + this.moveDy
       const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
       const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
 
       svgGroup.set({
         left: rotationCenter.x + rotatedX,
         top: rotationCenter.y + rotatedY
+      })
+
+      // 添加移动事件监听
+      svgGroup.on('moving', (e) => {
+        const moveTop = e.transform.target.top
+        const moveLeft = e.transform.target.left
+        console.log('moving hourhand ...', moveTop, moveLeft)
+        this.moveDy = moveTop + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
       })
 
       this.baseStore.canvas.add(svgGroup)
@@ -78,12 +91,12 @@ export const useHourHandStore = defineStore('hourHandElement', {
     },
 
     async updateElement(element, config) {
+      console.log('updateElement', element, config)
       if (!this.baseStore.canvas) return
 
       const svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!svgGroup) return
 
-      const currentHeight = Math.round(svgGroup.height * svgGroup.scaleY)
       const currentAngle = svgGroup.angle
       const currentImageUrl = svgGroup.imageUrl
       const rotationCenter = config.rotationCenter || svgGroup.rotationCenter || this.defaultRotationCenter
@@ -121,16 +134,15 @@ export const useHourHandStore = defineStore('hourHandElement', {
 
       // 调整尺寸
       if (config.height) {
-        const targetHeight = Math.min(config.height, 300)
-        newSVG.scaleToHeight(targetHeight)
+        this.handHeight = Math.min(config.height, 300)
+        newSVG.scaleToHeight(this.handHeight)
       }
 
       // 计算旋转后位置
       const angle = config.angle !== undefined ? config.angle : currentAngle
-      const height = config.height || currentHeight
       const radians = util.degreesToRadians(angle)
       const dx = 0
-      const dy = -height / 2
+      const dy = -this.handHeight / 2 + this.moveDy
       const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
       const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
 

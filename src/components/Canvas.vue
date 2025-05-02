@@ -179,6 +179,7 @@ const addGuideLine = (canvas, orientation, position) => {
 
 // Canvas.vue
 const refreshCanvas = throttle((event) => {
+  console.log('刷新画布', event)
   emitter.emit('refresh-canvas', { event })
   updateRulers()
 }, 16) // 约60fps
@@ -312,15 +313,14 @@ onMounted(() => {
   initCenteringGuidelines(canvas)
   // 可以多选
   canvas.selection = true
-
-  // 合并相似事件
-  canvas.on({
-    'object:moving object:modified object:moved': refreshCanvas,
-    'selection:created selection:updated selection:cleared': refreshCanvas,
-    deselected: refreshCanvas,
-    'mouse:up': refreshCanvas,
-    'mouse:down': refreshCanvas
-  })
+  // // 合并相似事件
+  // canvas.on({
+  //   'object:moving object:modified object:moved': refreshCanvas,
+  //   'selection:created selection:updated selection:cleared': refreshCanvas,
+  //   'deselected': refreshCanvas,
+  //   'mouse:up': refreshCanvas,
+  //   'mouse:down': refreshCanvas
+  // })
 
   // 添加辅助线
   canvas.on('mouse:down', function (opt) {
@@ -359,6 +359,7 @@ onMounted(() => {
 
   // 监听画布对象移动事件
   baseStore.canvas.on('object:moving', (e) => {
+    console.log('object:moving', e)
     const target = e.target
     if (target && target.guideline) {
       // 吸附到网格
