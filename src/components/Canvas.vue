@@ -1,18 +1,31 @@
 <template>
   <div class="canvas-wrapper">
+    <div class="zoom-controls">
+      <button @click="zoomOut" title="缩小">
+        <el-icon><Minus /></el-icon>
+      </button>
+      <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
+      <button @click="zoomIn" title="放大">
+        <el-icon><Plus /></el-icon>
+      </button>
+      <button @click="resetZoom" title="重置缩放">
+        <el-icon><Refresh /></el-icon>
+      </button>
+    </div>
     <canvas ref="canvasRef"></canvas>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref, onUnmounted, computed, watch } from 'vue'
-import { Canvas, FabricText, Circle, FabricObject, Line } from 'fabric'
+import { Canvas, FabricText, FabricObject, Line } from 'fabric'
 import emitter from '@/utils/eventBus'
 import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
 import { initAligningGuidelines } from '@/lib/aligning_guidelines'
 import { initCenteringGuidelines } from '@/lib/centering_guidelines'
 import { throttle } from '@/utils/performance'
+import { Minus, Plus, Refresh } from '@element-plus/icons-vue'
 
 const canvasRef = ref(null)
 const baseStore = useBaseStore()
@@ -20,12 +33,15 @@ const layerStore = useLayerStore()
 let updateInterval
 const WATCH_SIZE = computed(() => baseStore.WATCH_SIZE)
 const RULER_OFFSET = 40
+const zoomLevel = ref(1)
+const MIN_ZOOM = 0.1
+const MAX_ZOOM = 3
+const ZOOM_STEP = 0.1
 
 FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup']
 
 // 绘制水平标尺
 const drawHorizontalRuler = (ctx, width, zoom, canvasLeft) => {
-  
   ctx.clearRect(0, 0, width, RULER_OFFSET)
   ctx.fillStyle = '#f0f0f0'
   ctx.fillRect(0, 0, width, RULER_OFFSET)
@@ -34,12 +50,12 @@ const drawHorizontalRuler = (ctx, width, zoom, canvasLeft) => {
   
   // 计算起始位置，使手表表盘左上角为(0,0)点
   const rulerOffset = RULER_OFFSET // 标尺的宽度
-  const startX = -canvasLeft
-  const endX = startX + WATCH_SIZE.value + rulerOffset
+  const startX = -canvasLeft / zoom  // 除以缩放因子
+  const endX = startX + WATCH_SIZE.value / zoom + rulerOffset  + 800 // 除以缩放因子
   
   // 绘制刻度线
-  for (let i = Math.floor(startX / 10) * 10; i <= 800; i += 10) {
-    const x = (i + canvasLeft) * zoom
+  for (let i = Math.floor(startX / 10) * 10; i <= endX; i += 10) {
+    const x = (i * zoom + canvasLeft)  // 乘以缩放因子
     
     // 大刻度（100像素）
     if (i % 100 === 0) {
@@ -49,9 +65,7 @@ const drawHorizontalRuler = (ctx, width, zoom, canvasLeft) => {
       ctx.fillStyle = '#333'
       ctx.font = '12px Arial'
       ctx.fillText(i, x + 2, 15)
-    } 
-    // 小刻度（10像素）
-    else {
+    } else {
       ctx.moveTo(x, RULER_OFFSET)
       ctx.lineTo(x, 30)
     }
@@ -61,7 +75,6 @@ const drawHorizontalRuler = (ctx, width, zoom, canvasLeft) => {
 
 // 绘制垂直标尺
 const drawVerticalRuler = (ctx, height, zoom, canvasTop) => {
-  
   ctx.clearRect(0, 0, 40, height)
   ctx.fillStyle = '#f0f0f0'
   ctx.fillRect(0, 0, 40, height)
@@ -70,12 +83,12 @@ const drawVerticalRuler = (ctx, height, zoom, canvasTop) => {
   
   // 计算起始位置，使手表表盘左上角为(0,0)点
   const rulerOffset = 40 // 标尺的高度
-  const startY = -canvasTop
-  const endY = startY + WATCH_SIZE.value + rulerOffset
+  const startY = -canvasTop / zoom  // 除以缩放因子
+  const endY = startY + WATCH_SIZE.value / zoom + rulerOffset  // 除以缩放因子
   
   // 绘制刻度线
-  for (let i = Math.floor(startY / 10) * 10; i <= 800; i += 10) {
-    const y = (i + canvasTop) * zoom
+  for (let i = Math.floor(startY / 10) * 10; i <= endY; i += 10) {
+    const y = (i * zoom + canvasTop)  // 乘以缩放因子
     
     // 大刻度（100像素）
     if (i % 100 === 0) {
@@ -89,9 +102,7 @@ const drawVerticalRuler = (ctx, height, zoom, canvasTop) => {
       ctx.rotate(-Math.PI / 2)
       ctx.fillText(i, 0, 0)
       ctx.restore()
-    } 
-    // 小刻度（10像素）
-    else {
+    } else {
       ctx.moveTo(40, y)
       ctx.lineTo(30, y)
     }
@@ -99,7 +110,7 @@ const drawVerticalRuler = (ctx, height, zoom, canvasTop) => {
   ctx.stroke()
 }
 
-// 更新标尺
+// 更新水平标尺
 const updateRulers = () => {
   const horizontalRuler = document.querySelector('.ruler-horizontal')
   const verticalRuler = document.querySelector('.ruler-vertical')
@@ -107,13 +118,6 @@ const updateRulers = () => {
   const canvasContainer = document.querySelector('.canvas-container')
   
   if (!horizontalRuler || !verticalRuler || !baseStore.canvas || !centerArea || !canvasContainer) {
-    console.log('标尺元素未找到:', {
-      horizontalRuler: !!horizontalRuler,
-      verticalRuler: !!verticalRuler,
-      canvas: !!baseStore.canvas,
-      centerArea: !!centerArea,
-      canvasContainer: !!canvasContainer
-    })
     return
   }
 
@@ -135,15 +139,6 @@ const updateRulers = () => {
     // 计算表盘左上角相对于标尺的偏移量
     const canvasLeft = containerRect.left - centerRect.left - RULER_OFFSET // 减去垂直标尺宽度
     const canvasTop = containerRect.top - centerRect.top - RULER_OFFSET // 减去水平标尺高度
-    
-    console.log('更新标尺:', {
-      containerRect,
-      centerRect,
-      canvasLeft,
-      canvasTop,
-      watchSize: WATCH_SIZE.value,
-      zoom
-    })
     
     // 设置画布尺寸
     horizontalRuler.width = centerArea.clientWidth - RULER_OFFSET // 减去标尺的宽度
@@ -372,13 +367,105 @@ const toggleKeyGuidelines = () => {
   }
 }
 
+// 缩放功能
+const zoomIn = () => {
+  if (zoomLevel.value < MAX_ZOOM) {
+    zoomLevel.value = Math.min(zoomLevel.value + ZOOM_STEP, MAX_ZOOM)
+    updateZoom()
+  }
+}
+
+const zoomOut = () => {
+  if (zoomLevel.value > MIN_ZOOM) {
+    zoomLevel.value = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM)
+    updateZoom()
+  }
+}
+
+const resetZoom = () => {
+  zoomLevel.value = 1
+  updateZoom()
+}
+
+// 更新缩放
+const updateZoom = () => {
+  if (!baseStore.canvas) return
+  
+  // 保存当前中心点
+  const centerPoint = {
+    x: 0,
+    y: 0
+  }
+
+  // 更新容器大小
+  const container = document.querySelector('.canvas-container')
+  if (container) {
+    const size = WATCH_SIZE.value * zoomLevel.value
+    container.style.width = `${size}px`
+    container.style.height = `${size}px`
+  }
+
+  // 设置新的变换矩阵
+  baseStore.canvas.setViewportTransform([
+    zoomLevel.value, 0,
+    0, zoomLevel.value,
+    centerPoint.x * zoomLevel.value,
+    centerPoint.y * zoomLevel.value
+  ])
+
+  // 保持中心点位置
+  baseStore.canvas.absolutePan({
+    x: -centerPoint.x * zoomLevel.value,
+    y: -centerPoint.y * zoomLevel.value
+  })
+
+
+  baseStore.canvas.requestRenderAll()
+  updateRulers()
+}
+
+// 添加鼠标滚轮缩放
+const handleWheel = (e) => {
+  if (!e.ctrlKey) return
+  e.preventDefault()
+  
+  const delta = e.deltaY
+  if (delta < 0) {
+    zoomIn()
+  } else {
+    zoomOut()
+  }
+}
+
 onMounted(() => {
   // 创建画布，尺寸比手表大一些以显示边界
   const canvas = new Canvas(canvasRef.value, {
     width: WATCH_SIZE.value,
     height: WATCH_SIZE.value,
     radius: WATCH_SIZE.value / 2,
-    backgroundColor: baseStore.backgroundColor
+    backgroundColor: baseStore.backgroundColor,
+    centeredScaling: true,  // 确保缩放以中心点为基准
+    centeredRotation: true  // 确保旋转以中心点为基准
+  })
+
+  // 计算画布中心点
+  const centerPoint = {
+    x: 0,
+    y: 0
+  }
+
+  // 设置画布原点到中心
+  canvas.setViewportTransform([
+    1, 0, 
+    0, 1, 
+    centerPoint.x,
+    centerPoint.y
+  ])
+
+  // 设置画布中心点
+  canvas.absolutePan({
+    x: -centerPoint.x,
+    y: -centerPoint.y
   })
 
   // 添加 passive 事件监听器
@@ -389,14 +476,6 @@ onMounted(() => {
   initCenteringGuidelines(canvas)
   // 可以多选
   canvas.selection = true
-  // // 合并相似事件
-  // canvas.on({
-  //   'object:moving object:modified object:moved': refreshCanvas,
-  //   'selection:created selection:updated selection:cleared': refreshCanvas,
-  //   'deselected': refreshCanvas,
-  //   'mouse:up': refreshCanvas,
-  //   'mouse:down': refreshCanvas
-  // })
 
   // 添加辅助线
   canvas.on('mouse:down', function (opt) {
@@ -480,6 +559,9 @@ onMounted(() => {
       baseStore.canvas.requestRenderAll()
     }
   })
+
+  // 添加滚轮缩放事件监听
+  canvas.wrapperEl.addEventListener('wheel', handleWheel, { passive: false })
 })
 
 onUnmounted(() => {
@@ -522,6 +604,11 @@ onUnmounted(() => {
 
   // 移除关键辅助线事件监听
   emitter.off('toggle-key-guidelines')
+
+  // 移除滚轮缩放事件监听
+  if (baseStore.canvas) {
+    baseStore.canvas.wrapperEl.removeEventListener('wheel', handleWheel)
+  }
 })
 
 // 监听画布大小变化
@@ -590,9 +677,15 @@ watch(WATCH_SIZE, () => {
 }
 
 .canvas-container {
-  width: 600px;
-  height: 600px;
   background: white;
   border-radius: 4px;
+  transition: width 0.3s, height 0.3s;
+}
+
+.zoom-level {
+  min-width: 50px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
 }
 </style>

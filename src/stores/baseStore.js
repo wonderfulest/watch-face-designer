@@ -246,12 +246,19 @@ export const useBaseStore = defineStore('baseStore', {
       this.canvas.renderOnAddRemove = false
       this.addBackground()
     },
+    // 添加背景
     addBackground() {
+    
+      const center = this.$state.WATCH_SIZE / 2
+      console.log('addBackground center', center)
+
       // 创建表盘背景圆
       const watchFace = new Circle({
         eleType: 'global',
-        left: 0,
-        top: 0,
+        left: center,
+        top: center,
+        originX: 'center',
+        originY: 'center',
         radius: this.$state.WATCH_SIZE / 2,
         fill: this.$state.themeBackgroundColors[this.$state.currentThemeIndex] || '#000000',
         selectable: false,
@@ -268,8 +275,10 @@ export const useBaseStore = defineStore('baseStore', {
             eleType: 'background-image',
             scaleX: scale,
             scaleY: scale,
-            left: 0,
-            top: 0,
+            left: center,
+            top: center,
+            originX: 'center',
+            originY: 'center',
             selectable: false,
             evented: false
           })
