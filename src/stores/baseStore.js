@@ -37,19 +37,24 @@ export const useBaseStore = defineStore('baseStore', {
     storage: localStorage,
     // 添加调试钩子
     beforeRestore: (context) => {
-      console.log('准备恢复状态:', context)
+      // console.log('准备恢复状态:', context)
     },
     afterRestore: (context) => {
-      console.log('状态恢复完成:', context)
+      // console.log('状态恢复完成:', context)
     },
     serializer: {
       serialize: (value) => {
-        console.log('序列化状态:', value)
+        // console.log('序列化状态:', value)
         return JSON.stringify(value)
       },
       deserialize: (value) => {
-        console.log('反序列化状态:', value)
-        return JSON.parse(value)
+        // console.log('反序列化状态:', value)
+
+        const settings = JSON.parse(value)
+
+        // console.log('反序列化状态:', settings)
+        // this.builder = settings.builder
+        return settings
       }
     }
   },
@@ -377,10 +382,6 @@ export const useBaseStore = defineStore('baseStore', {
         })
         this.canvas.requestRenderAll()
       }
-    },
-    // 加载全局元素
-    loadGlobalElement() {
-      // 全局元素加载
     },
     // 设置表盘名称
     setWatchFaceName(name) {

@@ -591,7 +591,6 @@ onMounted(() => {
 
   // 监听画布对象移动事件
   baseStore.canvas.on('object:moving', (e) => {
-    console.log('object:moving', e)
     const target = e.target
     if (target && target.guideline) {
       // 吸附到网格

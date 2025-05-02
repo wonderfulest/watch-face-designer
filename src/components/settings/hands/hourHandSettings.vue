@@ -6,18 +6,30 @@
       <!-- 图片选择 -->
       <div class="setting-item">
         <label>指针样式</label>
-        <div class="image-selector">
-          <div 
-            v-for="(hand, index) in availableHands" 
-            :key="index"
-            class="hand-preview"
-            :class="{ active: element.imageUrl === hand.url }"
-            @click="selectHand(hand.url)"
-          >
-            <img :src="hand.url" :alt="hand.name" />
-            <span>{{ hand.name }}</span>
-          </div>
-        </div>
+        <HandPicker
+          :selected-url="element.imageUrl"
+          :available-hands="availableHands"
+          :on-select="(url) => hourHandStore.updateElement(element, { imageUrl: url })"
+          :on-upload="(url, fileName) => {
+            hourHandStore.updateElement(element, {
+              imageUrl: url,
+              angle: 0,
+              height: element.height,
+            })
+            // 检查是否已存在相同名称的指针
+            const existingIndex = availableHands.findIndex(hand => hand.name === fileName.replace('.svg', ''))
+            if (existingIndex !== -1) {
+              // 如果已存在，更新URL
+              availableHands[existingIndex].url = url
+            } else {
+              // 如果不存在，添加到列表
+              availableHands.push({
+                name: fileName.replace('.svg', ''),
+                url: url
+              })
+            }
+          }"
+        />
       </div>
 
       <!-- 位置设置 -->
@@ -151,9 +163,9 @@ import { ref, defineEmits, defineExpose } from 'vue'
 import { useBaseStore } from '@/stores/baseStore'
 import { useHourHandStore } from '@/stores/elements/hands/hourHandElement'
 import ColorPicker from '@/components/color-picker/index.vue'
-import { ElTooltip } from 'element-plus'
+import HandPicker from '@/components/hand-picker/index.vue'
+import { ElTooltip, ElMessage } from 'element-plus'
 import { Warning } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 
 const emit = defineEmits(['close'])
 
@@ -169,32 +181,18 @@ const hourHandStore = useHourHandStore()
 const formRef = ref(null)
 
 // 可用的指针样式
-const availableHands = [
+const availableHands = ref([
   { name: '样式1', url: '/src/assets/hands/hand1.svg' },
   { name: '样式2', url: '/src/assets/hands/hand2.svg' },
   { name: '样式3', url: '/src/assets/hands/hand3.svg' }
-]
+])
 
-// 选择指针样式
-const selectHand = (url) => {
-  hourHandStore.updateElement(props.element, {
-    imageUrl: url
-  })
-}
-
-// 定义提示内容，使用 HTML 格式
-const tooltipContent = `
-  <div class="tooltip-content">
-    <p>1. 3点钟为0度，6点钟为90度，9点钟为180度，12点钟为270度</p>
-    <p>2. 顺时针方向增加角度</p>
-    <p>3. 角度范围0到359</p>
-  </div>
-`
 const onHeightChange = (e) => {
   hourHandStore.updateElement(props.element, {
     height: e.target.value,
   })
 }
+
 // 更新元素
 const updateElement = () => {
   if (!props.element) return
@@ -222,6 +220,15 @@ const updateRotationCenter = (center) => {
     rotationCenter: center
   })
 }
+
+// 定义提示内容，使用 HTML 格式
+const tooltipContent = `
+  <div class="tooltip-content">
+    <p>1. 3点钟为0度，6点钟为90度，9点钟为180度，12点钟为270度</p>
+    <p>2. 顺时针方向增加角度</p>
+    <p>3. 角度范围0到359</p>
+  </div>
+`
 
 // 添加关闭时的验证方法
 const handleClose = async () => {
@@ -352,5 +359,25 @@ defineExpose({
 
 .scale-input input {
   width: 60px;
+}
+
+.upload-preview {
+  border: 1px dashed #dcdfe6;
+  background-color: #f5f7fa;
+}
+
+.upload-preview:hover {
+  border-color: #409eff;
+  background-color: #ecf5ff;
+}
+
+.upload-icon {
+  font-size: 24px;
+  color: #909399;
+  margin-bottom: 4px;
+}
+
+.upload-preview:hover .upload-icon {
+  color: #409eff;
 }
 </style>

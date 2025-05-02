@@ -122,6 +122,7 @@ const backgroundColor = computed(() => baseStore.builder?.backgroundColor || '#5
 // 加载设计配置
 const loadDesign = async (id) => {
   try {
+    
     const response = await getDesign(id)
     const designData = response.data
     const config = designData.configJson
@@ -217,11 +218,6 @@ const loadElements = async (elements) => {
         continue
       }
 
-      if (element.type === 'global') {
-        baseStore.loadGlobalElement(decodedElement)
-        continue
-      }
-
       const addElement = getAddElement(element.type)
       if (element.type === 'goalBar') {
         console.log('加载目标条元素:', decodedElement)
@@ -241,6 +237,12 @@ const loadElements = async (elements) => {
 
 onMounted(() => {
   changelogDialog.value?.checkShowChangelog()
+
+  // 编辑器设置
+  const settings = baseStore.builder
+  console.log('settings', settings)
+  // baseStore.updateBuilderSettings()
+
   // 检查URL参数中是否有设计ID
   const designId = route.query.id
   if (designId) {

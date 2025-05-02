@@ -30,6 +30,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
   actions: {
     
     async addElement(config) {
+      
       console.log('addElement', config)
       const id = nanoid()
       this.handHeight = Math.min(config.height || this.handHeight, 300)
@@ -55,6 +56,9 @@ export const useHourHandStore = defineStore('hourHandElement', {
       }
       svgGroup.set(options)
 
+      if (config.moveDy) {
+        this.moveDy = config.moveDy
+      }
       if (Array.isArray(svgGroup._objects)) {
         svgGroup._objects.forEach((obj) => obj.set('fill', color))
       } else if (svgGroup.type === 'path') {
@@ -79,8 +83,8 @@ export const useHourHandStore = defineStore('hourHandElement', {
       svgGroup.on('moving', (e) => {
         const moveTop = e.transform.target.top
         const moveLeft = e.transform.target.left
-        console.log('moving hourhand ...', moveTop, moveLeft)
         this.moveDy = moveTop + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
+        console.log('moveDy', this.moveDy)
       })
 
       this.baseStore.canvas.add(svgGroup)
@@ -94,7 +98,6 @@ export const useHourHandStore = defineStore('hourHandElement', {
     },
 
     async updateElement(element, config) {
-      console.log('updateElement', element, config)
       if (!this.baseStore.canvas) return
 
       const svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
@@ -176,7 +179,9 @@ export const useHourHandStore = defineStore('hourHandElement', {
         bgColor: element.bgColor,
         angle: element.angle,
         imageUrl: element.imageUrl,
-        rotationCenter: element.rotationCenter
+        rotationCenter: element.rotationCenter,
+        moveDy: this.moveDy,
+        scaleY: element.scaleY
       }
     },
 
@@ -190,7 +195,9 @@ export const useHourHandStore = defineStore('hourHandElement', {
         bgColor: config.bgColor,
         angle: config.angle,
         imageUrl: config.imageUrl,
-        rotationCenter: config.rotationCenter
+        rotationCenter: config.rotationCenter,
+        moveDy: config.moveDy,
+        scaleY: config.scaleY
       }
     },
 

@@ -1,11 +1,9 @@
 import { defineStore } from 'pinia'
 import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
-import { Group, Image, loadSVGFromURL, util } from 'fabric'
+import { loadSVGFromURL, util } from 'fabric'
 import { nanoid } from 'nanoid'
-import hand1Svg from '@/assets/hands/hand1.svg'
-import hand2Svg from '@/assets/hands/hand2.svg'
-import hand3Svg from '@/assets/hands/hand3.svg'
+import hand1Svg from '@/assets/hands/hand1.svg?url'
 
 export const useMinuteHandStore = defineStore('minuteHand', {
   state: () => {
@@ -14,328 +12,204 @@ export const useMinuteHandStore = defineStore('minuteHand', {
     return {
       baseStore,
       layerStore,
+      handHeight: 150,
+      moveDx: 0,
+      moveDy: 0,
       defaultColors: {
-        color: '#FFFFFF',    // 默认白色
-        bgColor: 'transparent'  // 透明背景
+        color: '#FFFFFF',
+        bgColor: 'transparent'
       },
-      defaultWidth: 6,       // 默认宽度
-      defaultLength: 50,     // 默认长度
-      defaultRotation: 270,  // 默认旋转角度（12点钟方向）
-      defaultImage: hand1Svg // 默认指针图片
+      defaultAngle: 0,
+      defaultImage: hand1Svg,
+      defaultRotationCenter: { x: 227, y: 227 },
+      updateTimer: null
     }
   },
 
   actions: {
-    addElement(config) {
+    async addElement(config) {
+      console.log('111111 addElement', config)
       const id = nanoid()
-      
-      // 基础尺寸配置
-      const width = config.width || this.defaultWidth
-      const length = config.length || this.defaultLength
-      const rotation = config.rotation || this.defaultRotation
+      this.handHeight = Math.min(config.height || this.handHeight, 300)
+      const angle = config.angle || this.defaultAngle
       const imageUrl = config.imageUrl || this.defaultImage
-
-      // 样式配置
       const color = config.color || this.defaultColors.color
-      const bgColor = config.bgColor || this.defaultColors.bgColor
+      const rotationCenter = config.rotationCenter || this.defaultRotationCenter
 
-      // 创建组
-      const group = new Group([], {
-        left: config.left,
-        top: config.top,
+      const loadedSVG = await loadSVGFromURL(imageUrl)
+      const svgGroup = util.groupSVGElements(loadedSVG.objects)
+      const options = {
         id,
         eleType: 'minuteHand',
+        originX: 'center',
+        originY: 'center',
         selectable: true,
         hasControls: true,
         hasBorders: true,
-        originX: 'center',
-        originY: 'center',
-        width: width,
-        height: length * 2,
+        angle: angle,
+        imageUrl: imageUrl,
         color: color,
-        bgColor: bgColor,
-        rotation: rotation,
-        imageUrl: imageUrl
+        rotationCenter: rotationCenter
+      }
+      svgGroup.set(options)
+
+      if (config.moveDy) {
+        this.moveDy = config.moveDy
+      }
+      if (Array.isArray(svgGroup._objects)) {
+        svgGroup._objects.forEach((obj) => obj.set('fill', color))
+      } else if (svgGroup.type === 'path') {
+        svgGroup.set('fill', color)
+      }
+
+      svgGroup.scaleToHeight(this.handHeight)
+
+      // 计算自定义旋转中心后的 left/top
+      const radians = util.degreesToRadians(angle)
+      const dx = 0
+      const dy = -this.handHeight / 2 + this.moveDy
+      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
+      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
+
+      svgGroup.set({
+        left: rotationCenter.x + rotatedX,
+        top: rotationCenter.y + rotatedY
       })
 
-      // 加载并创建图片
-      loadSVGFromURL(imageUrl, (objects, options) => {
-        console.log('SVG加载完成:', {
-          objects,
-          options,
-          imageUrl
-        })
-
-        const svgGroup = util.groupSVGElements(objects, options)
-        console.log('SVG Group创建完成:', {
-          svgGroup,
-          width: svgGroup.width,
-          height: svgGroup.height,
-          scaleX: svgGroup.scaleX,
-          scaleY: svgGroup.scaleY
-        })
-
-        // 遍历每个对象，设置颜色
-        svgGroup.getObjects().forEach(obj => {
-          console.log('设置SVG子元素颜色:', {
-            obj,
-            type: obj.type,
-            fill: obj.fill,
-            newFill: color
-          })
-          obj.set('fill', color)
-        })
-        
-        // 计算缩放比例，保持原始宽高比
-        const originalWidth = svgGroup.width
-        const originalHeight = svgGroup.height
-        const targetHeight = length
-        const targetWidth = (originalWidth / originalHeight) * targetHeight
-
-        console.log('计算缩放比例:', {
-          originalWidth,
-          originalHeight,
-          targetWidth,
-          targetHeight,
-          scale: targetHeight / originalHeight
-        })
-
-        // 设置图片大小和位置
-        svgGroup.set({
-          left: 0,
-          top: -targetHeight,
-          originX: 'center',
-          originY: 'center',
-          width: targetWidth,
-          height: targetHeight,
-          scaleX: targetWidth / originalWidth,
-          scaleY: targetHeight / originalHeight
-        })
-
-        console.log('SVG Group设置完成:', {
-          svgGroup,
-          width: svgGroup.width,
-          height: svgGroup.height,
-          scaleX: svgGroup.scaleX,
-          scaleY: svgGroup.scaleY,
-          left: svgGroup.left,
-          top: svgGroup.top
-        })
-
-        group.add(svgGroup)
-
-        // 重新计算组的边界和坐标
-        group._calcBounds()
-        group._updateObjectsCoords()
-        group.setCoords()
-
-        console.log('Group设置完成:', {
-          group,
-          width: group.width,
-          height: group.height,
-          scaleX: group.scaleX,
-          scaleY: group.scaleY,
-          left: group.left,
-          top: group.top
-        })
-
-        this.baseStore.canvas.requestRenderAll()
+      // 添加移动事件监听
+      svgGroup.on('moving', (e) => {
+        const moveTop = e.transform.target.top
+        const moveLeft = e.transform.target.left
+        this.moveDy = moveTop + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
+        console.log('moveDy', this.moveDy)
       })
 
-      // 强制组重新计算边界
-      group.setCoords()
-
-      // 添加到画布
-      this.baseStore.canvas.add(group)
-      
-      // 确保位置正确设置
-      group.set({
-        left: config.left,
-        top: config.top
-      })
-      group.setCoords()
-
-      // 添加到图层
-      this.layerStore.addLayer(group)
-
-      // 使用 requestRenderAll 替代 renderAll
+      this.baseStore.canvas.add(svgGroup)
+      svgGroup.setCoords()
+      this.layerStore.addLayer(svgGroup)
       this.baseStore.canvas.requestRenderAll()
-
-      // 设置为当前选中对象
       this.baseStore.canvas.discardActiveObject()
-      this.baseStore.canvas.setActiveObject(group)
+      this.baseStore.canvas.setActiveObject(svgGroup)
+
+      this.startTimeUpdate()
     },
 
-    updateElement(element, config) {
+    async updateElement(element, config) {
       if (!this.baseStore.canvas) return
-      const group = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
-      if (!group || !group.getObjects) return
 
-      // 保存当前位置和大小
-      const currentLeft = group.left
-      const currentTop = group.top
-      const currentWidth = group.width
-      const currentHeight = group.height
-      const currentRotation = group.rotation
-      const currentImageUrl = group.imageUrl
+      const svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
+      if (!svgGroup) return
 
-      // 更新组的属性
-      const updateProps = {
-        color: config.color,
-        bgColor: config.bgColor,
-        width: config.width,
-        height: config.length * 2,
-        rotation: config.rotation,
-        imageUrl: config.imageUrl
-      }
+      const currentAngle = svgGroup.angle
+      const currentImageUrl = svgGroup.imageUrl
+      const rotationCenter = config.rotationCenter || svgGroup.rotationCenter || this.defaultRotationCenter
 
-      // 过滤掉未定义的属性
-      Object.keys(updateProps).forEach(key => {
-        if (updateProps[key] !== undefined) {
-          group.set(key, updateProps[key])
-        }
-      })
+      let newSVG = svgGroup
 
-      // 如果图片URL发生变化，重新加载图片
+      // 替换 image
       if (config.imageUrl && config.imageUrl !== currentImageUrl) {
-        console.log('更新SVG图片:', {
-          oldUrl: currentImageUrl,
-          newUrl: config.imageUrl
+        this.baseStore.canvas.remove(svgGroup)
+
+        const loadedSVG = await loadSVGFromURL(config.imageUrl)
+        newSVG = util.groupSVGElements(loadedSVG.objects)
+        newSVG.set({
+          id: element.id,
+          eleType: 'minuteHand',
+          originX: 'center',
+          originY: 'center',
+          selectable: true,
+          hasControls: true,
+          hasBorders: true,
+          angle: currentAngle,
+          imageUrl: config.imageUrl
         })
-
-        group.remove(...group.getObjects())
-        loadSVGFromURL(config.imageUrl, (objects, options) => {
-          console.log('SVG加载完成:', {
-            objects,
-            options,
-            imageUrl: config.imageUrl
-          })
-
-          const svgGroup = util.groupSVGElements(objects, options)
-          console.log('SVG Group创建完成:', {
-            svgGroup,
-            width: svgGroup.width,
-            height: svgGroup.height,
-            scaleX: svgGroup.scaleX,
-            scaleY: svgGroup.scaleY
-          })
-
-          // 遍历每个对象，设置颜色
-          svgGroup.getObjects().forEach(obj => {
-            console.log('设置SVG子元素颜色:', {
-              obj,
-              type: obj.type,
-              fill: obj.fill,
-              newFill: config.color || group.color
-            })
-            obj.set('fill', config.color || group.color)
-          })
-          
-          // 计算缩放比例，保持原始宽高比
-          const originalWidth = svgGroup.width
-          const originalHeight = svgGroup.height
-          const targetHeight = config.length || currentHeight / 2
-          const targetWidth = (originalWidth / originalHeight) * targetHeight
-
-          console.log('计算缩放比例:', {
-            originalWidth,
-            originalHeight,
-            targetWidth,
-            targetHeight,
-            scale: targetHeight / originalHeight
-          })
-
-          // 设置图片大小和位置
-          svgGroup.set({
-            left: 0,
-            top: -targetHeight,
-            originX: 'center',
-            originY: 'center',
-            width: targetWidth,
-            height: targetHeight,
-            scaleX: targetWidth / originalWidth,
-            scaleY: targetHeight / originalHeight
-          })
-
-          console.log('SVG Group设置完成:', {
-            svgGroup,
-            width: svgGroup.width,
-            height: svgGroup.height,
-            scaleX: svgGroup.scaleX,
-            scaleY: svgGroup.scaleY,
-            left: svgGroup.left,
-            top: svgGroup.top
-          })
-
-          group.add(svgGroup)
-
-          // 重新计算组的边界和坐标
-          group._calcBounds()
-          group._updateObjectsCoords()
-          group.setCoords()
-
-          console.log('Group设置完成:', {
-            group,
-            width: group.width,
-            height: group.height,
-            scaleX: group.scaleX,
-            scaleY: group.scaleY,
-            left: group.left,
-            top: group.top
-          })
-
-          this.baseStore.canvas.requestRenderAll()
-        })
-      } else {
-        // 只更新颜色
-        const svgGroup = group.getObjects()[0]
-        if (svgGroup) {
-          console.log('更新SVG颜色:', {
-            svgGroup,
-            oldColor: svgGroup.fill,
-            newColor: config.color || group.color
-          })
-          svgGroup.getObjects().forEach(obj => {
-            console.log('设置SVG子元素颜色:', {
-              obj,
-              type: obj.type,
-              fill: obj.fill,
-              newFill: config.color || group.color
-            })
-            obj.set('fill', config.color || group.color)
-          })
-        }
+        this.baseStore.canvas.add(newSVG)
       }
 
-      // 恢复位置和大小
-      group.set({
-        left: currentLeft,
-        top: currentTop,
-        width: currentWidth,
-        height: currentHeight,
-        rotation: currentRotation
+      // 应用颜色
+      const colorToSet = config.color || newSVG.color || this.defaultColors.color
+      if (Array.isArray(newSVG._objects)) {
+        newSVG._objects.forEach((obj) => obj.set('fill', colorToSet))
+      } else if (newSVG.type === 'path') {
+        newSVG.set('fill', colorToSet)
+      }
+      newSVG.set({ color: colorToSet })
+
+      // 调整尺寸
+      if (config.height) {
+        this.handHeight = Math.min(config.height, 300)
+        newSVG.scaleToHeight(this.handHeight)
+      }
+
+      // 计算旋转后位置
+      const angle = config.angle !== undefined ? config.angle : currentAngle
+      const radians = util.degreesToRadians(angle)
+      const dx = 0
+      const dy = -this.handHeight / 2 + this.moveDy
+      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
+      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
+
+      newSVG.set({
+        left: rotationCenter.x + rotatedX,
+        top: rotationCenter.y + rotatedY,
+        angle: angle,
+        imageUrl: config.imageUrl || newSVG.imageUrl,
+        rotationCenter: rotationCenter
       })
 
-      // 强制重新计算边界和渲染
-      group.setCoords()
+      newSVG.setCoords()
       this.baseStore.canvas.requestRenderAll()
+
+      if (!this.updateTimer) {
+        this.startTimeUpdate()
+      }
+    },
+
+    updateTime() {
+      if (!this.baseStore.canvas) return
+      
+      const minuteHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'minuteHand')
+      if (!minuteHand) return
+
+      const now = new Date()
+      const minutes = now.getMinutes()
+      
+      // 计算分针角度 (每分钟6度)
+      const angle = minutes * 6
+      
+    },
+
+    startTimeUpdate() {
+      // 先执行一次更新
+      this.updateTime()
+      
+      // 每分钟更新一次
+      this.updateTimer = setInterval(() => {
+        this.updateTime()
+      }, 60000)
+    },
+
+    stopTimeUpdate() {
+      if (this.updateTimer) {
+        clearInterval(this.updateTimer)
+        this.updateTimer = null
+      }
     },
 
     encodeConfig(element) {
-      if (!element) {
-        throw new Error('无效的元素')
-      }
-
+      if (!element) throw new Error('无效的元素')
       return {
         type: 'minuteHand',
         x: Math.round(element.left),
         y: Math.round(element.top),
-        width: Math.round(element.width),
-        length: Math.round(element.height / 2),
-        color: element.color || this.defaultColors.color,
-        bgColor: element.bgColor || this.defaultColors.bgColor,
-        rotation: element.rotation || this.defaultRotation,
-        imageUrl: element.imageUrl || this.defaultImage
+        height: Math.round(element.height * element.scaleY),
+        color: element.color,
+        bgColor: element.bgColor,
+        angle: element.angle,
+        imageUrl: element.imageUrl,
+        rotationCenter: element.rotationCenter,
+        moveDy: this.moveDy,
+        scaleY: element.scaleY
       }
     },
 
@@ -344,13 +218,15 @@ export const useMinuteHandStore = defineStore('minuteHand', {
         eleType: 'minuteHand',
         left: config.x,
         top: config.y,
-        width: config.width,
-        height: config.length * 2,
+        height: config.height,
         color: config.color,
         bgColor: config.bgColor,
-        rotation: config.rotation,
-        imageUrl: config.imageUrl
+        angle: config.angle,
+        imageUrl: config.imageUrl,
+        rotationCenter: config.rotationCenter,
+        moveDy: config.moveDy,
+        scaleY: config.scaleY
       }
     }
   }
-}) 
+})
