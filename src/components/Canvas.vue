@@ -262,10 +262,14 @@ const updateGuidelineSize = () => {
       if (obj.type === 'horizontalGuideline') {
         obj.set({
           x1: -width,
-          x2: width * 2
+          x2: width * 2,
+          y1: obj.top,
+          y2: obj.top
         })
-      } else {
+      } else if (obj.type === 'verticalGuideline') {
         obj.set({
+          x1: obj.left,
+          x2: obj.left,
           y1: -height,
           y2: height * 2
         })
@@ -273,6 +277,12 @@ const updateGuidelineSize = () => {
       obj.setCoords()
     }
   })
+
+  // 如果关键辅助线显示，重新创建它们以确保位置正确
+  if (showKeyGuidelines.value) {
+    createKeyGuidelines()
+  }
+
   baseStore.canvas.requestRenderAll()
 }
 
@@ -294,6 +304,72 @@ const handleRulerDoubleClick = (e, isHorizontal) => {
     baseStore.canvas.setActiveObject(guideline)
   }
   baseStore.canvas.requestRenderAll()
+}
+
+// 添加关键辅助线状态
+const showKeyGuidelines = ref(false)
+const keyGuidelines = ref([])
+
+// 创建关键辅助线
+const createKeyGuidelines = () => {
+  if (!baseStore.canvas) return
+  
+  // 清除现有的关键辅助线
+  keyGuidelines.value.forEach(guideline => {
+    baseStore.canvas.remove(guideline)
+  })
+  keyGuidelines.value = []
+
+  const centerX = WATCH_SIZE.value / 2
+  const centerY = WATCH_SIZE.value / 2
+  const quarterX = WATCH_SIZE.value / 4
+  const quarterY = WATCH_SIZE.value / 4
+
+  // 创建中心线
+  const centerVertical = createVerticalGuideline(centerX)
+  const centerHorizontal = createHorizontalGuideline(centerY)
+  
+  // 创建四等分线
+  const leftQuarter = createVerticalGuideline(quarterX)
+  const rightQuarter = createVerticalGuideline(centerX + quarterX)
+  const topQuarter = createHorizontalGuideline(quarterY)
+  const bottomQuarter = createHorizontalGuideline(centerY + quarterY)
+
+  // 设置关键辅助线样式
+  const keyLines = [centerVertical, centerHorizontal, leftQuarter, rightQuarter, topQuarter, bottomQuarter]
+  keyLines.forEach(line => {
+    line.set({
+      stroke: '#ff0000',
+      strokeWidth: 1,
+      selectable: false,
+      evented: false,
+      lockMovementX: true,
+      lockMovementY: true,
+      lockScalingX: true,
+      lockScalingY: true,
+      lockRotation: true,
+      hasControls: false,
+      hasBorders: false,
+      keyGuideline: true
+    })
+    keyGuidelines.value.push(line)
+  })
+
+  baseStore.canvas.requestRenderAll()
+}
+
+// 切换关键辅助线
+const toggleKeyGuidelines = () => {
+  showKeyGuidelines.value = !showKeyGuidelines.value
+  if (showKeyGuidelines.value) {
+    createKeyGuidelines()
+  } else {
+    keyGuidelines.value.forEach(guideline => {
+      baseStore.canvas.remove(guideline)
+    })
+    keyGuidelines.value = []
+    baseStore.canvas.requestRenderAll()
+  }
 }
 
 onMounted(() => {
@@ -390,6 +466,20 @@ onMounted(() => {
 
   // 监听窗口大小变化，更新辅助线尺寸
   window.addEventListener('resize', updateGuidelineSize)
+
+  // 监听关键辅助线切换事件
+  emitter.on('toggle-key-guidelines', (show) => {
+    showKeyGuidelines.value = show
+    if (show) {
+      createKeyGuidelines()
+    } else {
+      keyGuidelines.value.forEach(guideline => {
+        baseStore.canvas.remove(guideline)
+      })
+      keyGuidelines.value = []
+      baseStore.canvas.requestRenderAll()
+    }
+  })
 })
 
 onUnmounted(() => {
@@ -429,6 +519,9 @@ onUnmounted(() => {
 
   // 移除窗口大小变化监听
   window.removeEventListener('resize', updateGuidelineSize)
+
+  // 移除关键辅助线事件监听
+  emitter.off('toggle-key-guidelines')
 })
 
 // 监听画布大小变化
@@ -443,6 +536,27 @@ watch(WATCH_SIZE, () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.canvas-controls {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2;
+}
+
+.guideline-btn {
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.guideline-btn:hover {
+  background: #f5f5f5;
 }
 
 .zoom-controls {

@@ -41,6 +41,12 @@
             <span>App Properties</span>
             <span class="shortcut-hint">⌘ + ,</span>
           </el-menu-item>
+          <!-- 辅助线功能 -->
+          <el-menu-item index="actions/showKeyGuidelines" @click="toggleKeyGuidelines">
+            <el-icon><Setting /></el-icon>
+            <span>{{ showKeyGuidelines ? 'Hide Key Guidelines' : 'Show Key Guidelines' }}</span>
+            <span class="shortcut-hint">⌘ + ;</span>
+          </el-menu-item>
         </el-sub-menu>
 
         <!-- 其他主菜单项 -->
@@ -218,6 +224,7 @@ import ShortcutsDialog from '@/components/dialogs/ShortcutsDialog.vue'
 import FeedbackDialog from '@/components/dialogs/FeedbackDialog.vue'
 import PropertiesPanel from '@/components/properties/PropertiesPanel.vue'
 import EditDesignDialog from '@/components/dialogs/EditDesignDialog.vue'
+import emitter from '@/utils/eventBus'
 
 const route = useRoute()
 const router = useRouter()
@@ -238,6 +245,23 @@ const shortcutsDialogVisible = ref(false)
 const feedbackDialog = ref(null)
 const propertiesPanel = ref(null)
 const editDesignDialog = ref(null)
+
+// 关键辅助线状态
+const showKeyGuidelines = ref(false)
+
+// 切换关键辅助线
+const toggleKeyGuidelines = () => {
+  showKeyGuidelines.value = !showKeyGuidelines.value
+  emitter.emit('toggle-key-guidelines', showKeyGuidelines.value)
+}
+
+// 监听快捷键
+document.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && e.key === ';') {
+    e.preventDefault()
+    toggleKeyGuidelines()
+  }
+})
 
 // 添加元素
 const handleAddElement = (category, type) => {
