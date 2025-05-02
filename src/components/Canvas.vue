@@ -467,6 +467,24 @@ const handleCanvasMouseMove = (e) => {
     canvasOffset.value.x, canvasOffset.value.y
   ])
 
+  // 更新容器位置
+  const container = document.querySelector('.canvas-container')
+  if (container) {
+    // 获取当前的 transform 样式
+    const currentTransform = container.style.transform || 'translate(0px, 0px)'
+    const matches = currentTransform.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px\)/)
+    
+    let currentX = 0
+    let currentY = 0
+    if (matches) {
+      currentX = parseFloat(matches[1])
+      currentY = parseFloat(matches[2])
+    }
+
+    // 更新容器位置
+    container.style.transform = `translate(${currentX + deltaX}px, ${currentY + deltaY}px)`
+  }
+
   // 更新最后的位置
   lastX.value = e.clientX
   lastY.value = e.clientY
@@ -651,6 +669,13 @@ onMounted(() => {
       e.preventDefault()
     })
   }
+
+  // 初始化容器样式
+  const container = document.querySelector('.canvas-container')
+  if (container) {
+    container.style.transform = 'translate(0px, 0px)'
+    container.style.transition = 'transform 0s' // 移除过渡动画，使拖动更流畅
+  }
 })
 
 onUnmounted(() => {
@@ -791,10 +816,11 @@ watch(WATCH_SIZE, () => {
 .canvas-container {
   background: white;
   border-radius: 4px;
-  transition: width 0.3s, height 0.3s;
   position: relative;
   margin: 50px;
-  overflow: visible; /* 允许内容溢出 */
+  overflow: visible;
+  transform: translate(0px, 0px);
+  will-change: transform;
 }
 
 .zoom-level {
