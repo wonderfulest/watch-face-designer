@@ -22,7 +22,8 @@ export const useHourHandStore = defineStore('hourHandElement', {
 
       defaultAngle: 0,
       defaultImage: hand1Svg,
-      defaultRotationCenter: { x: 227, y: 227 }
+      defaultRotationCenter: { x: 227, y: 227 },
+      updateTimer: null
     }
   },
 
@@ -88,6 +89,8 @@ export const useHourHandStore = defineStore('hourHandElement', {
       this.baseStore.canvas.requestRenderAll()
       this.baseStore.canvas.discardActiveObject()
       this.baseStore.canvas.setActiveObject(svgGroup)
+
+      this.startTimeUpdate()
     },
 
     async updateElement(element, config) {
@@ -156,6 +159,10 @@ export const useHourHandStore = defineStore('hourHandElement', {
 
       newSVG.setCoords()
       this.baseStore.canvas.requestRenderAll()
+
+      if (!this.updateTimer) {
+        this.startTimeUpdate()
+      }
     },
 
     encodeConfig(element) {
@@ -184,6 +191,40 @@ export const useHourHandStore = defineStore('hourHandElement', {
         angle: config.angle,
         imageUrl: config.imageUrl,
         rotationCenter: config.rotationCenter
+      }
+    },
+
+    updateTime() {
+      if (!this.baseStore.canvas) return
+      
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'hourHand')
+      if (!hourHand) return
+
+      const now = new Date()
+      const hours = now.getHours()
+      const minutes = now.getMinutes()
+      
+      // 计算小时指针角度 (每小时30度，每分钟0.5度)
+      const angle = (hours % 12) * 30 + minutes * 0.5
+      
+      // 更新指针角度
+      // this.updateElement(hourHand, { angle: angle })
+    },
+
+    startTimeUpdate() {
+      // 先执行一次更新
+      this.updateTime()
+      
+      // 每分钟更新一次
+      this.updateTimer = setInterval(() => {
+        this.updateTime()
+      }, 60000)
+    },
+
+    stopTimeUpdate() {
+      if (this.updateTimer) {
+        clearInterval(this.updateTimer)
+        this.updateTimer = null
       }
     }
   }
