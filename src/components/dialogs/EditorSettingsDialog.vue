@@ -52,6 +52,11 @@ const saveSettings = () => {
   try {
     // 更新 store 中的设置
     baseStore.builder.backgroundColor = backgroundColor.value
+    // 更新画布背景色
+    const container = document.querySelector('.canvas-container')
+    if (container) {
+      container.style.backgroundColor = backgroundColor.value
+    }
     baseStore.updateBackgroundElements()
     messageStore.success('设置已保存')
     dialogVisible.value = false

@@ -173,8 +173,21 @@ const uploadScreenshot = async () => {
     // 先捕获最新的画布截图
     const screenshot = await baseStore.captureScreenshot()
     if (screenshot) {
+      // 如果是开发模式，直接返回本地base64
+      if (import.meta.env.DEV) {
+        return {
+          id: 23159,
+          url: 'https://files.garminface.com/background_81a01334f4.png'
+        }
+      }
+      
+      // 生产环境才上传图片
       const screenshotUpload = await uploadBase64Image(screenshot)
       if (screenshotUpload && screenshotUpload.url) {
+        console.log('上传表盘截图', {
+          id: screenshotUpload.id,
+          url: screenshotUpload.url
+        })
         return {
           id: screenshotUpload.id,
           url: screenshotUpload.url
@@ -300,6 +313,7 @@ const uploadApp = async () => {
       screenshot: screenshotRes.id,
       screenshotUrl: screenshotRes.url
     }
+    console.log('上传配置', data)
     if (baseStore.id) {
       data.documentId = baseStore.id
     }

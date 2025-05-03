@@ -8,6 +8,17 @@
     </div>
     <!-- 中间画布区域 -->
     <div class="center-area">
+      <!-- 画布 -->
+      <div class="canvas-container">
+        <CanvasView ref="canvasRef" />
+      </div>
+      <!-- 编辑器设置按钮 -->
+      <div class="editor-settings-btn" @click="openEditorSettings">
+        <el-icon>
+          <Setting />
+        </el-icon>
+      </div>
+      <!-- 标尺 -->
       <div class="ruler-corner"></div>
       <div class="ruler-horizontal-wrapper">
         <canvas class="ruler-horizontal"></canvas>
@@ -15,41 +26,21 @@
       <div class="ruler-vertical-wrapper">
         <canvas class="ruler-vertical"></canvas>
       </div>
-      <div class="canvas-container">
-        <Canvas ref="canvasRef" />
-      </div>
+      <!-- 时间模拟器 -->
+      <TimeSimulator v-if="baseStore.canvas != null" />
+      <!-- 缩放控件 -->
       <div class="editor-controls">
-        <!-- 缩放控件 -->
-        <div class="zoom-controls">
-          <el-button circle @click="handleZoomOut" title="缩小">
-            <el-icon><Minus /></el-icon>
-          </el-button>
-          <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
-          <el-button circle @click="handleZoomIn" title="放大">
-            <el-icon><Plus /></el-icon>
-          </el-button>
-          <el-button circle @click="handleResetZoom" title="重置缩放">
-            <el-icon><Refresh /></el-icon>
-          </el-button>
-        </div>
-        
-        <!-- 编辑器设置按钮 -->
-        <div class="editor-settings-btn" @click="openEditorSettings">
-          <el-icon><Setting /></el-icon>
-        </div>
+        <ZoomControls />
       </div>
     </div>
     <!-- 右侧设置面板 -->
     <div class="right-panel">
       <ElementSettings v-if="baseStore.canvas != null" />
     </div>
-
     <!-- 导出面板 -->
-    <ExportPanel 
-      ref="exportPanelRef" 
-      :isDialogVisible="isDialogVisible" 
-      @update:isDialogVisible="isDialogVisible = $event" 
-    />
+    <ExportPanel ref="exportPanelRef" :isDialogVisible="isDialogVisible"
+      @update:isDialogVisible="isDialogVisible = $event" />
+
 
     <!-- 添加设置对话框 -->
     <EditorSettingsDialog ref="editorSettingsDialog" />
@@ -58,17 +49,13 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, defineProps, watchEffect, computed } from 'vue'
-import ChangelogDialog from '@/components/dialogs/ChangelogDialog.vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Setting } from '@element-plus/icons-vue'
+import emitter from '@/utils/eventBus'
+import { Minus, Plus, Refresh } from '@element-plus/icons-vue'
 import { nanoid } from 'nanoid'
-import Canvas from '@/components/Canvas.vue'
-import ElementSettings from '@/components/ElementSettings.vue'
-import SidePanel from '@/components/SidePanel.vue'
-import ExportPanel from '@/components/ExportPanel.vue'
-import appConfig from '@/config/appConfig'
 import { useKeyboardShortcuts } from '../composables/useKeyboardShortcuts'
 import { useCanvas } from '../composables/useCanvas'
-import emitter from '@/utils/eventBus'
 import { usePropertiesStore } from '@/stores/properties'
 import { useMessageStore } from '@/stores/message'
 import { useFontStore } from '@/stores/fontStore'
@@ -79,8 +66,15 @@ import { useBaseStore } from '@/stores/baseStore'
 import { decodeElement } from '@/utils/elementCodec'
 import { getAddElement } from '@/utils/elementCodec/registry'
 import EditorSettingsDialog from '@/components/dialogs/EditorSettingsDialog.vue'
-import { Setting } from '@element-plus/icons-vue'
-import { Minus, Plus, Refresh } from '@element-plus/icons-vue'
+import ChangelogDialog from '@/components/dialogs/ChangelogDialog.vue'
+import appConfig from '@/config/appConfig'
+import CanvasView from '@/views/Canvas.vue'
+import ElementSettings from '@/components/ElementSettings.vue'
+import SidePanel from '@/components/SidePanel.vue'
+import ExportPanel from '@/components/ExportPanel.vue'
+import TimeSimulator from '@/components/TimeSimulator.vue'
+import ZoomControls from '@/components/ZoomControls.vue'
+
 const propertiesStore = usePropertiesStore()
 const imageStore = useImageElementStore()
 const route = useRoute()
@@ -99,20 +93,6 @@ let saveTimer = null
 const changelogDialog = ref(null)
 const editorSettingsDialog = ref(null)
 
-const props = defineProps({
-  designKey: {
-    type: [String, Number],
-    default: null
-  }
-})
-
-// 使用 watchEffect 监听 exportPanelRef 变化
-watchEffect(() => {
-  if (exportPanelRef.value) {
-    exportStore.setExportPanelRef(exportPanelRef.value)
-  }
-})
-
 // 启用键盘快捷键
 useKeyboardShortcuts()
 
@@ -122,14 +102,14 @@ const backgroundColor = computed(() => baseStore.builder?.backgroundColor || '#5
 // 加载设计配置
 const loadDesign = async (id) => {
   try {
-    
+
     const response = await getDesign(id)
     const designData = response.data
     const config = designData.configJson
 
     // 加载属性
     propertiesStore.loadProperties(config.properties)
-    
+
     // 设置基础信息
     baseStore.id = id
     baseStore.watchFaceName = designData.name
@@ -146,7 +126,7 @@ const loadDesign = async (id) => {
         baseStore.setTextCase(config.textCase)
       }, 500) // 等待画布加载完成
     }
-    
+
     // 设置标签长度类型
     if (config.labelLengthType !== undefined) {
       baseStore.labelLengthType = config.labelLengthType
@@ -164,7 +144,7 @@ const loadDesign = async (id) => {
 
     // 等待画布初始化完成
     await waitCanvasReady()
-    
+
     // 切换主题背景
     baseStore.toggleThemeBackground()
     // 加载字体
@@ -249,7 +229,7 @@ onMounted(() => {
   } else {
     initNewDesign()
   }
-  
+
   // 设置自动保存
   setupAutoSave()
 
@@ -305,6 +285,7 @@ const openEditorSettings = () => {
   border-right: 1px solid #e0e0e0;
   background-color: #fff;
 }
+
 .design-container {
   height: 100vh;
   display: flex;
@@ -327,26 +308,29 @@ const openEditorSettings = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: auto;
+  overflow: hidden;
   background-color: v-bind(backgroundColor);
   padding: 20px;
   position: relative;
 }
 
 .right-panel {
-  width: 500px; /* 增加宽度 */
+  width: 500px;
+  /* 增加宽度 */
   flex-shrink: 0;
   background: white;
   border-left: 1px solid #e0e0e0;
   overflow-y: auto;
   padding: 16px;
-  padding-bottom: 76px; /* 原有的16px + 额外的60px空间 */
+  padding-bottom: 76px;
+  /* 原有的16px + 额外的60px空间 */
 }
 
 .canvas-container {
   position: relative;
   background: white;
-  margin: 40px 0 0 40px; /* 标尺和画布之间的距离 40px */
+  margin: 40px 0 0 40px;
+  /* 标尺和画布之间的距离 40px */
 }
 
 .ruler-corner {
@@ -410,34 +394,15 @@ const openEditorSettings = () => {
   color: #666;
 }
 
-.zoom-controls {
+.editor-controls {
   position: absolute;
   top: 60px;
   right: 20px;
+  z-index: 100;
   background: #f0f0f0;
-  padding: 8px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  z-index: 2;
-}
-
-.zoom-controls button {
-  width: 24px;
-  height: 24px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.zoom-controls button:hover {
-  background: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 </style>

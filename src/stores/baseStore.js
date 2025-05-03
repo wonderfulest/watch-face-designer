@@ -338,7 +338,6 @@ export const useBaseStore = defineStore('baseStore', {
     },
     // 更新背景元素大小和位置
     updateBackgroundElements(zoom) {
-      console.log('update BackgroundElements', zoom)
       if (zoom && zoom != this.$state.builder.zoomLevel) {
         this.$state.builder.zoomLevel = zoom
       }
@@ -361,7 +360,6 @@ export const useBaseStore = defineStore('baseStore', {
           hasControls: false,
           backgroundColor: 'transparent'
         })
-        console.log('updateBackgroundElements', this.watchFaceCircle, this.$state.builder.backgroundColor)
         this.watchFaceCircle.setCoords()
       }
 

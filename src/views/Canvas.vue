@@ -516,8 +516,8 @@ onMounted(() => {
     centeredRotation: true  // 确保旋转以中心点为基准
   })
   // 设置画布背景色
-  const canvasElement = canvasRef.value;
-  canvasElement.style.backgroundColor = backgroundColor.value;
+  // const canvasElement = canvasRef.value;
+  // canvasElement.style.backgroundColor = backgroundColor.value;
   // 计算画布中心点
   const centerPoint = {
     x: 0,
@@ -583,7 +583,7 @@ onMounted(() => {
   }
 
   // 监听画布对象移动事件
-  baseStore.canvas.on('object:moving', (e) => {
+  canvas.on('object:moving', (e) => {
     const target = e.target
     if (target && target.guideline) {
       // 吸附到网格
@@ -654,6 +654,7 @@ onMounted(() => {
   if (container) {
     container.style.transform = 'translate(0px, 0px)'
     container.style.transition = 'transform 0s' // 移除过渡动画，使拖动更流畅
+    container.style.backgroundColor = backgroundColor.value
   }
 })
 

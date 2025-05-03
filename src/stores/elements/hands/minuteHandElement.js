@@ -14,6 +14,10 @@ export const useMinuteHandStore = defineStore('minuteHand', {
       handHeight: 150,
       moveDx: 0,
       moveDy: 0,
+      endPoint: {
+        x: 227,
+        y: 150
+      },
       defaultColors: {
         color: '#FFFFFF',
         bgColor: 'transparent'
@@ -25,11 +29,42 @@ export const useMinuteHandStore = defineStore('minuteHand', {
     }
   },
 
-  actions: {
+  actions: { 
+    // 通用的旋转方法
+    rotateHand(svgGroup, angle, rotationCenter, moveDy = 0) {
+      const radians = util.degreesToRadians(angle)
+      const dx = 0
+      const dy = -this.handHeight / 2 + moveDy
+      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
+      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
+
+      svgGroup.set({
+        left: rotationCenter.x + rotatedX,
+        top: rotationCenter.y + rotatedY,
+        angle: angle
+      })
+      svgGroup.setCoords()
+      this.baseStore.canvas.requestRenderAll()
+    },
+
+    getMinuteHandAngle(time) {
+      const now = time || new Date()
+      const minutes = now.getMinutes()
+      const seconds = now.getSeconds()
+      const angle = minutes * 6 + seconds * 0.1
+      return angle
+    },
+
     async addElement(config) {
+      console.log('minuteHand addElement', config)
       const id = nanoid()
-      this.handHeight = Math.min(config.height || this.handHeight, 300)
-      const angle = config.angle || this.defaultAngle
+      this.handHeight = Math.min(config.height, 300)
+      this.moveDy = config.moveDy || this.moveDy
+      this.endPoint = {
+        x: config.x || this.endPoint.x,
+        y: config.y || this.endPoint.y
+      }
+      
       const imageUrl = config.imageUrl || this.defaultHand
       const color = config.color || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
@@ -44,16 +79,13 @@ export const useMinuteHandStore = defineStore('minuteHand', {
         selectable: true,
         hasControls: true,
         hasBorders: true,
-        angle: angle,
+        angle: 0,
         imageUrl: imageUrl,
         color: color,
         rotationCenter: rotationCenter
       }
       svgGroup.set(options)
 
-      if (config.moveDy) {
-        this.moveDy = config.moveDy
-      }
       if (Array.isArray(svgGroup._objects)) {
         svgGroup._objects.forEach((obj) => obj.set('fill', color))
       } else if (svgGroup.type === 'path') {
@@ -62,26 +94,24 @@ export const useMinuteHandStore = defineStore('minuteHand', {
 
       svgGroup.scaleToHeight(this.handHeight)
 
-      // 计算自定义旋转中心后的 left/top
-      const radians = util.degreesToRadians(angle)
-      const dx = 0
-      const dy = -this.handHeight / 2 + this.moveDy
-      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
-      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
-
-      svgGroup.set({
-        left: rotationCenter.x + rotatedX,
-        top: rotationCenter.y + rotatedY
-      })
+      // 使用通用的旋转方法
+      const angle = this.getMinuteHandAngle()
+      this.rotateHand(svgGroup, angle, rotationCenter, this.moveDy)
 
       // 添加移动事件监听
       svgGroup.on('moving', (e) => {
-        const moveTop = e.transform.target.top
-        const moveLeft = e.transform.target.left
-        this.moveDy = moveTop + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
-        console.log('moveDy', this.moveDy)
+        console.log('minuteHand moving', e)
+        this.endPoint = {
+          x: e.transform.target.left,
+          y: e.transform.target.top
+        }
+        this.moveDy = this.endPoint.y + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
       })
-
+      svgGroup.on('selected', (e) => {
+        console.log('minuteHand selected', e)
+        // 使用通用的旋转方法，设置角度为0（12点位置）
+        this.rotateHand(svgGroup, 0, rotationCenter, this.moveDy)
+      })
       this.baseStore.canvas.add(svgGroup)
       svgGroup.setCoords()
       this.layerStore.addLayer(svgGroup)
@@ -103,7 +133,7 @@ export const useMinuteHandStore = defineStore('minuteHand', {
       const rotationCenter = config.rotationCenter || svgGroup.rotationCenter || this.defaultRotationCenter
 
       let newSVG = svgGroup
-
+      this.handHeight = config.height
       // 替换 image
       if (config.imageUrl && config.imageUrl !== currentImageUrl) {
         this.baseStore.canvas.remove(svgGroup)
@@ -120,6 +150,22 @@ export const useMinuteHandStore = defineStore('minuteHand', {
           hasBorders: true,
           angle: currentAngle,
           imageUrl: config.imageUrl
+        })
+        newSVG.scaleToHeight(this.handHeight)
+        // 添加移动事件监听
+        newSVG.on('moving', (e) => {
+          this.endPoint = {
+            x: e.transform.target.left,
+            y: e.transform.target.top
+          }
+          const distance = this.endPoint.y + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
+          this.moveDy = distance
+          console.log('minuteHand  updateElement moving', this.moveDy, e.transform.target.top)
+        })
+        newSVG.on('selected', (e) => {
+          console.log('minuteHand  updateElement selected', e)
+          // 使用通用的旋转方法，设置角度为0（12点位置）
+          this.rotateHand(newSVG, 0, rotationCenter, this.moveDy)
         })
         this.baseStore.canvas.add(newSVG)
       }
@@ -141,19 +187,8 @@ export const useMinuteHandStore = defineStore('minuteHand', {
 
       // 计算旋转后位置
       const angle = config.angle !== undefined ? config.angle : currentAngle
-      const radians = util.degreesToRadians(angle)
-      const dx = 0
-      const dy = -this.handHeight / 2 + this.moveDy
-      const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
-      const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
-
-      newSVG.set({
-        left: rotationCenter.x + rotatedX,
-        top: rotationCenter.y + rotatedY,
-        angle: angle,
-        imageUrl: config.imageUrl || newSVG.imageUrl,
-        rotationCenter: rotationCenter
-      })
+      // 使用通用的旋转方法
+      this.rotateHand(newSVG, angle, rotationCenter, this.moveDy)
 
       newSVG.setCoords()
       this.baseStore.canvas.requestRenderAll()
@@ -163,18 +198,15 @@ export const useMinuteHandStore = defineStore('minuteHand', {
       }
     },
 
-    updateTime() {
+    updateTime(time) {
       if (!this.baseStore.canvas) return
       
       const minuteHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'minuteHand')
       if (!minuteHand) return
 
-      const now = new Date()
-      const minutes = now.getMinutes()
-      
-      // 计算分针角度 (每分钟6度)
-      const angle = minutes * 6
-      
+      const angle = this.getMinuteHandAngle(time)
+      // 使用通用的旋转方法
+      this.rotateHand(minuteHand, angle, minuteHand.rotationCenter, this.moveDy)
     },
 
     startTimeUpdate() {
@@ -198,9 +230,9 @@ export const useMinuteHandStore = defineStore('minuteHand', {
       if (!element) throw new Error('无效的元素')
       return {
         type: 'minuteHand',
-        x: Math.round(element.left),
-        y: Math.round(element.top),
-        height: Math.round(element.height * element.scaleY),
+        x: this.endPoint.x,
+        y: this.endPoint.y,
+        height: this.handHeight,
         color: element.color,
         bgColor: element.bgColor,
         angle: element.angle,
