@@ -9,13 +9,8 @@
         <HandPicker
           :selected-url="element.imageUrl"
           :available-hands="availableHands"
-          :on-select="(url) => hourHandStore.updateElement(element, { imageUrl: url })"
+          :on-select="(url) => hourHandStore.updateHandSVG(element, { imageUrl: url })"
           :on-upload="(url, fileName) => {
-            hourHandStore.updateElement(element, {
-              imageUrl: url,
-              angle: 0,
-              height: element.height,
-            })
             // 检查是否已存在相同名称的指针
             const existingIndex = availableHands.findIndex(hand => hand.name === fileName.replace('.svg', ''))
             if (existingIndex !== -1) {
@@ -28,6 +23,8 @@
                 url: url
               })
             }
+            // 更新画布
+            hourHandStore.updateHandSVG(element, { imageUrl: url })
           }"
         />
       </div>
@@ -52,8 +49,8 @@
         <label>尺寸</label>
         <div class="size-inputs">
           <div class="input-group">
-            <label>高度</label>
-            <input type="number" :value="Math.round(element.height * element.scaleY)" min="1" max="300" @change="onHeightChange($event)" />
+            <label>指针长度</label>
+            <input type="number" :value="element.targetHeight" min="1" max="300" @change="onHeightChange($event)" />
           </div>
         </div>
         <label>缩放比例</label>
@@ -65,22 +62,6 @@
           <div class="scale-input">
             <label>Y</label>
             <input type="number" :value="element.scaleY.toFixed(2)" readonly />
-          </div>
-        </div>
-      </div>
-
-      <!-- 旋转角度设置 -->
-      <div class="setting-item">
-        <div class="setting-header">
-          <label>旋转角度</label>
-          <el-tooltip :content="tooltipContent" placement="top" effect="light" :show-after="0" raw-content>
-            <el-icon class="help-icon"><Warning /></el-icon>
-          </el-tooltip>
-        </div>
-        <div class="angle-inputs">
-          <div class="input-group">
-            <label>角度</label>
-            <input type="number" :value="element.angle" @input="(e) => (element.angle = Number(e.target.value))" @change="updateElement" />
           </div>
         </div>
       </div>
@@ -112,24 +93,10 @@
           <div class="input-group">
             <label>时针颜色</label>
             <ColorPicker
-              v-model="element.color"
+              v-model="element.fill"
               @change="
                 (val) => {
-                  hourHandStore.updateElement(element, {
-                    color: val
-                  })
-                }
-              " />
-          </div>
-          <div class="input-group">
-            <label>背景色</label>
-            <ColorPicker
-              v-model="element.bgColor"
-              @change="
-                (val) => {
-                  hourHandStore.updateElement(element, {
-                    bgColor: val
-                  })
+                  hourHandStore.updateHandColor(element, val)
                 }
               " />
           </div>
@@ -147,9 +114,7 @@
           @input="
             (e) => {
               element.angle = Number(e.target.value)
-              hourHandStore.updateElement(element, {
-                angle: element.angle
-              })
+              hourHandStore.updateAngle(element, element.angle)
             }
           " />
         <span>{{ Math.round(element.angle) }}°</span>
@@ -185,20 +150,7 @@ const formRef = ref(null)
 const availableHands = ref(AnalogHandOptions)
 
 const onHeightChange = (e) => {
-  hourHandStore.updateElement(props.element, {
-    height: e.target.value,
-  })
-}
-
-// 更新元素
-const updateElement = () => {
-  if (!props.element) return
-  hourHandStore.updateElement(props.element, {
-    left: props.element.left,
-    top: props.element.top,
-    angle: props.element.angle,
-    imageUrl: props.element.imageUrl
-  })
+  hourHandStore.updateHeight(props.element, e.target.value)
 }
 
 // 更新位置
@@ -213,9 +165,7 @@ const updatePosition = () => {
 // 更新旋转中心点
 const updateRotationCenter = (center) => {
   if (!props.element) return
-  hourHandStore.updateElement(props.element, {
-    rotationCenter: center
-  })
+  hourHandStore.updateRotationCenter(props.element, center)
 }
 
 // 定义提示内容，使用 HTML 格式

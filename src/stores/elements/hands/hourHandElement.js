@@ -11,36 +11,42 @@ export const useHourHandStore = defineStore('hourHandElement', {
     return {
       baseStore,
       layerStore,
-      handHeight: 150,
       moveDx: 0,
-      moveDy: 0,
-      endPoint: {
-        x: 227,
-        y: 180
-      },
       defaultColors: {
         color: '#FFFFFF',
         bgColor: 'transparent'
       },
       defaultAngle: 0,
+      defaultTargetHeight: 180,
       defaultRotationCenter: { x: 227, y: 227 },
       updateTimer: null
     }
   },
 
   actions: {
-    // 通用的旋转方法
-    rotateHand(svgGroup, angle, rotationCenter, moveDy = 0) {
+    /**
+     * 通用的旋转方法
+     * @param {Object} svgGroup - 需要旋转的元素
+     * @param {number} angle - 旋转角度
+     */
+    rotateHand(svgGroup, angle) {
+      const targetHeight = svgGroup.targetHeight // 指针高度
+      const moveDy = svgGroup.moveDy || 0 // 旋转中心在Y轴上偏移的距离
+      const rotationCenter = svgGroup.rotationCenter || {x: 227, y: 227} // 旋转中心; 默认是表盘中心
+
       const radians = util.degreesToRadians(angle)
-      const dx = 0
-      const dy = -this.handHeight / 2 + moveDy
+      const dx = 0 // 指针在X轴上偏移的距离
+      const dy = -targetHeight / 2 + moveDy // 指针在Y轴上偏移的距离
       const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
       const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
-
       svgGroup.set({
         left: rotationCenter.x + rotatedX,
         top: rotationCenter.y + rotatedY,
-        angle: angle
+        angle: angle,
+        originX: 'center',
+        originY: 'center',
+        scaleX: svgGroup.targetScaleX,
+        scaleY: svgGroup.targetScaleY
       })
       svgGroup.setCoords()
       this.baseStore.canvas.requestRenderAll()
@@ -57,17 +63,11 @@ export const useHourHandStore = defineStore('hourHandElement', {
     async addElement(config) {
       console.log('hourHand addElement', config)
       const id = nanoid()
-      this.handHeight = Math.min(config.height, 300)
-      this.moveDy = config.moveDy || this.moveDy
-      this.endPoint = {
-        x: config.x || this.endPoint.x,
-        y: config.y || this.endPoint.y
-      }
-    
       const imageUrl = config.imageUrl || AnalogHandOptions[0].url
-      const color = config.color || this.defaultColors.color
+      const fill = config.fill || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
-
+      const targetHeight = Math.min(config.targetHeight || this.defaultTargetHeight, 300)
+      const moveDy = config.moveDy || 0
       const loadedSVG = await loadSVGFromURL(imageUrl)
       const svgGroup = util.groupSVGElements(loadedSVG.objects)
       const options = {
@@ -80,74 +80,65 @@ export const useHourHandStore = defineStore('hourHandElement', {
         hasBorders: true,
         angle: 0,
         imageUrl: imageUrl,
-        color: color,
-        rotationCenter: rotationCenter
+        fill: fill,
+        rotationCenter: rotationCenter, // 旋转中心
+        targetHeight: targetHeight, // 指针高度
+        targetScaleY: 1, // 缩放比例
+        moveDy: moveDy, // 旋转中心在Y轴上偏移的距离
       }
       svgGroup.set(options)
-      svgGroup.scaleToHeight(this.handHeight)
+      svgGroup.scaleToHeight(targetHeight)
+      svgGroup.set({
+        targetScaleX: svgGroup.scaleX,
+        targetScaleY: svgGroup.scaleY
+      })
+      this.rotateHand(svgGroup, 0)
 
       if (Array.isArray(svgGroup._objects)) {
-        svgGroup._objects.forEach((obj) => obj.set('fill', color))
+        svgGroup._objects.forEach((obj) => obj.set('fill', fill))
       } else if (svgGroup.type === 'path') {
-        svgGroup.set('fill', color)
+        svgGroup.set('fill', fill)
       }
     
-      // 使用通用的旋转方法
-      const angle = this.getHourHandAngle()
-      this.rotateHand(svgGroup, angle, rotationCenter, this.moveDy)
-
       // 添加移动事件监听
       svgGroup.on('moving', (e) => {
-        console.log('hourHand moving', e)
-        this.endPoint = {
-          x: e.transform.target.left,
-          y: e.transform.target.top
-        }
-        const distance = this.endPoint.y + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
-        this.moveDy = distance
-        console.log('hourHand moving', this.moveDy, e.transform.target.top)
+        const y = e.transform.target.top // 获取指针中心位置的Y轴坐标
+        const distance = y + svgGroup.targetHeight / 2 - rotationCenter.y
+        svgGroup.set('moveDy', distance)
       })
       
       svgGroup.on('selected', (e) => {
-        console.log('hourHand selected', e)
-        // 使用通用的旋转方法，设置角度为0（12点位置）
-        this.rotateHand(svgGroup, 0, rotationCenter, this.moveDy)
+        if (this.updateTimer) {
+          this.stopTimeUpdate()
+        }
+        this.rotateHand(svgGroup, 0)
       })
-
-
+      svgGroup.on('deselected', (e) => {
+        console.log('hourHand deselected', svgGroup)
+        if (!this.updateTimer) {
+          this.startTimeUpdate()
+        }
+      })
       svgGroup.setCoords()
-
       this.baseStore.canvas.add(svgGroup)
       this.layerStore.addLayer(svgGroup)
       this.baseStore.canvas.requestRenderAll()
       this.baseStore.canvas.discardActiveObject()
       this.baseStore.canvas.setActiveObject(svgGroup)
-
-      this.startTimeUpdate()
     },
-
-    async updateElement(element, config) {
-      console.log('rotation angle', config.angle)
+    async updateHandSVG(element, config) {
       if (!this.baseStore.canvas) return
-
-      const svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
+      let svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!svgGroup) return
-
-      const currentAngle = svgGroup.angle
-      const currentImageUrl = svgGroup.imageUrl
+      // 获取旋转中心、指针高度、旋转中心在Y轴上偏移的距离
       const rotationCenter = config.rotationCenter || svgGroup.rotationCenter || this.defaultRotationCenter
-      console.log('hourHand updateElement rotationCenter', rotationCenter)
-      let newSVG = svgGroup
-      this.handHeight = config.height
-      // 替换 image
-      if (config.imageUrl && config.imageUrl !== currentImageUrl) {
-        console.log('hourHand updateElement imageUrl', config.imageUrl)
+      const targetHeight = config.targetHeight || svgGroup.targetHeight || this.defaultTargetHeight
+      const moveDy = config.moveDy || svgGroup.moveDy || 0
+      if (config.imageUrl && config.imageUrl !== svgGroup.imageUrl) {
         this.baseStore.canvas.remove(svgGroup)
-
         const loadedSVG = await loadSVGFromURL(config.imageUrl)
-        console.log('hourHand updateElement loadedSVG', loadedSVG)
-        newSVG = util.groupSVGElements(loadedSVG.objects)
-        newSVG.set({
+        svgGroup = util.groupSVGElements(loadedSVG.objects)
+        svgGroup.set({
           id: element.id,
           eleType: 'hourHand',
           originX: 'center',
@@ -155,79 +146,123 @@ export const useHourHandStore = defineStore('hourHandElement', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          angle: 0,
           imageUrl: config.imageUrl,
-          color: config.color,
-          rotationCenter: rotationCenter
+          fill: '#ffffff',
+          rotationCenter: rotationCenter,
+          targetHeight: targetHeight,
+          moveDy: moveDy
         })
         // 添加移动事件监听
-        newSVG.on('moving', (e) => {
-          this.endPoint = {
-            x: e.transform.target.left,
-            y: e.transform.target.top
+        svgGroup.on('moving', (e) => {
+          const y = e.transform.target.top // 获取指针中心位置的Y轴坐标
+          const distance = y + svgGroup.targetHeight / 2 - rotationCenter.y
+          svgGroup.set('moveDy', distance)
+        })
+        svgGroup.on('selected', (e) => {
+          // 进入选中编辑状态
+          if (this.updateTimer) {
+            this.stopTimeUpdate()
           }
-          const distance = this.endPoint.y + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
-          this.moveDy = distance
-          console.log('hourHand moving', this.moveDy, e.transform.target.top)
+          this.rotateHand(svgGroup, 0)
         })
-        newSVG.on('selected', (e) => {
-          console.log('hourHand  updateElement selected', e)
-          // 使用通用的旋转方法，设置角度为0（12点位置）
-          this.rotateHand(newSVG, 0, rotationCenter, this.moveDy)
+        svgGroup.on('deselected', (e) => {
+          // 停止时间更新
+          if (!this.updateTimer) {
+            this.startTimeUpdate()
+          }
         })
-        this.baseStore.canvas.add(newSVG)
+        // 添加到画布
+        this.baseStore.canvas.add(svgGroup)
       }
-
       // 应用颜色
-      const colorToSet = config.color || this.defaultColors.color
-      if (Array.isArray(newSVG._objects)) {
-        newSVG._objects.forEach((obj) => obj.set('fill', colorToSet))
-        console.log('hourHand 111 updateElement colorToSet', colorToSet)
-      } else if (newSVG.type === 'path') {
-        newSVG.set('fill', colorToSet)
-        console.log('hourHand 222 updateElement colorToSet', colorToSet)
+      const fillToSet = config.fill || this.defaultColors.color
+      if (Array.isArray(svgGroup._objects)) {
+        svgGroup._objects.forEach((obj) => obj.set('fill', fillToSet))
+      } else if (svgGroup.type === 'path') {
+        svgGroup.set('fill', fillToSet)
       }
-  
-      newSVG.set({ color: colorToSet })
-
       // 调整尺寸
-      this.handHeight = Math.min(config.height, 300)
-      newSVG.scaleToHeight(this.handHeight)
-
-      // 计算旋转后位置
-      const angle = config.angle !== undefined ? config.angle : currentAngle
-      console.log('hourHand updateElement angle', angle, rotationCenter, this.moveDy)
-      // 使用通用的旋转方法
-      this.rotateHand(newSVG, angle, rotationCenter, this.moveDy)
-
-      newSVG.setCoords()
+      svgGroup.scaleToHeight(targetHeight)
+      svgGroup.set({
+        moveDy: moveDy,
+        rotationCenter: rotationCenter,
+        targetHeight: targetHeight,
+        targetScaleX: svgGroup.scaleX,
+        targetScaleY: svgGroup.scaleY
+      })
+      // 旋转
+      this.rotateHand(svgGroup, 0)
+      // 更新坐标
+      svgGroup.setCoords()
+      // 更新
       this.baseStore.canvas.requestRenderAll()
-
-      if (!this.updateTimer) {
-        this.startTimeUpdate()
-      }
+      this.baseStore.canvas.discardActiveObject()
+      this.baseStore.canvas.setActiveObject(svgGroup)
     },
 
-   
+    updateHeight(element, height) {
+      if (!this.baseStore.canvas) return
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+      if (!hourHand) return
+      hourHand.scaleToHeight(height)
+      hourHand.set({
+        targetHeight: height,
+        targetScaleX: hourHand.scaleX,
+        targetScaleY: hourHand.scaleY
+      })
+      hourHand.setCoords()
+      this.baseStore.canvas.requestRenderAll()
+    },
+    updateRotationCenter(element, rotationCenter) {
+      console.log('updateRotationCenter', element, rotationCenter)
+      if (!this.baseStore.canvas) return
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+      if (!hourHand) return
+      hourHand.set('rotationCenter', rotationCenter)
+    },
+    updateHandColor(element, color) {
+      if (!this.baseStore.canvas) return
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+      if (!hourHand) return
+      
+      // 设置主对象的颜色
+      hourHand.set('fill', color)
+      // 更新所有子元素的颜色
+      if (Array.isArray(hourHand._objects)) {
+        hourHand._objects.forEach((obj) => {
+          obj.set('fill', color)
+          obj.set('stroke', color)
+        })
+      } else if (hourHand.type === 'path') {
+        hourHand.set('fill', color)
+        hourHand.set('stroke', color)
+      }
+      hourHand.setCoords()
+      this.baseStore.canvas.requestRenderAll()
+    },
+    updateAngle(element, angle) {
+      if (!this.baseStore.canvas) return
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+      if (!hourHand) return
+      this.rotateHand(hourHand, angle)
+    },
     updateTime(time) {
       if (!this.baseStore.canvas) return
       
       const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'hourHand')
       if (!hourHand) return
-
       const angle = this.getHourHandAngle(time)
       // 使用通用的旋转方法
-      this.rotateHand(hourHand, angle, hourHand.rotationCenter, this.moveDy)
+      this.rotateHand(hourHand, angle)
     },
-
     startTimeUpdate() {
       // 先执行一次更新
       this.updateTime()
       
-      // 每分钟更新一次
+      // 每秒更新一次
       this.updateTimer = setInterval(() => {
         this.updateTime()
-      }, 60000)
+      }, 3000)
     },
 
     stopTimeUpdate() {
@@ -241,16 +276,15 @@ export const useHourHandStore = defineStore('hourHandElement', {
       if (!element) throw new Error('无效的元素')
       return {
         type: 'hourHand',
-        x: this.endPoint.x,
-        y: this.endPoint.y,
-        height: this.handHeight,
-        color: element.color,
-        bgColor: element.bgColor,
+        x: element.left,
+        y: element.top,
+        height: element.height,
+        color: element.fill,
         angle: element.angle,
         imageUrl: element.imageUrl,
+        targetHeight: element.targetHeight,
         rotationCenter: element.rotationCenter,
-        moveDy: this.moveDy,
-        scaleY: element.scaleY
+        moveDy: element.moveDy,
       }
     },
 
@@ -260,13 +294,12 @@ export const useHourHandStore = defineStore('hourHandElement', {
         left: config.x,
         top: config.y,
         height: config.height,
-        color: config.color,
-        bgColor: config.bgColor,
+        fill: config.color,
         angle: config.angle,
         imageUrl: config.imageUrl,
+        targetHeight: config.targetHeight,
         rotationCenter: config.rotationCenter,
         moveDy: config.moveDy,
-        scaleY: config.scaleY
       }
     }
   }

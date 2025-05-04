@@ -4,44 +4,49 @@ import { useLayerStore } from '@/stores/layerStore'
 import { loadSVGFromURL, util } from 'fabric'
 import { nanoid } from 'nanoid'
 import { AnalogHandOptions } from '@/config/settings'
-export const useMinuteHandStore = defineStore('minuteHand', {
+export const useMinuteHandStore = defineStore('minuteHandElement', {
   state: () => {
     const baseStore = useBaseStore()
     const layerStore = useLayerStore()
     return {
       baseStore,
       layerStore,
-      handHeight: 150,
       moveDx: 0,
-      moveDy: 0,
-      endPoint: {
-        x: 227,
-        y: 150
-      },
       defaultColors: {
         color: '#FFFFFF',
         bgColor: 'transparent'
       },
       defaultAngle: 0,
-      defaultHand: AnalogHandOptions[0].url,
+      defaultTargetHeight: 180,
       defaultRotationCenter: { x: 227, y: 227 },
       updateTimer: null
     }
   },
 
-  actions: { 
-    // 通用的旋转方法
-    rotateHand(svgGroup, angle, rotationCenter, moveDy = 0) {
+  actions: {
+    /**
+     * 通用的旋转方法
+     * @param {Object} svgGroup - 需要旋转的元素
+     * @param {number} angle - 旋转角度
+     */
+    rotateHand(svgGroup, angle) {
+      const targetHeight = svgGroup.targetHeight // 指针高度
+      const moveDy = svgGroup.moveDy || 0 // 旋转中心在Y轴上偏移的距离
+      const rotationCenter = svgGroup.rotationCenter || {x: 227, y: 227} // 旋转中心; 默认是表盘中心
+
       const radians = util.degreesToRadians(angle)
-      const dx = 0
-      const dy = -this.handHeight / 2 + moveDy
+      const dx = 0 // 指针在X轴上偏移的距离
+      const dy = -targetHeight / 2 + moveDy // 指针在Y轴上偏移的距离
       const rotatedX = dx * Math.cos(radians) - dy * Math.sin(radians)
       const rotatedY = dx * Math.sin(radians) + dy * Math.cos(radians)
-
       svgGroup.set({
         left: rotationCenter.x + rotatedX,
         top: rotationCenter.y + rotatedY,
-        angle: angle
+        angle: angle,
+        originX: 'center',
+        originY: 'center',
+        scaleX: svgGroup.targetScaleX,
+        scaleY: svgGroup.targetScaleY
       })
       svgGroup.setCoords()
       this.baseStore.canvas.requestRenderAll()
@@ -50,25 +55,18 @@ export const useMinuteHandStore = defineStore('minuteHand', {
     getMinuteHandAngle(time) {
       const now = time || new Date()
       const minutes = now.getMinutes()
-      const seconds = now.getSeconds()
-      const angle = minutes * 6 + seconds * 0.1
+      const angle = minutes * 6
       return angle
     },
 
     async addElement(config) {
       console.log('minuteHand addElement', config)
       const id = nanoid()
-      this.handHeight = Math.min(config.height, 300)
-      this.moveDy = config.moveDy || this.moveDy
-      this.endPoint = {
-        x: config.x || this.endPoint.x,
-        y: config.y || this.endPoint.y
-      }
-      
-      const imageUrl = config.imageUrl || this.defaultHand
-      const color = config.color || this.defaultColors.color
+      const imageUrl = config.imageUrl || AnalogHandOptions[0].url
+      const fill = config.fill || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
-
+      const targetHeight = Math.min(config.targetHeight || this.defaultTargetHeight, 300)
+      const moveDy = config.moveDy || 0
       const loadedSVG = await loadSVGFromURL(imageUrl)
       const svgGroup = util.groupSVGElements(loadedSVG.objects)
       const options = {
@@ -81,66 +79,65 @@ export const useMinuteHandStore = defineStore('minuteHand', {
         hasBorders: true,
         angle: 0,
         imageUrl: imageUrl,
-        color: color,
-        rotationCenter: rotationCenter
+        fill: fill,
+        rotationCenter: rotationCenter, // 旋转中心
+        targetHeight: targetHeight, // 指针高度
+        targetScaleY: 1, // 缩放比例
+        moveDy: moveDy, // 旋转中心在Y轴上偏移的距离
       }
       svgGroup.set(options)
+      svgGroup.scaleToHeight(targetHeight)
+      svgGroup.set({
+        targetScaleX: svgGroup.scaleX,
+        targetScaleY: svgGroup.scaleY
+      })
+      this.rotateHand(svgGroup, 0)
 
       if (Array.isArray(svgGroup._objects)) {
-        svgGroup._objects.forEach((obj) => obj.set('fill', color))
+        svgGroup._objects.forEach((obj) => obj.set('fill', fill))
       } else if (svgGroup.type === 'path') {
-        svgGroup.set('fill', color)
+        svgGroup.set('fill', fill)
       }
-
-      svgGroup.scaleToHeight(this.handHeight)
-
-      // 使用通用的旋转方法
-      const angle = this.getMinuteHandAngle()
-      this.rotateHand(svgGroup, angle, rotationCenter, this.moveDy)
-
+    
       // 添加移动事件监听
       svgGroup.on('moving', (e) => {
-        console.log('minuteHand moving', e)
-        this.endPoint = {
-          x: e.transform.target.left,
-          y: e.transform.target.top
-        }
-        this.moveDy = this.endPoint.y + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
+        const y = e.transform.target.top // 获取指针中心位置的Y轴坐标
+        const distance = y + svgGroup.targetHeight / 2 - rotationCenter.y
+        svgGroup.set('moveDy', distance)
       })
+      
       svgGroup.on('selected', (e) => {
-        console.log('minuteHand selected', e)
-        // 使用通用的旋转方法，设置角度为0（12点位置）
-        this.rotateHand(svgGroup, 0, rotationCenter, this.moveDy)
+        if (this.updateTimer) {
+          this.stopTimeUpdate()
+        }
+        this.rotateHand(svgGroup, 0)
       })
-      this.baseStore.canvas.add(svgGroup)
+      svgGroup.on('deselected', (e) => {
+        console.log('minuteHand deselected', svgGroup)
+        if (!this.updateTimer) {
+          this.startTimeUpdate()
+        }
+      })
       svgGroup.setCoords()
+      this.baseStore.canvas.add(svgGroup)
       this.layerStore.addLayer(svgGroup)
       this.baseStore.canvas.requestRenderAll()
       this.baseStore.canvas.discardActiveObject()
       this.baseStore.canvas.setActiveObject(svgGroup)
-
-      this.startTimeUpdate()
     },
-
-    async updateElement(element, config) {
+    async updateHandSVG(element, config) {
       if (!this.baseStore.canvas) return
-
-      const svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
+      let svgGroup = this.baseStore.canvas.getObjects().find((obj) => obj.id === element.id)
       if (!svgGroup) return
-
-      const currentAngle = svgGroup.angle
-      const currentImageUrl = svgGroup.imageUrl
+      // 获取旋转中心、指针高度、旋转中心在Y轴上偏移的距离
       const rotationCenter = config.rotationCenter || svgGroup.rotationCenter || this.defaultRotationCenter
-
-      let newSVG = svgGroup
-      this.handHeight = config.height
-      // 替换 image
-      if (config.imageUrl && config.imageUrl !== currentImageUrl) {
+      const targetHeight = config.targetHeight || svgGroup.targetHeight || this.defaultTargetHeight
+      const moveDy = config.moveDy || svgGroup.moveDy || 0
+      if (config.imageUrl && config.imageUrl !== svgGroup.imageUrl) {
         this.baseStore.canvas.remove(svgGroup)
-
         const loadedSVG = await loadSVGFromURL(config.imageUrl)
-        newSVG = util.groupSVGElements(loadedSVG.objects)
-        newSVG.set({
+        svgGroup = util.groupSVGElements(loadedSVG.objects)
+        svgGroup.set({
           id: element.id,
           eleType: 'minuteHand',
           originX: 'center',
@@ -148,75 +145,120 @@ export const useMinuteHandStore = defineStore('minuteHand', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          angle: currentAngle,
-          imageUrl: config.imageUrl
+          imageUrl: config.imageUrl,
+          fill: '#ffffff',
+          rotationCenter: rotationCenter,
+          targetHeight: targetHeight,
+          moveDy: moveDy
         })
-        newSVG.scaleToHeight(this.handHeight)
         // 添加移动事件监听
-        newSVG.on('moving', (e) => {
-          this.endPoint = {
-            x: e.transform.target.left,
-            y: e.transform.target.top
+        svgGroup.on('moving', (e) => {
+          const y = e.transform.target.top // 获取指针中心位置的Y轴坐标
+          const distance = y + svgGroup.targetHeight / 2 - rotationCenter.y
+          svgGroup.set('moveDy', distance)
+        })
+        svgGroup.on('selected', (e) => {
+          if (this.updateTimer) {
+            this.stopTimeUpdate()
           }
-          const distance = this.endPoint.y + this.handHeight / 2 - this.baseStore.WATCH_SIZE / 2
-          this.moveDy = distance
-          console.log('minuteHand  updateElement moving', this.moveDy, e.transform.target.top)
+          this.rotateHand(svgGroup, 0)
         })
-        newSVG.on('selected', (e) => {
-          console.log('minuteHand  updateElement selected', e)
-          // 使用通用的旋转方法，设置角度为0（12点位置）
-          this.rotateHand(newSVG, 0, rotationCenter, this.moveDy)
+        svgGroup.on('deselected', (e) => {
+          if (!this.updateTimer) {
+            this.startTimeUpdate()
+          }
         })
-        this.baseStore.canvas.add(newSVG)
+        // 添加到画布
+        this.baseStore.canvas.add(svgGroup)
       }
-
       // 应用颜色
-      const colorToSet = config.color || newSVG.color || this.defaultColors.color
-      if (Array.isArray(newSVG._objects)) {
-        newSVG._objects.forEach((obj) => obj.set('fill', colorToSet))
-      } else if (newSVG.type === 'path') {
-        newSVG.set('fill', colorToSet)
+      const fillToSet = config.fill || this.defaultColors.color
+      if (Array.isArray(svgGroup._objects)) {
+        svgGroup._objects.forEach((obj) => obj.set('fill', fillToSet))
+      } else if (svgGroup.type === 'path') {
+        svgGroup.set('fill', fillToSet)
       }
-      newSVG.set({ color: colorToSet })
-
       // 调整尺寸
-      if (config.height) {
-        this.handHeight = Math.min(config.height, 300)
-        newSVG.scaleToHeight(this.handHeight)
-      }
-
-      // 计算旋转后位置
-      const angle = config.angle !== undefined ? config.angle : currentAngle
-      // 使用通用的旋转方法
-      this.rotateHand(newSVG, angle, rotationCenter, this.moveDy)
-
-      newSVG.setCoords()
+      svgGroup.scaleToHeight(targetHeight)
+      svgGroup.set({
+        moveDy: moveDy,
+        rotationCenter: rotationCenter,
+        targetHeight: targetHeight,
+        targetScaleX: svgGroup.scaleX,
+        targetScaleY: svgGroup.scaleY
+      })
+      // 旋转
+      this.rotateHand(svgGroup, 0)
+      // 更新坐标
+      svgGroup.setCoords()
+      // 更新
       this.baseStore.canvas.requestRenderAll()
-
-      if (!this.updateTimer) {
-        this.startTimeUpdate()
-      }
+      this.baseStore.canvas.discardActiveObject()
+      this.baseStore.canvas.setActiveObject(svgGroup)
     },
 
+    updateHeight(element, height) {
+      if (!this.baseStore.canvas) return
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+      if (!hourHand) return
+      hourHand.scaleToHeight(height)
+      hourHand.set({
+        targetHeight: height,
+        targetScaleX: hourHand.scaleX,
+        targetScaleY: hourHand.scaleY
+      })
+      hourHand.setCoords()
+      this.baseStore.canvas.requestRenderAll()
+    },
+    updateRotationCenter(element, rotationCenter) {
+      console.log('updateRotationCenter', element, rotationCenter)
+      if (!this.baseStore.canvas) return
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+      if (!hourHand) return
+      hourHand.set('rotationCenter', rotationCenter)
+    },
+    updateHandColor(element, color) {
+      if (!this.baseStore.canvas) return
+      const minuteHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+      if (!minuteHand) return
+      
+      // 设置主对象的颜色
+      minuteHand.set('fill', color)
+      // 更新所有子元素的颜色
+      if (Array.isArray(minuteHand._objects)) {
+        minuteHand._objects.forEach((obj) => {
+          obj.set('fill', color)
+          obj.set('stroke', color)
+        })
+      } else if (minuteHand.type === 'path') {
+        minuteHand.set('fill', color)
+        minuteHand.set('stroke', color)
+      }
+      minuteHand.setCoords()
+      this.baseStore.canvas.requestRenderAll()
+    },
+    updateAngle(element, angle) {
+      if (!this.baseStore.canvas) return
+      const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
+      if (!hourHand) return
+      this.rotateHand(hourHand, angle)
+    },
     updateTime(time) {
       if (!this.baseStore.canvas) return
-      
-      const minuteHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'minuteHand')
+      const minuteHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'minuteHand') 
       if (!minuteHand) return
-
       const angle = this.getMinuteHandAngle(time)
       // 使用通用的旋转方法
-      this.rotateHand(minuteHand, angle, minuteHand.rotationCenter, this.moveDy)
+      this.rotateHand(minuteHand, angle)
     },
-
     startTimeUpdate() {
       // 先执行一次更新
       this.updateTime()
       
-      // 每分钟更新一次
+      // 每3秒更新一次
       this.updateTimer = setInterval(() => {
         this.updateTime()
-      }, 60000)
+      }, 3000)
     },
 
     stopTimeUpdate() {
@@ -230,16 +272,15 @@ export const useMinuteHandStore = defineStore('minuteHand', {
       if (!element) throw new Error('无效的元素')
       return {
         type: 'minuteHand',
-        x: this.endPoint.x,
-        y: this.endPoint.y,
-        height: this.handHeight,
-        color: element.color,
-        bgColor: element.bgColor,
+        x: element.left,
+        y: element.top,
+        height: element.height,
+        color: element.fill,
         angle: element.angle,
         imageUrl: element.imageUrl,
+        targetHeight: element.targetHeight,
         rotationCenter: element.rotationCenter,
-        moveDy: this.moveDy,
-        scaleY: element.scaleY
+        moveDy: element.moveDy,
       }
     },
 
@@ -249,13 +290,12 @@ export const useMinuteHandStore = defineStore('minuteHand', {
         left: config.x,
         top: config.y,
         height: config.height,
-        color: config.color,
-        bgColor: config.bgColor,
+        fill: config.color,
         angle: config.angle,
         imageUrl: config.imageUrl,
+        targetHeight: config.targetHeight,
         rotationCenter: config.rotationCenter,
         moveDy: config.moveDy,
-        scaleY: config.scaleY
       }
     }
   }

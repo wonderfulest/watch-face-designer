@@ -5,17 +5,12 @@
     <el-form ref="formRef" :model="element" label-position="left" label-width="100px">
       <!-- 图片选择 -->
       <div class="setting-item">
-        <label>指针样式</label>
+        <label>指针hand</label>
         <HandPicker
           :selected-url="element.imageUrl"
           :available-hands="availableHands"
-          :on-select="(url) => minuteHandStore.updateElement(element, { imageUrl: url })"
+          :on-select="(url) => minuteHandStore.updateHandSVG(element, { imageUrl: url })"
           :on-upload="(url, fileName) => {
-            minuteHandStore.updateElement(element, {
-              imageUrl: url,
-              angle: 0,
-              height: element.height,
-            })
             // 检查是否已存在相同名称的指针
             const existingIndex = availableHands.findIndex(hand => hand.name === fileName.replace('.svg', ''))
             if (existingIndex !== -1) {
@@ -28,6 +23,8 @@
                 url: url
               })
             }
+            // 更新画布
+            minuteHandStore.updateHandSVG(element, { imageUrl: url })
           }"
         />
       </div>
@@ -52,8 +49,8 @@
         <label>尺寸</label>
         <div class="size-inputs">
           <div class="input-group">
-            <label>高度</label>
-            <input type="number" :value="Math.round(element.height * element.scaleY)" min="1" max="300" @change="onHeightChange($event)" />
+            <label>指针长度</label>
+            <input type="number" :value="element.targetHeight" min="1" max="300" @change="onHeightChange($event)" />
           </div>
         </div>
         <label>缩放比例</label>
@@ -65,22 +62,6 @@
           <div class="scale-input">
             <label>Y</label>
             <input type="number" :value="element.scaleY.toFixed(2)" readonly />
-          </div>
-        </div>
-      </div>
-
-      <!-- 旋转角度设置 -->
-      <div class="setting-item">
-        <div class="setting-header">
-          <label>旋转角度</label>
-          <el-tooltip :content="tooltipContent" placement="top" effect="light" :show-after="0" raw-content>
-            <el-icon class="help-icon"><Warning /></el-icon>
-          </el-tooltip>
-        </div>
-        <div class="angle-inputs">
-          <div class="input-group">
-            <label>角度</label>
-            <input type="number" :value="element.angle" @input="(e) => (element.angle = Number(e.target.value))" @change="updateElement" />
           </div>
         </div>
       </div>
@@ -112,24 +93,10 @@
           <div class="input-group">
             <label>分针颜色</label>
             <ColorPicker
-              v-model="element.color"
+              v-model="element.fill"
               @change="
                 (val) => {
-                  minuteHandStore.updateElement(element, {
-                    color: val
-                  })
-                }
-              " />
-          </div>
-          <div class="input-group">
-            <label>背景色</label>
-            <ColorPicker
-              v-model="element.bgColor"
-              @change="
-                (val) => {
-                  minuteHandStore.updateElement(element, {
-                    bgColor: val
-                  })
+                  minuteHandStore.updateHandColor(element, val)
                 }
               " />
           </div>
@@ -147,9 +114,7 @@
           @input="
             (e) => {
               element.angle = Number(e.target.value)
-              minuteHandStore.updateElement(element, {
-                angle: element.angle
-              })
+              minuteHandStore.updateAngle(element, element.angle)
             }
           " />
         <span>{{ Math.round(element.angle) }}°</span>
@@ -167,6 +132,7 @@ import HandPicker from '@/components/hand-picker/index.vue'
 import { ElTooltip, ElMessage } from 'element-plus'
 import { Warning } from '@element-plus/icons-vue'
 import { AnalogHandOptions } from '@/config/settings'
+
 const emit = defineEmits(['close'])
 
 const props = defineProps({
@@ -180,42 +146,11 @@ const baseStore = useBaseStore()
 const minuteHandStore = useMinuteHandStore()
 const formRef = ref(null)
 
-// 可用的分针hand
+// 可用的时针hand
 const availableHands = ref(AnalogHandOptions)
 
-const uploadInput = ref(null)
-
-// 选择指针样式
-const selectHand = (url) => {
-  minuteHandStore.updateElement(props.element, {
-    imageUrl: url
-  })
-}
-
-// 定义提示内容，使用 HTML 格式
-const tooltipContent = `
-  <div class="tooltip-content">
-    <p>1. 3点钟为0度，6点钟为90度，9点钟为180度，12点钟为270度</p>
-    <p>2. 顺时针方向增加角度</p>
-    <p>3. 角度范围0到359</p>
-  </div>
-`
-
 const onHeightChange = (e) => {
-  minuteHandStore.updateElement(props.element, {
-    height: e.target.value,
-  })
-}
-
-// 更新元素
-const updateElement = () => {
-  if (!props.element) return
-  minuteHandStore.updateElement(props.element, {
-    left: props.element.left,
-    top: props.element.top,
-    angle: props.element.angle,
-    imageUrl: props.element.imageUrl
-  })
+  minuteHandStore.updateHeight(props.element, e.target.value)
 }
 
 // 更新位置
@@ -230,53 +165,17 @@ const updatePosition = () => {
 // 更新旋转中心点
 const updateRotationCenter = (center) => {
   if (!props.element) return
-  minuteHandStore.updateElement(props.element, {
-    rotationCenter: center
-  })
+  minuteHandStore.updateRotationCenter(props.element, center)
 }
 
-// 触发文件上传
-const triggerUpload = () => {
-  uploadInput.value.click()
-}
-
-// 处理文件上传
-const handleUpload = async (event) => {
-  const file = event.target.files[0]
-  if (!file) return
-
-  // 检查文件类型
-  if (!file.name.endsWith('.svg')) {
-    ElMessage.warning('请上传SVG格式的指针文件')
-    return
-  }
-
-  try {
-    // 创建文件URL
-    const fileUrl = URL.createObjectURL(file)
-    
-    // 更新指针
-    minuteHandStore.updateElement(props.element, {
-      imageUrl: fileUrl,
-      angle: 0,
-      height: props.element.height,
-    })
-
-    // 添加到可用指针列表
-    availableHands.value.push({
-      name: file.name.replace('.svg', ''),
-      url: fileUrl
-    })
-
-    ElMessage.success('指针上传成功')
-  } catch (error) {
-    console.error('上传指针失败:', error)
-    ElMessage.error('上传指针失败')
-  } finally {
-    // 清空文件输入
-    event.target.value = ''
-  }
-}
+// 定义提示内容，使用 HTML 格式
+const tooltipContent = `
+  <div class="tooltip-content">
+    <p>1. 3点钟为0度，6点钟为90度，9点钟为180度，12点钟为270度</p>
+    <p>2. 顺时针方向增加角度</p>
+    <p>3. 角度范围0到359</p>
+  </div>
+`
 
 // 添加关闭时的验证方法
 const handleClose = async () => {
@@ -324,7 +223,7 @@ defineExpose({
   color: #409eff;
 }
 
-/* 调整提示框样式 */
+/* 调整提示框hand */
 :deep(.el-tooltip__trigger) {
   display: flex;
   align-items: center;
@@ -348,7 +247,7 @@ defineExpose({
   margin-bottom: 4px;
 }
 
-/* 图片选择器样式 */
+/* 图片选择器hand */
 .image-selector {
   display: flex;
   gap: 10px;
@@ -428,4 +327,4 @@ defineExpose({
 .upload-preview:hover .upload-icon {
   color: #409eff;
 }
-</style> 
+</style>
