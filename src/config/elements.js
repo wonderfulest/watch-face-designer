@@ -57,7 +57,8 @@ const indicatorAttribute = assign({}, elementAttribute, {
 export const elementConfigs = {
   hands: {
     hourHand: { icon: 'mdi:clock-time-eight-outline', label: '时针', size: 36, ...elementAttribute, height: 160 },
-    minuteHand: { icon: 'mdi:clock-time-eight-outline', label: '分针', size: 36, ...elementAttribute, height: 220 }
+    minuteHand: { icon: 'mdi:clock-time-eight-outline', label: '分针', size: 36, ...elementAttribute, height: 210 },
+    secondHand: { icon: 'mdi:clock-time-eight-outline', label: '秒针', size: 36, ...elementAttribute, height: 230 }
   },
   status: {
     battery: {
