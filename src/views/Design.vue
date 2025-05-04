@@ -41,7 +41,6 @@
     <ExportPanel ref="exportPanelRef" :isDialogVisible="isDialogVisible"
       @update:isDialogVisible="isDialogVisible = $event" />
 
-
     <!-- 添加设置对话框 -->
     <EditorSettingsDialog ref="editorSettingsDialog" />
   </div>
@@ -240,6 +239,8 @@ onMounted(() => {
       emitter.emit('open-app-properties')
     }
   })
+
+  exportStore.setExportPanelRef(exportPanelRef.value)
 })
 
 onBeforeUnmount(() => {

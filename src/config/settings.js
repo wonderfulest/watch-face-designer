@@ -90,7 +90,7 @@ export const DataTypeOptions = [
     defaultValue: '80',
     icon: '\u0030',
     unit: 'bpm',
-    label:  'Heart Rate',
+    label: 'Heart Rate',
     enLabel: {
       short: 'HR',
       medium: 'HeartRt',
@@ -104,7 +104,7 @@ export const DataTypeOptions = [
     defaultValue: '1000',
     icon: '\u0031',
     unit: 'steps',
-    label:  'Steps',
+    label: 'Steps',
     enLabel: {
       short: 'Step',
       medium: 'Steps',
@@ -118,7 +118,7 @@ export const DataTypeOptions = [
     defaultValue: '200',
     icon: '\u0032',
     unit: 'kcal',
-    label:  'Calories',
+    label: 'Calories',
     enLabel: {
       short: 'Cal',
       medium: 'Calories',
@@ -132,7 +132,7 @@ export const DataTypeOptions = [
     defaultValue: '10',
     icon: '\u0033',
     unit: 'floors',
-    label:  'Floors Climbed',
+    label: 'Floors Climbed',
     enLabel: {
       short: 'Flr',
       medium: 'Floors',
@@ -146,7 +146,7 @@ export const DataTypeOptions = [
     defaultValue: '0',
     icon: '\u0034',
     unit: 'm',
-    label:  'Altitude',
+    label: 'Altitude',
     enLabel: {
       short: 'Alt',
       medium: 'Altitude',
@@ -160,7 +160,7 @@ export const DataTypeOptions = [
     defaultValue: '5',
     icon: '\u0045',
     unit: 'km',
-    label:  'Distance',
+    label: 'Distance',
     enLabel: {
       short: 'Dist',
       medium: 'Distance',
@@ -188,7 +188,7 @@ export const DataTypeOptions = [
     defaultValue: '6',
     icon: '\u0060',
     unit: '',
-    label:  'Sunrise',
+    label: 'Sunrise',
     enLabel: {
       short: 'Rise',
       medium: 'Sunrise',
@@ -202,7 +202,7 @@ export const DataTypeOptions = [
     defaultValue: '18',
     icon: '\u0061',
     unit: '',
-    label:  'Sunset',
+    label: 'Sunset',
     enLabel: {
       short: 'Set',
       medium: 'Sunset',
@@ -216,7 +216,7 @@ export const DataTypeOptions = [
     defaultValue: '100',
     icon: '\u0026',
     unit: '%',
-    label:  'Battery',
+    label: 'Battery',
     enLabel: {
       short: 'Bat',
       medium: 'Battery',
@@ -230,7 +230,7 @@ export const DataTypeOptions = [
     defaultValue: '30',
     icon: '\u0044',
     unit: 'min',
-    label:  'Active Minutes (Daily)',
+    label: 'Active Minutes (Daily)',
     enLabel: {
       short: 'ActM',
       medium: 'ActvMin',
@@ -244,7 +244,7 @@ export const DataTypeOptions = [
     defaultValue: '150',
     icon: '\u0040',
     unit: 'min',
-    label:  'Weekly Active Minutes',
+    label: 'Weekly Active Minutes',
     enLabel: {
       short: 'WkAc',
       medium: 'WkActive',
@@ -258,7 +258,7 @@ export const DataTypeOptions = [
     defaultValue: '10',
     icon: '\u0046',
     unit: 'km',
-    label:  'Weekly Run Distance',
+    label: 'Weekly Run Distance',
     enLabel: {
       short: 'Run',
       medium: 'RunDist',
@@ -272,7 +272,7 @@ export const DataTypeOptions = [
     defaultValue: '15',
     icon: '\u0047',
     unit: 'km',
-    label:  'Weekly Cycling Distance',
+    label: 'Weekly Cycling Distance',
     enLabel: {
       short: 'Cycle',
       medium: 'CycleDist',
@@ -286,7 +286,7 @@ export const DataTypeOptions = [
     defaultValue: '24',
     icon: '\u0041',
     unit: 'h',
-    label:  'Recovery',
+    label: 'Recovery',
     enLabel: {
       short: 'Recv',
       medium: 'RecvTime',
@@ -300,7 +300,7 @@ export const DataTypeOptions = [
     defaultValue: '50',
     icon: '\u0035',
     unit: '%',
-    label:  'Body Battery',
+    label: 'Body Battery',
     enLabel: {
       short: 'BBat',
       medium: 'BodyBatt',
@@ -314,7 +314,7 @@ export const DataTypeOptions = [
     defaultValue: '95',
     icon: '\u003b',
     unit: '%',
-    label:  'PulseOx',
+    label: 'PulseOx',
     enLabel: {
       short: 'SpO2',
       medium: 'Pulse Ox',
@@ -327,7 +327,7 @@ export const DataTypeOptions = [
     value: 17,
     defaultValue: '8',
     icon: '\u0021',
-    label:  'Sleep (Daily)',
+    label: 'Sleep (Daily)',
     enLabel: {
       short: 'Sleep',
       medium: 'Sleep Time',
@@ -341,7 +341,7 @@ export const DataTypeOptions = [
     defaultValue: '0',
     icon: '\u0036',
     unit: '',
-    label:  'Stress',
+    label: 'Stress',
     enLabel: {
       short: 'Strs',
       medium: 'Stress',
@@ -355,7 +355,7 @@ export const DataTypeOptions = [
     defaultValue: '0',
     icon: '\u0025',
     unit: '',
-    label:  'Notifications',
+    label: 'Notifications',
     enLabel: {
       short: 'Ntf',
       medium: 'Notif',
@@ -369,7 +369,7 @@ export const DataTypeOptions = [
     defaultValue: '0',
     icon: '\u0024',
     unit: '',
-    label:  'Alarms',
+    label: 'Alarms',
     enLabel: {
       short: 'Alm',
       medium: 'Alarms',
@@ -383,7 +383,7 @@ export const DataTypeOptions = [
     defaultValue: '1',
     icon: '\u0022',
     unit: '',
-    label:  'Bluetooth',
+    label: 'Bluetooth',
     enLabel: {
       short: 'BT',
       medium: 'Bluetooth',
@@ -397,7 +397,7 @@ export const DataTypeOptions = [
     defaultValue: '1',
     icon: '\u0022',
     unit: '',
-    label:  'Alarms',
+    label: 'Alarms',
     enLabel: {
       short: 'Alm',
       medium: 'Alarms',
@@ -411,7 +411,7 @@ export const DataTypeOptions = [
     defaultValue: '1',
     icon: '\u0022',
     unit: '',
-    label:  'Notifications',
+    label: 'Notifications',
     enLabel: {
       short: 'Ntf',
       medium: 'Notif',
@@ -537,7 +537,7 @@ export const DataTypeOptions = [
     defaultValue: '16',
     icon: '\u0037',
     unit: 'brpm',
-    label:  'Breaths per Min(if supported)',
+    label: 'Breaths per Min(if supported)',
     enLabel: {
       short: 'Resp',
       medium: 'RespRate',
@@ -551,7 +551,7 @@ export const DataTypeOptions = [
     defaultValue: '70',
     icon: '\u0038',
     unit: 'bpm',
-    label:  'Resting Heart Rate',
+    label: 'Resting Heart Rate',
     enLabel: {
       short: 'RHR',
       medium: 'Rest HR',
@@ -565,7 +565,7 @@ export const DataTypeOptions = [
     defaultValue: '1',
     icon: '\u0048',
     unit: 'km',
-    label:  'Weekly Swim Distance',
+    label: 'Weekly Swim Distance',
     enLabel: {
       short: 'Swim',
       medium: 'SwimDist',
@@ -579,7 +579,7 @@ export const DataTypeOptions = [
     defaultValue: '10',
     icon: '\u0049',
     unit: 'km',
-    label:  'Weekly Walk Distance',
+    label: 'Weekly Walk Distance',
     enLabel: {
       short: 'Walk',
       medium: 'WalkDist',
@@ -719,7 +719,7 @@ export const DataTypeOptions = [
     defaultValue: '40',
     icon: '\u003a',
     unit: '',
-    label:  'Vo2Max',
+    label: 'Vo2Max',
     enLabel: {
       short: 'VO2',
       medium: 'VO2 Max',
@@ -747,7 +747,7 @@ export const DataTypeOptions = [
     defaultValue: '2023',
     icon: '\u0021',
     unit: '',
-    label:  'Year',
+    label: 'Year',
     enLabel: {
       short: 'Year',
       medium: 'Year',
@@ -760,7 +760,7 @@ export const DataTypeOptions = [
     value: 71,
     defaultValue: '10',
     icon: '\u0021',
-    label:  'Month',
+    label: 'Month',
     enLabel: {
       short: 'Mo',
       medium: 'Month',
@@ -773,7 +773,7 @@ export const DataTypeOptions = [
     value: 72,
     defaultValue: '10',
     icon: '\u0021',
-    label:  'Day',
+    label: 'Day',
     enLabel: {
       short: 'Day',
       medium: 'Day',
@@ -786,7 +786,7 @@ export const DataTypeOptions = [
     value: 76,
     defaultValue: '1',
     icon: '\u0021',
-    label:  'Weekday',
+    label: 'Weekday',
     enLabel: {
       short: 'Wkday',
       medium: 'Weekday',
@@ -799,7 +799,7 @@ export const DataTypeOptions = [
     value: 77,
     defaultValue: '29',
     icon: '\u0021',
-    label:  'Week of Year',
+    label: 'Week of Year',
     enLabel: {
       short: 'Wk',
       medium: 'Week',
@@ -814,7 +814,7 @@ export const DataTypeOptions = [
     defaultValue: '80',
     icon: '\u0026',
     unit: '%',
-    label:  'Battery (Hide Percentage)',
+    label: 'Battery (Hide Percentage)',
     enLabel: {
       short: 'Bat',
       medium: 'Battery',
@@ -828,7 +828,7 @@ export const DataTypeOptions = [
     defaultValue: '8000',
     icon: '\u0031',
     unit: 'steps',
-    label:  'Steps',
+    label: 'Steps',
     enLabel: {
       short: 'GStp',
       medium: 'GoalStep',
@@ -842,7 +842,7 @@ export const DataTypeOptions = [
     defaultValue: '500',
     icon: '\u0032',
     unit: 'kcal',
-    label:  'Calories (Manual Goal)',
+    label: 'Calories (Manual Goal)',
     enLabel: {
       short: 'GCal',
       medium: 'GoalCal',
@@ -856,7 +856,7 @@ export const DataTypeOptions = [
     defaultValue: '20',
     icon: '\u0033',
     unit: 'floors',
-    label:  'Floors Climbed',
+    label: 'Floors Climbed',
     enLabel: {
       short: 'Floor',
       medium: 'Floor',
@@ -870,7 +870,7 @@ export const DataTypeOptions = [
     defaultValue: '120',
     icon: '\u0030',
     unit: 'bpm',
-    label:  'Heart Rate',
+    label: 'Heart Rate',
     enLabel: {
       short: 'HR',
       medium: 'HR',
@@ -884,7 +884,7 @@ export const DataTypeOptions = [
     defaultValue: '60',
     icon: '\u0035',
     unit: '%',
-    label:  'Body Battery',
+    label: 'Body Battery',
     enLabel: {
       short: 'BdBat',
       medium: 'BodyBat',
@@ -898,7 +898,7 @@ export const DataTypeOptions = [
     defaultValue: '60',
     icon: '\u0044',
     unit: 'min',
-    label:  'Active Minutes (Daily)',
+    label: 'Active Minutes (Daily)',
     enLabel: {
       short: 'GAct',
       medium: 'GoalAct',
@@ -912,7 +912,7 @@ export const DataTypeOptions = [
     defaultValue: '300',
     icon: '\u0044',
     unit: 'min',
-    label:  'Weekly Active Minutes',
+    label: 'Weekly Active Minutes',
     enLabel: {
       short: 'GWkA',
       medium: 'GoalWkAc',
@@ -926,7 +926,7 @@ export const DataTypeOptions = [
     defaultValue: '20',
     icon: '\u0046',
     unit: 'km',
-    label:  'Weekly Run Distance',
+    label: 'Weekly Run Distance',
     enLabel: {
       short: 'GRD',
       medium: 'GoalRunDist',
@@ -940,7 +940,7 @@ export const DataTypeOptions = [
     defaultValue: '30',
     icon: '\u0047',
     unit: 'km',
-    label:  'Weekly Cycling Distance',
+    label: 'Weekly Cycling Distance',
     enLabel: {
       short: 'GCD',
       medium: 'GoalCycleDist',
@@ -954,7 +954,7 @@ export const DataTypeOptions = [
     defaultValue: '2',
     icon: '\u0048',
     unit: 'km',
-    label:  'Weekly Swim Distance',
+    label: 'Weekly Swim Distance',
     enLabel: {
       short: 'GSD',
       medium: 'SwimDist',
@@ -968,7 +968,7 @@ export const DataTypeOptions = [
     defaultValue: '20',
     icon: '\u0049',
     unit: 'km',
-    label:  'Weekly Walk Distance',
+    label: 'Weekly Walk Distance',
     enLabel: {
       short: 'GWD',
       medium: 'WalkDist',
@@ -982,7 +982,7 @@ export const DataTypeOptions = [
     defaultValue: '40',
     icon: '\u0021',
     unit: '',
-    label:  'Second',
+    label: 'Second',
     enLabel: {
       short: 'Sec',
       medium: 'Second',
@@ -997,7 +997,7 @@ export const DataTypeOptions = [
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'steps',
-    label:  '7 Days Steps',
+    label: '7 Days Steps',
     enLabel: {
       short: '7 Days Steps',
       medium: '7 Days Steps',
@@ -1011,7 +1011,7 @@ export const DataTypeOptions = [
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'min',
-    label:  '7 Days Active Minutes',
+    label: '7 Days Active Minutes',
     enLabel: {
       short: '7 Days Active Minutes',
       medium: '7 Days Active Minutes',
@@ -1025,7 +1025,7 @@ export const DataTypeOptions = [
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'floors',
-    label:  '7 Days Floors Climbed',
+    label: '7 Days Floors Climbed',
     enLabel: {
       short: '7 Days Floors Climbed',
       medium: '7 Days Floors Climbed',
@@ -1039,7 +1039,7 @@ export const DataTypeOptions = [
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'kcal',
-    label:  '7 Days Calories',
+    label: '7 Days Calories',
     enLabel: {
       short: '7 Days Calories',
       medium: '7 Days Calories',
@@ -1053,7 +1053,7 @@ export const DataTypeOptions = [
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'km',
-    label:  '7 Days Distance',
+    label: '7 Days Distance',
     enLabel: {
       short: '7 Days Calories',
       medium: '7 Days Calories',
@@ -1067,7 +1067,7 @@ export const DataTypeOptions = [
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'km',
-    label:  '7 Days Wheelchair Distance',
+    label: '7 Days Wheelchair Distance',
     enLabel: {
       short: '7 Days Wheelchair Distance',
       medium: '7 Days Wheelchair Distance',
@@ -1081,13 +1081,13 @@ export const DataTypeOptions = [
     defaultValue: '10000',
     icon: '\u0021',
     unit: 'km',
-    label:  '7 Days Push Distance',
+    label: '7 Days Push Distance',
     enLabel: {
       short: '7 Days Push Distance',
       medium: '7 Days Push Distance',
       long: '7 Days Push Distance'
     }
-  } 
+  }
 
 ]
 
@@ -1113,36 +1113,36 @@ export function getMetricByProperty(dataProperty, propertiesStore) {
  * 时钟指针样式
  */
 export const AnalogHandOptions = [
-  { name: 'hand1', url: new URL('../assets/analog/hands/hand1.svg', import.meta.url).href },
-  { name: 'hand2', url: new URL('../assets/analog/hands/hand2.svg', import.meta.url).href },
-  { name: 'hand3', url: new URL('../assets/analog/hands/hand3.svg', import.meta.url).href },
-  { name: 'hand4', url: new URL('../assets/analog/hands/hand4.svg', import.meta.url).href },
-  { name: 'hand5', url: new URL('../assets/analog/hands/hand5.svg', import.meta.url).href },
-  { name: 'hand6', url: new URL('../assets/analog/hands/hand6.svg', import.meta.url).href },
-  { name: 'hand7', url: new URL('../assets/analog/hands/hand7.svg', import.meta.url).href },
-  { name: 'hand8', url: new URL('../assets/analog/hands/hand8.svg', import.meta.url).href },
-  { name: 'hand9', url: new URL('../assets/analog/hands/hand9.svg', import.meta.url).href },
-  { name: 'hand10', url: new URL('../assets/analog/hands/hand10.svg', import.meta.url).href },
-  { name: 'hand11', url: new URL('../assets/analog/hands/hand11.svg', import.meta.url).href },
-  { name: 'hand12', url: new URL('../assets/analog/hands/hand12.svg', import.meta.url).href },
-  { name: 'hand21', url: new URL('../assets/analog/hands/hand21.svg', import.meta.url).href },
-  { name: 'hand22', url: new URL('../assets/analog/hands/hand22.svg', import.meta.url).href },
-  { name: 'hand23', url: new URL('../assets/analog/hands/hand23.svg', import.meta.url).href },
-  { name: 'hand24', url: new URL('../assets/analog/hands/hand24.svg', import.meta.url).href },
-  { name: 'hand25', url: new URL('../assets/analog/hands/hand25.svg', import.meta.url).href },
-  { name: 'hand26', url: new URL('../assets/analog/hands/hand26.svg', import.meta.url).href },
-  { name: 'hand27', url: new URL('../assets/analog/hands/hand27.svg', import.meta.url).href },
-  { name: 'hand28', url: new URL('../assets/analog/hands/hand28.svg', import.meta.url).href },
-  { name: 'hand29', url: new URL('../assets/analog/hands/hand29.svg', import.meta.url).href },
-  { name: 'hand30', url: new URL('../assets/analog/hands/hand30.svg', import.meta.url).href },
-  { name: 'hand31', url: new URL('../assets/analog/hands/hand31.svg', import.meta.url).href },
-  { name: 'hand32', url: new URL('../assets/analog/hands/hand32.svg', import.meta.url).href },
-  { name: 'hand33', url: new URL('../assets/analog/hands/hand33.svg', import.meta.url).href },
-  { name: 'hand34', url: new URL('../assets/analog/hands/hand34.svg', import.meta.url).href },
-  { name: 'hand35', url: new URL('../assets/analog/hands/hand35.svg', import.meta.url).href },
-  { name: 'hand36', url: new URL('../assets/analog/hands/hand36.svg', import.meta.url).href },
-  { name: 'hand37', url: new URL('../assets/analog/hands/hand37.svg', import.meta.url).href },
-  { name: 'hand38', url: new URL('../assets/analog/hands/hand38.svg', import.meta.url).href },
-  { name: 'hand39', url: new URL('../assets/analog/hands/hand39.svg', import.meta.url).href },
-  { name: 'hand40', url: new URL('../assets/analog/hands/hand40.svg', import.meta.url).href },
+  { name: 'hand1', url: '/assets/analog/hands/hand1.svg' },
+  { name: 'hand2', url: '/assets/analog/hands/hand2.svg' },
+  { name: 'hand3', url: '/assets/analog/hands/hand3.svg' },
+  { name: 'hand4', url: '/assets/analog/hands/hand4.svg' },
+  { name: 'hand5', url: '/assets/analog/hands/hand5.svg' },
+  { name: 'hand6', url: '/assets/analog/hands/hand6.svg' },
+  { name: 'hand7', url: '/assets/analog/hands/hand7.svg' },
+  { name: 'hand8', url: '/assets/analog/hands/hand8.svg' },
+  { name: 'hand9', url: '/assets/analog/hands/hand9.svg' },
+  { name: 'hand10', url: '/assets/analog/hands/hand10.svg' },
+  { name: 'hand11', url: '/assets/analog/hands/hand11.svg' },
+  { name: 'hand12', url: '/assets/analog/hands/hand12.svg' },
+  { name: 'hand21', url: '/assets/analog/hands/hand21.svg' },
+  { name: 'hand22', url: '/assets/analog/hands/hand22.svg' },
+  { name: 'hand23', url: '/assets/analog/hands/hand23.svg' },
+  { name: 'hand24', url: '/assets/analog/hands/hand24.svg' },
+  { name: 'hand25', url: '/assets/analog/hands/hand25.svg' },
+  { name: 'hand26', url: '/assets/analog/hands/hand26.svg' },
+  { name: 'hand27', url: '/assets/analog/hands/hand27.svg' },
+  { name: 'hand28', url: '/assets/analog/hands/hand28.svg' },
+  { name: 'hand29', url: '/assets/analog/hands/hand29.svg' },
+  { name: 'hand30', url: '/assets/analog/hands/hand30.svg' },
+  { name: 'hand31', url: '/assets/analog/hands/hand31.svg' },
+  { name: 'hand32', url: '/assets/analog/hands/hand32.svg' },
+  { name: 'hand33', url: '/assets/analog/hands/hand33.svg' },
+  { name: 'hand34', url: '/assets/analog/hands/hand34.svg' },
+  { name: 'hand35', url: '/assets/analog/hands/hand35.svg' },
+  { name: 'hand36', url: '/assets/analog/hands/hand36.svg' },
+  { name: 'hand37', url: '/assets/analog/hands/hand37.svg' },
+  { name: 'hand38', url: '/assets/analog/hands/hand38.svg' },
+  { name: 'hand39', url: '/assets/analog/hands/hand39.svg' },
+  { name: 'hand40', url: '/assets/analog/hands/hand40.svg' },
 ]

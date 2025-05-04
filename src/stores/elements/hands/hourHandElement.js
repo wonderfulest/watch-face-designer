@@ -136,14 +136,16 @@ export const useHourHandStore = defineStore('hourHandElement', {
       const currentAngle = svgGroup.angle
       const currentImageUrl = svgGroup.imageUrl
       const rotationCenter = config.rotationCenter || svgGroup.rotationCenter || this.defaultRotationCenter
-
+      console.log('hourHand updateElement rotationCenter', rotationCenter)
       let newSVG = svgGroup
       this.handHeight = config.height
       // 替换 image
       if (config.imageUrl && config.imageUrl !== currentImageUrl) {
+        console.log('hourHand updateElement imageUrl', config.imageUrl)
         this.baseStore.canvas.remove(svgGroup)
 
         const loadedSVG = await loadSVGFromURL(config.imageUrl)
+        console.log('hourHand updateElement loadedSVG', loadedSVG)
         newSVG = util.groupSVGElements(loadedSVG.objects)
         newSVG.set({
           id: element.id,
@@ -153,11 +155,11 @@ export const useHourHandStore = defineStore('hourHandElement', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          angle: currentAngle,
-          imageUrl: config.imageUrl
+          angle: 0,
+          imageUrl: config.imageUrl,
+          color: config.color,
+          rotationCenter: rotationCenter
         })
-
-        newSVG.scaleToHeight(this.handHeight)
         // 添加移动事件监听
         newSVG.on('moving', (e) => {
           this.endPoint = {
@@ -177,22 +179,24 @@ export const useHourHandStore = defineStore('hourHandElement', {
       }
 
       // 应用颜色
-      const colorToSet = config.color || newSVG.color || this.defaultColors.color
+      const colorToSet = config.color || this.defaultColors.color
       if (Array.isArray(newSVG._objects)) {
         newSVG._objects.forEach((obj) => obj.set('fill', colorToSet))
+        console.log('hourHand 111 updateElement colorToSet', colorToSet)
       } else if (newSVG.type === 'path') {
         newSVG.set('fill', colorToSet)
+        console.log('hourHand 222 updateElement colorToSet', colorToSet)
       }
+  
       newSVG.set({ color: colorToSet })
 
       // 调整尺寸
-      if (config.height) {
-        this.handHeight = Math.min(config.height, 300)
-        newSVG.scaleToHeight(this.handHeight)
-      }
+      this.handHeight = Math.min(config.height, 300)
+      newSVG.scaleToHeight(this.handHeight)
 
       // 计算旋转后位置
       const angle = config.angle !== undefined ? config.angle : currentAngle
+      console.log('hourHand updateElement angle', angle, rotationCenter, this.moveDy)
       // 使用通用的旋转方法
       this.rotateHand(newSVG, angle, rotationCenter, this.moveDy)
 

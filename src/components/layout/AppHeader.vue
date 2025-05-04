@@ -94,7 +94,6 @@ import { useRouter, useRoute } from 'vue-router'
 import { useBaseStore } from '@/stores/baseStore'
 import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
-import { useExportStore } from '@/stores/exportStore'
 
 
 const props = defineProps({
@@ -108,7 +107,6 @@ const route = useRoute()
 const baseStore = useBaseStore()
 const authStore = useAuthStore()
 const messageStore = useMessageStore()
-const exportStore = useExportStore()
 
 
 const user = computed(() => authStore.user)
