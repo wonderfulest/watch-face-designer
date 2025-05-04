@@ -75,7 +75,6 @@ export const useDataStore = defineStore('dataElement', {
 
       try {
         const updates = {}
-        console.log('options', options.dataProperty, options.goalProperty)
 
         if (options.dataProperty) {
           const metric = getMetricByProperty(options.dataProperty, this.propertiesStore.allProperties)
@@ -113,7 +112,6 @@ export const useDataStore = defineStore('dataElement', {
         if (options.top !== undefined) {
           updates.top = options.top
         }
-        console.log('11111 updates', updates)
         element.set(updates)
         element.setCoords()
         this.baseStore.canvas.requestRenderAll()

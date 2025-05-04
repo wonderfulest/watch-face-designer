@@ -113,7 +113,6 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
         this.rotateHand(svgGroup, 0)
       })
       svgGroup.on('deselected', (e) => {
-        console.log('minuteHand deselected', svgGroup)
         if (!this.updateTimer) {
           this.startTimeUpdate()
         }

@@ -423,7 +423,6 @@ export const useBaseStore = defineStore('baseStore', {
       const watchFace = objects.find((obj) => obj.eleType === 'global')
       const oldBgImage = objects.find((obj) => obj.eleType === 'background-image')
 
-      console.log('toggleThemeBackground', watchFace, oldBgImage)
       // 更新背景颜色
       if (watchFace) {
         watchFace.set('fill', this.themeBackgroundColors[this.currentThemeIndex])
@@ -437,7 +436,6 @@ export const useBaseStore = defineStore('baseStore', {
       // 添加新的背景图片
       const currentBgImage = this.themeBackgroundImages[this.currentThemeIndex]
       if (currentBgImage) {
-        console.log('1111 currentBgImage', currentBgImage)
         // 创建一个新的 Image 对象
         const img = new Image()
         img.onload = () => {

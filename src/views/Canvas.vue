@@ -352,7 +352,6 @@ const toggleKeyGuidelines = () => {
 
 // 缩放功能
 const zoomIn = () => {
-  console.log('zoomIn', zoomLevel.value)
   if (zoomLevel.value < MAX_ZOOM) {
     zoomLevel.value = Math.min(zoomLevel.value + ZOOM_STEP, MAX_ZOOM)
     updateZoom()
@@ -360,7 +359,6 @@ const zoomIn = () => {
 }
 
 const zoomOut = () => {
-  console.log('zoomOut', zoomLevel.value)
   if (zoomLevel.value > MIN_ZOOM) {
     zoomLevel.value = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM)
     updateZoom()
@@ -368,7 +366,6 @@ const zoomOut = () => {
 }
 
 const resetZoom = () => {
-  console.log('resetZoom', zoomLevel.value)
   zoomLevel.value = 1
   updateZoom()
 }
@@ -664,7 +661,7 @@ onMounted(() => {
   if (container) {
     container.style.transform = 'translate(0px, 0px)'
     container.style.transition = 'transform 0s' // 移除过渡动画，使拖动更流畅
-    container.style.backgroundColor = 'white' // backgroundColor.value
+    container.style.backgroundColor = backgroundColor.value
   }
 })
 

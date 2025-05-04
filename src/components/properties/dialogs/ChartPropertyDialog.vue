@@ -174,10 +174,8 @@ const dialogVisible = ref(false)
 const formRef = ref(null)
 const isEdit = ref(false)
 const activeOptions = ref([])
-// 获取指标数据项作为选项
 const chartOptions = DataTypeOptions.filter(option => option.metricSymbol.startsWith(':CHART_TYPE_'))
 
-console.log('chartOptions', chartOptions)
 const formData = reactive({
   title: '',
   propertyKey: '',
@@ -188,20 +186,9 @@ const formData = reactive({
   errorMessage: ''
 })
 
-console.log('Initial formData:', {
-  value: formData.value,
-  options: formData.options,
-  firstOption: chartOptions[0]
-})
-
 const initFormData = (data = null) => {
-  console.log('initFormData called with data:', data)
   isEdit.value = !!data
   if (data) {
-    console.log('Editing existing data:', {
-      currentValue: data.value,
-      firstOption: chartOptions[0]?.value
-    })
     Object.assign(formData, {
       title: data.title,
       propertyKey: data.propertyKey,
@@ -212,9 +199,6 @@ const initFormData = (data = null) => {
       errorMessage: data.errorMessage
     })
   } else {
-    console.log('Creating new data:', {
-      firstOption: chartOptions[0]?.value
-    })
     Object.assign(formData, {
       title: 'Chart 1',
       propertyKey: 'chart_1',
@@ -225,17 +209,12 @@ const initFormData = (data = null) => {
       errorMessage: ''
     })
   }
-  console.log('After initFormData, formData:', {
-    value: formData.value,
-    options: formData.options
-  })
 }
 
 const emit = defineEmits(['confirm'])
 
 const handleValueChange = (value) => {
-  console.log('Value changed:', value)
-  console.log('Selected option:', formData.options.find(opt => opt.value === value))
+  // 值改变时的处理逻辑
 }
 
 const handleConfirm = async () => {
@@ -243,12 +222,6 @@ const handleConfirm = async () => {
   
   try {
     await formRef.value.validate()
-    console.log('Before emit, formData:', {
-      value: formData.value,
-      options: formData.options,
-      selectedOption: formData.options.find(opt => opt.value === formData.value)
-    })
-    
     const selectedOption = formData.options.find(opt => opt.value === formData.value)
     if (!selectedOption) {
       ElMessage.error('Please select a valid option')

@@ -37,7 +37,6 @@ const baseStore = useBaseStore()
 const zoomLevel = ref(1)
 
 const handleZoomIn = () => {
-  console.log('handleZoomIn', zoomLevel.value)
   if (zoomLevel.value < 2) {
     zoomLevel.value += 0.1
     props.canvasRef?.zoomIn()
@@ -45,7 +44,6 @@ const handleZoomIn = () => {
 }
 
 const handleZoomOut = () => {
-  console.log('handleZoomOut', zoomLevel.value)
   if (zoomLevel.value > 0.5) {
     zoomLevel.value -= 0.1
     props.canvasRef?.zoomOut()
@@ -53,7 +51,6 @@ const handleZoomOut = () => {
 }
 
 const handleResetZoom = () => {
-  console.log('handleResetZoom', zoomLevel.value)
   zoomLevel.value = 1
   props.canvasRef?.resetZoom()
 }

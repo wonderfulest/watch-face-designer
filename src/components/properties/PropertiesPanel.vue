@@ -196,19 +196,16 @@ const handlePropertyConfirm = (propertyData) => {
 
 // 获取目标选项
 const getGoalOption = (prop) => {
-  console.log('getGoalOption', prop)
   return prop.options?.find(option => option.value === prop.value)
 }
 
 // 获取指标选项
 const getDataOption = (prop) => {
-  console.log('getDataOption', prop)
   return prop.options?.find(option => option.value === prop.value)
 }
 
 // 获取图表选项
 const getChartOption = (prop) => {
-  console.log('getChartOption', prop)
   return prop.options?.find(option => option.value === prop.value)
 }
 

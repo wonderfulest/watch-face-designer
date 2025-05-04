@@ -1,12 +1,31 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import terser from '@rollup/plugin-terser'
 
 // 获取环境变量
 const env = process.env.NODE_ENV
 console.log('env', env)
+
+// 自定义插件：在生产环境中移除 console.log
+const removeConsolePlugin = {
+  name: 'remove-console',
+  transform(code, id) {
+    if (process.env.NODE_ENV === 'production') {
+      return {
+        code: code.replace(/console\.log\(.*?\);?/g, ''),
+        map: null
+      }
+    }
+    return null
+  }
+}
+
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    // removeConsolePlugin
+  ],
   base: '/', // Ensure base URL is set to root
   resolve: {
     alias: {
@@ -25,5 +44,14 @@ export default defineConfig({
     },
     historyApiFallback: true // Enable history mode routing support
   },
-  assetsInclude: ['**/*.woff2']
+  assetsInclude: ['**/*.woff2'],
+  build: {
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    }
+  }
 })
