@@ -30,7 +30,7 @@
       <TimeSimulator v-if="baseStore.canvas != null" />
       <!-- 缩放控件 -->
       <div class="editor-controls">
-        <ZoomControls />
+        <ZoomControls :canvas-ref="canvasRef" />
       </div>
     </div>
     <!-- 右侧设置面板 -->
@@ -86,7 +86,6 @@ const { waitCanvasReady } = useCanvas()
 const canvasRef = ref(null)
 const exportPanelRef = ref(null)
 const isDialogVisible = ref(false)
-const zoomLevel = computed(() => canvasRef.value?.zoomLevel || 1)
 let saveTimer = null
 
 const changelogDialog = ref(null)
@@ -256,18 +255,6 @@ onBeforeUnmount(() => {
     }
   })
 })
-
-const handleZoomOut = () => {
-  canvasRef.value.zoomOut()
-}
-
-const handleZoomIn = () => {
-  canvasRef.value.zoomIn()
-}
-
-const handleResetZoom = () => {
-  canvasRef.value.resetZoom()
-}
 
 // 向外部暴露方法
 defineExpose({

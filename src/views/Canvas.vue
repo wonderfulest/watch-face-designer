@@ -352,6 +352,7 @@ const toggleKeyGuidelines = () => {
 
 // 缩放功能
 const zoomIn = () => {
+  console.log('zoomIn', zoomLevel.value)
   if (zoomLevel.value < MAX_ZOOM) {
     zoomLevel.value = Math.min(zoomLevel.value + ZOOM_STEP, MAX_ZOOM)
     updateZoom()
@@ -359,6 +360,7 @@ const zoomIn = () => {
 }
 
 const zoomOut = () => {
+  console.log('zoomOut', zoomLevel.value)
   if (zoomLevel.value > MIN_ZOOM) {
     zoomLevel.value = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM)
     updateZoom()
@@ -366,6 +368,7 @@ const zoomOut = () => {
 }
 
 const resetZoom = () => {
+  console.log('resetZoom', zoomLevel.value)
   zoomLevel.value = 1
   updateZoom()
 }
@@ -388,6 +391,13 @@ const updateZoom = () => {
     0, zoomLevel.value,
     canvasOffset.value.x, canvasOffset.value.y
   ])
+
+  console.log('更新画布尺寸', WATCH_SIZE.value * zoomLevel.value)
+  // 更新画布尺寸
+  const canvasSize = WATCH_SIZE.value * zoomLevel.value
+  baseStore.canvas.setWidth(canvasSize)
+  baseStore.canvas.setHeight(canvasSize)
+  baseStore.canvas.calcOffset()
 
   // 更新背景元素
   baseStore.updateBackgroundElements(zoomLevel.value)
@@ -654,7 +664,7 @@ onMounted(() => {
   if (container) {
     container.style.transform = 'translate(0px, 0px)'
     container.style.transition = 'transform 0s' // 移除过渡动画，使拖动更流畅
-    container.style.backgroundColor = backgroundColor.value
+    container.style.backgroundColor = 'white' // backgroundColor.value
   }
 })
 
@@ -727,7 +737,6 @@ defineExpose({
   zoomIn,
   zoomOut,
   resetZoom,
-  zoomLevel
 })
 </script>
 

@@ -24,26 +24,38 @@ import { ref } from 'vue'
 import { Minus, Plus, Refresh } from '@element-plus/icons-vue'
 import { useBaseStore } from '@/stores/baseStore'
 
+
+
+const props = defineProps({
+  canvasRef: {
+    type: Object,
+    required: true
+  }
+})
+
 const baseStore = useBaseStore()
 const zoomLevel = ref(1)
 
 const handleZoomIn = () => {
+  console.log('handleZoomIn', zoomLevel.value)
   if (zoomLevel.value < 2) {
     zoomLevel.value += 0.1
-    baseStore.canvas?.setZoom(zoomLevel.value)
+    props.canvasRef?.zoomIn()
   }
 }
 
 const handleZoomOut = () => {
+  console.log('handleZoomOut', zoomLevel.value)
   if (zoomLevel.value > 0.5) {
     zoomLevel.value -= 0.1
-    baseStore.canvas?.setZoom(zoomLevel.value)
+    props.canvasRef?.zoomOut()
   }
 }
 
 const handleResetZoom = () => {
+  console.log('handleResetZoom', zoomLevel.value)
   zoomLevel.value = 1
-  baseStore.canvas?.setZoom(1)
+  props.canvasRef?.resetZoom()
 }
 </script>
 
