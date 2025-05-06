@@ -17,12 +17,9 @@ export function useKeyboardShortcuts() {
   onMounted(() => {
     // 阻止浏览器默认快捷键
     const preventDefaultShortcuts = (e) => {
-<<<<<<< HEAD
       // 如果不在编辑器页面，不阻止默认行为
       if (!isInEditor()) return
 
-=======
->>>>>>> 150572b (阻止默认快捷键)
       // 如果是在输入框内，允许默认行为
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
         return
@@ -41,11 +38,7 @@ export function useKeyboardShortcuts() {
 
       if (blockedShortcuts.includes(shortcut)) {
         e.preventDefault()
-<<<<<<< HEAD
         e.stopImmediatePropagation()
-=======
-        e.stopImmediatePropagation() // 加强阻止传播，防止 Mousetrap 或其他插件响应
->>>>>>> 150572b (阻止默认快捷键)
         return false
       }
     }
