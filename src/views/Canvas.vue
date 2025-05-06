@@ -12,7 +12,7 @@ import { useBaseStore } from '@/stores/baseStore'
 import { initAligningGuidelines } from '@/lib/aligning_guidelines'
 import { initCenteringGuidelines } from '@/lib/centering_guidelines'
 import { throttle } from '@/utils/performance'
-
+import { debounce } from 'lodash-es'
 const canvasRef = ref(null)
 const baseStore = useBaseStore()
 let updateInterval
@@ -143,6 +143,8 @@ const updateRulers = () => {
   }
 }
 
+const debouncedUpdateRulers = debounce(updateRulers, 100)
+
 // 添加辅助线
 const addGuideLine = (canvas, orientation, position) => {
   const line = new Line(
@@ -235,33 +237,36 @@ const updateGuidelineSize = () => {
   const width = centerArea.clientWidth - RULER_OFFSET // 减去垂直标尺宽度
   const height = centerArea.clientHeight - RULER_OFFSET // 减去水平标尺高度
 
-  baseStore.canvas.getObjects().forEach(obj => {
-    if (obj.guideline) {
-      if (obj.type === 'horizontalGuideline') {
-        obj.set({
-          x1: -width,
-          x2: width * 2,
-          y1: obj.top,
-          y2: obj.top
-        })
-      } else if (obj.type === 'verticalGuideline') {
-        obj.set({
-          x1: obj.left,
-          x2: obj.left,
-          y1: -height,
-          y2: height * 2
-        })
+  // 使用 requestAnimationFrame 来避免重复渲染
+  requestAnimationFrame(() => {
+    baseStore.canvas.getObjects().forEach(obj => {
+      if (obj.guideline) {
+        if (obj.type === 'horizontalGuideline') {
+          obj.set({
+            x1: -width,
+            x2: width * 2,
+            y1: obj.top,
+            y2: obj.top
+          })
+        } else if (obj.type === 'verticalGuideline') {
+          obj.set({
+            x1: obj.left,
+            x2: obj.left,
+            y1: -height,
+            y2: height * 2
+          })
+        }
+        obj.setCoords()
       }
-      obj.setCoords()
+    })
+
+    // 如果关键辅助线显示，重新创建它们以确保位置正确
+    if (showKeyGuidelines.value) {
+      createKeyGuidelines()
     }
+
+    baseStore.canvas.requestRenderAll()
   })
-
-  // 如果关键辅助线显示，重新创建它们以确保位置正确
-  if (showKeyGuidelines.value) {
-    createKeyGuidelines()
-  }
-
-  baseStore.canvas.requestRenderAll()
 }
 
 // 处理标尺双击事件
@@ -401,7 +406,8 @@ const updateZoom = () => {
 
   // 强制重新渲染
   baseStore.canvas.requestRenderAll()
-  updateRulers()
+
+  debouncedUpdateRulers()
 }
 
 // 添加鼠标滚轮缩放
@@ -475,7 +481,7 @@ const handleCanvasMouseMove = (e) => {
   lastY.value = e.clientY
 
   // 更新标尺
-  updateRulers()
+  debouncedUpdateRulers()
 }
 
 const handleCanvasMouseUp = () => {
@@ -566,16 +572,17 @@ onMounted(() => {
   })
 
   baseStore.setCanvas(canvas)
+
   // 更新标尺
-  updateRulers()
+  debouncedUpdateRulers()
 
   // 监听窗口大小变化
-  window.addEventListener('resize', updateRulers)
+  window.addEventListener('resize', debouncedUpdateRulers)
   
   // 监听滚动事件
   const centerArea = document.querySelector('.center-area')
   if (centerArea) {
-    centerArea.addEventListener('scroll', updateRulers)
+    centerArea.addEventListener('scroll', debouncedUpdateRulers)
   }
 
   // 添加标尺双击事件监听
@@ -671,11 +678,11 @@ onUnmounted(() => {
   }
 
   // 移除事件监听
-  window.removeEventListener('resize', updateRulers)
+  window.removeEventListener('resize', debouncedUpdateRulers)
   
   const centerArea = document.querySelector('.center-area')
   if (centerArea) {
-    centerArea.removeEventListener('scroll', updateRulers)
+    centerArea.removeEventListener('scroll', debouncedUpdateRulers)
   }
 
   // 移除标尺双击事件监听
@@ -726,7 +733,7 @@ onUnmounted(() => {
 
 // 监听画布大小变化
 watch(WATCH_SIZE, () => {
-  updateRulers()
+  debouncedUpdateRulers()
 })
 
 // 在 Canvas.vue 的 script setup 中暴露缩放方法和值

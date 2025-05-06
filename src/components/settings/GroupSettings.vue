@@ -57,7 +57,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
+import { ref, watch, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { debounce } from 'lodash-es'
 import moment from 'moment'
 import emitter from '@/utils/eventBus'
@@ -108,53 +108,59 @@ const goalProperty = ref('')
 const updateDataProperty = () => {
   const metric = getMetricByProperty(dataProperty.value || goalProperty.value, propertiesStore.allProperties)
   if (dataProperty.value) {
-    // 更新所有相关元素的数据属性
-    if (dataElement.value) {
-      dataElement.value.set('dataProperty', dataProperty.value)
-      dataElement.value.set('goalProperty', null)
-      dataElement.value.set('text', metric.defaultValue)
-    }
-    if (iconElement.value) {
-      iconElement.value.set('dataProperty', dataProperty.value)
-      iconElement.value.set('goalProperty', null)
-      iconElement.value.set('text', metric.icon)
-    }
-    if (labelElement.value) {
-      labelElement.value.set('dataProperty', dataProperty.value)
-      labelElement.value.set('goalProperty', null)
-      labelElement.value.set('text', metric.enLabel.short)
-    }
+    // 使用 nextTick 来避免同步更新导致的循环
+    nextTick(() => {
+      // 更新所有相关元素的数据属性
+      if (dataElement.value) {
+        dataElement.value.set('dataProperty', dataProperty.value)
+        dataElement.value.set('goalProperty', null)
+        dataElement.value.set('text', metric.defaultValue)
+      }
+      if (iconElement.value) {
+        iconElement.value.set('dataProperty', dataProperty.value)
+        iconElement.value.set('goalProperty', null)
+        iconElement.value.set('text', metric.icon)
+      }
+      if (labelElement.value) {
+        labelElement.value.set('dataProperty', dataProperty.value)
+        labelElement.value.set('goalProperty', null)
+        labelElement.value.set('text', metric.enLabel.short)
+      }
+      baseStore.canvas.renderAll()
+    })
   }
-  baseStore.canvas.renderAll()
 }
 
 const updateGoalProperty = () => {
   const metric = getMetricByProperty(goalProperty.value, propertiesStore.allProperties)
-   if (goalProperty.value) {
-    // 更新所有相关元素的目标属性
-    if (dataElement.value) {
-      dataElement.value.set('goalProperty', goalProperty.value)
-      dataElement.value.set('dataProperty', null)
-      dataElement.value.set('text', metric.defaultValue)
-    }
-    if (iconElement.value) {
-      iconElement.value.set('goalProperty', goalProperty.value)
-      iconElement.value.set('dataProperty', null)
-      iconElement.value.set('text', metric.icon)
-    }
-    if (labelElement.value) {
-      labelElement.value.set('goalProperty', goalProperty.value)
-      labelElement.value.set('dataProperty', null)
-      labelElement.value.set('text', metric.enLabel.short)
-    }
-    if (goalBarElement.value) {
-      goalBarElement.value.set('goalProperty', goalProperty.value)
-    }
-    if (goalArcElement.value) {
-      goalArcElement.value.set('goalProperty', goalProperty.value)
-    }
+  if (goalProperty.value) {
+    // 使用 nextTick 来避免同步更新导致的循环
+    nextTick(() => {
+      // 更新所有相关元素的目标属性
+      if (dataElement.value) {
+        dataElement.value.set('goalProperty', goalProperty.value)
+        dataElement.value.set('dataProperty', null)
+        dataElement.value.set('text', metric.defaultValue)
+      }
+      if (iconElement.value) {
+        iconElement.value.set('goalProperty', goalProperty.value)
+        iconElement.value.set('dataProperty', null)
+        iconElement.value.set('text', metric.icon)
+      }
+      if (labelElement.value) {
+        labelElement.value.set('goalProperty', goalProperty.value)
+        labelElement.value.set('dataProperty', null)
+        labelElement.value.set('text', metric.enLabel.short)
+      }
+      if (goalBarElement.value) {
+        goalBarElement.value.set('goalProperty', goalProperty.value)
+      }
+      if (goalArcElement.value) {
+        goalArcElement.value.set('goalProperty', goalProperty.value)
+      }
+      baseStore.canvas.renderAll()
+    })
   }
-  baseStore.canvas.renderAll()
 }
 
 // 初始化属性值
@@ -194,34 +200,82 @@ const isSameTypeLayer = computed(() => {
 })
 
 const updateFontSize = () => {
-  for (const element of props.elements) {
-    element.set('fontSize', fontSize.value)
-  }
-  baseStore.canvas.renderAll()
+  nextTick(() => {
+    for (const element of props.elements) {
+      element.set('fontSize', fontSize.value)
+    }
+    baseStore.canvas.renderAll()
+  })
 }
 
 const updateTextColor = () => {
-  for (const element of props.elements) {
-    element.set('fill', textColor.value)
-  }
-  baseStore.canvas.renderAll()
+  nextTick(() => {
+    for (const element of props.elements) {
+      element.set('fill', textColor.value)
+    }
+    baseStore.canvas.renderAll()
+  })
 }
 
 const updateFontFamily = () => {
-  for (const element of props.elements) {
-    element.set('fontFamily', fontFamily.value)
-  }
-  baseStore.canvas.renderAll()
+  nextTick(() => {
+    for (const element of props.elements) {
+      element.set('fontFamily', fontFamily.value)
+    }
+    baseStore.canvas.renderAll()
+  })
 }
 
 const updateOriginX = (originXVal) => {
-  for (const element of props.elements) {
-    element.set('originX', originXVal)
-    element.setCoords()
-  }
-  originX.value = originXVal
-  baseStore.canvas.renderAll()
+  nextTick(() => {
+    for (const element of props.elements) {
+      element.set('originX', originXVal)
+      element.setCoords()
+    }
+    originX.value = originXVal
+    baseStore.canvas.renderAll()
+  })
 }
+
+// 添加防抖的更新方法
+const debouncedUpdateElements = debounce(() => {
+  nextTick(() => {
+    baseStore.canvas.renderAll()
+  })
+}, 100)
+
+// 监听元素变化
+watch(
+  () => props.elements,
+  () => {
+    debouncedUpdateElements()
+  },
+  { deep: true }
+)
+
+// 监听画布变化
+watch(
+  () => baseStore.canvas,
+  () => {
+    if (baseStore.canvas) {
+      baseStore.canvas.on('object:modified', debouncedUpdateElements)
+      baseStore.canvas.on('object:moving', debouncedUpdateElements)
+      baseStore.canvas.on('object:scaling', debouncedUpdateElements)
+      baseStore.canvas.on('object:rotating', debouncedUpdateElements)
+    }
+  },
+  { immediate: true }
+)
+
+// 组件卸载时清理事件监听
+onUnmounted(() => {
+  if (baseStore.canvas) {
+    baseStore.canvas.off('object:modified', debouncedUpdateElements)
+    baseStore.canvas.off('object:moving', debouncedUpdateElements)
+    baseStore.canvas.off('object:scaling', debouncedUpdateElements)
+    baseStore.canvas.off('object:rotating', debouncedUpdateElements)
+  }
+})
 
 const showDataProperty = computed(() => {
   // 检查是否至少存在一个 data、icon 或 label 元素

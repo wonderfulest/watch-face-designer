@@ -287,7 +287,7 @@ const deleteLayer = (layer) => {
 
     baseStore.canvas.remove(layer)
     layerStore.removeLayer(layer.id)
-    updateElements() // 删除后重新排序
+    debouncedUpdateElements() // 删除后重新排序
     baseStore.canvas.discardActiveObject()
   }
 }

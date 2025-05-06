@@ -76,9 +76,16 @@ export const useBaseElementStore = defineStore('baseElement', {
 
     // 复制选中的元素
     async copySelectedElements() {
+      console.log('copySelectedElements')
       if (!this.baseStore.canvas) return
       const activeObject = this.baseStore.canvas.getActiveObject()
+      if (!activeObject) {
+        console.log('no activeObject')
+        return
+      }
+      console.log('activeObject', activeObject)
       const clonedObject = await activeObject.clone()
+      console.log('11111 clonedObject', clonedObject)
       this._clipboard = clonedObject
       // 存储到剪贴板
       localStorage.setItem('watchface-clipboard', JSON.stringify(this._clipboard))
@@ -86,26 +93,30 @@ export const useBaseElementStore = defineStore('baseElement', {
 
     // 粘贴之前复制的元素
     async pasteElements() {
+      console.log('pasteElements')
       const canvas = this.baseStore.canvas
       if (!canvas) return
       if (!this._clipboard) return
-
+      console.log('this._clipboard', this._clipboard)
       // clone again, so you can do multiple copies.
       const clonedObj = await this._clipboard.clone()
+      console.log('clonedObj', clonedObj)
       canvas.discardActiveObject()
+      console.log('clonedObj.left', clonedObj.left)
+      console.log('clonedObj.top', clonedObj.top)
       clonedObj.set({
-        left: clonedObj.left + 20,
-        top: clonedObj.top + 20,
+        left: clonedObj.left + 30,
+        top: clonedObj.top + 30,
         evented: true
       })
-      const newMetricGroup = nanoid()
+      console.log('clonedObj.left', clonedObj.left)
+      console.log('clonedObj.top', clonedObj.top)
+      console.log('clonedObj', clonedObj)
       for (const obj of clonedObj._objects) {
         const changed = {
           id: nanoid(),
           eleType: obj.eleType
         }
-        if (obj.metricGroup) changed.metricGroup = newMetricGroup
-        if (obj.metricSymbol) changed.metricSymbol = obj.metricSymbol
         obj.set(changed)
       }
       if (clonedObj instanceof ActiveSelection) {

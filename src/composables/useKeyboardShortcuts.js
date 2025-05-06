@@ -11,7 +11,7 @@ export function useKeyboardShortcuts() {
   // 检查是否在表盘编辑器页面
   const isInEditor = () => {
     console.log('isInEditor', route.name)
-    return route.name === 'Design'
+    return route.name == 'Design'
   }
 
   onMounted(() => {
@@ -85,6 +85,7 @@ export function useKeyboardShortcuts() {
     // 绑定复制粘贴快捷键
     Mousetrap.bind(['command+c', 'ctrl+c'], () => {
       if (isInEditor()) {
+        console.log('command+c')
         baseStore.copySelectedElements()
         return false
       }
@@ -92,6 +93,7 @@ export function useKeyboardShortcuts() {
 
     Mousetrap.bind(['command+v', 'ctrl+v'], () => {
       if (isInEditor()) {
+        console.log('command+v')
         baseStore.pasteElements()
         return false
       }

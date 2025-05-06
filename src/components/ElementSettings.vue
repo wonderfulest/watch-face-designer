@@ -102,7 +102,7 @@ const handleCanvasBlur = async (e) => {
 // 处理画布失焦事件
 const handleSelectionCleared = async (e) => {
   // 立即更新 activeElements
-  updateElements()
+  debouncedUpdateElements()
   
   // 触发关闭设置项事件
   if (activeElements.value.length === 0) {
@@ -134,7 +134,7 @@ const handleSelectionCleared = async (e) => {
 // 处理选中新对象事件
 const handleSelectionCreated = async (e) => {
   // 立即更新 activeElements
-  updateElements()
+  debouncedUpdateElements()
   
   // 如果当前有选中的对象，且是之前验证的对象
   const lastActiveObject = activeElements.value[0]
