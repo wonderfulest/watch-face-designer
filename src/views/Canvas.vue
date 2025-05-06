@@ -520,6 +520,11 @@ const handleKeyUp = (e) => {
 
 const backgroundColor = ref(baseStore.builder.backgroundColor)
 
+const refreshElementSettings = (opt) => {
+  console.log('refreshElementSettings', opt)
+  emitter.emit('refresh-element-settings', opt)
+}
+
 onMounted(() => {
   // 创建画布, 尺寸比手表大一些以显示边界
   const canvas = new Canvas(canvasRef.value, {
@@ -570,6 +575,18 @@ onMounted(() => {
       addGuideLine(canvas, 'vertical', pointer.x)
     }
   })
+
+  // 选择事件
+  canvas.on({
+    'selection:created selection:updated selection:cleared deselected': refreshElementSettings,
+  })
+
+  canvas.on('mouse:down', function (opt) {
+    if (opt.target) {
+      // 点击的是一个对象
+      refreshElementSettings(opt);
+    }
+  });
 
   baseStore.setCanvas(canvas)
 
