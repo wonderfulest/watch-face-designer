@@ -5,16 +5,13 @@ import _ from 'lodash'
 import { usePropertiesStore } from '@/stores/properties'
 import { encodeElement } from '@/utils/elementCodec'
 import { compareColor } from '@/utils/colorUtils'
+import { useEditorStore } from '@/stores/editorStore'
 
 export const useBaseStore = defineStore('baseStore', {
   // state
   state: () => ({
     canvas: null,
     id: null,
-    builder: {
-      zoomLevel: 1,
-      backgroundColor: '#55f5f5',
-    },
     watchFaceName: '',
     kpayId: '',
     WATCH_SIZE: 454,
@@ -29,33 +26,6 @@ export const useBaseStore = defineStore('baseStore', {
     watchFaceCircle: null,
     backgroundImage: null
   }),
-
-  // 添加持久化配置
-  persist: {
-    key: 'watch-face-builder',
-    paths: ['builder'],
-    storage: localStorage,
-    // 添加调试钩子
-    beforeRestore: (context) => {
-      // console.log('准备恢复状态:', context)
-    },
-    afterRestore: (context) => {
-      // console.log('状态恢复完成:', context)
-    },
-    serializer: {
-      serialize: (value) => {
-        // console.log('序列化状态:', value)
-        return JSON.stringify(value)
-      },
-      deserialize: (value) => {
-        // console.log('反序列化状态:', value)
-
-        const settings = JSON.parse(value)
-
-        return settings
-      }
-    }
-  },
 
   getters: {
   },
@@ -286,8 +256,8 @@ export const useBaseStore = defineStore('baseStore', {
     },
     // 添加背景
     addBackground() {
-
-      const center = this.$state.WATCH_SIZE / 2
+      const editorStore = useEditorStore()
+      const center = this.$state.WATCH_SIZE * editorStore.zoomLevel / 2
       console.log('add Background', center)
 
       // 创建表盘背景圆
@@ -297,21 +267,20 @@ export const useBaseStore = defineStore('baseStore', {
         top: center,
         originX: 'center',
         originY: 'center',
-        radius: this.$state.WATCH_SIZE / 2,
+        radius: this.$state.WATCH_SIZE * editorStore.zoomLevel / 2,
         fill: this.$state.themeBackgroundColors[this.$state.currentThemeIndex] || '#000000',
         backgroundColor: 'transparent',
         selectable: false,
         evented: true
       })
 
-      console.log('background color', this.$state.builder.backgroundColor)
       // 设置背景图片
       const currentBgImage = this.$state.themeBackgroundImages[this.$state.currentThemeIndex]
       console.log('currentBgImage', currentBgImage)
       if (currentBgImage) {
         FabricImage.fromURL(currentBgImage, (img) => {
           // 计算缩放比例以填充圆形区域
-          const scale = this.$state.WATCH_SIZE / Math.min(img.width, img.height)
+          const scale = this.$state.WATCH_SIZE * editorStore.zoomLevel / Math.min(img.width, img.height)
           this.backgroundImage = img
           img.set({
             eleType: 'background-image',
@@ -338,10 +307,11 @@ export const useBaseStore = defineStore('baseStore', {
     },
     // 更新背景元素大小和位置
     updateBackgroundElements(zoom) {
-      if (zoom && zoom != this.$state.builder.zoomLevel) {
-        this.$state.builder.zoomLevel = zoom
+      const editorStore = useEditorStore()
+      if (zoom && zoom != editorStore.zoomLevel) {
+        editorStore.updateSetting('zoomLevel', zoom)
       }
-      zoom = this.$state.builder.zoomLevel
+      zoom = editorStore.zoomLevel
       const center = this.$state.WATCH_SIZE / 2
       const radius = this.$state.WATCH_SIZE / 2
 
@@ -625,15 +595,7 @@ export const useBaseStore = defineStore('baseStore', {
 
       return config
     },
-    // 更新编辑器设置
-    updateBuilderSettings(settings) {
-      this.builder = {
-        ...this.builder,
-        ...settings
-      }
-      // 手动触发持久化
-      this.$persist()
-    },
+  
   }
 })
 

@@ -27,7 +27,7 @@
         <canvas class="ruler-vertical"></canvas>
       </div>
       <!-- 时间模拟器 -->
-      <TimeSimulator v-if="baseStore.canvas != null" />
+      <TimeSimulator v-if="baseStore.canvas != null && editorStore.showTimeSimulator" />
       <!-- 缩放控件 -->
       <div class="editor-controls">
         <ZoomControls :canvas-ref="canvasRef" />
@@ -59,6 +59,7 @@ import { usePropertiesStore } from '@/stores/properties'
 import { useMessageStore } from '@/stores/message'
 import { useFontStore } from '@/stores/fontStore'
 import { useExportStore } from '@/stores/exportStore'
+import { useEditorStore } from '@/stores/editorStore'
 import { getDesign } from '@/api/design'
 import { useImageElementStore } from '@/stores/elements/imageElement'
 import { useBaseStore } from '@/stores/baseStore'
@@ -86,6 +87,7 @@ const { waitCanvasReady } = useCanvas()
 const canvasRef = ref(null)
 const exportPanelRef = ref(null)
 const isDialogVisible = ref(false)
+const editorStore = useEditorStore()
 let saveTimer = null
 
 const changelogDialog = ref(null)
@@ -95,7 +97,7 @@ const editorSettingsDialog = ref(null)
 useKeyboardShortcuts()
 
 // 添加背景色计算属性
-const backgroundColor = computed(() => baseStore.builder?.backgroundColor || '#55f5f5')
+const backgroundColor = computed(() => editorStore.backgroundColor)
 
 // 加载设计配置
 const loadDesign = async (id) => {
@@ -151,6 +153,9 @@ const loadDesign = async (id) => {
     if (config && config.elements) {
       await loadElements(config.elements)
     }
+    // 更新背景颜色
+    canvasRef.value.updateZoom()
+
   } catch (error) {
     console.error('加载设计失败:', error)
     messageStore.error('加载设计失败')
@@ -215,10 +220,6 @@ const loadElements = async (elements) => {
 
 onMounted(() => {
   changelogDialog.value?.checkShowChangelog()
-
-  // 编辑器设置
-  const settings = baseStore.builder
-  // baseStore.updateBuilderSettings()
 
   // 检查URL参数中是否有设计ID
   const designId = route.query.id
@@ -368,7 +369,6 @@ const openEditorSettings = () => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 100;
   transition: all 0.3s;
 }
 
@@ -386,9 +386,7 @@ const openEditorSettings = () => {
   position: absolute;
   top: 60px;
   right: 20px;
-  z-index: 100;
   background: #f0f0f0;
-  padding: 8px 12px;
   border-radius: 5px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }

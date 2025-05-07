@@ -27,8 +27,8 @@ export function useKeyboardShortcuts() {
 
       // 阻止的快捷键列表
       const blockedShortcuts = [
-        'ctrl+d', 'ctrl+f', 'ctrl+h', 'ctrl+p', 'ctrl+s', 'ctrl+w',
-        'command+d', 'command+f', 'command+h', 'command+p', 'command+s', 'command+w'
+        'ctrl+d', 'ctrl+f', 'ctrl+h', 'ctrl+p', 'ctrl+s', 'ctrl+w', 'ctrl+z', 'ctrl+y',
+        'command+d', 'command+f', 'command+h', 'command+p', 'command+s', 'command+w', 'command+z', 'command+y'
       ]
 
       const key = e.key.toLowerCase()
@@ -48,52 +48,62 @@ export function useKeyboardShortcuts() {
 
     // 绑定方向键
     Mousetrap.bind('left', () => {
+      console.log('left')
       if (isInEditor()) baseStore.moveElement('left', 1)
     })
     Mousetrap.bind('right', () => {
+      console.log('right')
       if (isInEditor()) baseStore.moveElement('right', 1)
     })
     Mousetrap.bind('up', () => {
+      console.log('up')
       if (isInEditor()) baseStore.moveElement('up', 1)
     })
     Mousetrap.bind('down', () => {
+      console.log('down')
       if (isInEditor()) baseStore.moveElement('down', 1)
     })
 
     // 绑定Shift+方向键，步长翻倍
     Mousetrap.bind('shift+left', () => {
+      console.log('shift+left')
       if (isInEditor()) baseStore.moveElement('left', 2)
     })
     Mousetrap.bind('shift+right', () => {
+      console.log('shift+right')
       if (isInEditor()) baseStore.moveElement('right', 2)
     })
     Mousetrap.bind('shift+up', () => {
+      console.log('shift+up')
       if (isInEditor()) baseStore.moveElement('up', 2)
     })
     Mousetrap.bind('shift+down', () => {
+      console.log('shift+down')
       if (isInEditor()) baseStore.moveElement('down', 2)
     })
 
     // 绑定Shift+加减号，修改字体大小
     Mousetrap.bind('shift+=', () => {
+      console.log('shift+=')
       if (isInEditor()) baseStore.changeFontSize(1)
     })
     Mousetrap.bind('shift+-', () => {
+      console.log('shift+-')
       if (isInEditor()) baseStore.changeFontSize(-1)
     })
 
     // 绑定复制粘贴快捷键
     Mousetrap.bind(['command+c', 'ctrl+c'], () => {
+      console.log('command+c')
       if (isInEditor()) {
-        console.log('command+c')
         baseStore.copySelectedElements()
         return false
       }
     })
 
     Mousetrap.bind(['command+v', 'ctrl+v'], () => {
+      console.log('command+v')
       if (isInEditor()) {
-        console.log('command+v')
         baseStore.pasteElements()
         return false
       }
@@ -101,6 +111,7 @@ export function useKeyboardShortcuts() {
 
     // 绑定 App Properties 快捷键
     Mousetrap.bind(['command+,', 'ctrl+,'], () => {
+      console.log('command+,')
       if (isInEditor()) {
         emitter.emit('open-app-properties')
         return false
@@ -109,6 +120,7 @@ export function useKeyboardShortcuts() {
 
     // 绑定 View 配置面板快捷键
     Mousetrap.bind(['command+.', 'ctrl+.'], () => {
+      console.log('command+.')
       if (isInEditor()) {
         emitter.emit('open-view-properties')
         return false
@@ -123,7 +135,7 @@ export function useKeyboardShortcuts() {
       'shift+left', 'shift+right', 'shift+up', 'shift+down',
       'shift+=', 'shift+-',
       'command+c', 'ctrl+c', 'command+v', 'ctrl+v',
-      'command+,', 'ctrl+,', 'command+.', 'ctrl+.'
+      'command+,', 'ctrl+,', 'command+.', 'ctrl+.',
     ])
     // 移除事件监听
     document.removeEventListener('keydown', preventDefaultShortcuts, { capture: true })

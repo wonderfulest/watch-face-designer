@@ -200,82 +200,34 @@ const isSameTypeLayer = computed(() => {
 })
 
 const updateFontSize = () => {
-  nextTick(() => {
-    for (const element of props.elements) {
-      element.set('fontSize', fontSize.value)
-    }
-    baseStore.canvas.renderAll()
-  })
+  for (const element of props.elements) {
+    element.set('fontSize', fontSize.value)
+  }
+  baseStore.canvas.renderAll()
 }
 
 const updateTextColor = () => {
-  nextTick(() => {
-    for (const element of props.elements) {
-      element.set('fill', textColor.value)
-    }
-    baseStore.canvas.renderAll()
-  })
+  for (const element of props.elements) {
+    element.set('fill', textColor.value)
+  }
+  baseStore.canvas.renderAll()
 }
 
 const updateFontFamily = () => {
-  nextTick(() => {
-    for (const element of props.elements) {
-      element.set('fontFamily', fontFamily.value)
-    }
-    baseStore.canvas.renderAll()
-  })
+  for (const element of props.elements) {
+    element.set('fontFamily', fontFamily.value)
+  }
+  baseStore.canvas.renderAll()
 }
 
 const updateOriginX = (originXVal) => {
-  nextTick(() => {
-    for (const element of props.elements) {
-      element.set('originX', originXVal)
-      element.setCoords()
-    }
-    originX.value = originXVal
-    baseStore.canvas.renderAll()
-  })
-}
-
-// 添加防抖的更新方法
-const debouncedUpdateElements = debounce(() => {
-  nextTick(() => {
-    baseStore.canvas.renderAll()
-  })
-}, 100)
-
-// 监听元素变化
-watch(
-  () => props.elements,
-  () => {
-    debouncedUpdateElements()
-  },
-  { deep: true }
-)
-
-// 监听画布变化
-watch(
-  () => baseStore.canvas,
-  () => {
-    if (baseStore.canvas) {
-      baseStore.canvas.on('object:modified', debouncedUpdateElements)
-      baseStore.canvas.on('object:moving', debouncedUpdateElements)
-      baseStore.canvas.on('object:scaling', debouncedUpdateElements)
-      baseStore.canvas.on('object:rotating', debouncedUpdateElements)
-    }
-  },
-  { immediate: true }
-)
-
-// 组件卸载时清理事件监听
-onUnmounted(() => {
-  if (baseStore.canvas) {
-    baseStore.canvas.off('object:modified', debouncedUpdateElements)
-    baseStore.canvas.off('object:moving', debouncedUpdateElements)
-    baseStore.canvas.off('object:scaling', debouncedUpdateElements)
-    baseStore.canvas.off('object:rotating', debouncedUpdateElements)
+  for (const element of props.elements) {
+    element.set('originX', originXVal)
+    element.setCoords()
   }
-})
+  originX.value = originXVal
+  baseStore.canvas.renderAll()
+}
 
 const showDataProperty = computed(() => {
   // 检查是否至少存在一个 data、icon 或 label 元素

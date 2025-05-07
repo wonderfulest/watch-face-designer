@@ -13,12 +13,12 @@ import { initAligningGuidelines } from '@/lib/aligning_guidelines'
 import { initCenteringGuidelines } from '@/lib/centering_guidelines'
 import { throttle } from '@/utils/performance'
 import { debounce } from 'lodash-es'
+import { useEditorStore } from '@/stores/editorStore'
 const canvasRef = ref(null)
 const baseStore = useBaseStore()
 let updateInterval
 const WATCH_SIZE = computed(() => baseStore.WATCH_SIZE)
 const RULER_OFFSET = 40
-const zoomLevel = ref(1)
 const MIN_ZOOM = 0.1
 const MAX_ZOOM = 3
 const ZOOM_STEP = 0.1
@@ -27,7 +27,7 @@ const lastX = ref(0)
 const lastY = ref(0)
 const canvasOffset = ref({ x: 0, y: 0 })
 const isSpacePressed = ref(false)
-
+const editorStore = useEditorStore()
 FabricObject.customProperties = ['id', 'eleType', 'metricSymbol', 'metricGroup']
 
 // 绘制水平标尺
@@ -357,21 +357,21 @@ const toggleKeyGuidelines = () => {
 
 // 缩放功能
 const zoomIn = () => {
-  if (zoomLevel.value < MAX_ZOOM) {
-    zoomLevel.value = Math.min(zoomLevel.value + ZOOM_STEP, MAX_ZOOM)
+  if (editorStore.zoomLevel < MAX_ZOOM) {
+    editorStore.updateSetting('zoomLevel', Math.min(editorStore.zoomLevel + ZOOM_STEP, MAX_ZOOM))
     updateZoom()
   }
 }
 
 const zoomOut = () => {
-  if (zoomLevel.value > MIN_ZOOM) {
-    zoomLevel.value = Math.max(zoomLevel.value - ZOOM_STEP, MIN_ZOOM)
+  if (editorStore.zoomLevel > MIN_ZOOM) {
+    editorStore.updateSetting('zoomLevel', Math.max(editorStore.zoomLevel - ZOOM_STEP, MIN_ZOOM))
     updateZoom()
   }
 }
 
 const resetZoom = () => {
-  zoomLevel.value = 1
+  editorStore.updateSetting('zoomLevel', 1)
   updateZoom()
 }
 
@@ -382,27 +382,26 @@ const updateZoom = () => {
   // 更新容器大小
   const container = document.querySelector('.canvas-container')
   if (container) {
-    const size = WATCH_SIZE.value * zoomLevel.value
+    const size = WATCH_SIZE.value * editorStore.zoomLevel
     container.style.width = `${size}px`
     container.style.height = `${size}px`
   }
 
   // 设置新的变换矩阵，保持当前偏移
   baseStore.canvas.setViewportTransform([
-    zoomLevel.value, 0,
-    0, zoomLevel.value,
+    editorStore.zoomLevel, 0,
+    0, editorStore.zoomLevel,
     canvasOffset.value.x, canvasOffset.value.y
   ])
-
-  console.log('更新画布尺寸', WATCH_SIZE.value * zoomLevel.value)
+  console.log('更新画布尺寸', WATCH_SIZE.value * editorStore.zoomLevel)
   // 更新画布尺寸
-  const canvasSize = WATCH_SIZE.value * zoomLevel.value
+  const canvasSize = WATCH_SIZE.value * editorStore.zoomLevel
   baseStore.canvas.setWidth(canvasSize)
   baseStore.canvas.setHeight(canvasSize)
   baseStore.canvas.calcOffset()
 
   // 更新背景元素
-  baseStore.updateBackgroundElements(zoomLevel.value)
+  baseStore.updateBackgroundElements(editorStore.zoomLevel)
 
   // 强制重新渲染
   baseStore.canvas.requestRenderAll()
@@ -453,8 +452,8 @@ const handleCanvasMouseMove = (e) => {
 
   // 更新画布变换
   baseStore.canvas.setViewportTransform([
-    zoomLevel.value, 0,
-    0, zoomLevel.value,
+    editorStore.zoomLevel, 0,
+    0, editorStore.zoomLevel,
     canvasOffset.value.x, canvasOffset.value.y
   ])
 
@@ -518,7 +517,7 @@ const handleKeyUp = (e) => {
   }
 }
 
-const backgroundColor = ref(baseStore.builder.backgroundColor)
+const backgroundColor = ref(editorStore.backgroundColor)
 
 const refreshElementSettings = (opt) => {
   console.log('refreshElementSettings', opt)
@@ -528,8 +527,8 @@ const refreshElementSettings = (opt) => {
 onMounted(() => {
   // 创建画布, 尺寸比手表大一些以显示边界
   const canvas = new Canvas(canvasRef.value, {
-    width: WATCH_SIZE.value,
-    height: WATCH_SIZE.value,
+    width: WATCH_SIZE.value * editorStore.zoomLevel,
+    height: WATCH_SIZE.value * editorStore.zoomLevel,
     centeredScaling: true,  // 确保缩放以中心点为基准
     centeredRotation: true  // 确保旋转以中心点为基准
   })
@@ -758,6 +757,7 @@ defineExpose({
   zoomIn,
   zoomOut,
   resetZoom,
+  updateZoom
 })
 </script>
 

@@ -1,58 +1,93 @@
 <template>
-  <div class="zoom-controls">
-    <el-button circle @click="handleZoomOut" title="缩小">
-      <el-icon>
-        <Minus />
-      </el-icon>
-    </el-button>
-    <span class="zoom-level">{{ Math.round(zoomLevel * 100) }}%</span>
-    <el-button circle @click="handleZoomIn" title="放大">
-      <el-icon>
-        <Plus />
-      </el-icon>
-    </el-button>
-    <el-button circle @click="handleResetZoom" title="重置缩放">
-      <el-icon>
-        <Refresh />
-      </el-icon>
+  <div 
+    class="zoom-controls" 
+    :class="{ 
+      'zoom-controls-collapsed': isCollapsed,
+      'zoom-controls-hidden': !editorStore.showZoomControls 
+    }"
+  >
+    <div class="zoom-controls-content">
+      <el-button circle @click="handleZoomOut" title="缩小">
+        <el-icon>
+          <Minus />
+        </el-icon>
+      </el-button>
+      <span class="zoom-level">{{ Math.round(editorStore.zoomLevel * 100) }}%</span>
+      <el-button circle @click="handleZoomIn" title="放大">
+        <el-icon>
+          <Plus />
+        </el-icon>
+      </el-button>
+      <el-button circle @click="handleResetZoom" title="重置缩放">
+        <el-icon>
+          <Refresh />
+        </el-icon>
+      </el-button>
+    </div>
+    <el-button 
+      circle 
+      class="collapse-button"
+      @click="toggleCollapse" 
+      :title="isCollapsed ? '展开' : '收起'"
+    >
+      <Icon 
+        :icon="isCollapsed ? 'lets-icons:expand-left' : 'lets-icons:expand-right'" 
+        width="20" 
+        height="20" 
+        class="collapse-icon"
+      />
     </el-button>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { Minus, Plus, Refresh } from '@element-plus/icons-vue'
-import { useBaseStore } from '@/stores/baseStore'
-
-
+import { useEditorStore } from '@/stores/editorStore'
 
 const props = defineProps({
   canvasRef: {
     type: Object,
-    required: true
+    required: false,
+    default: null
   }
 })
 
-const baseStore = useBaseStore()
-const zoomLevel = ref(1)
+const editorStore = useEditorStore()
+const isCollapsed = ref(false)
+
+// 监听 store 中的显示状态
+watch(
+  () => editorStore.showZoomControls,
+  (newValue) => {
+    if (!newValue) {
+      isCollapsed.value = true
+    }
+  },
+  { immediate: true }
+)
 
 const handleZoomIn = () => {
-  if (zoomLevel.value < 2) {
-    zoomLevel.value += 0.1
+  if (editorStore.zoomLevel < 2) {
+    editorStore.updateSetting('zoomLevel', editorStore.zoomLevel + 0.1)
     props.canvasRef?.zoomIn()
   }
 }
 
 const handleZoomOut = () => {
-  if (zoomLevel.value > 0.5) {
-    zoomLevel.value -= 0.1
+  if (editorStore.zoomLevel > 0.5) {
+    editorStore.updateSetting('zoomLevel', editorStore.zoomLevel - 0.1)
     props.canvasRef?.zoomOut()
   }
 }
 
 const handleResetZoom = () => {
-  zoomLevel.value = 1
+  editorStore.updateSetting('zoomLevel', 1)
   props.canvasRef?.resetZoom()
+}
+
+const toggleCollapse = () => {
+  isCollapsed.value = !isCollapsed.value
 }
 </script>
 
@@ -62,6 +97,21 @@ const handleResetZoom = () => {
   align-items: center;
   gap: 2px;
   border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  padding: 4px;
+}
+
+.zoom-controls-content {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.3s ease;
+}
+
+.zoom-controls-collapsed .zoom-controls-content {
+  display: none;
 }
 
 .zoom-level {
@@ -69,6 +119,24 @@ const handleResetZoom = () => {
   color: #666;
   min-width: 50px;
   text-align: center;
+}
+
+.collapse-button {
+  margin-left: 4px;
+  border-left: 1px solid #dcdfe6;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collapse-icon {
+  color: #555555;
+  transition: transform 0.3s ease;
+}
+
+.zoom-controls-collapsed .collapse-icon {
+  transform: rotate(180deg);
 }
 
 :deep(.el-button) {
@@ -83,7 +151,18 @@ const handleResetZoom = () => {
   background-color: #ecf5ff;
 }
 
-:deep(.el-icon) {
-  font-size: 16px;
+/* 收起时的样式 */
+.zoom-controls-collapsed {
+  padding: 4px 2px;
+}
+
+.zoom-controls-collapsed .collapse-button {
+  margin-left: 0;
+  border-left: none;
+}
+
+/* 隐藏时的样式 */
+.zoom-controls-hidden {
+  display: none !important;
 }
 </style> 

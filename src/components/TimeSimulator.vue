@@ -85,7 +85,6 @@ onUnmounted(() => {
     padding: 8px 12px;
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    z-index: 100;
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
