@@ -38,8 +38,6 @@ export const useBaseElementStore = defineStore('baseElement', {
       if (element.text !== undefined) fabricObject.set('text', element.text)
 
       // 更新其他通用属性
-      // if (element.width !== undefined) fabricObject.set('width', element.width)
-      // if (element.height !== undefined) fabricObject.set('height', element.height)
       if (element.angle !== undefined) fabricObject.set('angle', element.angle)
       if (element.scaleX !== undefined) fabricObject.set('scaleX', element.scaleX)
       if (element.scaleY !== undefined) fabricObject.set('scaleY', element.scaleY)
@@ -76,16 +74,12 @@ export const useBaseElementStore = defineStore('baseElement', {
 
     // 复制选中的元素
     async copySelectedElements() {
-      console.log('copySelectedElements')
       if (!this.baseStore.canvas) return
       const activeObject = this.baseStore.canvas.getActiveObject()
       if (!activeObject) {
-        console.log('no activeObject')
         return
       }
-      console.log('activeObject', activeObject)
       const clonedObject = await activeObject.clone()
-      console.log('11111 clonedObject', clonedObject)
       this._clipboard = clonedObject
       // 存储到剪贴板
       localStorage.setItem('watchface-clipboard', JSON.stringify(this._clipboard))
@@ -93,25 +87,17 @@ export const useBaseElementStore = defineStore('baseElement', {
 
     // 粘贴之前复制的元素
     async pasteElements() {
-      console.log('pasteElements')
       const canvas = this.baseStore.canvas
       if (!canvas) return
       if (!this._clipboard) return
-      console.log('this._clipboard', this._clipboard)
       // clone again, so you can do multiple copies.
       const clonedObj = await this._clipboard.clone()
-      console.log('clonedObj', clonedObj)
       canvas.discardActiveObject()
-      console.log('clonedObj.left', clonedObj.left)
-      console.log('clonedObj.top', clonedObj.top)
       clonedObj.set({
         left: clonedObj.left + 30,
         top: clonedObj.top + 30,
         evented: true
       })
-      console.log('clonedObj.left', clonedObj.left)
-      console.log('clonedObj.top', clonedObj.top)
-      console.log('clonedObj', clonedObj)
       for (const obj of clonedObj._objects) {
         const changed = {
           id: nanoid(),

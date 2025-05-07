@@ -55,6 +55,11 @@ const indicatorAttribute = assign({}, elementAttribute, {
 })
 
 export const elementConfigs = {
+  dials: {
+    tick12: { icon: 'mdi:clock-time-eight-outline', label: '12点刻度', size: 36, ...elementAttribute, fill: '#FFFFFF' },
+    tick60: { icon: 'mdi:clock-time-eight-outline', label: '60点刻度', size: 36, ...elementAttribute, fill: '#FFFFFF' },
+    romans: { icon: 'mdi:clock-time-eight-outline', label: '罗马数字', size: 36, ...elementAttribute, fill: '#FFFFFF' },
+  },
   hands: {
     hourHand: { icon: 'mdi:clock-time-eight-outline', label: '时针', size: 36, ...elementAttribute, targetHeight: 160 },
     minuteHand: { icon: 'mdi:clock-time-eight-outline', label: '分针', size: 36, ...elementAttribute, targetHeight: 210 },
@@ -98,7 +103,6 @@ export const elementConfigs = {
   time: {
     time: { icon: 'mdi:clock-time-four-outline', label: '时间', size: 96, formatter: 'HH:mm:ss', ...elementAttribute },
     date: { icon: 'mdi:calendar', label: '日期', size: 36, ...elementAttribute },
-   
   },
   // 数据项元素
   metric: {
