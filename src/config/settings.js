@@ -1158,5 +1158,19 @@ export const SecondHandOptions = [
   { name: 'hand5', url: '/assets/analog/hands/second/5.svg' },
   // { name: 'hand6', url: '/assets/analog/hands/second/6.svg' },
   // { name: 'hand7', url: '/assets/analog/hands/second/7.svg' },
-  
 ]
+
+export const Ticks12Options = [
+  { name: 'ticks1', url: '/assets/analog/dials/ticks-12/tick-12-1.svg' },
+  // { name: 'ticks2', url: '/assets/analog/dials/ticks-12/tick-12-2.svg' },
+  // { name: 'ticks3', url: '/assets/analog/dials/ticks-12/tick-12-3.svg' },
+  // { name: 'ticks4', url: '/assets/analog/dials/ticks-12/tick-12-4.svg' },
+]
+
+export const Ticks60Options = [
+  { name: 'ticks1', url: '/assets/analog/dials/ticks-60/tick-60-1.svg' },
+  // { name: 'ticks2', url: '/assets/analog/dials/ticks-60/tick-60-2.svg' },
+  // { name: 'ticks3', url: '/assets/analog/dials/ticks-60/tick-60-3.svg' },
+  // { name: 'ticks4', url: '/assets/analog/dials/ticks-60/tick-60-4.svg' },
+]
+
