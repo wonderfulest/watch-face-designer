@@ -3,7 +3,7 @@ import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
 import { loadSVGFromURL, util } from 'fabric'
 import { nanoid } from 'nanoid'
-import { AnalogHandOptions } from '@/config/settings'
+import { SecondHandOptions } from '@/config/settings'
 export const useSecondHandStore = defineStore('secondHandElement', {
   state: () => {
     const baseStore = useBaseStore()
@@ -62,7 +62,7 @@ export const useSecondHandStore = defineStore('secondHandElement', {
     async addElement(config) {
       console.log('secondHand addElement', config)
       const id = nanoid()
-      const imageUrl = config.imageUrl || AnalogHandOptions[0].url
+      const imageUrl = config.imageUrl || SecondHandOptions[0].url
       const fill = config.fill || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
       const targetHeight = Math.min(config.targetHeight || this.defaultTargetHeight, 300)

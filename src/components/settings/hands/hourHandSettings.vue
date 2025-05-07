@@ -131,7 +131,7 @@ import ColorPicker from '@/components/color-picker/index.vue'
 import HandPicker from '@/components/hand-picker/index.vue'
 import { ElTooltip, ElMessage } from 'element-plus'
 import { Warning } from '@element-plus/icons-vue'
-import { AnalogHandOptions } from '@/config/settings'
+import { HourHandOptions } from '@/config/settings'
 
 const emit = defineEmits(['close'])
 
@@ -147,7 +147,7 @@ const hourHandStore = useHourHandStore()
 const formRef = ref(null)
 
 // 可用的时针hand
-const availableHands = ref(AnalogHandOptions)
+const availableHands = ref(HourHandOptions)
 
 const onHeightChange = (e) => {
   hourHandStore.updateHeight(props.element, e.target.value)

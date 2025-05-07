@@ -131,7 +131,7 @@ import ColorPicker from '@/components/color-picker/index.vue'
 import HandPicker from '@/components/hand-picker/index.vue'
 import { ElTooltip, ElMessage } from 'element-plus'
 import { Warning } from '@element-plus/icons-vue'
-import { AnalogHandOptions } from '@/config/settings'
+import { SecondHandOptions } from '@/config/settings'
 
 const emit = defineEmits(['close'])
 
@@ -147,7 +147,7 @@ const secondHandStore = useSecondHandStore()
 const formRef = ref(null)
 
 // 可用的秒针hand
-const availableHands = ref(AnalogHandOptions)
+const availableHands = ref(SecondHandOptions)
 
 const onHeightChange = (e) => {
   secondHandStore.updateHeight(props.element, e.target.value)

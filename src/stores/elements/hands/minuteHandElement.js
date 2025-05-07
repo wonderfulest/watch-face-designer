@@ -3,7 +3,7 @@ import { useBaseStore } from '@/stores/baseStore'
 import { useLayerStore } from '@/stores/layerStore'
 import { loadSVGFromURL, util } from 'fabric'
 import { nanoid } from 'nanoid'
-import { AnalogHandOptions } from '@/config/settings'
+import { MinuteHandOptions } from '@/config/settings'
 export const useMinuteHandStore = defineStore('minuteHandElement', {
   state: () => {
     const baseStore = useBaseStore()
@@ -62,7 +62,7 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
     async addElement(config) {
       console.log('minuteHand addElement', config)
       const id = nanoid()
-      const imageUrl = config.imageUrl || AnalogHandOptions[0].url
+      const imageUrl = config.imageUrl || MinuteHandOptions[0].url
       const fill = config.fill || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
       const targetHeight = Math.min(config.targetHeight || this.defaultTargetHeight, 300)
