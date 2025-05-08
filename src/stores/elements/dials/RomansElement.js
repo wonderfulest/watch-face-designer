@@ -53,7 +53,6 @@ export const useRomansStore = defineStore('romansElement', {
       svgGroup.scaleToWidth(this.baseStore.WATCH_SIZE)
       // 添加移动事件监听
       svgGroup.on('moving', (e) => {
-  
       })
       svgGroup.on('selected', (e) => {
       })
@@ -74,7 +73,6 @@ export const useRomansStore = defineStore('romansElement', {
       }
       element.getObjects().forEach(obj => {
         const currentFill = obj.get('fill')
-        console.log('currentFill update', currentFill)
         if (currentFill && currentFill != 'none') {
           obj.set('fill', config.fill)
         }

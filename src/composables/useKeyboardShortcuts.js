@@ -13,35 +13,35 @@ export function useKeyboardShortcuts() {
     console.log('isInEditor', route.name)
     return route.name == 'Design'
   }
+  // 阻止浏览器默认快捷键
+ const preventDefaultShortcuts = (e) => {
+    // 如果不在编辑器页面，不阻止默认行为
+    if (!isInEditor()) return
 
-  onMounted(() => {
-    // 阻止浏览器默认快捷键
-    const preventDefaultShortcuts = (e) => {
-      // 如果不在编辑器页面，不阻止默认行为
-      if (!isInEditor()) return
-
-      // 如果是在输入框内，允许默认行为
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
-        return
-      }
-
-      // 阻止的快捷键列表
-      const blockedShortcuts = [
-        'ctrl+d', 'ctrl+f', 'ctrl+h', 'ctrl+p', 'ctrl+s', 'ctrl+w', 'ctrl+z', 'ctrl+y',
-        'command+d', 'command+f', 'command+h', 'command+p', 'command+s', 'command+w', 'command+z', 'command+y'
-      ]
-
-      const key = e.key.toLowerCase()
-      const isCtrl = e.ctrlKey
-      const isCommand = e.metaKey
-      const shortcut = `${isCtrl ? 'ctrl+' : isCommand ? 'command+' : ''}${key}`
-
-      if (blockedShortcuts.includes(shortcut)) {
-        e.preventDefault()
-        e.stopImmediatePropagation()
-        return false
-      }
+    // 如果是在输入框内，允许默认行为
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+      return
     }
+
+    // 阻止的快捷键列表
+    const blockedShortcuts = [
+      'ctrl+d', 'ctrl+f', 'ctrl+h', 'ctrl+p', 'ctrl+s', 'ctrl+w', 'ctrl+z', 'ctrl+y',
+      'command+d', 'command+f', 'command+h', 'command+p', 'command+s', 'command+w', 'command+z', 'command+y'
+    ]
+
+    const key = e.key.toLowerCase()
+    const isCtrl = e.ctrlKey
+    const isCommand = e.metaKey
+    const shortcut = `${isCtrl ? 'ctrl+' : isCommand ? 'command+' : ''}${key}`
+
+    if (blockedShortcuts.includes(shortcut)) {
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      return false
+    }
+  }
+  onMounted(() => {
+   
 
     // 在捕获阶段添加事件监听
     document.addEventListener('keydown', preventDefaultShortcuts, { capture: true })
