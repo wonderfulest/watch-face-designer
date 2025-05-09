@@ -202,6 +202,7 @@ onMounted(() => {
 })
 
 const selectLayer = (layer) => {
+  console.log('select layer')
   baseStore.canvas.discardActiveObject()
   if (layer.eleType === 'global') {
     // 打开全局配置
@@ -209,8 +210,10 @@ const selectLayer = (layer) => {
     baseStore.canvas.setActiveObject(layer)
   }
   baseStore.canvas.renderAll()
-  // 更新
+  // 更新图层
   debouncedUpdateElements()
+  // 更新设置
+  emitter.emit('refresh-element-settings', {})
 }
 
 const isActived = (layerId) => {

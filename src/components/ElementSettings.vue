@@ -77,10 +77,6 @@ onUnmounted(() => {
   emitter.off('close-settings')
 })
 
-// 监听 activeElements 变化
-watch(activeElements, (newValue, oldValue) => {
-  console.log('activeElements', newValue)
-}, { immediate: true })
 
 // 获取元素图标
 const getElementIcon = (type) => {

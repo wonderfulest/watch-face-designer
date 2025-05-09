@@ -19,7 +19,6 @@ export const useRomansStore = defineStore('romansElement', {
       },
     }
   },
-
   actions: {
     async addElement(options = {}) {
       console.log('addElement romans', options)
@@ -91,7 +90,6 @@ export const useRomansStore = defineStore('romansElement', {
         imageUrl: element.imageUrl,
       }
     },
-
     decodeConfig(config) {
       return {
         eleType: 'romans',
