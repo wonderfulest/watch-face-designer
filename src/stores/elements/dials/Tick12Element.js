@@ -87,7 +87,7 @@ export const useTick12Store = defineStore('tick12Element', {
         x: element.left,
         y: element.top,
         height: element.height,
-        fill: element.fill,
+        color: element.fill,
         imageUrl: element.imageUrl,
       }
     },
@@ -98,7 +98,7 @@ export const useTick12Store = defineStore('tick12Element', {
         left: config.x,
         top: config.y,
         height: config.height,
-        fill: config.fill,
+        fill: config.color,
         imageUrl: config.imageUrl,
       }
     }

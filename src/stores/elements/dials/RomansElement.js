@@ -87,7 +87,7 @@ export const useRomansStore = defineStore('romansElement', {
         x: element.left,
         y: element.top,
         height: element.height,
-        fill: element.fill,
+        color: element.fill,
         imageUrl: element.imageUrl,
       }
     },
@@ -98,7 +98,7 @@ export const useRomansStore = defineStore('romansElement', {
         left: config.x,
         top: config.y,
         height: config.height,
-        fill: config.fill,
+        fill: config.color,
         imageUrl: config.imageUrl,
       }
     }
