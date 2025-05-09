@@ -51,104 +51,7 @@ const baseStore = useBaseStore()
 
 // 对元素进行排序
 const elements = ref([])
-const sortedElements = ref([])
 const activeElements = ref([])
-
-/**
- * 对元素进行排序：
- * 1. 按dataProperty或goalProperty分组，同一组元素必须相邻
- * 2. 按照坐标从上到下，从左到右排序
- * 3. 分组的数据根据data的坐标进行比较
- * 4. 同步排序后的顺序到canvas._objects
- */
-const sortElements = () => {
-  if (!elements.value) return
-
-  // 按dataProperty或goalProperty分组
-  const groups = {}
-  const nonMetricElements = []
-
-  elements.value.forEach((element) => {
-    if (element.dataProperty || element.goalProperty) {
-      const key = element.dataProperty || element.goalProperty
-      if (!groups[key]) {
-        groups[key] = []
-      }
-      groups[key].push(element)
-    } else {
-      nonMetricElements.push(element)
-    }
-  })
-
-  // 对每个组内的元素按类型排序（data元素放在最后）
-  Object.values(groups).forEach((group) => {
-    group.sort((a, b) => {
-      if (a.eleType === 'data') return 1
-      if (b.eleType === 'data') return -1
-      return 0
-    })
-  })
-
-  // 获取组的坐标（使用data元素的坐标）
-  const getGroupCoords = (group) => {
-    const dataElement = group.find((e) => e.eleType === 'data') || group[0]
-    return {
-      top: parseFloat(dataElement.top) || 0,
-      left: parseFloat(dataElement.left) || 0
-    }
-  }
-
-  // 坐标排序函数
-  const compareCoords = (a, b) => {
-    const aTop = parseFloat(a.top) || 0
-    const bTop = parseFloat(b.top) || 0
-    const aLeft = parseFloat(a.left) || 0
-    const bLeft = parseFloat(b.left) || 0
-
-    // 首先按top坐标排序
-    if (Math.abs(aTop - bTop) > 1) {
-      // 使用1像素的阈值来判断是否在同一行
-      return aTop - bTop
-    }
-    // 如果top坐标相近，则按left坐标排序
-    return aLeft - bLeft
-  }
-
-  // 对非分组元素按坐标排序
-  nonMetricElements.sort(compareCoords)
-
-  // 对分组按data元素坐标排序
-  const sortedGroups = Object.entries(groups)
-    .sort(([keyA, groupA], [keyB, groupB]) => {
-      const coordsA = getGroupCoords(groupA)
-      const coordsB = getGroupCoords(groupB)
-
-      // 首先按top坐标排序
-      if (Math.abs(coordsA.top - coordsB.top) > 1) {
-        return coordsA.top - coordsB.top
-      }
-      // 如果top坐标相近，则按left坐标排序
-      return coordsA.left - coordsB.left
-    })
-    .map(([_, group]) => group)
-    .flat()
-
-  // 合并所有元素
-  sortedElements.value = [...nonMetricElements, ...sortedGroups]
-
-  // 同步排序后的顺序到canvas._objects
-  const canvas = baseStore.canvas
-  if (canvas && canvas._objects) {
-    // 清空当前的objects数组
-    canvas._objects.length = 0
-    // 按照新的顺序添加对象
-    sortedElements.value.forEach((element) => {
-      canvas._objects.push(element)
-    })
-    // 触发canvas重绘
-    canvas.renderAll()
-  }
-}
 
 // 批量更新
 const batchUpdate = () => {
@@ -179,14 +82,7 @@ const setupElementListeners = () => {
           dataProperty: e.target.dataProperty,
           goalProperty: e.target.goalProperty
         }
-
-        // 使用 requestAnimationFrame 批量处理画布更新
-        requestAnimationFrame(() => {
-          sortedElements.value.forEach((element, index) => {
-            baseStore.canvas.moveObjectTo(element, index)
-          })
-          baseStore.canvas.renderAll()
-        })
+        baseStore.canvas.renderAll()
       }
     })
   })
@@ -243,8 +139,9 @@ const toggleLock = (layer) => {
 
 // 处理拖拽结束事件
 const handleDragEnd = () => {
-  // 更新画布中元素的顺序
-  sortedElements.value.forEach((element, index) => {
+  // 直接使用 draggable 提供的顺序更新画布
+  elements.value.forEach((element, index) => {
+    console.log('drag move element', element, index)
     baseStore.canvas.moveObjectTo(element, index)
   })
   baseStore.canvas.renderAll()
