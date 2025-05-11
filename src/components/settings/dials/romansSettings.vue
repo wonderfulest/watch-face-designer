@@ -8,9 +8,24 @@
         <label>数字样式</label>
         <DialPicker
           :selected-url="element.imageUrl" 
-          :available-ticks="availableTicks"
-          :on-select="handleSelect"
-          :on-upload="handleUpload"
+          :available-ticks="availableRomans"
+          :on-select="(url) => romansStore.updateSVG(element, { imageUrl: url })"
+          :on-upload="(url, fileName) => {
+            // 检查是否已存在相同名称的指针
+            const existingIndex = availableRomans.findIndex(hand => hand.name === fileName.replace('.svg', ''))
+            if (existingIndex !== -1) {
+              // 如果已存在，更新URL
+              availableRomans[existingIndex].url = url
+            } else {
+              // 如果不存在，添加到列表
+              availableRomans.push({
+                name: fileName.replace('.svg', ''),
+                url: url
+              })
+            }
+            // 更新画布
+            romansStore.updateSVG(element, { imageUrl: url })
+          }"
         />
         <div class="tips">
           <p>小贴士：</p>
@@ -87,7 +102,7 @@ const romansStore = useRomansStore()
 const formRef = ref(null)
 
 // 可用刻度资源列表
-const availableTicks = ref(RomansOptions)
+const availableRomans = ref(RomansOptions)
 
 // 更新位置
 const updatePosition = () => {
@@ -117,6 +132,7 @@ const updateColor = () => {
 
 // 处理选择
 const handleSelect = (value) => {
+  console.log('handleSelect romans dial', value)
   romansStore.updateElement(props.element, {
     style: value
   })
@@ -132,8 +148,8 @@ const handleUpload = async ({ file, content }) => {
     // TODO: 实现文件保存逻辑
     
     // 添加到可用刻度列表
-    availableTicks.value.push({
-      label: `自定义刻度 ${availableTicks.value.length + 1}`,
+    availableRomans.value.push({
+      label: `自定义刻度 ${availableRomans.value.length + 1}`,
       value: fileName,
       preview: URL.createObjectURL(file)
     })

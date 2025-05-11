@@ -245,6 +245,7 @@ const saveConfig = async () => {
 // 上传配置到服务器
 const uploadApp = async () => {
   const config = baseStore.generateConfig()
+  console.log('上传配置', config)
   if (!config) {
     messageStore.warning('没有可上传的配置')
     return -1

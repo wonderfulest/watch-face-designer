@@ -1169,6 +1169,7 @@ export const Ticks12Options = [
 
 export const Ticks60Options = [
   { name: 'ticks1', url: '/assets/analog/dials/ticks-60/tick-60-1.svg' },
+  { name: 'ticks2', url: '/assets/analog/dials/ticks-60/2-tick-dots-60.svg' },
   // { name: 'ticks2', url: '/assets/analog/dials/ticks-60/tick-60-2.svg' },
   // { name: 'ticks3', url: '/assets/analog/dials/ticks-60/tick-60-3.svg' },
   // { name: 'ticks4', url: '/assets/analog/dials/ticks-60/tick-60-4.svg' },
@@ -1176,6 +1177,7 @@ export const Ticks60Options = [
 
 export const RomansOptions = [
   { name: 'romans1', url: '/assets/analog/dials/romans/romans-1.svg' },
+  { name: 'romans2', url: '/assets/analog/dials/romans/2_amiko_display.svg' },
   // { name: 'romans2', url: '/assets/analog/dials/romans/romans-2.svg' },
   // { name: 'romans3', url: '/assets/analog/dials/romans/romans-3.svg' },
 ]

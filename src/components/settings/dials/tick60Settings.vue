@@ -9,8 +9,23 @@
         <DialPicker
           :selected-url="element.imageUrl" 
           :available-ticks="availableTicks"
-          :on-select="handleSelect"
-          :on-upload="handleUpload"
+          :on-select="(url) => tick60Store.updateSVG(element, { imageUrl: url })"
+          :on-upload="(url, fileName) => {
+            // 检查是否已存在相同名称的指针
+            const existingIndex = availableTicks.findIndex(tick => tick.name === fileName.replace('.svg', ''))
+            if (existingIndex !== -1) {
+              // 如果已存在，更新URL
+              availableTicks[existingIndex].url = url
+            } else {
+              // 如果不存在，添加到列表
+              availableTicks.push({
+                name: fileName.replace('.svg', ''),
+                url: url
+              })
+            }
+            // 更新画布
+            tick60Store.updateSVG(element, { imageUrl: url })
+          }"
         />
         <div class="tips">
           <p>小贴士：</p>
@@ -116,10 +131,8 @@ const updateColor = () => {
 }
 
 // 处理选择
-const handleSelect = (value) => {
-  tick60Store.updateElement(props.element, {
-    style: value
-  })
+const handleSelect = (url) => {
+  tick60Store.updateSVG(props.element, { imageUrl: url })
 }
 
 // 处理上传
@@ -133,10 +146,12 @@ const handleUpload = async ({ file, content }) => {
     
     // 添加到可用刻度列表
     availableTicks.value.push({
-      label: `自定义刻度 ${availableTicks.value.length + 1}`,
-      value: fileName,
-      preview: URL.createObjectURL(file)
+      name: fileName.replace('.svg', ''),
+      url: URL.createObjectURL(file)
     })
+
+    // 更新画布
+    tick60Store.updateSVG(props.element, { imageUrl: URL.createObjectURL(file) })
 
     ElMessage.success('上传成功')
   } catch (error) {

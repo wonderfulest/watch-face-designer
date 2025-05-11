@@ -480,7 +480,6 @@ export const useBaseStore = defineStore('baseStore', {
         textCase: this.textCase,
         labelLengthType: this.labelLengthType,
         showUnit: this.showUnit,
-        metricTypes: [],
         elements: [],
         orderIds: []
       }
@@ -490,11 +489,10 @@ export const useBaseStore = defineStore('baseStore', {
 
       const objects = this.canvas.getObjects()
       // 元素在同类中的下标，用于配置
-      let dataId = 0,
-        imageId = 0,
+      let imageId = 0,
         timeId = 0,
-        dateId = 0
-      let metricMap = {}
+        dateId = 0,
+        subItemId = 0
 
       // 遍历每个元素
       for (const element of objects) {
@@ -540,15 +538,6 @@ export const useBaseStore = defineStore('baseStore', {
             }
           }
         })
-        
-
-        // 获取data
-        if (encodeConfig.metricSymbol) {
-          const metric = getMetricBySymbol(encodeConfig.metricSymbol)
-          if (metric) {
-            encodeConfig.metricValue = metric.value // metricValue 作为数据项配置的默认值
-          }
-        }
 
         // 获取imageId
         if (encodeConfig.type == 'image') {
@@ -565,31 +554,11 @@ export const useBaseStore = defineStore('baseStore', {
           encodeConfig.dateId = dateId // dateId 用于标识日期配置
           dateId++
         }
-        // 获取dataId
-        if ((encodeConfig.type == 'icon' || encodeConfig.type == 'data' || encodeConfig.type == 'label' || encodeConfig.type.indexOf('progress') != -1) && !_.isEmpty(encodeConfig.varName)) {
-          if (encodeConfig.metricGroup) {
-            // 一组数据
-            if (!metricMap.hasOwnProperty(encodeConfig.metricGroup) || metricMap[encodeConfig.metricGroup] == undefined) {
-              // metricMap 用于标识数据项配置
-              metricMap[encodeConfig.metricGroup] = dataId
-              config.metricTypes.push({
-                id: dataId,
-                value: encodeConfig.metricValue,
-                varName: encodeConfig.varName
-              })
-              dataId++
-            }
-            encodeConfig.metricId = metricMap[encodeConfig.metricGroup] // metricId 用于标识数据项配置
-          } else {
-            // 单独数据
-            encodeConfig.metricId = dataId // metricId 用于标识数据项配置
-            config.metricTypes.push({
-              id: dataId,
-              value: encodeConfig.metricValue,
-              varName: encodeConfig.varName
-            })
-            dataId++
-          }
+
+        // 刻度盘 获取subItemId
+        if (encodeConfig.type == 'romans' || encodeConfig.type == 'tick12' || encodeConfig.type == 'tick60') {
+          encodeConfig.subItemId = subItemId // subItemId 用于标识子项配置
+          subItemId++
         }
 
         config.elements.push(encodeConfig)

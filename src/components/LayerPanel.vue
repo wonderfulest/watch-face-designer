@@ -88,7 +88,7 @@ const setupElementListeners = () => {
   })
 }
 
-const selectLayer = (layer) => {
+const selectLayer = async (layer) => {
   console.log('select layer')
   baseStore.canvas.discardActiveObject()
   if (layer.eleType === 'global') {
@@ -99,6 +99,7 @@ const selectLayer = (layer) => {
   baseStore.canvas.renderAll()
   // 更新图层
   debouncedUpdateElements()
+  await new Promise((resolve) => setTimeout(resolve, 100))
   // 更新设置
   emitter.emit('refresh-element-settings', {})
 }

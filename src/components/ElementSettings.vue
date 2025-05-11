@@ -67,7 +67,7 @@ onMounted(() => {
 
   // 设置事件监听
   emitter.on('refresh-element-settings', (opt) => {
-    console.log('refresh-element-settings', 111111, opt)
+    console.log('111 refresh-element-settings', 111111, opt)
     debouncedUpdateElements()
   })
 })
