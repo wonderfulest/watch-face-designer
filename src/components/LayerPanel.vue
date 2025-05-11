@@ -88,15 +88,6 @@ const setupElementListeners = () => {
   })
 }
 
-onMounted(() => {
-  debouncedUpdateElements()
-  emitter.on('refresh-canvas', (data) => {
-    debouncedUpdateElements()
-  })
-  window.addEventListener('keydown', handleKeyDown)
-  setupElementListeners() // 设置元素监听器
-})
-
 const selectLayer = (layer) => {
   console.log('select layer')
   baseStore.canvas.discardActiveObject()
@@ -255,8 +246,18 @@ const generateColorFromId = (id) => {
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`
 }
 
+onMounted(() => {
+  debouncedUpdateElements()
+  emitter.on('refresh-canvas', (data) => {
+    debouncedUpdateElements()
+  })
+  window.addEventListener('keydown', handleKeyDown)
+  setupElementListeners() // 设置元素监听器
+})
+
 onUnmounted(() => {
   emitter.off('refresh-canvas')
+  emitter.off('refresh-element-settings')
   window.removeEventListener('keydown', handleKeyDown)
 })
 </script>

@@ -153,8 +153,14 @@ const loadDesign = async (id) => {
     if (config && config.elements) {
       await loadElements(config.elements)
     }
-    // 更新背景颜色
+    // 更新画布缩放
     canvasRef.value.updateZoom()
+
+    // 等待100毫秒, fabric.js 加载元素为异步
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    // 重新排序画布
+    reorderCanvasByIds(config.orderIds)
 
   } catch (error) {
     console.error('加载设计失败:', error)
@@ -217,6 +223,18 @@ const loadElements = async (elements) => {
     messageStore.error('加载元素失败: ' + error.message)
   }
 }
+
+const reorderCanvasByIds = (orderedIds) => {
+  const objects = baseStore.canvas.getObjects();
+  orderedIds.forEach((id, index) => {
+    const obj = objects.find(o => o.id === id);
+    if (obj) {
+      console.log('重新排序元素:', obj.id, index)
+      baseStore.canvas.moveObjectTo(obj, index);
+    }
+  });
+};
+
 
 onMounted(() => {
   changelogDialog.value?.checkShowChangelog()

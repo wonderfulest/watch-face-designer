@@ -23,7 +23,7 @@ export const useTick60Store = defineStore('tick60Element', {
   actions: {
     async addElement(options = {}) {
       console.log('addElement tick 60', options)
-      const id = nanoid()
+      const id = options.id || nanoid()
       const imageUrl = options.imageUrl || Ticks60Options[0].url
       const fill = options.fill || this.defaultColors.color
       const loadedSVG = await loadSVGFromURL(imageUrl)
@@ -83,6 +83,7 @@ export const useTick60Store = defineStore('tick60Element', {
     encodeConfig(element) {
       if (!element) throw new Error('无效的元素')
       return {
+        id: element.id,
         type: 'tick60',
         x: element.left,
         y: element.top,
@@ -93,6 +94,7 @@ export const useTick60Store = defineStore('tick60Element', {
     },
     decodeConfig(config) {
       return {
+        id: config.id,
         eleType: 'tick60',
         left: config.x,
         top: config.y,

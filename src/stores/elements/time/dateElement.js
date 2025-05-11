@@ -51,7 +51,7 @@ export const useDateStore = defineStore('dateElement', {
       }
 
       try {
-        const elementId = nanoid()
+        const elementId = options.id || nanoid()
         // 确保 dateFormatter 是数字
         const dateFormatterValue = parseInt(options.dateFormatter)
         const formatterOption = DateFormatOptions.find((option) => option.value === dateFormatterValue)
@@ -198,6 +198,7 @@ export const useDateStore = defineStore('dateElement', {
     },
     encodeConfig(element) {
       return {
+        id: element.id,
         type: 'date',
         x: Math.round(element.left),
         y: Math.round(element.top),
@@ -211,6 +212,7 @@ export const useDateStore = defineStore('dateElement', {
     },
     decodeConfig(config) {
       return {
+        id: config.id,
         eleType: 'date',
         left: config.x,
         top: config.y,

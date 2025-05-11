@@ -61,7 +61,7 @@ export const useSecondHandStore = defineStore('secondHandElement', {
 
     async addElement(config) {
       console.log('secondHand addElement', config)
-      const id = nanoid()
+      const id = config.id || nanoid()
       const imageUrl = config.imageUrl || SecondHandOptions[0].url
       const fill = config.fill || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
@@ -274,6 +274,7 @@ export const useSecondHandStore = defineStore('secondHandElement', {
     encodeConfig(element) {
       if (!element) throw new Error('无效的元素')
       return {
+        id: element.id,
         type: 'secondHand',
         x: element.left,
         y: element.top,
@@ -289,6 +290,7 @@ export const useSecondHandStore = defineStore('secondHandElement', {
 
     decodeConfig(config) {
       return {
+        id: config.id,
         eleType: 'secondHand',
         left: config.x,
         top: config.y,

@@ -6,7 +6,7 @@ import { usePropertiesStore } from '@/stores/properties'
 import { encodeElement } from '@/utils/elementCodec'
 import { compareColor } from '@/utils/colorUtils'
 import { useEditorStore } from '@/stores/editorStore'
-
+import { nanoid } from 'nanoid'
 export const useBaseStore = defineStore('baseStore', {
   // state
   state: () => ({
@@ -482,6 +482,7 @@ export const useBaseStore = defineStore('baseStore', {
         showUnit: this.showUnit,
         metricTypes: [],
         elements: [],
+        orderIds: []
       }
 
       // 背景图片数组
@@ -497,6 +498,7 @@ export const useBaseStore = defineStore('baseStore', {
 
       // 遍历每个元素
       for (const element of objects) {
+        config.orderIds.push(element.id || "tianchong-" + nanoid())
         if (element.eleType === 'background-image') continue
         
         // 使用编码器系统编码元素

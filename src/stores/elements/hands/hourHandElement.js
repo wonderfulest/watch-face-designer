@@ -62,7 +62,7 @@ export const useHourHandStore = defineStore('hourHandElement', {
 
     async addElement(config) {
       console.log('hourHand addElement', config)
-      const id = nanoid()
+      const id = config.id || nanoid()
       const imageUrl = config.imageUrl || HourHandOptions[0].url
       const fill = config.fill || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
@@ -264,17 +264,16 @@ export const useHourHandStore = defineStore('hourHandElement', {
         this.updateTime()
       }, 3000)
     },
-
     stopTimeUpdate() {
       if (this.updateTimer) {
         clearInterval(this.updateTimer)
         this.updateTimer = null
       }
     },
-
     encodeConfig(element) {
       if (!element) throw new Error('无效的元素')
       return {
+        id: element.id,
         type: 'hourHand',
         x: element.left,
         y: element.top,
@@ -287,9 +286,9 @@ export const useHourHandStore = defineStore('hourHandElement', {
         moveDy: element.moveDy,
       }
     },
-
     decodeConfig(config) {
       return {
+        id: config.id,
         eleType: 'hourHand',
         left: config.x,
         top: config.y,

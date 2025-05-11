@@ -61,7 +61,7 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
 
     async addElement(config) {
       console.log('minuteHand addElement', config)
-      const id = nanoid()
+      const id = config.id || nanoid()
       const imageUrl = config.imageUrl || MinuteHandOptions[0].url
       const fill = config.fill || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
@@ -270,6 +270,7 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
     encodeConfig(element) {
       if (!element) throw new Error('无效的元素')
       return {
+        id: element.id,
         type: 'minuteHand',
         x: element.left,
         y: element.top,
@@ -285,6 +286,7 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
 
     decodeConfig(config) {
       return {
+        id: config.id,
         eleType: 'minuteHand',
         left: config.x,
         top: config.y,

@@ -22,7 +22,7 @@ export const useRomansStore = defineStore('romansElement', {
   actions: {
     async addElement(options = {}) {
       console.log('addElement romans', options)
-      const id = nanoid()
+      const id = options.id || nanoid()
       const imageUrl = options.imageUrl || RomansOptions[0].url
       const fill = options.fill || this.defaultColors.color
       const loadedSVG = await loadSVGFromURL(imageUrl)
@@ -82,6 +82,7 @@ export const useRomansStore = defineStore('romansElement', {
     encodeConfig(element) {
       if (!element) throw new Error('无效的元素')
       return {
+        id: element.id,
         type: 'romans',
         x: element.left,
         y: element.top,
@@ -92,6 +93,7 @@ export const useRomansStore = defineStore('romansElement', {
     },
     decodeConfig(config) {
       return {
+        id: config.id,
         eleType: 'romans',
         left: config.x,
         top: config.y,

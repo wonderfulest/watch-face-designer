@@ -23,7 +23,7 @@ export const useTick12Store = defineStore('tick12Element', {
   actions: {
     async addElement(options = {}) {
       console.log('addElement tick 12', options)
-      const id = nanoid()
+      const id = options.id || nanoid()
       const imageUrl = options.imageUrl || Ticks12Options[0].url
       const fill = options.fill || this.defaultColors.color
       const loadedSVG = await loadSVGFromURL(imageUrl)
@@ -83,6 +83,7 @@ export const useTick12Store = defineStore('tick12Element', {
     encodeConfig(element) {
       if (!element) throw new Error('无效的元素')
       return {
+        id: element.id,
         type: 'tick12',
         x: element.left,
         y: element.top,
@@ -94,6 +95,7 @@ export const useTick12Store = defineStore('tick12Element', {
 
     decodeConfig(config) {
       return {
+        id: config.id,
         eleType: 'tick12',
         left: config.x,
         top: config.y,

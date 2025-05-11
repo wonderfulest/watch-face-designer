@@ -32,12 +32,11 @@ export const useTimeStore = defineStore('timeStore', {
       if (!this.baseStore.canvas) {
         throw new Error('画布未初始化，无法添加时间元素')
       }
-
       try {
         let text = this.formatTime(new Date(),  options.formatter)
         const timeOptions = {
           eleType: 'time',
-          id: nanoid(),
+          id: options.id || nanoid(),
           left: options.left,
           top: options.top,
           originX: options.originX,
@@ -113,6 +112,7 @@ export const useTimeStore = defineStore('timeStore', {
     },
     encodeConfig(element) {
       return {
+        id: element.id,
         type: 'time',
         x: element.left,
         y: element.top,
@@ -126,6 +126,7 @@ export const useTimeStore = defineStore('timeStore', {
     },
     decodeConfig(config) {
       return {
+        id: config.id,
         type: 'time',
         left: config.x,
         top: config.y,
