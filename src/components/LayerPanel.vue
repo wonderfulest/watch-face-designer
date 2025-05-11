@@ -90,18 +90,19 @@ const setupElementListeners = () => {
 
 const selectLayer = async (layer) => {
   console.log('select layer')
+  
   baseStore.canvas.discardActiveObject()
   if (layer.eleType === 'global') {
     // 打开全局配置
   } else if (baseStore.canvas && layer) {
     baseStore.canvas.setActiveObject(layer)
   }
+  // 更新设置
+  emitter.emit('refresh-element-settings', {})
+  // 更新画布
   baseStore.canvas.renderAll()
   // 更新图层
   debouncedUpdateElements()
-  await new Promise((resolve) => setTimeout(resolve, 100))
-  // 更新设置
-  emitter.emit('refresh-element-settings', {})
 }
 
 const isActived = (layerId) => {

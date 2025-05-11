@@ -6,8 +6,16 @@
       <input ref="uploadInput" type="file" accept=".svg" style="display: none" @change="handleUpload" />
     </div>
     <template v-for="(hand, index) in visibleHands" :key="index">
-      <div class="hand-preview" :class="{ active: selectedUrl === hand.url }" @click="selectHand(hand.url)">
+      <div class="hand-preview" 
+           :class="{ active: selectedUrl === hand.url }" 
+           @click="selectHand(hand.url)"
+           @mouseenter="showPreview(hand)"
+           @mouseleave="hidePreview">
         <img :src="hand.url" :alt="hand.name" />
+        <div v-if="previewHand && previewHand.url === hand.url" class="preview-popup">
+          <img :src="hand.url" :alt="hand.name" />
+          <div class="preview-name">{{ hand.name }}</div>
+        </div>
       </div>
     </template>
     <div v-if="showMore" class="hand-preview more-preview" @click="toggleExpand">
@@ -49,6 +57,7 @@ const props = defineProps({
 const emit = defineEmits(['update:selectedUrl', 'update:availableTicks'])
 const uploadInput = ref(null)
 const showMore = ref(true)
+const previewHand = ref(null)
 
 // 计算可见的指针数量（每排显示5个，默认显示2排）
 const visibleHands = computed(() => {
@@ -109,14 +118,21 @@ const handleUpload = async (event) => {
     event.target.value = ''
   }
 }
+
+const showPreview = (hand) => {
+  previewHand.value = hand
+}
+
+const hidePreview = () => {
+  previewHand.value = null
+}
 </script>
 
 <style scoped>
 .image-selector {
   display: flex;
-  gap: 10px;
+  gap: 5px;
   flex-wrap: wrap;
-  max-width: 350px; /* 限制宽度，每排显示5个 */
 }
 
 .hand-preview {
@@ -124,17 +140,30 @@ const handleUpload = async (event) => {
   height: 60px;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
-  padding: 4px;
+  padding: 6px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
+  position: relative;
 }
 
 .hand-preview:hover {
   border-color: #409eff;
+  z-index: 1;
+}
+
+.hand-preview:hover img {
+  transform: none;
+}
+
+.hand-preview img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
 }
 
 .hand-preview.active {
@@ -142,15 +171,9 @@ const handleUpload = async (event) => {
   background-color: #ecf5ff;
 }
 
-.hand-preview img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
 .hand-preview span {
-  font-size: 12px;
-  margin-top: 4px;
+  font-size: 10px;
+  margin-top: 6px;
   text-align: center;
 }
 
@@ -192,5 +215,40 @@ const handleUpload = async (event) => {
 
 .more-preview:hover .more-icon {
   color: #409eff;
+}
+
+.preview-popup {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.preview-popup img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+}
+
+.preview-name {
+  font-size: 12px;
+  color: #606266;
+  margin-top: 5px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 </style>
