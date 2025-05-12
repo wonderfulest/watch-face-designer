@@ -12,7 +12,7 @@
           :on-select="(url) => romansStore.updateSVG(element, { imageUrl: url })"
           :on-upload="(url, fileName) => {
             // 检查是否已存在相同名称的指针
-            const existingIndex = availableRomans.findIndex(hand => hand.name === fileName.replace('.svg', ''))
+            const existingIndex = availableRomans.findIndex(romans => romans.name === fileName.replace('.svg', ''))
             if (existingIndex !== -1) {
               // 如果已存在，更新URL
               availableRomans[existingIndex].url = url
@@ -89,6 +89,7 @@ import { ElMessage } from 'element-plus'
 import ColorPicker from '@/components/color-picker/index.vue'
 import DialPicker from '@/components/dial-picker/index.vue'
 import { RomansOptions } from '@/config/settings'
+
 const emit = defineEmits(['close'])
 
 const props = defineProps({
