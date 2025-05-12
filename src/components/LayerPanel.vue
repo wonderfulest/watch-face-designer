@@ -259,7 +259,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   emitter.off('refresh-canvas')
-  emitter.off('refresh-element-settings')
   window.removeEventListener('keydown', handleKeyDown)
 })
 </script>

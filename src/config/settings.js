@@ -1156,8 +1156,13 @@ export const SecondHandOptions = [
   { name: 'hand3', url: '/assets/analog/hands/second/3.svg' },
   { name: 'hand4', url: '/assets/analog/hands/second/4.svg' },
   { name: 'hand5', url: '/assets/analog/hands/second/5.svg' },
-  // { name: 'hand6', url: '/assets/analog/hands/second/6.svg' },
+  { name: 'hand6', url: '/assets/analog/hands/second/6.svg' },
   // { name: 'hand7', url: '/assets/analog/hands/second/7.svg' },
+  // { name: 'hand8', url: '/assets/analog/hands/second/8.svg' },
+  // { name: 'hand9', url: '/assets/analog/hands/second/9.svg' },
+  // { name: 'hand10', url: '/assets/analog/hands/second/10.svg' },
+  // { name: 'hand11', url: '/assets/analog/hands/second/11.svg' },
+  // { name: 'hand12', url: '/assets/analog/hands/second/12.svg' },
 ]
 
 export const Ticks12Options = [
