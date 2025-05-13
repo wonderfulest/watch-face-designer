@@ -1113,6 +1113,7 @@ export function getMetricByProperty(dataProperty, propertiesStore) {
  * 时钟指针样式
  */
 export const HourHandOptions = [
+  { name: '3', url: '/assets/analog/hands/hour/03-h.svg' },
   { name: 'hand1', url: '/assets/analog/hands/hour/hand1.svg' },
   { name: 'hand2', url: '/assets/analog/hands/hour/hand2.svg' },
   { name: 'hand3', url: '/assets/analog/hands/hour/hand3.svg' },
@@ -1132,6 +1133,7 @@ export const HourHandOptions = [
 ]
 
 export const MinuteHandOptions = [
+  { name: '3', url: '/assets/analog/hands/minute/03-m.svg' },
   { name: 'hand1', url: '/assets/analog/hands/minute/hand1.svg' },
   { name: 'hand2', url: '/assets/analog/hands/minute/hand2.svg' },
   { name: 'hand3', url: '/assets/analog/hands/minute/hand3.svg' },
@@ -1157,8 +1159,8 @@ export const SecondHandOptions = [
   { name: 'hand4', url: '/assets/analog/hands/second/4.svg' },
   { name: 'hand5', url: '/assets/analog/hands/second/5.svg' },
   { name: 'hand6', url: '/assets/analog/hands/second/6.svg' },
-  // { name: 'hand7', url: '/assets/analog/hands/second/7.svg' },
-  // { name: 'hand8', url: '/assets/analog/hands/second/8.svg' },
+  { name: 'hand7', url: '/assets/analog/hands/second/7.svg' },
+  { name: 'hand8', url: '/assets/analog/hands/second/8.svg' },
   // { name: 'hand9', url: '/assets/analog/hands/second/9.svg' },
   // { name: 'hand10', url: '/assets/analog/hands/second/10.svg' },
   // { name: 'hand11', url: '/assets/analog/hands/second/11.svg' },
