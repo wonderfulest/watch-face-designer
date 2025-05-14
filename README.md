@@ -1,10 +1,44 @@
-# 新增一种组件的流程
+# 新增组件流程
 
-1. config/elements.js 中 配置组件类型
+在添加新组件时，请按照以下步骤顺序进行：
 
-1. components/AddElementPanel.vue 中 增加 对应的store.addElement 方法
+1. **配置设置**
+   - 在 `src/config/elements.js` 中添加新组件配置
+   - 在 `elementConfigs` 对象中的对应模块下添加配置
+   - 定义组件的自定义默认属性
+   - 参考示例：`time -> time` 模块
 
-1. stores/elements 下增加对应元素的 store 文件
+2. **编解码器实现**
+   - 在 `src/utils/elementCodec/` 下创建新的编解码器文件
+   - 实现三个主要组件：
+     - Adder：用于添加新组件
+     - Encoder：用于编码组件数据
+     - Decoder：用于解码组件数据
+   - 参考示例：`@timeCodec.js`
+
+3. **Store 创建**
+   - 在 `src/stores/elements/` 下创建新的组件 store
+   - 实现必要的方法：
+     - Add 方法
+     - Update 方法
+     - Encode 方法
+     - Decode 方法
+   - 参考示例：`@timeElement.js`
+
+4. **设置组件**
+   - 在 `src/components/settings/` 下创建新的设置组件
+   - 实现组件的配置界面
+   - 包含所有必要的属性控件
+   - 参考示例：`@TimeSettings.vue`
+
+## 重要注意事项
+
+- 遵循现有的模式和结构
+- 确保与现有组件系统的正确集成
+- 保持命名规范的一致性
+- 实现后进行全面测试
+
+这种结构化的方法确保了新组件能够正确地集成到系统中，同时保持代码的一致性和遵循既定的模式。
 
 ## 功能排期
 

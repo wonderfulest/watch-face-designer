@@ -19,7 +19,7 @@ export default {
   },
 
   // 更新日志数据
-   changelog: {
+  changelog: {
     // 是否启用更新日志
     enabled: true,
     // 存储在 localStorage 中的键名
@@ -30,6 +30,13 @@ export default {
       // 获取设计列表时，需要得到 设计的收藏状态，是否被当前用户收藏
       // 用户反馈评分功能 在底部自动弹出 1-10 个星星 让用户评分，可以选择输入用户建议后提交
       // },
+      {
+        version: '1.0.13',
+        date: '2025-05-14',
+        updates: [
+          '增加背景颜色配置',
+        ]
+      },
       {
         version: '1.0.12',
         date: '2025-05-10',

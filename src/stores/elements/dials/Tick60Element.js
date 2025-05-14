@@ -65,6 +65,10 @@ export const useTick60Store = defineStore('tick60Element', {
         imageUrl: imageUrl,
         targetSize: targetSize,
         fill: fill,
+        width: 1000,
+        height: 1000,
+        scaleX: 1,
+        scaleY: 1,
       })
       svgGroup.getObjects().forEach(obj => {
         const currentFill = obj.get('fill')
@@ -114,6 +118,8 @@ export const useTick60Store = defineStore('tick60Element', {
         const currentProps = {
           left: svgGroup.left,
           top: svgGroup.top,
+          width: svgGroup.width,
+          height: svgGroup.height,
           scaleX: svgGroup.scaleX,
           scaleY: svgGroup.scaleY,
           angle: svgGroup.angle,
@@ -140,8 +146,10 @@ export const useTick60Store = defineStore('tick60Element', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
-          width,
-          height,
+          width: 1000,
+          height: 1000,
+          scaleX: 1,
+          scaleY: 1,
           ...currentProps,
           imageUrl: config.imageUrl
         })

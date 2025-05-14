@@ -192,5 +192,4 @@ export const elementConfigs = {
       yFont: 'RobotoCondensed-Regular',
     }
   }
-  
 }

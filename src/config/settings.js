@@ -1108,7 +1108,6 @@ export function getMetricByProperty(dataProperty, propertiesStore) {
   return metric
 }
 
-
 /**
  * 时钟指针样式
  */
