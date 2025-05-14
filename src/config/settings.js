@@ -1169,15 +1169,15 @@ export const SecondHandOptions = [
 
 export const Ticks12Options = [
   { name: 'ticks1', url: '/assets/analog/dials/ticks-12/tick-12-1.svg' },
-  // { name: 'ticks2', url: '/assets/analog/dials/ticks-12/tick-12-2.svg' },
+  { name: 'tick87', url: '/assets/analog/dials/ticks-12/tick-12-87.svg' },
   // { name: 'ticks3', url: '/assets/analog/dials/ticks-12/tick-12-3.svg' },
   // { name: 'ticks4', url: '/assets/analog/dials/ticks-12/tick-12-4.svg' },
 ]
 
 export const Ticks60Options = [
-  { name: 'ticks1', url: '/assets/analog/dials/ticks-60/tick-60-1.svg' },
-  { name: 'ticks2', url: '/assets/analog/dials/ticks-60/2-tick-dots-60.svg' },
-  // { name: 'ticks2', url: '/assets/analog/dials/ticks-60/tick-60-2.svg' },
+  { name: 'tick1', url: '/assets/analog/dials/ticks-60/tick-60-1.svg' },
+  { name: 'tick2', url: '/assets/analog/dials/ticks-60/2-tick-dots-60.svg' },
+  { name: 'tick87', url: '/assets/analog/dials/ticks-60/tick-60-87.svg' },
   // { name: 'ticks3', url: '/assets/analog/dials/ticks-60/tick-60-3.svg' },
   // { name: 'ticks4', url: '/assets/analog/dials/ticks-60/tick-60-4.svg' },
 ]
@@ -1185,6 +1185,7 @@ export const Ticks60Options = [
 export const RomansOptions = [
   { name: 'romans1', url: '/assets/analog/dials/romans/romans-1.svg' },
   { name: 'romans2', url: '/assets/analog/dials/romans/2_amiko_display.svg' },
+  { name: 'romans87', url: '/assets/analog/dials/romans/romans-87.svg' },
   // { name: 'romans2', url: '/assets/analog/dials/romans/romans-2.svg' },
   // { name: 'romans3', url: '/assets/analog/dials/romans/romans-3.svg' },
 ]

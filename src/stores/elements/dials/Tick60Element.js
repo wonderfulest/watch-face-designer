@@ -5,6 +5,22 @@ import { loadSVGFromURL, util } from 'fabric'
 import { nanoid } from 'nanoid'
 import { Ticks60Options } from '@/config/settings'
 
+// 添加读取 SVG viewBox 的函数
+const getSVGViewBoxSize = (svgString) => {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(svgString, 'image/svg+xml')
+  const svgElement = doc.documentElement
+  const viewBox = svgElement.getAttribute('viewBox')
+  if (viewBox) {
+    const [, , width, height] = viewBox.split(' ').map(Number)
+    return { width, height }
+  }
+  // 如果没有 viewBox，则使用 width 和 height 属性
+  const width = Number(svgElement.getAttribute('width')) || 1000
+  const height = Number(svgElement.getAttribute('height')) || 1000
+  return { width, height }
+}
+
 export const useTick60Store = defineStore('tick60Element', {
   state: () => {
     const baseStore = useBaseStore()
@@ -26,24 +42,28 @@ export const useTick60Store = defineStore('tick60Element', {
       const id = options.id || nanoid()
       const imageUrl = options.imageUrl || Ticks60Options[0].url
       const fill = options.fill || this.defaultColors.color
+      const targetSize = options.targetSize || this.baseStore.WATCH_SIZE
       const loadedSVG = await loadSVGFromURL(imageUrl)
       console.log('loadedSVG', loadedSVG)
+      
+      // 获取 SVG 的原始尺寸
+      const response = await fetch(imageUrl)
+      const svgString = await response.text()
+      const { width, height } = getSVGViewBoxSize(svgString)
+      
       const svgGroup = util.groupSVGElements(loadedSVG.objects)
       svgGroup.set({
         id,
         eleType: 'tick60',
         left: options.left,
         top: options.top,
-        width: 1000,
-        height: 1000,
-        scaleX: 1,
-        scaleY: 1,
         originX: 'center',
         originY: 'center',
         selectable: true,
         hasControls: true,
         hasBorders: true,
         imageUrl: imageUrl,
+        targetSize: targetSize,
         fill: fill,
       })
       svgGroup.getObjects().forEach(obj => {
@@ -54,7 +74,7 @@ export const useTick60Store = defineStore('tick60Element', {
           obj.set('fill', fill)
         }
       })
-      svgGroup.scaleToWidth(this.baseStore.WATCH_SIZE)
+      svgGroup.scaleToWidth(targetSize)
       // 添加移动事件监听
       svgGroup.on('moving', (e) => {
       })
@@ -103,6 +123,12 @@ export const useTick60Store = defineStore('tick60Element', {
 
         this.baseStore.canvas.remove(svgGroup)
         const loadedSVG = await loadSVGFromURL(config.imageUrl)
+        
+        // 获取新 SVG 的原始尺寸
+        const response = await fetch(config.imageUrl)
+        const svgString = await response.text()
+        const { width, height } = getSVGViewBoxSize(svgString)
+        
         svgGroup = util.groupSVGElements(loadedSVG.objects)
         
         // 恢复之前保存的属性
@@ -114,6 +140,8 @@ export const useTick60Store = defineStore('tick60Element', {
           selectable: true,
           hasControls: true,
           hasBorders: true,
+          width,
+          height,
           ...currentProps,
           imageUrl: config.imageUrl
         })
@@ -131,6 +159,7 @@ export const useTick60Store = defineStore('tick60Element', {
         }
       })
 
+      svgGroup.scaleToWidth(this.baseStore.WATCH_SIZE)
       // 添加移动事件监听
       svgGroup.on('moving', (e) => {
       })

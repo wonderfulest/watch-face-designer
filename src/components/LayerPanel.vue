@@ -89,7 +89,7 @@ const setupElementListeners = () => {
 }
 
 const selectLayer = async (layer) => {
-  console.log('select layer')
+  console.log('select layer', layer)
   
   baseStore.canvas.discardActiveObject()
   if (layer.eleType === 'global') {
@@ -127,6 +127,7 @@ const toggleVisibility = (layer) => {
 }
 
 const toggleLock = (layer) => {
+  console.log('toggle lock', layer)
   layerStore.toggleLayerLock(layer.id)
 }
 

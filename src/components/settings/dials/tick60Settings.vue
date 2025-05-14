@@ -54,14 +54,18 @@
       <div class="setting-item">
         <label>尺寸</label>
         <div class="scale-inputs">
-          <div class="scale-input">
+          <div class="input-group">
+            <label>宽度</label>
+            <input type="number" :value="element.targetHeight" min="1" max="300" @change="onHeightChange($event)" />
+          </div>
+          <!-- <div class="scale-input">
             <label>宽度</label>
             <input type="number" :value="element.width" @input="(e) => (element.width = Number(e.target.value))" @change="updateSize" />
           </div>
           <div class="scale-input">
             <label>高度</label>
             <input type="number" :value="element.height" @input="(e) => (element.height = Number(e.target.value))" @change="updateSize" />
-          </div>
+          </div> -->
         </div>
       </div>
       

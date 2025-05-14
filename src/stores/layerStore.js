@@ -38,6 +38,7 @@ export const useLayerStore = defineStore('layerStore', {
       }
     },
     toggleLayerLock(layerId) {
+      console.log('toggle layer lock', layerId)
       const element = this.layers.find((l) => l.id === layerId)
       if (element) {
         element.locked = !element.locked
