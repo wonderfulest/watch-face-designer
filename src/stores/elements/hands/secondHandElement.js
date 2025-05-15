@@ -115,7 +115,7 @@ export const useSecondHandStore = defineStore('secondHandElement', {
       svgGroup.on('deselected', (e) => {
         console.log('secondHand deselected', svgGroup)
         if (!this.updateTimer) {
-          this.startTimeUpdate()
+          this.startTimeUpdate(svgGroup)
         }
       })
       svgGroup.setCoords()
@@ -167,7 +167,7 @@ export const useSecondHandStore = defineStore('secondHandElement', {
         svgGroup.on('deselected', (e) => {
           // 停止时间更新
           if (!this.updateTimer) {
-            this.startTimeUpdate()
+            this.startTimeUpdate(svgGroup)
           }
         })
         // 添加到画布
@@ -239,28 +239,28 @@ export const useSecondHandStore = defineStore('secondHandElement', {
       secondHand.setCoords()
       this.baseStore.canvas.requestRenderAll()
     },
-    updateAngle(element, angle) {
-      if (!this.baseStore.canvas) return
+    updateAngle({angle, element}) {
+      if (!this.baseStore.canvas || !element) return
       const secondHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
       if (!secondHand) return
       this.rotateHand(secondHand, angle)
     },
-    updateTime(time) {
-      if (!this.baseStore.canvas) return
+    updateTime({time, element}) {
+      if (!this.baseStore.canvas || !element) return
       
-      const secondHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'secondHand')
+      const secondHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
       if (!secondHand) return
       const angle = this.getSecondHandAngle(time)
       // 使用通用的旋转方法
       this.rotateHand(secondHand, angle)
     },
-    startTimeUpdate() {
+    startTimeUpdate(element) {
       // 先执行一次更新
-      this.updateTime()
+      this.updateTime({time: new Date(), element})
       
       // 每秒更新一次
       this.updateTimer = setInterval(() => {
-        this.updateTime()
+        this.updateTime({time: new Date(), element})
       }, 1000)
     },
 

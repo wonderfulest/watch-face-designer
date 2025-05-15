@@ -37,6 +37,7 @@ const handleTimeChange = (time: Date) => {
 }
 
 const updatePointers = () => {
+    console.log('updatePointers', simulatedTime.value)
     hourHandStore.updateTime(simulatedTime.value)
     minuteHandStore.updateTime(simulatedTime.value)
 }

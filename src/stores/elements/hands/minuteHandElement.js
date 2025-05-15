@@ -30,7 +30,9 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
      * @param {number} angle - 旋转角度
      */
     rotateHand(svgGroup, angle) {
+      if (!this.baseStore.canvas || !svgGroup) return
       const targetHeight = svgGroup.targetHeight // 指针高度
+      console.log('rotateHand targetHeight', targetHeight, svgGroup)
       const moveDy = svgGroup.moveDy || 0 // 旋转中心在Y轴上偏移的距离
       const rotationCenter = svgGroup.rotationCenter || {x: 227, y: 227} // 旋转中心; 默认是表盘中心
 
@@ -66,6 +68,7 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
       const fill = config.fill || this.defaultColors.color
       const rotationCenter = config.rotationCenter || this.defaultRotationCenter
       const targetHeight = Math.min(config.targetHeight || this.defaultTargetHeight, 300)
+      console.log('addElement targetHeight targetHeight', targetHeight)
       const moveDy = config.moveDy || 0
       const loadedSVG = await loadSVGFromURL(imageUrl)
       const svgGroup = util.groupSVGElements(loadedSVG.objects)
@@ -91,8 +94,9 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
         targetScaleX: svgGroup.scaleX,
         targetScaleY: svgGroup.scaleY
       })
+      console.log('addElement targetHeight targetHeight', targetHeight, svgGroup)
       this.rotateHand(svgGroup, 0)
-
+    
       if (Array.isArray(svgGroup._objects)) {
         svgGroup._objects.forEach((obj) => obj.set('fill', fill))
       } else if (svgGroup.type === 'path') {
@@ -114,7 +118,7 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
       })
       svgGroup.on('deselected', (e) => {
         if (!this.updateTimer) {
-          this.startTimeUpdate()
+          this.startTimeUpdate(svgGroup)
         }
       })
       svgGroup.setCoords()
@@ -164,7 +168,7 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
         })
         svgGroup.on('deselected', (e) => {
           if (!this.updateTimer) {
-            this.startTimeUpdate()
+            this.startTimeUpdate(svgGroup)
           }
         })
         // 添加到画布
@@ -187,6 +191,7 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
         targetScaleY: svgGroup.scaleY
       })
       // 旋转
+      console.log('updateHandSVG rotateHand', svgGroup)
       this.rotateHand(svgGroup, 0)
       // 更新坐标
       svgGroup.setCoords()
@@ -237,26 +242,33 @@ export const useMinuteHandStore = defineStore('minuteHandElement', {
       this.baseStore.canvas.requestRenderAll()
     },
     updateAngle(element, angle) {
-      if (!this.baseStore.canvas) return
+      if (!this.baseStore.canvas || !element) return
       const hourHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
       if (!hourHand) return
+      console.log('updateAngle', hourHand, angle)
       this.rotateHand(hourHand, angle)
     },
-    updateTime(time) {
-      if (!this.baseStore.canvas) return
-      const minuteHand = this.baseStore.canvas.getObjects().find(obj => obj.eleType === 'minuteHand') 
+    updateTime({time, element}) {
+      console.log('updateTime  1111', element, time)
+      if (!this.baseStore.canvas || !element) return
+      console.log('updateTime  2222', element, time)
+      const minuteHand = this.baseStore.canvas.getObjects().find(obj => obj.id === element.id)
       if (!minuteHand) return
       const angle = this.getMinuteHandAngle(time)
+      console.log('updateTime', minuteHand, angle)
       // 使用通用的旋转方法
       this.rotateHand(minuteHand, angle)
     },
-    startTimeUpdate() {
+    startTimeUpdate(element) {
+      if (!this.baseStore.canvas || !element) return
+      console.log('startTimeUpdate', element)
       // 先执行一次更新
-      this.updateTime()
+      this.updateTime({time: new Date(), element})
       
       // 每3秒更新一次
       this.updateTimer = setInterval(() => {
-        this.updateTime()
+        console.log('startTimeUpdate updateTime', element)
+        this.updateTime({time: new Date(), element})
       }, 3000)
     },
 
