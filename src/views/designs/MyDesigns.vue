@@ -199,7 +199,7 @@ const sortOrder = ref('desc')
 const usersList = ref([])
 
 // 添加作者显示控制
-const showCreator = ref(true)  // 默认显示作者
+const showCreator = ref(false)  // 默认隐藏作者
 
 // 获取用户列表
 const fetchUsers = async () => {
