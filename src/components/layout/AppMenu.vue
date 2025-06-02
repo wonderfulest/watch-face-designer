@@ -298,7 +298,7 @@ const handleBuild = async () => {
 const handleScreenshot = async () => {
   baseStore.deactivateObject()
   try {
-    const dataURL = await baseStore.captureScreenshot()
+    const dataURL = await baseStore.captureScreenshot(true)
     if (!dataURL) {
       throw new Error('截图数据为空')
     }

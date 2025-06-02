@@ -106,7 +106,7 @@ const loadDesign = async (id) => {
     const response = await getDesign(id)
     const designData = response.data
     const config = designData.configJson
-
+    console.log(113, config)
     // 加载属性
     propertiesStore.loadProperties(config.properties)
 
@@ -114,7 +114,11 @@ const loadDesign = async (id) => {
     baseStore.id = id
     baseStore.watchFaceName = designData.name
     baseStore.kpayId = designData.kpayId
-
+    baseStore.wpayEnabled = config.wpayEnabled
+    // 获取WPay产品信息
+    if (config.wpayEnabled) {
+      await baseStore.getWPayProductInfo()
+    }
     // 设置主题背景图片
     baseStore.themeBackgroundImages = config.themeBackgroundImages
 

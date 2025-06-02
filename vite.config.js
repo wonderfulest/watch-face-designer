@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import terser from '@rollup/plugin-terser'
 
 // 获取环境变量
 const env = process.env.NODE_ENV
@@ -40,6 +39,12 @@ export default defineConfig({
         target: 'https://api.garminface.com',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, '')  // 如果后端不需要 /api 前缀，可以启用这行
+      },
+      '/wristo-api': {
+        // target: 'http://127.0.0.1:8088',
+        target: 'https://api.wristo.io',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/wristo-api/, '/api')
       }
     },
     historyApiFallback: true // Enable history mode routing support

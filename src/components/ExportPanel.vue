@@ -68,7 +68,7 @@
  * configuration object, exporting the configuration to a JSON file, uploading the
  * configuration to the server, and copying the configuration to the clipboard.
  */
-import { createOrUpdateDesign, updateDesign } from '@/api/design'
+import { createOrUpdateDesign } from '@/api/design'
 import { uploadBase64Image, uploadImageFile } from '@/utils/image'
 import { ref, computed } from 'vue'
 import _ from 'lodash'
@@ -283,23 +283,23 @@ const uploadApp = async () => {
 
     // 上传背景图片
     currentStatus = '上传背景图片...'
-    currentProgress = 30
+    currentProgress = 20
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
     config.themeBackgroundImages = baseStore.themeBackgroundImages
-
+    
     // 上传表盘截图 - 对画布进行实时截图
     currentStatus = '上传表盘截图...'
     const screenshotRes = await uploadScreenshot()
-    currentProgress = 60
+    currentProgress = 40
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
 
     // 配置更新
     currentStatus = '更新配置信息...'
-    currentProgress = 80
+    currentProgress = 60
     if (loadingInstance) {
       loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
     }
@@ -320,8 +320,23 @@ const uploadApp = async () => {
     }
     // 创建或更新表盘设计
     const res = await createOrUpdateDesign(data)
+    console.log('createOrUpdateDesign 666', res)
     // 更新 baseStore.id
-    baseStore.id = res.documentId
+    baseStore.id = res.data.documentId
+
+    // 更新WPay产品信息(必须在设计创建或更新之后)
+    currentStatus = '更新WPay产品信息...'
+    currentProgress = 80
+    if (loadingInstance) {
+      loadingInstance.setText(`${currentStatus} (${currentProgress}%)`)
+    }
+    if (baseStore.wpayEnabled && baseStore.id) {
+      const wpayRes = await baseStore.updateWPayProductInfo()
+      if (!wpayRes) {
+        messageStore.error('更新WPay产品信息失败')
+        return -1
+      }
+    }
     currentStatus = '上传完成！'
     currentProgress = 100
     if (loadingInstance) {

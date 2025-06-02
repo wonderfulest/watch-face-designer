@@ -5,11 +5,49 @@
       <el-input type="text" v-model="watchFaceName" @change="updateWatchFaceName" />
     </div>
     <div class="setting-item">
+      <label>启用 WPay</label>
+      <el-switch v-model="wpayEnabled" @change="updateWpayEnabled" />
+      <div class="setting-description">启用后将显示 WPay 相关设置项</div>
+    </div>
+    <template v-if="wpayEnabled">
+      <div class="setting-item">
+        <label>WPay App ID</label>
+        <el-input disabled type="text" v-model="wpay.appId" />
+      </div>
+      <div class="setting-item">
+        <label>Garmin 图片</label>
+        <div class="background-image-control">
+          <el-upload action="#" :auto-upload="false" :show-file-list="false" accept=".jpg,.jpeg,.png" @change="handleGarminImageChange">
+            <el-button size="small" type="primary">选择图片</el-button>
+          </el-upload>
+          <el-button size="small" type="danger" @click="removeGarminImage" v-if="wpay.garminImageUrl">移除图片</el-button>
+        </div>
+        <div class="background-image-preview" v-if="wpay.garminImageUrl">
+          <img :src="wpay.garminImageUrl" alt="Garmin 图片预览" />
+        </div>
+        <div class="setting-description">Garmin Connect IQ Store 中显示的图片</div>
+      </div>
+      <div class="setting-item">
+        <label>Garmin Store URL</label>
+        <el-input type="text" v-model="wpay.garminStoreUrl" @change="updateWpayGarminStoreUrl" />
+        <div class="setting-description">Garmin Connect IQ Store 中的应用页面 URL</div>
+      </div>
+      <div class="setting-item">
+        <label>试用时长（小时）</label>
+        <el-input-number v-model="wpay.trialLasts" :min="0" :max="24" :step="0.25" @change="updateWpayTrialLasts" />
+        <div class="setting-description">用户可免费试用的时长，单位为小时</div>
+      </div>
+      <div class="setting-item">
+        <label>价格（美元）</label>
+        <el-input-number v-model="wpay.price" :min="0" :max="99.99" :step="0.01" :precision="2" @change="updateWpayPrice" />
+        <div class="setting-description">应用在 Garmin Connect IQ Store 中的售价</div>
+      </div>
+    </template>
+    <div class="setting-item">
       <label>Kpay ID</label>
       <el-input type="text" v-model="kpayId" @change="updateKpayId" />
     </div>
     
-    <!-- 文本大小写设置 -->
     <div class="setting-item">
       <label>文本大小写设置</label>
       <el-select v-model="textCase" placeholder="请选择文本大小写样式" @change="updateTextCase">
@@ -21,13 +59,11 @@
       <div class="setting-description">影响日期、标签等文本元素的显示样式</div>
     </div>
     
-    <!-- 是否显示数据项单位 -->
     <div class="setting-item">
       <label>是否显示数据项单位</label>
       <el-switch v-model="showUnit" @change="updateShowUnit" />
     </div>
 
-    <!-- 标签长度类型设置 -->
     <div class="setting-item">
       <label>标签长度类型</label>
       <el-select v-model="labelLengthType" placeholder="请选择标签长度类型" @change="updateLabelLengthType">
@@ -38,19 +74,18 @@
       <div class="setting-description">仅影响标签元素的显示文本长度</div>
     </div>
 
-      <!-- 背景图片选择 -->
-      <div class="setting-item">
-        <label>背景图片</label>
-        <div class="background-image-control">
-          <el-upload action="#" :auto-upload="false" :show-file-list="false" accept=".jpg,.jpeg,.png" @change="handleBackgroundImageChange">
-            <el-button size="small" type="primary">选择图片</el-button>
-          </el-upload>
-          <el-button size="small" type="danger" @click="removeBackgroundImage" v-if="currentBackgroundImage">移除图片</el-button>
-        </div>
-        <div class="background-image-preview" v-if="currentBackgroundImage">
-          <img :src="currentBackgroundImage" alt="背景图片预览" />
-        </div>
+    <div class="setting-item">
+      <label>背景图片</label>
+      <div class="background-image-control">
+        <el-upload action="#" :auto-upload="false" :show-file-list="false" accept=".jpg,.jpeg,.png" @change="handleBackgroundImageChange">
+          <el-button size="small" type="primary">选择图片</el-button>
+        </el-upload>
+        <el-button size="small" type="danger" @click="removeBackgroundImage" v-if="currentBackgroundImage">移除图片</el-button>
       </div>
+      <div class="background-image-preview" v-if="currentBackgroundImage">
+        <img :src="currentBackgroundImage" alt="背景图片预览" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -62,6 +97,8 @@ import emitter from '@/utils/eventBus'
 import { ElSelect, ElOption, ElMessage, ElLoading } from 'element-plus'
 import { uploadBase64Image, uploadImageFile } from '@/utils/image'
 import { getMetricBySymbol } from '@/config/settings'
+import { getWPayProductByDesignId, updateProductByDesignId } from '@/api/wristo/products'
+import { da } from 'element-plus/es/locales.mjs'
 const baseStore = useBaseStore()
 const currentThemeIndex = ref(0)
 // 表盘名称
@@ -85,7 +122,6 @@ const updateWatchFaceName = () => {
 const updateKpayId = () => {
   baseStore.kpayId = kpayId.value
 }
-
 
 // 文本大小写设置
 const textCase = computed({
@@ -113,7 +149,6 @@ const showUnit = computed({
 
 // 更新文本大小写设置
 const updateTextCase = (value) => {
-
   baseStore.setTextCase(value)
   
   // 打印当前画布上的所有元素类型，以便调试
@@ -196,6 +231,27 @@ watch(
   }
 )
 
+// 监听 WPay 相关设置的变化
+watch(
+  () => baseStore.wpay,
+  (newWpay) => {
+    if (newWpay !== wpay.value) {
+      wpay.value = newWpay
+    }
+  },
+  { deep: true }
+)
+
+// 监听 WPay 开关状态
+watch(
+  () => baseStore.wpayEnabled,
+  async (newValue) => {
+    if (newValue !== wpayEnabled.value) {
+      wpayEnabled.value = newValue
+    }
+  }
+)
+
 // 背景图片
 const currentBackgroundImage = computed({
   get: () => baseStore.themeBackgroundImages[currentThemeIndex.value],
@@ -268,6 +324,113 @@ const removeBackgroundImage = () => {
   currentBackgroundImage.value = ''
   baseStore.toggleThemeBackground()
 }
+
+// WPay ID
+const wpay = computed({
+  get: () => baseStore.wpay,
+  set: (value) => (baseStore.wpay = value)
+})
+
+// 更新 Garmin 图片 URL
+const updateWpayGarminImageUrl = async () => {
+  baseStore.wpay.garminImageUrl = wpay.value.garminImageUrl
+}
+
+// 更新 Garmin Store URL
+const updateWpayGarminStoreUrl = async () => {
+  baseStore.wpay.garminStoreUrl = wpay.value.garminStoreUrl
+}
+
+// 更新试用时长
+const updateWpayTrialLasts = async () => {
+  baseStore.wpay.trialLasts = wpay.value.trialLasts
+}
+
+// 更新价格
+const updateWpayPrice = async () => {
+  baseStore.wpay.price = wpay.value.price
+}
+
+// 处理 Garmin 图片变化
+const handleGarminImageChange = (file) => {
+  console.log('开始处理 Garmin 图片变化', file)
+  if (!file || !file.raw) {
+    console.warn('文件无效', file)
+    return
+  }
+
+  // 创建 loading 实例
+  const loadingInstance = ElLoading.service({
+    lock: true,
+    text: '正在上传图片...',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
+
+  const reader = new FileReader()
+  reader.onload = async (e) => {
+    try {
+      // 上传 Garmin 图片
+      const garminImage = e.target.result
+      let imageUpload = {}
+      if (garminImage && garminImage.startsWith('data:')) {
+        imageUpload = await uploadBase64Image(garminImage)
+      } else if (garminImage && garminImage.startsWith('blob:')) {
+        imageUpload = await uploadImageFile(garminImage)
+      } else if (garminImage && garminImage.startsWith('http')) {
+        imageUpload.url = garminImage
+      }
+      
+      if (!imageUpload) {
+        throw new Error('上传 Garmin 图片失败')
+      }
+      // 更新 Garmin 图片 URL
+      baseStore.wpay.garminImageUrl = imageUpload.url
+      ElMessage.success('图片上传成功')
+    } catch (error) {
+      console.error('上传 Garmin 图片失败:', error)
+      ElMessage.error('上传 Garmin 图片失败')
+    } finally {
+      // 关闭 loading
+      loadingInstance.close()
+    }
+  }
+
+  reader.onerror = (error) => {
+    console.error('读取图片出错', error)
+    ElMessage.error('读取图片失败')
+    loadingInstance.close()
+  }
+
+  reader.readAsDataURL(file.raw)
+}
+
+// 移除 Garmin 图片
+const removeGarminImage = () => {
+  baseStore.wpay.garminImageUrl = ''
+  baseStore.toggleThemeBackground()
+}
+
+// WPay 开关状态
+const wpayEnabled = computed({
+  get: () => baseStore.wpayEnabled,
+  set: (value) => (baseStore.wpayEnabled = value)
+})
+
+// 更新 WPay 开关
+const updateWpayEnabled = async () => {
+  if (!baseStore.id) {
+    const res = await baseStore.createDesign()
+    if (!res) {
+      wpayEnabled.value = false
+      return
+    }
+  }
+  if (wpayEnabled.value) {
+    await baseStore.getWPayProductInfo()
+  }
+  baseStore.wpayEnabled = wpayEnabled.value
+}
+
 </script>
 
 <style scoped>

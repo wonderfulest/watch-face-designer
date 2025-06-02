@@ -78,6 +78,10 @@
           <Icon icon="material-symbols:help-outline" />
           帮助中心
         </div>
+        <div class="dropdown-item" @click="showWPayDialog">
+          <Icon icon="material-symbols:help-outline" />
+          WPay接入
+        </div>
         <div class="dropdown-divider"></div>
         <div class="dropdown-item" @click="handleLogout">
           <Icon icon="material-symbols:logout" />
@@ -86,6 +90,7 @@
       </div>
     </div>
   </header>
+  <WPayTokenDialog ref="wpayDialogRef" />
 </template>
 
 <script setup>
@@ -94,7 +99,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useBaseStore } from '@/stores/baseStore'
 import { useAuthStore } from '@/stores/auth'
 import { useMessageStore } from '@/stores/message'
-
+import WPayTokenDialog from '../dialogs/WPayTokenDialog.vue'
 
 const props = defineProps({
   // 其他需要保留的 props
@@ -108,13 +113,13 @@ const baseStore = useBaseStore()
 const authStore = useAuthStore()
 const messageStore = useMessageStore()
 
-
 const user = computed(() => authStore.user)
 const showDropdown = ref(false)
 const designerDialogVisible = ref(false)
 const designsListDialogVisible = ref(false)
 const usernameRef = ref(null)
 const isUsernameTruncated = ref(false)
+const wpayDialogRef = ref(null)
 
 // 计算属性
 const watchFaceName = computed({
@@ -156,7 +161,6 @@ const truncatedUsername = computed(() => {
   return `${username.slice(0, maxLength)}...`
 })
 
-
 const showDesignerConfirm = () => {
   designerDialogVisible.value = true
 }
@@ -187,6 +191,10 @@ const toggleDropdown = () => {
 const handleLogout = () => {
   authStore.logout()
   router.push('/login')
+}
+
+const showWPayDialog = () => {
+  wpayDialogRef.value?.show()
 }
 
 // 生命周期钩子
