@@ -2,12 +2,15 @@
   <el-dialog
     v-model="dialogVisible"
     title="WPay接入"
-    width="400px"
+    width="600px"
     :close-on-click-modal="false"
   >
-    <el-form :model="form" label-width="120px">
+    <el-form :model="form" label-width="100px">
       <el-form-item label="API Token">
         <el-input v-model="form.token" placeholder="请输入WPay商家API Token" />
+        <div class="form-tip">
+          访问 <a href="https://merchant.wristo.io/API" target="_blank">https://merchant.wristo.io/API</a> 获取商家 API Token
+        </div>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -39,6 +42,7 @@ const handleSave = () => {
 
 defineExpose({
   show: () => {
+    form.token = localStorage.getItem('wpay_token') || ''
     dialogVisible.value = true
   }
 })
@@ -49,5 +53,21 @@ defineExpose({
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.form-tip a {
+  color: #409EFF;
+  text-decoration: none;
+}
+
+.form-tip a:hover {
+  text-decoration: underline;
 }
 </style> 
