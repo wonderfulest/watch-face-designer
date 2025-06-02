@@ -673,8 +673,6 @@ export const useBaseStore = defineStore('baseStore', {
     },
   
   },
-  // 持久化
-  persist: true
 })
 
 

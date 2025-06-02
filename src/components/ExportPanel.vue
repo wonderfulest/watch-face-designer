@@ -171,7 +171,7 @@ const dowloadConfig = async () => {
 const uploadScreenshot = async () => {
   try {
     // 先捕获最新的画布截图
-    const screenshot = await baseStore.captureScreenshot()
+    const screenshot = await baseStore.captureScreenshot(true)
     if (screenshot) {
       // 如果是开发模式，直接返回本地base64
       // if (import.meta.env.DEV) {
