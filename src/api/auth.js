@@ -27,5 +27,6 @@ export const login = async (username, password) => {
     identifier: username,
     password: password
   })
+  console.log('1111111 user login:', response.data)
   return response.data
 }

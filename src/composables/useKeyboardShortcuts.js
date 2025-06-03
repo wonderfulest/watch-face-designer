@@ -10,7 +10,6 @@ export function useKeyboardShortcuts() {
 
   // 检查是否在表盘编辑器页面
   const isInEditor = () => {
-    console.log('isInEditor', route.name)
     return route.name == 'Design'
   }
   // 阻止浏览器默认快捷键

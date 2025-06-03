@@ -24,7 +24,10 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { setWPayMerchantToken, getUser } from '@/api/users'
 
+const authStore = useAuthStore()
 const dialogVisible = ref(false)
 const form = reactive({
   token: ''
@@ -32,9 +35,14 @@ const form = reactive({
 
 const emit = defineEmits(['update:modelValue'])
 
-const handleSave = () => {
+const handleSave = async () => {
   if (form.token) {
-    localStorage.setItem('wpay_token', form.token)
+    console.log('save wpay token:', form.token)
+    const res = await setWPayMerchantToken(authStore.user.id, form.token)
+    console.log('save wpay token res:', res)
+    const user = await getUser()
+    console.log('get user res:', user)
+    authStore.user.merchant_token = user.merchant_token
     dialogVisible.value = false
     form.token = ''
   }
@@ -42,7 +50,7 @@ const handleSave = () => {
 
 defineExpose({
   show: () => {
-    form.token = localStorage.getItem('wpay_token') || ''
+    form.token = authStore.user.merchant_token || ''
     dialogVisible.value = true
   }
 })

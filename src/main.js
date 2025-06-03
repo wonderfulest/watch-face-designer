@@ -13,7 +13,6 @@ import 'element-plus/theme-chalk/src/index.scss'
 import '@/assets/styles/element-variables.scss'
 
 import emitter from '@/utils/eventBus'
-import { useAuthStore } from '@/stores/auth'
 
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
@@ -22,10 +21,6 @@ const app = createApp(App)
 
 app.use(ElementPlus)
 app.use(pinia)
-
-// 初始化认证状态
-const authStore = useAuthStore()
-authStore.initAuth()
 
 app.use(router)
 app.component('Icon', {

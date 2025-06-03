@@ -21,3 +21,24 @@ export const getUsers = async (userIds) => {
   const response = await axiosInstance.get('/users', { params })
   return response || []
 }
+
+/**
+ * 获取用户信息
+ * @param {string} id - 用户ID
+ * @returns {Promise} 用户信息
+ */
+export const getUser = async () => {
+  const response = await axiosInstance.get(`/users/me`)
+  return response.data
+}
+
+/**
+ * 设置 WPay Merchant Token
+ * @param {string} token - WPay Token
+ * @returns {Promise} 用户列表数据
+ */
+export const setWPayMerchantToken = async (id, token) => {
+  const response = await axiosInstance.post(`/users/setWPayMerchantToken`, { id, merchant_token: token })
+  return response.data
+}
+

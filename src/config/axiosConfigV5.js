@@ -15,9 +15,10 @@ const axiosInstance = axios.create({
 // 请求拦截器
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    const authStore = useAuthStore()
+    console.log('authStore.token:', authStore.token)
+    if (authStore.token) {
+      config.headers.Authorization = `Bearer ${authStore.token}`
     }
     return config
   },

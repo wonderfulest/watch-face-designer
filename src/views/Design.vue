@@ -102,7 +102,6 @@ const backgroundColor = computed(() => editorStore.backgroundColor)
 // 加载设计配置
 const loadDesign = async (id) => {
   try {
-
     const response = await getDesign(id)
     const designData = response.data
     const config = designData.configJson
@@ -119,6 +118,7 @@ const loadDesign = async (id) => {
     if (config.wpayEnabled) {
       await baseStore.getWPayProductInfo()
     }
+    console.log(114, config.themeBackgroundImages)
     // 设置主题背景图片
     baseStore.themeBackgroundImages = config.themeBackgroundImages
 
