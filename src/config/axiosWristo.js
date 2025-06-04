@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { useAuthStore } from '@/stores/auth'
 
 const instance = axios.create({
   baseURL: '/wristo-api', // 走 vite 代理
@@ -11,7 +12,8 @@ const instance = axios.create({
 
 // 请求拦截器
 instance.interceptors.request.use(config => {
-  const token = localStorage.getItem('wpay_token')
+  const authStore = useAuthStore()
+  const token = authStore.user.merchant_token
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }

@@ -1,7 +1,4 @@
 import axios from 'axios'
-import { useAuthStore } from '@/stores/auth'
-import { useMessageStore } from '@/stores/message'
-import router from '@/router'
 
 const axiosKpayInstance = axios.create({
   baseURL: 'https://api.kiezelpay.com/api',
