@@ -35,14 +35,14 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:1338',
-        // target: 'https://api.garminface.com',
+        // target: 'http://127.0.0.1:1338',
+        target: 'https://api.garminface.com',
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/api/, '')  // 如果后端不需要 /api 前缀，可以启用这行
       },
       '/wristo-api': {
-        target: 'http://127.0.0.1:8088',
-        // target: 'https://api.wristo.io',
+        // target: 'http://127.0.0.1:8088',
+        target: 'https://api.wristo.io',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/wristo-api/, '/api')
       }

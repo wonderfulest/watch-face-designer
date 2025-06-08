@@ -23,7 +23,7 @@
           <Icon icon="material-symbols:list" />
           我的设计
         </a>
-        <router-link to="/sales" class="nav-link" >
+        <router-link to="/sales" class="nav-link" v-if="authStore.user.id < 7" >
           <Icon icon="material-symbols:list" />
           销售数据
         </router-link>
